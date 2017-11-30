@@ -37,6 +37,7 @@ Plug 'w0rp/ale'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
+Plug 'terryma/vim-smooth-scroll'
 
 " use GitGutterEnable
 Plug 'airblade/vim-gitgutter'
@@ -112,6 +113,12 @@ nmap ga <Plug>(EasyAlign)
 
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
+
+" vim-smooth-scroll
+noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " fencview
 "let g:fencview_autodetect=0
