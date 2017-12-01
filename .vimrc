@@ -10,17 +10,16 @@ Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'will133/vim-dirdiff'
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'for': 'go' }
 Plug 'vim-airline/vim-airline'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/echofunc'
-"Plug 'EasyMotion'
 Plug 'sirver/UltiSnips'
 Plug 'honza/vim-snippets'
 "Plug 'scrooloose/syntastic'
 Plug 'Valloric/ListToggle'
-Plug 'orenhe/pylint.vim'
+Plug 'orenhe/pylint.vim', { 'for': 'python' }
 "Plug 'kien/ctrlp.vim'
 "Plug 'tpope/vim-surround'
 Plug 'majutsushi/tagbar'
@@ -38,19 +37,16 @@ Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
 Plug 'terryma/vim-smooth-scroll'
-
-" use GitGutterEnable
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
-
 "Plug 'lyuts/vim-rtags'
-
 "Plug 'nsf/gocode', {'rtp': 'vim/'}
 "Plug 'davidhalter/jedi-vim'
 "Plug 'mbbill/echofunc'
 "Plug 'jalcine/cmake.vim'
 "Plug 'guileen/vim-node-dict'
+
 call plug#end()
 
 " EasyMotion
@@ -64,12 +60,7 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 "let g:UltiSnipsJumpForwardTrigger="<c-b>"
 "let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
-" non github reposo
-" 非github的插件，可以直接使用其git地址
-" Plug 'git://git.wincent.com/command-t.git'
-" ...
-
-" YouCompleteMe 配置
+" YouCompleteMe
 let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/cpp/ycm/.ycm_extra_conf.py'
 nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
@@ -88,11 +79,6 @@ nmap <F9> <Plug>(ale_fix)
 " clang-format
 map <C-K> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
-"function! Formatonsave()
-"  let l:formatdiff = 1
-"  pyf ~/llvm/tools/clang/tools/clang-format/clang-format.py
-"endfunction
-"autocmd BufWritePre *.h,*.cc,*.cpp call Formatonsave()
 
 " FZF
 nnoremap <silent> <C-p> :FZF<CR>
@@ -153,14 +139,13 @@ let g:go_highlight_build_constraints = 1
 let g:go_fmt_command = 'goimports'
 "let g:go_fmt_autosave = 1
 
-
+" vim
 map <leader>cd :cd %:p:h<cr>
 
 set nocompatible
 set noerrorbells
 set helplang=cn
 "set langmenu=zn_CN.gbk
-syntax enable
 set backspace=indent,eol,start
 set cscopetag
 set cscopetagorder=1
@@ -179,9 +164,10 @@ set wrap
 set incsearch
 set noswapfile
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
-"colorscheme elflord
-colorscheme molokai
+
 filetype plugin on
+syntax enable
+colorscheme molokai
 
 augroup vimrc
 	autocmd FileType c set tags+=~/cpp_tags
