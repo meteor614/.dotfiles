@@ -181,6 +181,7 @@ map <leader>cd :cd %:p:h<cr>
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 noremap <Leader>qa :qa<cr>
+noremap <Leader>w :w<cr>
 
 "noremap <leader>h <c-w>h
 "noremap <leader>l <c-w>l
@@ -193,6 +194,8 @@ noremap <leader>p :bp<CR>
 
 noremap <c-j> 15gj
 noremap <c-k> 15gk
+noremap <m-j> 15gj
+noremap <m-k> 15gk
 
 vnoremap < <gv
 vnoremap > >gv
@@ -220,15 +223,31 @@ set hlsearch
 set autoindent
 set copyindent
 set smartindent
+set shiftround
 set cindent
 set smarttab
 set wrap
+set showmatch
+set matchtime=2
+set title
 set incsearch
 set noswapfile
 set autoread
+set gdefault            " this makes search/replace global by default
 set mouse=a
 set mousemodel=popup_setpos
+set clipboard=unnamedplus,unnamed
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+set history=1000        " remember more commands and search history
+set undolevels=1000     " use many levels of undo<Paste>
+
+" The alt (option) key on macs now behaves like the 'meta' key. This means we
+" can now use <m-x> or similar as maps. This is buffer local, and it can easily
+" be turned off when necessary (for instance, when we want to input special
+" characters) with :set nomacmeta.
+if has('gui_macvim')
+  set macmeta
+endif
 
 filetype plugin on
 syntax enable
