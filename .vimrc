@@ -125,6 +125,9 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 "let g:fencview_autodetect=0
 "map <F2> :FencView<cr>
 
+" nerdtree
+nmap <F7> :NERDTreeToggle<CR>
+
 " tagbar
 nmap <F8> :TagbarToggle<CR>
 let g:tagbar_type_go = {
