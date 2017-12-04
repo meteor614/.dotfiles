@@ -56,11 +56,18 @@ Plug 'CodeFalling/fcitx-vim-osx'
 "Plug 'guileen/vim-node-dict'
 
 "if has('nvim')
+    "Plug 'ivanov/vim-ipython'
+    "Plug 'bfredl/nvim-ipy'
 	"Plug 'frankier/neovim-colors-solarized-truecolor-only'
 	"Plug 'c0r73x/neotags.nvim'
 "endif
 
 call plug#end()
+
+" vim
+let g:mapleader=' '
+let g:maplocalleader='-'
+map <leader>cd :cd %:p:h<cr>
 
 " EasyMotion
 "let g:EasyMotion_leader_key = '<Leader>'
@@ -76,10 +83,10 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 " YouCompleteMe
 let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/cpp/ycm/.ycm_extra_conf.py'
 nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
-nnoremap <leader>g :YcmCompleter GoTo<CR>
+nnoremap <leader>gt :YcmCompleter GoTo<CR>
 nnoremap <leader>pd :YcmCompleter GoToDefinition<CR>
 nnoremap <leader>pc :YcmCompleter GoToDeclaration<CR>
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
@@ -94,12 +101,9 @@ augroup END
 " ale
 let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem /Users/admin/wbl/ -system /Users/admin/gnp/src/api/'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I/Users/admin/wbl/ -I/Users/admin/gnp/src/api/'
-nmap <silent> <F9> <Plug>(ale_previous_wrap)
-nmap <silent> <F10> <Plug>(ale_next_wrap)
-nmap <silent> <F11> <Plug>(ale_fix)
-"nmap <silent> <Leader>j <Plug>(ale_next_wrap)
-"nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
-"nmap <silent> <Leader>f <Plug>(ale_fix)
+nmap <silent> <Leader>j <Plug>(ale_next_wrap)
+nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
+nmap <silent> <Leader>f <Plug>(ale_fix)
 
 " clang-format
 map <C-K> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
@@ -126,10 +130,10 @@ noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 "map <F2> :FencView<cr>
 
 " nerdtree
-nmap <F7> :NERDTreeToggle<CR>
+nmap <F10> :NERDTreeToggle<CR>
 
 " tagbar
-nmap <F8> :TagbarToggle<CR>
+nmap <F12> :TagbarToggle<CR>
 let g:tagbar_type_go = {
 	\ 'ctagstype' : 'go',
 	\ 'kinds'     : [
@@ -176,9 +180,6 @@ else
 endif
 
 " vim
-let mapleader=' '
-let maplocalleader='-'
-map <leader>cd :cd %:p:h<cr>
 
 " Format Jump
 nnoremap <silent> g; g;zz
@@ -231,6 +232,8 @@ set cindent
 set smarttab
 set wrap
 set showmatch
+set showcmd
+set ruler
 set matchtime=2
 set title
 set incsearch
@@ -261,20 +264,10 @@ let g:python2_host_prog='/usr/local/bin/python2'
 let g:python3_host_prog='/usr/local/bin/python3'
 
 augroup vimrc
-	autocmd FileType c set tags+=~/cpp_tags
-	autocmd FileType cpp set tags+=~/cpp_tags
+	autocmd FileType c,cpp set tags+=~/cpp_tags
 
-	autocmd FileType java set foldmethod=syntax
-	autocmd FileType java set foldlevel=100
-
-	autocmd FileType c set foldmethod=syntax
-	autocmd FileType c set foldlevel=100
-
-	autocmd FileType cpp set foldmethod=syntax
-	autocmd FileType cpp set foldlevel=100
-
-	autocmd FileType go set foldmethod=syntax
-	autocmd FileType go set foldlevel=100
+	autocmd FileType java,c,cpp,go set foldmethod=syntax
+	autocmd FileType java,c,cpp,go set foldlevel=100
 augroup END
 
 set guifont=Monaco:h13   " 设置默认字体为monaco
