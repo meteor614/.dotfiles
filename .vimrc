@@ -5,7 +5,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
 Plug 'mileszs/ack.vim'
-Plug 'vim-scripts/taglist.vim'
+"Plug 'vim-scripts/taglist.vim'
 Plug 'vim-scripts/a.vim'
 Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -27,6 +27,7 @@ Plug 'majutsushi/tagbar'
 Plug 'simplyzhao/cscope_maps.vim'
 Plug 'tomasr/molokai'
 Plug 'ajh17/Spacegray.vim'
+Plug 'Valloric/vim-valloric-colorscheme'
 "Plug 'tenfyzhong/CompleteParameter.vim'
 "Plug 'gilligan/vim-lldb'
 Plug 'junegunn/vim-xmark', { 'do': 'make' }
@@ -43,6 +44,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 Plug 'jpalardy/vim-slime'
+Plug 'Valloric/MatchTagAlways'
 "Plug 'neomake/neomake'
 
 " 进入vim normal模式时，自动切换为英文输入法
@@ -64,10 +66,11 @@ Plug 'CodeFalling/fcitx-vim-osx'
 
 call plug#end()
 
-" vim
+" vim common
 let g:mapleader=' '
 let g:maplocalleader='-'
-map <leader>cd :cd %:p:h<cr>
+let g:python2_host_prog='/usr/local/bin/python2'
+let g:python3_host_prog='/usr/local/bin/python3'
 
 " EasyMotion
 "let g:EasyMotion_leader_key = '<Leader>'
@@ -85,7 +88,7 @@ nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
-let g:ycm_python_binary_path = '/usr/local/bin/python3'
+let g:ycm_python_binary_path = g:python3_host_prog
 "let g:ycm_collect_identifiers_from_tags_files = 1
 
 " vim-javacomplete2
@@ -103,6 +106,9 @@ nmap <silent> <Leader>f <Plug>(ale_fix)
 " clang-format
 map <C-K> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
+
+" asyncrun
+noremap <Leader>ma :AsyncRun make<cr>
 
 " FZF
 nnoremap <silent> <C-p> :FZF<CR>
@@ -175,12 +181,14 @@ else
 endif
 
 " vim
+map <leader>cd :cd %:p:h<cr>
 
-" Format Jump
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
+
 noremap <Leader>qa :qa<cr>
 noremap <Leader>w :w<cr>
+noremap <leader>v :e ~/.vimrc<CR>
 
 "noremap <leader>h <c-w>h
 "noremap <leader>l <c-w>l
@@ -255,9 +263,6 @@ syntax enable
 "colorscheme molokai
 colorscheme spacegray
 
-let g:python2_host_prog='/usr/local/bin/python2'
-let g:python3_host_prog='/usr/local/bin/python3'
-
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
 
@@ -265,16 +270,16 @@ augroup vimrc
 	autocmd FileType java,c,cpp,go set foldlevel=100
 augroup END
 
-set guifont=Monaco:h13   " 设置默认字体为monaco
-"set guifontwide=方正准圆简体:h13
-"set guifontwide=幼圆:h13
 if has('gui_running')
+    set guifont=Monaco:h13   " 设置默认字体为monaco
+    set guifontwide=Microsoft\ YaHei:h13
     "set go=aAce              " 去掉难看的工具栏和滑动条
     set transparency=15      " 透明背景
     set showtabline=2        " 开启自带的tab栏
 	"set ambiwidth=double
     "set columns=140          " 设置宽
     "set lines=40             " 设置长
+    "colorscheme valloric
 endif
 
 if has('nvim')
