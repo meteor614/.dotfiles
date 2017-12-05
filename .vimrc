@@ -3,6 +3,8 @@ scriptencoding utf-8
 call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
+"Plug 'davidhalter/jedi-vim', {'for': 'python'}
+Plug 'python-mode/python-mode', {'for': 'python'}
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
 Plug 'mileszs/ack.vim'
 "Plug 'vim-scripts/taglist.vim'
@@ -39,7 +41,7 @@ Plug 'w0rp/ale'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
-Plug 'terryma/vim-smooth-scroll'
+"Plug 'terryma/vim-smooth-scroll'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
@@ -52,7 +54,6 @@ Plug 'CodeFalling/fcitx-vim-osx'
 
 "Plug 'lyuts/vim-rtags'
 "Plug 'nsf/gocode', {'rtp': 'vim/'}
-"Plug 'davidhalter/jedi-vim'
 "Plug 'mbbill/echofunc'
 "Plug 'jalcine/cmake.vim'
 "Plug 'guileen/vim-node-dict'
@@ -82,13 +83,15 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 
 " YouCompleteMe
 let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+let g:ycm_key_invoke_completion = ''
 nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
 nnoremap <leader>gt :YcmCompleter GoTo<CR>
 nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
-let g:ycm_python_binary_path = g:python3_host_prog
+"let g:ycm_python_binary_path = g:python3_host_prog
+let g:ycm_python_binary_path = '/usr/local/bin/python3'
 "let g:ycm_collect_identifiers_from_tags_files = 1
 
 " vim-javacomplete2
@@ -121,10 +124,10 @@ nmap ga <Plug>(EasyAlign)
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
 
 " vim-smooth-scroll
-noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+"noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+"noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+"noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+"noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " fencview
 "let g:fencview_autodetect=0
@@ -180,6 +183,10 @@ else
 	let g:slime_target = 'vimterminal'
 endif
 
+" python-mode
+let g:pymode_options_colorcolumn = 0
+autocmd vimrc FileType python setlocal wrap   " undo python-mode change
+
 " vim
 map <leader>cd :cd %:p:h<cr>
 
@@ -189,6 +196,7 @@ nnoremap <silent> g, g,zz
 noremap <Leader>qa :qa<cr>
 noremap <Leader>w :w<cr>
 noremap <leader>v :e ~/.vimrc<CR>
+noremap <leader>vs :source ~/.vimrc<CR>
 
 "noremap <leader>h <c-w>h
 "noremap <leader>l <c-w>l
@@ -267,7 +275,8 @@ augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
 
 	autocmd FileType java,c,cpp,go set foldmethod=syntax
-	autocmd FileType java,c,cpp,go set foldlevel=100
+	autocmd FileType python set foldmethod=indent
+	autocmd FileType java,c,cpp,go,python set foldlevel=100
 augroup END
 
 if has('gui_running')
