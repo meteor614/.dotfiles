@@ -3,7 +3,6 @@ scriptencoding utf-8
 call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
-"Plug 'davidhalter/jedi-vim', {'for': 'python'}
 Plug 'python-mode/python-mode', {'for': 'python'}
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
 Plug 'mileszs/ack.vim'
@@ -27,9 +26,6 @@ Plug 'orenhe/pylint.vim', { 'for': 'python' }
 "Plug 'tpope/vim-surround'
 Plug 'majutsushi/tagbar'
 Plug 'simplyzhao/cscope_maps.vim'
-Plug 'tomasr/molokai'
-Plug 'ajh17/Spacegray.vim'
-Plug 'Valloric/vim-valloric-colorscheme'
 "Plug 'tenfyzhong/CompleteParameter.vim'
 "Plug 'gilligan/vim-lldb'
 Plug 'junegunn/vim-xmark', { 'do': 'make' }
@@ -52,15 +48,16 @@ Plug 'Valloric/MatchTagAlways'
 " 进入vim normal模式时，自动切换为英文输入法
 Plug 'CodeFalling/fcitx-vim-osx'
 
+" 配色方案
+Plug 'tomasr/molokai'
+Plug 'ajh17/Spacegray.vim'
+Plug 'Valloric/vim-valloric-colorscheme'
+
 "Plug 'lyuts/vim-rtags'
 "Plug 'nsf/gocode', {'rtp': 'vim/'}
-"Plug 'mbbill/echofunc'
 "Plug 'jalcine/cmake.vim'
-"Plug 'guileen/vim-node-dict'
 
 "if has('nvim')
-    "Plug 'ivanov/vim-ipython'
-    "Plug 'bfredl/nvim-ipy'
 	"Plug 'frankier/neovim-colors-solarized-truecolor-only'
 	"Plug 'c0r73x/neotags.nvim'
 "endif
@@ -187,8 +184,20 @@ endif
 let g:pymode_options_colorcolumn = 0
 autocmd vimrc FileType python setlocal wrap   " undo python-mode change
 
+" dash
+nmap <silent> <leader>h <Plug>DashSearch
+
 " vim
 map <leader>cd :cd %:p:h<cr>
+
+nnoremap ; :
+
+" Keep search pattern at the center of the screen.
+nnoremap <silent> n nzz
+nnoremap <silent> N Nzz
+nnoremap <silent> * *zz
+nnoremap <silent> # #zz
+nnoremap <silent> g* g*zz
 
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
@@ -196,7 +205,10 @@ nnoremap <silent> g, g,zz
 noremap <Leader>qa :qa<cr>
 noremap <Leader>w :w<cr>
 noremap <leader>v :e ~/.vimrc<CR>
-noremap <leader>vs :source ~/.vimrc<CR>
+cmap w!! w !sudo tee >/dev/null %
+
+" 去掉上次搜索高亮
+noremap <silent><leader>/ :nohls<CR>
 
 "noremap <leader>h <c-w>h
 "noremap <leader>l <c-w>l
@@ -257,14 +269,7 @@ set clipboard=unnamedplus,unnamed
 set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
 set history=1000        " remember more commands and search history
 set undolevels=1000     " use many levels of undo<Paste>
-
-" The alt (option) key on macs now behaves like the 'meta' key. This means we
-" can now use <m-x> or similar as maps. This is buffer local, and it can easily
-" be turned off when necessary (for instance, when we want to input special
-" characters) with :set nomacmeta.
-if has('gui_macvim')
-  set macmeta
-endif
+set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
 
 filetype plugin on
 syntax enable
@@ -273,11 +278,20 @@ colorscheme spacegray
 
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
+    autocmd FileType vim map <buffer> <leader>r :source %<CR>
 
 	autocmd FileType java,c,cpp,go set foldmethod=syntax
 	autocmd FileType python set foldmethod=indent
 	autocmd FileType java,c,cpp,go,python set foldlevel=100
 augroup END
+
+" The alt (option) key on macs now behaves like the 'meta' key. This means we
+" can now use <m-x> or similar as maps. This is buffer local, and it can easily
+" be turned off when necessary (for instance, when we want to input special
+" characters) with :set nomacmeta.
+if has('gui_macvim')
+    set macmeta
+endif
 
 if has('gui_running')
     set guifont=Monaco:h13   " 设置默认字体为monaco
