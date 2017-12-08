@@ -67,7 +67,9 @@ call plug#end()
 " vim common
 let g:mapleader=' '
 let g:maplocalleader='-'
+let g:python2_host_skip_check=1
 let g:python2_host_prog='/usr/local/bin/python2'
+let g:python3_host_skip_check=1
 let g:python3_host_prog='/usr/local/bin/python3'
 
 " EasyMotion
@@ -139,28 +141,28 @@ let g:tagbar_type_go = {
 	\ 'ctagstype' : 'go',
 	\ 'kinds'     : [
 		\ 'p:package',
-	\ 'i:imports:1',
-	\ 'c:constants',
-	\ 'v:variables',
-	\ 't:types',
-	\ 'n:interfaces',
-	\ 'w:fields',
-	\ 'e:embedded',
-	\ 'm:methods',
-	\ 'r:constructor',
-	\ 'f:functions'
-		\ ],
-		\ 'sro' : '.',
-		\ 'kind2scope' : {
-			\ 't' : 'ctype',
-			\ 'n' : 'ntype'
-				\ },
-		\ 'scope2kind' : {
-			\ 'ctype' : 't',
-			\ 'ntype' : 'n'
-				\ },
-		\ 'ctagsbin'  : 'gotags',
-		\ 'ctagsargs' : '-sort -silent'
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
 \ }
 
 " vim-go
@@ -182,14 +184,14 @@ endif
 
 " python-mode
 let g:pymode_options_colorcolumn = 0
+let g:pymode_rope = 0
+let g:pymode_rope_lookup_project = 0
 autocmd vimrc FileType python setlocal wrap   " undo python-mode change
 
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
 
 " vim
-map <leader>cd :cd %:p:h<cr>
-
 nnoremap ; :
 
 " Keep search pattern at the center of the screen.
@@ -198,13 +200,13 @@ nnoremap <silent> N Nzz
 nnoremap <silent> * *zz
 nnoremap <silent> # #zz
 nnoremap <silent> g* g*zz
-
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
 noremap <Leader>qa :qa<cr>
 noremap <Leader>w :w<cr>
 noremap <leader>v :e ~/.vimrc<CR>
+noremap <leader>cd :cd %:p:h<cr>
 cmap w!! w !sudo tee >/dev/null %
 
 " 去掉上次搜索高亮
