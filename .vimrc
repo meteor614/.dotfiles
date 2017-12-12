@@ -21,7 +21,7 @@ Plug 'sirver/UltiSnips'
 Plug 'honza/vim-snippets'
 "Plug 'scrooloose/syntastic'
 Plug 'Valloric/ListToggle'
-Plug 'orenhe/pylint.vim', { 'for': 'python' }
+"Plug 'orenhe/pylint.vim', { 'for': 'python' }
 "Plug 'kien/ctrlp.vim'
 "Plug 'tpope/vim-surround'
 Plug 'majutsushi/tagbar'
@@ -186,6 +186,7 @@ endif
 let g:pymode_options_colorcolumn = 0
 let g:pymode_rope = 0
 let g:pymode_rope_lookup_project = 0
+let g:pymode_lint = 0                         " disable lint, use ale's
 autocmd vimrc FileType python setlocal wrap   " undo python-mode change
 
 " dash
