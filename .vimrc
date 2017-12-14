@@ -74,7 +74,7 @@ let g:python3_host_prog='/usr/local/bin/python3'
 
 " EasyMotion
 "let g:EasyMotion_leader_key = '<Leader>'
-
+ 
 " UltiSnips
 let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsJumpForwardTrigger='<tab>'
@@ -110,7 +110,7 @@ map <C-K> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 
 " asyncrun
-noremap <Leader>ma :AsyncRun make<cr>
+nnoremap <Leader>ma :AsyncRun make<cr>
 
 " FZF
 nnoremap <silent> <C-p> :FZF<CR>
@@ -121,12 +121,15 @@ nmap ga <Plug>(EasyAlign)
 
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
+"iunmap <Leader>ih
+"iunmap <Leader>is
+"iunmap <Leader>ihn
 
 " vim-smooth-scroll
-"noremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-"noremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-"noremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-"noremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+"nnoremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
+"nnoremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
+"nnoremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
+"nnoremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
 
 " fencview
 "let g:fencview_autodetect=0
@@ -204,23 +207,23 @@ nnoremap <silent> g* g*zz
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
-noremap <Leader>qa :qa<cr>
-noremap <Leader>w :w<cr>
-noremap <leader>v :e ~/.vimrc<CR>
-noremap <leader>cd :cd %:p:h<cr>
+nnoremap <Leader>qa :qa<cr>
+nnoremap <Leader>w :w<cr>
+nnoremap <leader>v :e ~/.vimrc<CR>
+nnoremap <leader>cd :cd %:p:h<cr>
 cmap w!! w !sudo tee >/dev/null %
 
 " 去掉上次搜索高亮
-noremap <silent><leader>/ :nohls<CR>
+nnoremap <silent><leader>/ :nohls<CR>
 
-"noremap <leader>h <c-w>h
-"noremap <leader>l <c-w>l
-"noremap <leader>k <c-w>k
-"noremap <leader>j <c-w>j
+"nnoremap <leader>h <c-w>h
+"nnoremap <leader>l <c-w>l
+"nnoremap <leader>k <c-w>k
+"nnoremap <leader>j <c-w>j
 
-noremap <leader>a :A<CR>
-noremap <leader>n :bn<CR>
-noremap <leader>p :bp<CR>
+nnoremap <leader>a :A<CR>
+nnoremap <leader>n :bn<CR>
+nnoremap <leader>p :bp<CR>
 
 noremap <c-j> 15gj
 noremap <c-k> 15gk
@@ -281,7 +284,7 @@ colorscheme spacegray
 
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
-    autocmd FileType vim map <buffer> <leader>r :source %<CR>
+    autocmd FileType vim nmap <buffer> <leader>r :source %<CR>
 
 	autocmd FileType java,c,cpp,go set foldmethod=syntax
 	autocmd FileType python set foldmethod=indent
