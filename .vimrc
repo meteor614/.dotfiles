@@ -3,6 +3,10 @@ scriptencoding utf-8
 call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
+if has('gui_macvim')
+    Plug 'jeaye/color_coded'
+endif
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'python-mode/python-mode', {'for': 'python'}
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
 Plug 'mileszs/ack.vim'
@@ -106,8 +110,8 @@ nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <Leader>f <Plug>(ale_fix)
 
 " clang-format
-map <C-K> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
-imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
+map <C-L> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
+"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 
 " asyncrun
 nnoremap <Leader>ma :AsyncRun make<cr>
