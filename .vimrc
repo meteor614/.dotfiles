@@ -4,14 +4,14 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
 if has('gui_macvim')
-    Plug 'jeaye/color_coded'
+    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . && make && make install'}
 endif
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'python-mode/python-mode', {'for': 'python'}
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
 Plug 'mileszs/ack.vim'
 "Plug 'vim-scripts/taglist.vim'
-Plug 'vim-scripts/a.vim'
+Plug 'vim-scripts/a.vim', { 'for': 'c,cpp' }
 Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
@@ -77,7 +77,7 @@ let g:python3_host_skip_check=1
 let g:python3_host_prog='/usr/local/bin/python3'
 
 " EasyMotion
-"let g:EasyMotion_leader_key = '<Leader>'
+"let g:EasyMotion_leader_key = '<leader>'
  
 " UltiSnips
 let g:UltiSnipsExpandTrigger='<tab>'
@@ -88,8 +88,8 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
 let g:ycm_key_invoke_completion = ''
 nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
-nnoremap <leader>gt :YcmCompleter GoTo<CR>
-nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nnoremap <leader>gt :YcmCompleter GoTo<cr>
+nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
@@ -105,19 +105,19 @@ augroup END
 " ale
 let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem /Users/admin/wbl/ -system /Users/admin/gnp/src/api/'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I/Users/admin/wbl/ -I/Users/admin/gnp/src/api/'
-nmap <silent> <Leader>j <Plug>(ale_next_wrap)
-nmap <silent> <Leader>k <Plug>(ale_previous_wrap)
-nmap <silent> <Leader>f <Plug>(ale_fix)
+nmap <silent> <leader>j <Plug>(ale_next_wrap)
+nmap <silent> <leader>k <Plug>(ale_previous_wrap)
+nmap <silent> <leader>f <Plug>(ale_fix)
 
 " clang-format
 map <C-L> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 "imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
 
 " asyncrun
-nnoremap <Leader>ma :AsyncRun make<cr>
+nnoremap <leader>ma :AsyncRun make<cr>
 
 " FZF
-nnoremap <silent> <C-p> :FZF<CR>
+nnoremap <silent> <C-p> :FZF<cr>
 
 " vim-easy-align
 xmap ga <Plug>(EasyAlign)
@@ -125,25 +125,25 @@ nmap ga <Plug>(EasyAlign)
 
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
-"iunmap <Leader>ih
-"iunmap <Leader>is
-"iunmap <Leader>ihn
+"iunmap <leader>ih
+"iunmap <leader>is
+"iunmap <leader>ihn
 
 " vim-smooth-scroll
-"nnoremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<CR>
-"nnoremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<CR>
-"nnoremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<CR>
-"nnoremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<CR>
+"nnoremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<cr>
+"nnoremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<cr>
+"nnoremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<cr>
+"nnoremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<cr>
 
 " fencview
 "let g:fencview_autodetect=0
 "map <F2> :FencView<cr>
 
 " nerdtree
-nmap <F10> :NERDTreeToggle<CR>
+nmap <F10> :NERDTreeToggle<cr>
 
 " tagbar
-nmap <F12> :TagbarToggle<CR>
+nmap <F12> :TagbarToggle<cr>
 let g:tagbar_type_go = {
 	\ 'ctagstype' : 'go',
 	\ 'kinds'     : [
@@ -171,6 +171,9 @@ let g:tagbar_type_go = {
     \ 'ctagsbin'  : 'gotags',
     \ 'ctagsargs' : '-sort -silent'
 \ }
+
+" color_coded
+let g:color_coded_enabled = 1
 
 " vim-go
 let g:go_highlight_functions = 1
@@ -211,23 +214,23 @@ nnoremap <silent> g* g*zz
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
-nnoremap <Leader>qa :qa<cr>
-nnoremap <Leader>w :w<cr>
-nnoremap <leader>v :e ~/.vimrc<CR>
+nnoremap <leader>qa :qa<cr>
+nnoremap <leader>w :w<cr>
+nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>cd :cd %:p:h<cr>
 cmap w!! w !sudo tee >/dev/null %
 
 " 去掉上次搜索高亮
-nnoremap <silent><leader>/ :nohls<CR>
+nnoremap <silent><leader>/ :nohls<cr>
 
 "nnoremap <leader>h <c-w>h
 "nnoremap <leader>l <c-w>l
 "nnoremap <leader>k <c-w>k
 "nnoremap <leader>j <c-w>j
 
-nnoremap <leader>a :A<CR>
-nnoremap <leader>n :bn<CR>
-nnoremap <leader>p :bp<CR>
+nnoremap <leader>a :A<cr>
+nnoremap <leader>n :bn<cr>
+nnoremap <leader>p :bp<cr>
 
 noremap <c-j> 15gj
 noremap <c-k> 15gk
@@ -288,11 +291,12 @@ colorscheme spacegray
 
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
-    autocmd FileType vim nmap <buffer> <leader>r :source %<CR>
+    autocmd FileType vim nmap <buffer> <leader>r :source %<cr>
 
-	autocmd FileType java,c,cpp,go set foldmethod=syntax
-	autocmd FileType python set foldmethod=indent
-	autocmd FileType java,c,cpp,go,python set foldlevel=100
+	autocmd FileType java,c,cpp,go set foldmethod=syntax foldlevel=100
+	autocmd FileType python set foldlevel=100
+	"autocmd FileType python set foldmethod=indent
+	"autocmd FileType java,c,cpp,go,python set foldlevel=100
 augroup END
 
 " The alt (option) key on macs now behaves like the 'meta' key. This means we
