@@ -36,7 +36,8 @@ Plug 'junegunn/vim-xmark', { 'do': 'make' }
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-easy-align'
-Plug 'rking/ag.vim'
+"Plug 'rking/ag.vim'
+Plug 'jremmen/vim-ripgrep'
 Plug 'w0rp/ale'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
@@ -105,6 +106,9 @@ augroup END
 " ale
 let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem /Users/admin/wbl/ -system /Users/admin/gnp/src/api/'
 let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I/Users/admin/wbl/ -I/Users/admin/gnp/src/api/'
+let g:ale_linters = {
+            \ 'python': ['flake8']
+            \ }
 nmap <silent> <leader>j <Plug>(ale_next_wrap)
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f <Plug>(ale_fix)
@@ -216,6 +220,7 @@ nnoremap <silent> g, g,zz
 
 nnoremap <leader>qa :qa<cr>
 nnoremap <leader>w :w<cr>
+nnoremap <leader>wq :wq<cr>
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>cd :cd %:p:h<cr>
 cmap w!! w !sudo tee >/dev/null %
