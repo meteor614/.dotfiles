@@ -97,10 +97,11 @@ let g:ycm_confirm_extra_conf = 0
 "let g:ycm_python_binary_path = g:python3_host_prog
 let g:ycm_python_binary_path = '/usr/local/bin/python3'
 "let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 
 " vim-javacomplete2
 augroup vimrc
-    autocmd FileType java setlocal omnifunc=javacomplete#Complete
+    autocmd FileType java,jsp setlocal omnifunc=javacomplete#Complete
 augroup END
 
 " ale
@@ -332,4 +333,7 @@ if has('nvim')
     "autocmd BufReadCmd term://* setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
 	"set termguicolors
 	"set background=dark
+elseif exists('$TMUX')
+    set term=screen-256color
 endif
+
