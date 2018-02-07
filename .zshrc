@@ -181,6 +181,6 @@ if [ -f /usr/libexec/java_home ]; then
     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
 fi
 
-type thefuck && eval $(thefuck --alias)
+type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
