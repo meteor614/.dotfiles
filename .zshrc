@@ -171,3 +171,16 @@ export RPROMPT="%{$fg[red]%}%(?..%?%1v) %{$fg[yellow]%}%*"
 
 setopt no_nomatch
 
+[ -f ~/perl5/perlbrew/etc/bashrc ] && source ~/perl5/perlbrew/etc/bashrc
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
+
+if [ -f /usr/libexec/java_home ]; then
+    export JAVA_HOME=`/usr/libexec/java_home`
+    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+    export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
+fi
+
+type thefuck && eval $(thefuck --alias)
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
