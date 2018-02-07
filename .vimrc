@@ -331,9 +331,18 @@ if has('nvim')
     autocmd vimrc TermOpen * setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
     "autocmd VimEnter term://* nested setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
     "autocmd BufReadCmd term://* setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
-	"set termguicolors
 	"set background=dark
-elseif exists('$TMUX')
-    set term=screen-256color
 endif
 
+if has('termguicolors') && $TERM_PROGRAM ==# 'iTerm.app' 
+    if has('nvim')
+        set t_8f=^[[38;2;%lu;%lu;%lum
+        set t_8b=^[[48;2;%lu;%lu;%lum
+    endif
+    set termguicolors
+elseif exists('$TMUX')
+    if !has('nvim')
+        set term=screen-256color
+        set notermguicolors
+    endif
+endif
