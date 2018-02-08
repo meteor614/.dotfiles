@@ -51,6 +51,7 @@ antigen bundle python
 antigen bundle rupa/z z.sh
 #antigen bundle z
 
+antigen bundle zsh-history-substring-search
 antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
 antigen bundle supercrabtree/k
@@ -162,6 +163,18 @@ export SVN_EDITOR='vim'
 export EDITOR='vim'
 export TERM=xterm-256color
 
+export PAGER="less"
+export LESS="-R -i -g -c -W"
+type lesspipe.sh>/dev/null 2>&1 && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'
+# color man
+export LESS_TERMCAP_mb=$'\E[01;31m'
+export LESS_TERMCAP_md=$'\E[01;31m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;44;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'
+
 # Initialize command prompt
 #export PS1="%n@%m:%~%# "
 #export PS1="%{$fg[green]%}[%{$fg[magenta]%}%n%{$fg[green]%}@%{$fg[blue]%}%m%{$fg[green]%}:%{$fg[cyan]%}%~%{$fg[green]%}]$ "
@@ -185,7 +198,6 @@ setopt no_nomatch
 
 [ -f ~/perl5/perlbrew/etc/bashrc ] && source ~/perl5/perlbrew/etc/bashrc
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
 
 if [ -f /usr/libexec/java_home ]; then
     export JAVA_HOME=`/usr/libexec/java_home`
