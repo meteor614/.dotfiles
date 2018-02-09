@@ -1,0 +1,8 @@
+CMakeFiles/
+.*.d
+*.swp
+*.dSYM/
+*.[oa]
+*.dylib
+*.cmake
+tags
