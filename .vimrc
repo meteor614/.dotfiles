@@ -4,7 +4,7 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
 if has('gui_macvim')
-    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . && make && make install'}
+    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install'}
 endif
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
 Plug 'python-mode/python-mode', {'for': 'python'}
@@ -51,7 +51,7 @@ Plug 'Valloric/MatchTagAlways'
 "Plug 'neomake/neomake'
 
 " 进入vim normal模式时，自动切换为英文输入法
-Plug 'CodeFalling/fcitx-vim-osx'
+"Plug 'CodeFalling/fcitx-vim-osx'
 
 " 配色方案
 Plug 'tomasr/molokai'
@@ -94,8 +94,8 @@ nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
-"let g:ycm_python_binary_path = g:python3_host_prog
-let g:ycm_python_binary_path = '/usr/local/bin/python3'
+let g:ycm_python_binary_path = g:python3_host_prog
+"let g:ycm_python_binary_path = '/usr/local/bin/python3'
 "let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 
@@ -336,8 +336,8 @@ endif
 
 if has('termguicolors') && $TERM_PROGRAM ==# 'iTerm.app' 
     if has('nvim')
-        set t_8f=^[[38;2;%lu;%lu;%lum
-        set t_8b=^[[48;2;%lu;%lu;%lum
+        "set t_8f=^[[38;2;%lu;%lu;%lum
+        "set t_8b=^[[48;2;%lu;%lu;%lum
     endif
     set termguicolors
 elseif exists('$TMUX')
