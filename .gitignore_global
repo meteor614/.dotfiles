@@ -6,4 +6,5 @@ CMakeFiles/
 *.dylib
 *.cmake
 *.zwc
+*.pyc
 tags
