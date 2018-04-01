@@ -154,6 +154,8 @@ alias -s tgz='tar -xzvf'
 alias -s zip='unzip'
 alias -s bz2='tar -xjvf'
 
+alias mux='tmuxinator'
+
 type nvim >/dev/null 2>&1 && alias vim='nvim'
 
 #export FZF_DEFAULT_COMMAND='ag -g ""'

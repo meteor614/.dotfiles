@@ -8,3 +8,5 @@ for i in ${files[@]}; do
 done
 # for neovim
 ln -s ~/.vimrc .vim/init.vim
+# for tmuxinator
+ln -s ~/.dotfiles/tmuxinator ~/.config/tmuxinator 
