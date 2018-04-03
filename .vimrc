@@ -49,6 +49,7 @@ Plug 'junegunn/gv.vim'
 Plug 'jpalardy/vim-slime'
 Plug 'Valloric/MatchTagAlways'
 "Plug 'neomake/neomake'
+Plug 'luochen1990/rainbow'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -77,6 +78,9 @@ let g:python2_host_prog='/usr/local/bin/python2'
 let g:python3_host_skip_check=1
 let g:python3_host_prog='/usr/local/bin/python3'
 
+" rainbow
+let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
+
 " EasyMotion
 "let g:EasyMotion_leader_key = '<leader>'
  
@@ -95,8 +99,7 @@ let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_python_binary_path = 'python'
-"let g:ycm_python_binary_path = g:python2_host_prog
-"let g:ycm_python_binary_path = '/usr/local/bin/python3'
+"let g:ycm_python_binary_path = g:python3_host_prog
 "let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 

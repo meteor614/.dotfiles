@@ -6,7 +6,9 @@ files=($(ls -FA ${SCRIPTPATH}|grep '^\..*$'|grep -v '^\.git/$'))
 for i in ${files[@]}; do
     ln -s ${SCRIPTPATH}/${i}
 done
+
 # for neovim
 ln -s ~/.vimrc .vim/init.vim
+
 # for tmuxinator
 ln -s ~/.dotfiles/tmuxinator ~/.config/tmuxinator 
