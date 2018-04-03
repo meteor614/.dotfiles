@@ -4,14 +4,14 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
 if has('gui_macvim')
-    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install'}
+    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-Plug 'python-mode/python-mode', {'for': 'python'}
-Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java'}
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+Plug 'python-mode/python-mode', { 'for': 'python' }
+Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 Plug 'mileszs/ack.vim'
 "Plug 'vim-scripts/taglist.vim'
-Plug 'vim-scripts/a.vim', { 'for': 'c,cpp' }
+Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp'] }
 Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
@@ -23,20 +23,16 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'skywind3000/echofunc'
 Plug 'sirver/UltiSnips'
 Plug 'honza/vim-snippets'
-"Plug 'scrooloose/syntastic'
 Plug 'Valloric/ListToggle'
-"Plug 'orenhe/pylint.vim', { 'for': 'python' }
-"Plug 'kien/ctrlp.vim'
 "Plug 'tpope/vim-surround'
 Plug 'majutsushi/tagbar'
-Plug 'simplyzhao/cscope_maps.vim'
+Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 "Plug 'tenfyzhong/CompleteParameter.vim'
 "Plug 'gilligan/vim-lldb'
-Plug 'junegunn/vim-xmark', { 'do': 'make' }
+Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-easy-align'
-"Plug 'rking/ag.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'w0rp/ale'
 Plug 'godlygeek/tabular'
