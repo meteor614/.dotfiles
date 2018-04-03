@@ -246,49 +246,77 @@ noremap <m-k> 15gk
 vnoremap < <gv
 vnoremap > >gv
 
-set nocompatible
+" Set as toggle foldcomment
+nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zr zR
+
+" No surround sound
 set noerrorbells
+set novisualbell
+set t_vb=
+
+" For indent
+set wrap
+set autoindent
+set copyindent
+set smartindent
+set cindent
+set cinoptions=:0g0
+set smarttab
+set shiftround
+
+" Format
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+
+" Encoding setting
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
+" Search and Case
+set gdefault            " this makes search/replace global by default
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set fileignorecase
+set showcmd
+
+" Rule the define
+set ruler
+set cursorline
+set number
+"set relativenumber
+
+" No back up files
+set noswapfile
+set nobackup
+set nowritebackup
+
+" Mouse
+set mouse=a
+set mousemodel=popup_setpos
+
+" Other
+set nocompatible
 set helplang=cn
 "set langmenu=zn_CN.gbk
 set backspace=indent,eol,start
 set cscopetag
 set cscopetagorder=1
-set number
-set ignorecase
-set smartcase
-"set relativenumber
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
-set expandtab
-set cinoptions=:0g0
 set virtualedit=block
-set cursorline
 set wildmenu
-set hlsearch
-set autoindent
-set copyindent
-set smartindent
-set shiftround
-set cindent
-set smarttab
-set wrap
 set showmatch
-set showcmd
-set ruler
 set matchtime=2
 set title
-set incsearch
-set noswapfile
 set autoread
-set gdefault            " this makes search/replace global by default
-set mouse=a
-set mousemodel=popup_setpos
 set clipboard=unnamedplus,unnamed
-set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
 set history=1000        " remember more commands and search history
 set undolevels=1000     " use many levels of undo<Paste>
 set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
+set foldmethod=indent
 
 filetype plugin on
 syntax enable
