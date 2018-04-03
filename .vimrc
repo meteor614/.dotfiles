@@ -16,7 +16,7 @@ Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'will133/vim-dirdiff'
-Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'vim-airline/vim-airline'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
@@ -59,7 +59,7 @@ Plug 'tomasr/molokai'
 Plug 'ajh17/Spacegray.vim'
 Plug 'Valloric/vim-valloric-colorscheme'
 
-"Plug 'lyuts/vim-rtags'
+"Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
 "Plug 'nsf/gocode', {'rtp': 'vim/'}
 "Plug 'jalcine/cmake.vim'
 
@@ -350,3 +350,29 @@ elseif exists('$TMUX')
         set notermguicolors
     endif
 endif
+
+" tmux
+function! s:tmux_send(content, dest) range
+    let l:dest = empty(a:dest) ? input('To which pane? ') : a:dest
+    let l:tempfile = tempname()
+    call writefile(split(a:content, "\n", 1), l:tempfile, 'b')
+    call system(printf('tmux load-buffer -b vim-tmux %s \; paste-buffer -d -b vim-tmux -t %s',
+                \ shellescape(l:tempfile), shellescape(l:dest)))
+    call delete(l:tempfile)
+endfunction
+
+function! s:tmux_map(key, dest)
+    execute printf('nnoremap <silent> %s "tyy:call <SID>tmux_send(@t, "%s")<cr>', a:key, a:dest)
+    execute printf('xnoremap <silent> %s "ty:call <SID>tmux_send(@t, "%s")<cr>gv', a:key, a:dest)
+endfunction
+
+call s:tmux_map('<leader>tt', '')
+call s:tmux_map('<leader>th', '.left')
+call s:tmux_map('<leader>tj', '.bottom')
+call s:tmux_map('<leader>tk', '.top')
+call s:tmux_map('<leader>tl', '.right')
+call s:tmux_map('<leader>ty', '.top-left')
+call s:tmux_map('<leader>to', '.top-right')
+call s:tmux_map('<leader>tn', '.bottom-left')
+call s:tmux_map('<leader>t.', '.bottom-right')
+
