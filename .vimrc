@@ -317,6 +317,7 @@ set history=1000        " remember more commands and search history
 set undolevels=1000     " use many levels of undo<Paste>
 set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
 set foldmethod=indent
+set foldlevel=100
 
 filetype plugin on
 syntax enable
@@ -327,7 +328,7 @@ augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
     autocmd FileType vim nmap <buffer> <leader>r :source %<cr>
 
-	autocmd FileType java,c,cpp,go set foldmethod=syntax foldlevel=100
+	autocmd FileType java,c,cpp,go,json,js set foldmethod=syntax foldlevel=100
 	autocmd FileType python set foldlevel=100
 	"autocmd FileType python set foldmethod=indent
 	"autocmd FileType java,c,cpp,go,python set foldlevel=100
