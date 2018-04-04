@@ -2,7 +2,7 @@
 	email = meteorchen@qq.com
 	name = meteorchen
 [core]
-	excludesfile = /Users/admin/.gitignore_global
+	excludesfile = ~/.gitignore_global
 [filter "media"]
 	required = true
 	clean = git media clean %f
@@ -23,7 +23,7 @@
 [receive]
 	denyCurrentBranch = ignore
 [commit]
-	template = /Users/admin/.stCommitMsg
+	template = ~/.stCommitMsg
 [color]
 	status = auto
 	branch = auto
