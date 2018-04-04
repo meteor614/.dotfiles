@@ -11,4 +11,8 @@ done
 ln -s ~/.vimrc .vim/init.vim
 
 # for tmuxinator
-ln -s ~/.dotfiles/tmuxinator ~/.config/tmuxinator 
+if [ -L ~/.config/tmuxinator ]; then
+    echo 'tmuxinator link already exist.'
+else
+    ln -s ~/.dotfiles/tmuxinator ~/.config/tmuxinator 
+fi
