@@ -105,8 +105,10 @@ augroup vimrc
 augroup END
 
 " ale
-let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem /Users/admin/wbl/ -system /Users/admin/gnp/src/api/'
-let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I/Users/admin/wbl/ -I/Users/admin/gnp/src/api/'
+"let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem /Users/admin/wbl/ -system /Users/admin/gnp/src/api/'
+"let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I/Users/admin/wbl/ -I/Users/admin/gnp/src/api/'
+let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
+let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/api/'
 let g:ale_linters = {
             \ 'python': ['flake8']
             \ }

@@ -49,8 +49,8 @@ windows:
       # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
       # synchronize: after
       panes:
-        - vim
-        - git pull
-        - list:
-            - cd example
-            - k
+          - vim
+          - git pull
+          - list:
+              - cd example
+              - k
