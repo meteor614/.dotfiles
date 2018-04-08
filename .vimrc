@@ -117,8 +117,8 @@ nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f <Plug>(ale_fix)
 
 " clang-format
-map <C-L> :pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
-"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/5.0.0/share/clang/clang-format.py<cr>
+map <C-L> :pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
+"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
 
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
@@ -301,6 +301,12 @@ set nowritebackup
 set mouse=a
 set mousemodel=popup_setpos
 
+" undo
+set undolevels=1000     " use many levels of undo<Paste>
+if exists('+undofile')
+    set undofile
+endif
+
 " Other
 set nocompatible
 set helplang=cn
@@ -316,7 +322,6 @@ set title
 set autoread
 set clipboard=unnamedplus,unnamed
 set history=1000        " remember more commands and search history
-set undolevels=1000     " use many levels of undo<Paste>
 set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
 set foldmethod=indent
 set foldlevel=100
@@ -340,7 +345,7 @@ augroup END
 " can now use <m-x> or similar as maps. This is buffer local, and it can easily
 " be turned off when necessary (for instance, when we want to input special
 " characters) with :set nomacmeta.
-if has('gui_macvim')
+if has('gui_macvim') || exists('+macmeta')
     set macmeta
 endif
 
