@@ -70,9 +70,9 @@ call plug#end()
 let g:mapleader=' '
 let g:maplocalleader='-'
 let g:python2_host_skip_check=1
-let g:python2_host_prog='/usr/local/bin/python2'
+let g:python2_host_prog='python2'
 let g:python3_host_skip_check=1
-let g:python3_host_prog='/usr/local/bin/python3'
+let g:python3_host_prog='python3'
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
@@ -147,7 +147,7 @@ let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,
 "map <F2> :FencView<cr>
 
 " nerdtree
-nmap <F10> :NERDTreeToggle<cr>
+nmap <F11> :NERDTreeToggle<cr>
 
 " tagbar
 nmap <F12> :TagbarToggle<cr>
