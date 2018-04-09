@@ -7,4 +7,5 @@ CMakeFiles/
 *.cmake
 *.zwc
 *.pyc
+*.un~
 tags
