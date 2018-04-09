@@ -2,50 +2,64 @@ scriptencoding utf-8
 
 call plug#begin('~/.vim/plugged')
 
+" Code completion
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
+
+" Syntax checker & Highline
 if has('gui_macvim')
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+Plug 'luochen1990/rainbow'
+Plug 'Valloric/MatchTagAlways'
+Plug 'w0rp/ale'
+Plug 'Chiel92/vim-autoformat'
 Plug 'python-mode/python-mode', { 'for': 'python' }
-Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
+Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoInstallBinaries' }
+Plug 'skywind3000/echofunc'
+"Plug 'tenfyzhong/CompleteParameter.vim'
+
+" Search
 Plug 'mileszs/ack.vim'
-"Plug 'vim-scripts/taglist.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'jremmen/vim-ripgrep'
+
+" Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp'] }
-Plug 'vim-scripts/FencView.vim'
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'Valloric/ListToggle'
+Plug 'majutsushi/tagbar'
+Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+"Plug 'vim-scripts/taglist.vim'
+"Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
+
+" Snippets
+Plug 'sirver/UltiSnips'
+Plug 'honza/vim-snippets'
+
+" Git
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+Plug 'junegunn/gv.vim'
+
+" Misc
+Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
-Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'vim-airline/vim-airline'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
-Plug 'skywind3000/echofunc'
-Plug 'sirver/UltiSnips'
-Plug 'honza/vim-snippets'
-Plug 'Valloric/ListToggle'
 "Plug 'tpope/vim-surround'
-Plug 'majutsushi/tagbar'
-Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-"Plug 'tenfyzhong/CompleteParameter.vim'
 "Plug 'gilligan/vim-lldb'
 Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-easy-align'
-Plug 'jremmen/vim-ripgrep'
-Plug 'w0rp/ale'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
 "Plug 'terryma/vim-smooth-scroll'
-Plug 'airblade/vim-gitgutter'
-Plug 'tpope/vim-fugitive'
-Plug 'junegunn/gv.vim'
 Plug 'jpalardy/vim-slime'
-Plug 'Valloric/MatchTagAlways'
-"Plug 'neomake/neomake'
-Plug 'luochen1990/rainbow'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -55,8 +69,6 @@ Plug 'tomasr/molokai'
 Plug 'ajh17/Spacegray.vim'
 Plug 'Valloric/vim-valloric-colorscheme'
 
-"Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
-"Plug 'nsf/gocode', {'rtp': 'vim/'}
 "Plug 'jalcine/cmake.vim'
 
 "if has('nvim')
@@ -208,6 +220,9 @@ autocmd vimrc FileType python setlocal wrap   " undo python-mode change
 
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
+
+" vim-autoformat
+noremap <F3> :Autoformat<CR>
 
 " vim
 nnoremap ; :
