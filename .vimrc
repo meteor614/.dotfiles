@@ -27,7 +27,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 
 " Navigation
-Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp'] }
+Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
@@ -144,6 +144,7 @@ nmap ga <Plug>(EasyAlign)
 
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
+nnoremap <leader>a :A<cr>
 "iunmap <leader>ih
 "iunmap <leader>is
 "iunmap <leader>ihn
@@ -251,7 +252,6 @@ nnoremap <silent><leader>/ :nohls<cr>
 "nnoremap <leader>k <c-w>k
 "nnoremap <leader>j <c-w>j
 
-nnoremap <leader>a :A<cr>
 nnoremap <leader>n :bn<cr>
 nnoremap <leader>p :bp<cr>
 
