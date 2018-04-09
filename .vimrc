@@ -7,7 +7,7 @@ Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-comp
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
-" Syntax checker & Highline
+" Syntax checker & Highlight
 if has('gui_macvim')
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
