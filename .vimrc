@@ -11,6 +11,9 @@ Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 if has('gui_macvim')
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
+if has('nvim')
+    Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+endif
 Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
 Plug 'w0rp/ale'
@@ -194,6 +197,14 @@ let g:tagbar_type_go = {
 
 " color_coded
 let g:color_coded_enabled = 1
+if &diff
+    " Disable color_coded in diff mode
+    let g:color_coded_enabled = 0
+endif
+
+" chromatica.nvim
+let g:chromatica#libclang_path='/usr/local/opt/llvm/lib'
+let g:chromatica#enable_at_startup=1
 
 " vim-go
 let g:go_highlight_functions = 1
@@ -372,28 +383,19 @@ if has('gui_running')
     set transparency=15      " 透明背景
     set showtabline=2        " 开启自带的tab栏
 	"set ambiwidth=double
-    "set columns=140          " 设置宽
-    "set lines=40             " 设置长
-    "colorscheme valloric
 endif
 
 if has('nvim')
 	set inccommand=split
 	tnoremap <Esc> <C-\><C-n>
     autocmd vimrc TermOpen * setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
-    "autocmd VimEnter term://* nested setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
-    "autocmd BufReadCmd term://* setlocal statusline=%{b:terminal_job_id}\ %{b:term_title} 
-	"set background=dark
+else
+    let &t_SI="\e[6 q" " Vertical bar in insert mode
+    let &t_EI="\e[2 q" " Block in normal mode
 endif
 
 if has('termguicolors') && $TERM_PROGRAM ==# 'iTerm.app' 
-    if has('nvim')
-        "set t_8f=^[[38;2;%lu;%lu;%lum
-        "set t_8b=^[[48;2;%lu;%lu;%lum
-    endif
     set termguicolors
-    let &t_SI="\e[6 q" " Vertical bar in insert mode
-    let &t_EI="\e[2 q" " Block in normal mode
 elseif exists('$TMUX')
     if !has('nvim')
         set term=screen-256color
