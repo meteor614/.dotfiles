@@ -319,6 +319,7 @@ set mousemodel=popup_setpos
 " undo
 set undolevels=1000     " use many levels of undo<Paste>
 if exists('+undofile')
+    set undodir=~/.undodir_vim
     set undofile
 endif
 
@@ -391,11 +392,15 @@ if has('termguicolors') && $TERM_PROGRAM ==# 'iTerm.app'
         "set t_8b=^[[48;2;%lu;%lu;%lum
     endif
     set termguicolors
+    let &t_SI="\e[6 q" " Vertical bar in insert mode
+    let &t_EI="\e[2 q" " Block in normal mode
 elseif exists('$TMUX')
     if !has('nvim')
         set term=screen-256color
         set notermguicolors
     endif
+elseif exists('&guicolors')
+    set guicolors
 endif
 
 " tmux
