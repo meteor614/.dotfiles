@@ -154,6 +154,12 @@ alias -s tgz='tar -xzvf'
 alias -s zip='unzip'
 alias -s bz2='tar -xjvf'
 
+# git
+alias gd='git icdiff'
+alias gdca='git icdiff --cached'
+alias gdcw='git icdiff --cached --word-diff'
+alias gdw='git icdiff --word-diff'
+
 alias mux='tmuxinator'
 
 type nvim >/dev/null 2>&1 && alias vim='nvim'
