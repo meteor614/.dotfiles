@@ -10,8 +10,7 @@ Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 " Syntax checker & Highlight
 if has('gui_macvim')
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-endif
-if has('nvim')
+elseif has('nvim')
     Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
 Plug 'luochen1990/rainbow'
