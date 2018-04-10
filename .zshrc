@@ -198,8 +198,8 @@ ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}?"
 
 setopt no_nomatch
 
-[ -f ~/perl5/perlbrew/etc/bashrc ] && source ~/perl5/perlbrew/etc/bashrc
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
+[ -f $HOME/.fzf.zsh ] && source $HOME/.fzf.zsh
 
 if [ -f /usr/libexec/java_home ]; then
     export JAVA_HOME=`/usr/libexec/java_home`
@@ -207,6 +207,7 @@ if [ -f /usr/libexec/java_home ]; then
     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
 fi
 
+test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
