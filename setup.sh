@@ -12,4 +12,14 @@ ln -s ~/.vimrc .vim/init.vim
 
 # for tmuxinator
 cd ~/.config
-ln -s ~/.dotfiles/tmuxinator
+ln -s ${SCRIPTPATH}/tmuxinator
+
+# for bin/*
+cd
+test -d bin || mkdir bin
+cd bin
+files=($(ls ${SCRIPTPATH}/bin))
+for i in ${files[@]}; do
+    ln -s ${SCRIPTPATH}/bin/${i}
+done
+test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
