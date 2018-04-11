@@ -35,6 +35,12 @@ begin=`date "+%s"`
         echo "pip upgrade finish"
     fi
 }&
+if type upgrade_oh_my_zsh &>/dev/null; then
+    {
+        upgrade_oh_my_zsh
+        echo "Oh My Zsh upgrade finish"
+    }&
+fi
 if [ x$1 == xall ]
 then
 	{
