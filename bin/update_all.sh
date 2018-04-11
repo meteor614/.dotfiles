@@ -41,8 +41,7 @@ if type upgrade_oh_my_zsh &>/dev/null; then
         echo "Oh My Zsh upgrade finish"
     }&
 fi
-if [ x$1 == xall ]
-then
+if [ x$1 == xall ]; then
 	{
 		vim -c GoUpdateBinaries -c qa only_for_load_go.go
 		echo "vim GoUpdateBinaries finish"
