@@ -25,13 +25,15 @@ done
 test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 
 # ssh
-cd
-test -d .ssh || mkdir .ssh
-cd .ssh
-if cmp ${SCRIPTPATH}/.ssh/id_rsa.pub id_rsa.pub ; then
-    echo 'id_rsa.pub exist, ignore'
-elif [ -f authorized_keys ] && [ x$(grep -F $(awk '{print $2}' ${SCRIPTPATH}/.ssh/id_rsa.pub) authorized_keys -c) == x1 ]; then
-    echo 'authorized_keys exist'
-else
-    cat ${SCRIPTPATH}/.ssh/id_rsa.pub >> authorized_keys
+if [ x$1 == xall ]; then
+    cd
+    test -d .ssh || mkdir .ssh
+    cd .ssh
+    if cmp ${SCRIPTPATH}/.ssh/id_rsa.pub id_rsa.pub ; then
+        echo 'id_rsa.pub exist, ignore'
+    elif [ -f authorized_keys ] && [ x$(grep -F $(awk '{print $2}' ${SCRIPTPATH}/.ssh/id_rsa.pub) authorized_keys -c) == x1 ]; then
+        echo 'authorized_keys exist'
+    else
+        cat ${SCRIPTPATH}/.ssh/id_rsa.pub >> authorized_keys
+    fi
 fi
