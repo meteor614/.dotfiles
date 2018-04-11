@@ -194,6 +194,12 @@ let g:tagbar_type_go = {
     \ 'ctagsargs' : '-sort -silent'
 \ }
 
+" ListToggle
+" You can set the key mappings for toggling Vim's locationlist and quickfix windows in your vimrc file:
+"let g:lt_location_list_toggle_map = '<leader>l'
+"let g:lt_quickfix_list_toggle_map = '<leader>q'
+let g:lt_height = 10
+
 " color_coded
 let g:color_coded_enabled = 1
 if &diff
@@ -235,6 +241,7 @@ nmap <silent> <leader>h <Plug>DashSearch
 " vim-autoformat
 noremap <F3> :Autoformat<CR>
 
+
 " vim
 nnoremap ; :
 
@@ -247,6 +254,7 @@ nnoremap <silent> g* g*zz
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
+" files
 nnoremap <leader>qa :qa<cr>
 nnoremap <leader>w :w<cr>
 nnoremap <leader>wq :wq<cr>
@@ -265,18 +273,11 @@ nnoremap <silent><leader>/ :nohls<cr>
 nnoremap <leader>n :bn<cr>
 nnoremap <leader>p :bp<cr>
 
+" jump
 noremap <c-j> 15gj
 noremap <c-k> 15gk
 noremap <m-j> 15gj
 noremap <m-k> 15gk
-
-vnoremap < <gv
-vnoremap > >gv
-
-" Set as toggle foldcomment
-nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
-nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
-nnoremap zr zR
 
 " No surround sound
 set noerrorbells
@@ -292,6 +293,9 @@ set cindent
 set cinoptions=:0g0
 set smarttab
 set shiftround
+
+vnoremap < <gv
+vnoremap > >gv
 
 " Format
 set tabstop=4
@@ -333,6 +337,17 @@ if exists('+undofile')
     set undofile
 endif
 
+" Fold
+set foldmethod=indent
+set foldlevel=100
+nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zr zR
+augroup vimrc
+    autocmd FileType java,c,cpp,go,json,js set foldmethod=syntax foldlevel=100
+    autocmd FileType python set foldlevel=100
+augroup END
+
 " Other
 set nocompatible
 set helplang=cn
@@ -349,8 +364,6 @@ set autoread
 set clipboard=unnamedplus,unnamed
 set history=1000        " remember more commands and search history
 set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的提示
-set foldmethod=indent
-set foldlevel=100
 
 filetype plugin on
 syntax enable
@@ -360,11 +373,6 @@ colorscheme spacegray
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
     autocmd FileType vim nmap <buffer> <leader>r :source %<cr>
-
-	autocmd FileType java,c,cpp,go,json,js set foldmethod=syntax foldlevel=100
-	autocmd FileType python set foldlevel=100
-	"autocmd FileType python set foldmethod=indent
-	"autocmd FileType java,c,cpp,go,python set foldlevel=100
 augroup END
 
 " The alt (option) key on macs now behaves like the 'meta' key. This means we
