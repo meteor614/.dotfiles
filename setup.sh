@@ -13,6 +13,7 @@ done
 ln -s ${script_path}/.aria2
 
 # for neovim
+test -d ~/.config || mkdir ~/.config
 cd ~/.config
 ln -s ~/.vimrc ~/.vim/init.vim
 test -L nvim || test -d nvim || ln -s ~/.vim nvim
