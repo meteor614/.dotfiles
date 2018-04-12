@@ -126,6 +126,8 @@ let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/a
 let g:ale_linters = {
             \ 'python': ['flake8']
             \ }
+nmap <silent> <m-j> <Plug>(ale_next_wrap)
+nmap <silent> <m-k> <Plug>(ale_previous_wrap)
 nmap <silent> <leader>j <Plug>(ale_next_wrap)
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f <Plug>(ale_fix)
@@ -276,8 +278,11 @@ nnoremap <leader>p :bp<cr>
 " jump
 noremap <c-j> 15gj
 noremap <c-k> 15gk
-noremap <m-j> 15gj
-noremap <m-k> 15gk
+
+" CTRL+A moves to start of line in command mode
+cnoremap <C-a> <home>
+" CTRL+E moves to end of line in command mode
+cnoremap <C-e> <end>
 
 " No surround sound
 set noerrorbells
@@ -317,7 +322,8 @@ set showcmd
 
 " Rule the define
 set ruler
-set cursorline
+set cursorline      " highlight current line
+"set cursorcolumn    " highlight current column
 set number
 "set relativenumber
 
