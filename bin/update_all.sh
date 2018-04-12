@@ -42,6 +42,11 @@ if type upgrade_oh_my_zsh &>/dev/null; then
     }&
 fi
 if [ x$1 == xall ]; then
+    if [ -d ~/.dotfiles ]; then
+        cd ~/.dotfiles
+        git pull
+        ~/.dotfiles/setup.sh
+    fi
 	{
 		vim -c GoUpdateBinaries -c qa only_for_load_go.go
 		echo "vim GoUpdateBinaries finish"
