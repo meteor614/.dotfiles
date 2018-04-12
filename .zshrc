@@ -187,8 +187,11 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 #export PS1="%n@%m:%~%# "
 #export PS1="%{$fg[green]%}[%{$fg[magenta]%}%n%{$fg[green]%}@%{$fg[blue]%}%m%{$fg[green]%}:%{$fg[cyan]%}%~%{$fg[green]%}]$ "
 export PS1="%{$fg[magenta]%}%n%{$fg[green]%} %{$fg[cyan]%}%~%{$fg[green]%}> "
-#export RPROMPT="%{$fg[red]%}%(?..%?%1v) %{$fg[yellow]%}%*"
-export RPROMPT='%{$fg_bold[red]%}%(?..%?)%{$reset_color%}$(git_prompt_info)$(git_prompt_status)%{$reset_color%}'
+# set RPROMPT only version >= 5.0
+if (echo ${ZSH_VERSION} | awk -F'.' '!($1>=5){exit 1}') then
+    #export RPROMPT="%{$fg[red]%}%(?..%?%1v) %{$fg[yellow]%}%*"
+    export RPROMPT='%{$fg_bold[red]%}%(?..%?)%{$reset_color%}$(git_prompt_info)$(git_prompt_status)%{$reset_color%}'
+fi
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" "
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
