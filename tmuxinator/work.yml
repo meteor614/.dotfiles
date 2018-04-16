@@ -43,12 +43,12 @@ root: ~/
 # post: tmux -CC attach -t work
 
 windows:
-  - editor:
-      #layout: main-vertical
-      layout: 0a35,178x44,0,0{108x44,0,0,0,69x44,109,0[69x21,109,0,1,69x22,109,22,2]}
-      # Synchronize all panes of this window, can be enabled before or after the pane commands run.
-      # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
-      # synchronize: after
-      panes:
-          - 
-          - 
+    - editor:
+        #layout: main-vertical
+        layout: 0a35,178x44,0,0{108x44,0,0,0,69x44,109,0[69x21,109,0,1,69x22,109,22,2]}
+        # Synchronize all panes of this window, can be enabled before or after the pane commands run.
+        # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
+        # synchronize: after
+        panes:
+            - 
+            - 
