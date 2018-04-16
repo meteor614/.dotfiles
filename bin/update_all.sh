@@ -19,6 +19,8 @@ begin=`date "+%s"`
         sudo yum clean
         echo "yum update finish"
     else
+        #sudo dnf upgrade 
+        #sudo pkg upgrade
         echo "update command not found"
     fi
 }&
@@ -53,25 +55,35 @@ if type gem &>/dev/null; then
     {
         gem update -f
         gem cleanup
+        echo "gem upgrade finish"
     }&
 fi
 
 # node.js modules
 if type npm &>/dev/null; then
-    npm update &
+    {
+        npm update
+        echo "npm upgrade finish"
+    }&
 fi
 
 # perl modules
 if type cpan &>/dev/null; then
-    cpan -u &
+    {
+        cpan -u
+        echo "cpan upgrade finish"
+    }&
 fi
 
 if [ x$1 == xall ]; then
     # update .dotfiles
     if [ -d ~/.dotfiles ]; then
-        cd ~/.dotfiles
-        git pull
-        ~/.dotfiles/setup.sh
+        {
+            cd ~/.dotfiles
+            git pull
+            ~/.dotfiles/setup.sh
+            echo ".dotfiles update finish"
+        }&
     fi
 
     # go binaries
