@@ -41,6 +41,15 @@ if type upgrade_oh_my_zsh &>/dev/null; then
         echo "Oh My Zsh upgrade finish"
     }&
 fi
+if type gem &>/dev/null; then
+    {
+        gem update -f
+        gem cleanup
+    }&
+fi
+if type npm &>/dev/null; then
+    npm update &
+fi
 if [ x$1 == xall ]; then
     if [ -d ~/.dotfiles ]; then
         cd ~/.dotfiles
