@@ -1,6 +1,8 @@
 #!/bin/bash
 
 begin=`date "+%s"`
+
+# os package manager
 {
     if type brew &>/dev/null; then
         brew update
@@ -20,6 +22,8 @@ begin=`date "+%s"`
         echo "update command not found"
     fi
 }&
+
+# python modules
 {
     if type pip3&>/dev/null; then
         for i in `pip3 list --outdated --format=legacy|awk -F ' ' '{print $1}'`
@@ -35,31 +39,48 @@ begin=`date "+%s"`
         echo "pip upgrade finish"
     fi
 }&
+
+# zsh plugins
 if type upgrade_oh_my_zsh &>/dev/null; then
     {
         upgrade_oh_my_zsh
         echo "Oh My Zsh upgrade finish"
     }&
 fi
+
+# ruby modules
 if type gem &>/dev/null; then
     {
         gem update -f
         gem cleanup
     }&
 fi
+
+# node.js modules
 if type npm &>/dev/null; then
     npm update &
 fi
+
+# perl modules
+if type cpan &>/dev/null; then
+    cpan -u &
+fi
+
 if [ x$1 == xall ]; then
+    # update .dotfiles
     if [ -d ~/.dotfiles ]; then
         cd ~/.dotfiles
         git pull
         ~/.dotfiles/setup.sh
     fi
+
+    # go binaries
 	{
 		vim -c GoUpdateBinaries -c qa only_for_load_go.go
 		echo "vim GoUpdateBinaries finish"
 	}&
+
+    # python modules
     {
         if type pip3&>/dev/null; then
             for i in `pip list --outdated --format=legacy|awk -F ' ' '{print $1}'`
@@ -70,8 +91,11 @@ if [ x$1 == xall ]; then
         fi
     }&
 fi
+
+# vim plugins
 vim -c PlugUpdate -c PlugUpgrade -c qa
 echo "vim PlugUpdate finish"
+
 wait
 end=`date "+%s"`
 echo "used `expr $end - $begin` seconds"
