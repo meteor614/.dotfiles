@@ -167,8 +167,13 @@ alias mak='make -j 10'
 
 type nvim >/dev/null 2>&1 && alias vim='nvim'
 
-#export FZF_DEFAULT_COMMAND='ag -g ""'
-export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
+if type rg>/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
+elif type ag>/dev/null 2>&1; then
+    export FZF_DEFAULT_ COMMAND='ag -g ""'
+elif type fd>/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fd --type f'
+fi
 export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
 export SVN_EDITOR='vim'
 export EDITOR='vim'
