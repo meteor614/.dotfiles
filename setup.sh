@@ -19,7 +19,8 @@ ln -s ~/.vimrc ~/.vim/init.vim
 test -L nvim || test -d nvim || ln -s ~/.vim nvim
 
 # for tmuxinator
-ln -s ${script_path}/tmuxinator
+ln -s ${script_path}/tmuxinator                 # for mac
+ln -s ${script_path}/tmuxinator ~/.tmuxinator   # for linux
 
 # for bin/*
 test -d ~/bin || mkdir ~/bin
