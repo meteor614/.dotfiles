@@ -161,6 +161,7 @@ alias gdcw='git icdiff --cached --word-diff'
 alias gdw='git icdiff --word-diff'
 
 alias mux='tmuxinator'
+alias mak='make -j 10'
 
 type nvim >/dev/null 2>&1 && alias vim='nvim'
 
