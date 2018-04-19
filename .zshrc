@@ -154,11 +154,13 @@ alias -s tgz='tar -xzvf'
 alias -s zip='unzip'
 alias -s bz2='tar -xjvf'
 
-# git
-alias gd='git icdiff'
-alias gdca='git icdiff --cached'
-alias gdcw='git icdiff --cached --word-diff'
-alias gdw='git icdiff --word-diff'
+# git icdiff
+if type icdiff>/dev/null 2>&1; then
+    alias gd='git icdiff'
+    alias gdca='git icdiff --cached'
+    alias gdcw='git icdiff --cached --word-diff'
+    alias gdw='git icdiff --word-diff'
+fi
 
 alias mux='tmuxinator'
 alias mak='make -j 10'
