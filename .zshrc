@@ -167,6 +167,7 @@ alias mak='make -j 10'
 
 type nvim >/dev/null 2>&1 && alias vim='nvim'
 
+# fzf
 if type rg>/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
 elif type ag>/dev/null 2>&1; then
@@ -175,10 +176,12 @@ elif type fd>/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fd --type f'
 fi
 export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
+
 export SVN_EDITOR='vim'
 export EDITOR='vim'
 export TERM=xterm-256color
 
+# pager
 export PAGER="less"
 export LESS="-R -i -g -c -W"
 type lesspipe.sh>/dev/null 2>&1 && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'

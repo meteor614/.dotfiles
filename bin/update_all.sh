@@ -67,14 +67,6 @@ if type npm &>/dev/null; then
     }&
 fi
 
-# perl modules
-if type cpan &>/dev/null; then
-    {
-        cpan -u
-        echo "cpan upgrade finish"
-    }&
-fi
-
 if [ x$1 == xall ]; then
     # update .dotfiles
     if [ -d ~/.dotfiles ]; then
@@ -83,6 +75,14 @@ if [ x$1 == xall ]; then
             git pull
             ~/.dotfiles/setup.sh
             echo ".dotfiles update finish"
+        }&
+    fi
+
+    # perl modules
+    if type cpan &>/dev/null; then
+        {
+            cpan -u
+            echo "cpan upgrade finish"
         }&
     fi
 
