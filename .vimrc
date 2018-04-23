@@ -27,6 +27,7 @@ Plug 'mileszs/ack.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
+Plug 'dyng/ctrlsf.vim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
@@ -241,6 +242,12 @@ nmap <silent> <leader>h <Plug>DashSearch
 " vim-autoformat
 noremap <F3> :Autoformat<CR>
 
+" ctrlsf
+nmap <leader>s <Plug>CtrlSFPrompt
+vmap <leader>s <Plug>CtrlSFVwordPath
+let g:ctrlsf_regex_pattern = 1
+let g:ctrlsf_ackprg = 'rg'
+
 
 " vim
 nnoremap ; :
@@ -281,6 +288,13 @@ noremap <c-k> 15gk
 cnoremap <C-a> <home>
 " CTRL+E moves to end of line in command mode
 cnoremap <C-e> <end>
+
+" Correct spell
+cab Qa qa
+cab W w
+cab Wq wq
+cab Wa wa
+cab X x
 
 " No surround sound
 set noerrorbells
