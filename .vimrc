@@ -1,5 +1,16 @@
 scriptencoding utf-8
 
+" Install vim-plug if first init
+if !filereadable(expand('~/.vim/autoload/plug.vim'))
+    let s:first_init = 1
+endif
+if exists('s:first_init')
+    echom 'Plugin manager: vim-plug has not been installed. Try to install...'
+    exec 'silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs '.
+            \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    echom 'Installing vim-plug complete.'
+endif
+
 call plug#begin('~/.vim/plugged')
 
 " Code completion
@@ -80,6 +91,11 @@ Plug 'Valloric/vim-valloric-colorscheme'
 "endif
 
 call plug#end()
+
+" Install all plugins
+if exists('s:first_init')
+    PlugInstall
+endif
 
 " vim common
 let g:mapleader=' '
