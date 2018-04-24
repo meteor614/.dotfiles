@@ -9,12 +9,12 @@ begin=`date "+%s"`
         brew upgrade --cleanup
         brew cleanup
         echo "brew update finish"
-    elif type apt&>/dev/null; then
+    elif type apt &>/dev/null; then
         sudo apt update
         sudo apt upgrade -y
         sudo apt-get clean
         echo "apt update finish"
-    elif type yum&>/dev/null; then
+    elif type yum &>/dev/null; then
         sudo yum -y update
         sudo yum clean
         echo "yum update finish"
@@ -27,7 +27,7 @@ begin=`date "+%s"`
 
 # python modules
 {
-    if type pip3&>/dev/null; then
+    if type pip3 &>/dev/null; then
         for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`
             do pip3 install --upgrade $i &
         done
@@ -67,6 +67,14 @@ if type npm &>/dev/null; then
     }&
 fi
 
+# perl modules
+if type cpan &>/dev/null; then
+    {
+        cpan -u -T
+        echo "cpan upgrade finish"
+    }&
+fi
+
 if [ x$1 == xall ]; then
     # update .dotfiles
     if [ -d ~/.dotfiles ]; then
@@ -78,14 +86,6 @@ if [ x$1 == xall ]; then
         }&
     fi
 
-    # perl modules
-    if type cpan &>/dev/null; then
-        {
-            cpan -u -T
-            echo "cpan upgrade finish"
-        }&
-    fi
-
     # go binaries
 	{
 		vim -c GoUpdateBinaries -c qa only_for_load_go.go
@@ -94,7 +94,7 @@ if [ x$1 == xall ]; then
 
     # python modules
     {
-        if type pip3&>/dev/null; then
+        if type pip3 &>/dev/null; then
             for i in `pip list --outdated|awk -F ' ' '{print $1}'`
                 do pip install --upgrade $i &
             done
