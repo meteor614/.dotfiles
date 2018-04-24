@@ -13,15 +13,14 @@ done
 ln -s ${script_path}/.aria2
 
 # for neovim
-test -d ~/.config || mkdir ~/.config
+test -e ~/.config || mkdir ~/.config
 cd ~/.config
 ln -s ~/.vimrc ~/.vim/init.vim
-test -L nvim || test -d nvim || ln -s ~/.vim nvim
+test -e nvim || ln -s ~/.vim nvim
 
 # for tmuxinator
-ln -s ${script_path}/tmuxinator                         # for mac
-test -L ~/.tmuxinator || test -d ~/.tmuxinator \
-    || ln -s ${script_path}/tmuxinator ~/.tmuxinator    # for linux
+ln -s ${script_path}/tmuxinator                                         # for mac
+test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
 
 # for bin/*
 test -d ~/bin || mkdir ~/bin

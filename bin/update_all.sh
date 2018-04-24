@@ -81,7 +81,7 @@ if [ x$1 == xall ]; then
     # perl modules
     if type cpan &>/dev/null; then
         {
-            cpan -u
+            cpan -u -T
             echo "cpan upgrade finish"
         }&
     fi
