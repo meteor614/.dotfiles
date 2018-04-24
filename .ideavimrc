@@ -1,0 +1,99 @@
+scriptencoding utf-8
+
+" vim
+let g:mapleader=' '
+let g:maplocalleader='-'
+nnoremap ; :
+
+" Keep search pattern at the center of the screen.
+nnoremap <silent> n nzz
+nnoremap <silent> N Nzz
+nnoremap <silent> * *zz
+nnoremap <silent> # #zz
+nnoremap <silent> g* g*zz
+nnoremap <silent> g; g;zz
+nnoremap <silent> g, g,zz
+
+" files
+nnoremap <leader>qa :qa<cr>
+nnoremap <leader>w :w<cr>
+nnoremap <leader>wq :wq<cr>
+nnoremap <leader>v :e ~/.vimrc<cr>
+nnoremap <leader>cd :cd %:p:h<cr>
+cmap w!! w !sudo tee >/dev/null %
+
+" 去掉上次搜索高亮
+nnoremap <silent><leader>/ :nohls<cr>
+
+"nnoremap <leader>h <c-w>h
+"nnoremap <leader>l <c-w>l
+"nnoremap <leader>k <c-w>k
+"nnoremap <leader>j <c-w>j
+
+nnoremap <leader>n :bn<cr>
+nnoremap <leader>p :bp<cr>
+
+" jump
+noremap <c-j> 15gj
+noremap <c-k> 15gk
+
+" CTRL+A moves to start of line in command mode
+cnoremap <C-a> <home>
+" CTRL+E moves to end of line in command mode
+cnoremap <C-e> <end>
+
+" Correct spell
+cab Qa qa
+cab W w
+cab Wq wq
+cab Wa wa
+cab X x
+
+" No surround sound
+set noerrorbells
+set novisualbell
+set t_vb=
+
+" For indent
+set wrap
+set autoindent
+set copyindent
+set smartindent
+set smarttab
+set shiftround
+
+vnoremap < <gv
+vnoremap > >gv
+
+" Format
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+
+" Encoding setting
+set fileencodings=ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1
+
+" Search and Case
+set gdefault            " this makes search/replace global by default
+set ignorecase
+set smartcase
+set hlsearch
+set incsearch
+set fileignorecase
+set showcmd
+
+" Fold
+nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+nnoremap zr zR
+
+" Other
+set backspace=indent,eol,start
+set virtualedit=block
+set wildmenu
+set showmatch
+set matchtime=2
+set title
+set autoread
+set clipboard=unnamedplus,unnamed
