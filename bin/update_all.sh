@@ -13,6 +13,7 @@ begin=`date "+%s"`
         sudo apt update
         sudo apt upgrade -y
         sudo apt-get clean
+        sudo apt autoremove
         echo "apt update finish"
     elif type yum &>/dev/null; then
         sudo yum -y update
@@ -65,6 +66,12 @@ if type npm &>/dev/null; then
         npm update
         echo "npm upgrade finish"
     }&
+fi
+
+# update gdb-dashboard from github
+if [ -d ~/gdb-dashboard ]; then
+    cd ~/gdb-dashboard
+    git pull &
 fi
 
 # perl modules

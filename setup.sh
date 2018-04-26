@@ -31,8 +31,8 @@ for i in ${files[@]}; do
 done
 test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 
-# init ssh authorized_keys
 if [ x$1 == xall ]; then
+    # init ssh authorized_keys
     test -d ~/.ssh || mkdir ~/.ssh
     cd ~/.ssh
     if cmp ${script_path}/.ssh/id_rsa.pub id_rsa.pub ; then
@@ -47,3 +47,13 @@ fi
 # generate cpp_tags
 test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
 
+# install/update gdb-dashboard
+if type gdb &>/dev/null; then
+    if [ -d ~/gdb-dashboard ]; then
+        cd ~/gdb-dashboard
+        git pull
+    else
+        cd ~
+        git clone https://github.com/cyrus-and/gdb-dashboard
+    fi
+fi
