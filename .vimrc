@@ -7,14 +7,14 @@ endif
 if exists('s:first_init')
     echom 'Plugin manager: vim-plug has not been installed. Try to install...'
     exec 'silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs '.
-            \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+                \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     echom 'Installing vim-plug complete.'
 endif
 
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer --go-completer --js-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
 Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
@@ -31,10 +31,9 @@ Plug 'Chiel92/vim-autoformat'
 Plug 'python-mode/python-mode', { 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'skywind3000/echofunc'
-"Plug 'tenfyzhong/CompleteParameter.vim'
 
 " Search
-Plug 'mileszs/ack.vim'
+"Plug 'mileszs/ack.vim'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
@@ -78,17 +77,10 @@ Plug 'jpalardy/vim-slime'
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
 
-" 配色方案
+" ColorScheme
 Plug 'tomasr/molokai'
 Plug 'ajh17/Spacegray.vim'
 Plug 'Valloric/vim-valloric-colorscheme'
-
-"Plug 'jalcine/cmake.vim'
-
-"if has('nvim')
-	"Plug 'frankier/neovim-colors-solarized-truecolor-only'
-	"Plug 'c0r73x/neotags.nvim'
-"endif
 
 call plug#end()
 

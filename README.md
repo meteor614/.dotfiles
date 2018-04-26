@@ -1,3 +1,10 @@
 # dotfiles
 
-my mac book pro's vim/flake/clang-format/zsh/tmux/gdb/git configure file
+All my dotfiles.
+* vim
+* zsh
+* tmux
+* bash
+* git
+* ...
+

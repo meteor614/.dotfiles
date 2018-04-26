@@ -2,7 +2,7 @@
 
 script_path=$(cd $(dirname "${bash_source[0]}") && pwd)
 
-# for .* file
+# for .* file only
 cd ~
 files=($(ls -FA ${script_path}|grep '^\..*[^/]$'))
 for i in ${files[@]}; do
@@ -43,3 +43,7 @@ if [ x$1 == xall ]; then
         cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
     fi
 fi
+
+# generate cpp_tags
+test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
+
