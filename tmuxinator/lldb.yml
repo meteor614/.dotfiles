@@ -1,7 +1,7 @@
-# ~/.tmuxinator/work.yml
+# ~/.tmuxinator/lldb.yml
 
-name: work
-root: ~/
+name: lldb
+root: ~/<%= @args[0] %>
 
 # Optional tmux socket
 # socket_name: foo
@@ -40,16 +40,16 @@ root: ~/
 # attach: false
 
 # Runs after everything. Use it to attach to tmux with custom options etc.
-# post: tmux -CC attach -t work
+# post: tmux -CC attach -t lldb
 
 windows:
     - editor:
-        #layout: main-vertical
-        # you can use command 'tmux list-windows' to get your layout
-        layout: 0a35,178x44,0,0{108x44,0,0,0,69x44,109,0[69x21,109,0,1,69x22,109,22,2]}
+        layout: 67cb,198x44,0,0{118x44,0,0,1,79x44,119,0[79x9,119,0,0,79x9,119,10,8,79x24,119,20,9]}
         # Synchronize all panes of this window, can be enabled before or after the pane commands run.
         # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
         # synchronize: after
         panes:
             - 
-            - 
+            - voltron view cmd 'frame variable'
+            - voltron view backtrace
+            - voltron view cmd 'source list -a $rip -c 25'
