@@ -74,6 +74,12 @@ if [ -d ~/gdb-dashboard ]; then
     git pull &
 fi
 
+# update voltron from github
+if [ -d ~/voltron ]; then
+    cd ~/voltron
+    git pull &
+fi
+
 # perl modules
 if type cpan &>/dev/null; then
     {

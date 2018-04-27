@@ -45,9 +45,8 @@ Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
 Plug 'majutsushi/tagbar'
-Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-"Plug 'vim-scripts/taglist.vim'
 "Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
+"Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 
 " Snippets
 Plug 'sirver/UltiSnips'

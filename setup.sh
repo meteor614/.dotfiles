@@ -31,19 +31,6 @@ for i in ${files[@]}; do
 done
 test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 
-if [ x$1 == xall ]; then
-    # init ssh authorized_keys
-    test -d ~/.ssh || mkdir ~/.ssh
-    cd ~/.ssh
-    if cmp ${script_path}/.ssh/id_rsa.pub id_rsa.pub ; then
-        echo 'local file ~/.ssh/id_rsa.pub exist, ignore it'
-    elif [ -f authorized_keys ] && [ x$(grep -F $(awk '{print $2}' ${script_path}/.ssh/id_rsa.pub) authorized_keys -c) == x1 ]; then
-        echo 'authorized_keys exist'
-    else
-        cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
-    fi
-fi
-
 # generate cpp_tags
 test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
 
@@ -55,5 +42,29 @@ if type gdb &>/dev/null; then
     else
         cd ~
         git clone https://github.com/cyrus-and/gdb-dashboard
+    fi
+fi
+
+# install/update voltron
+if type lldb &>/dev/null; then
+    if [ -d ~/voltron ]; then
+        cd ~/voltron
+        git pull
+    else
+        cd ~
+        git clone https://github.com/snare/voltron
+    fi
+fi
+
+if [ x$1 == xall ]; then
+    # init ssh authorized_keys
+    test -d ~/.ssh || mkdir ~/.ssh
+    cd ~/.ssh
+    if cmp ${script_path}/.ssh/id_rsa.pub id_rsa.pub ; then
+        echo 'local file ~/.ssh/id_rsa.pub exist, ignore it'
+    elif [ -f authorized_keys ] && [ x$(grep -F $(awk '{print $2}' ${script_path}/.ssh/id_rsa.pub) authorized_keys -c) == x1 ]; then
+        echo 'authorized_keys exist'
+    else
+        cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
     fi
 fi
