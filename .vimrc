@@ -14,8 +14,10 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+if v:version > 704
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
+    Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+endif
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " Syntax checker & Highlight

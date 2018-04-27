@@ -43,7 +43,7 @@ root: ~/<%= @args[0] %>
 # post: tmux -CC attach -t lldb
 
 windows:
-    - editor:
+    - lldb:
         layout: 67cb,198x44,0,0{118x44,0,0,1,79x44,119,0[79x9,119,0,0,79x9,119,10,8,79x24,119,20,9]}
         # Synchronize all panes of this window, can be enabled before or after the pane commands run.
         # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'

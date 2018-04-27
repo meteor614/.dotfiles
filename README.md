@@ -3,8 +3,9 @@
 All my dotfiles.
 * vim
 * zsh
-* tmux
+* tmux/tmuxinator
 * bash
 * git
+* gdb/lldb
 * ...
 
