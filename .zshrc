@@ -59,6 +59,7 @@ antigen bundle Vifon/deer
 
 antigen bundle ssh-agent
 antigen bundle popstas/zsh-command-time
+antigen bundle "greymd/tmux-xpanes"
 
 # OS specific plugins
 if [[ $CURRENT_OS == 'OS X' ]]; then
