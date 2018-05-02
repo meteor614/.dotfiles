@@ -119,8 +119,7 @@ nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
 let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
 let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
 let g:ycm_confirm_extra_conf = 0
-"let g:ycm_python_binary_path = 'python'
-let g:ycm_python_binary_path = g:python3_host_prog
+let g:ycm_python_binary_path = 'python'
 "let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 
