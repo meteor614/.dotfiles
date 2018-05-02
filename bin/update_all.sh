@@ -29,12 +29,14 @@ begin=`date "+%s"`
 # python modules
 {
     if type pip3 &>/dev/null; then
+        pip3 install --upgrade pip
         for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`
             do pip3 install --upgrade $i &
         done
         wait
         echo "pip3 upgrade finish"
     else
+        pip install --upgrade pip
         for i in `pip list --outdated|awk -F ' ' '{print $1}'`
             do pip install --upgrade $i &
         done
@@ -108,6 +110,7 @@ if [ x$1 == xall ]; then
     # python modules
     {
         if type pip3 &>/dev/null; then
+            pip install --upgrade pip
             for i in `pip list --outdated|awk -F ' ' '{print $1}'`
                 do pip install --upgrade $i &
             done
