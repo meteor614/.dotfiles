@@ -33,6 +33,7 @@ Plug 'Chiel92/vim-autoformat'
 Plug 'python-mode/python-mode', { 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'skywind3000/echofunc'
+Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 
 " Search
 "Plug 'mileszs/ack.vim'
@@ -394,6 +395,7 @@ set shortmess=atI       " 启动的时候不显示那个援助索马里儿童的
 
 filetype plugin on
 syntax enable
+syntax on
 "colorscheme molokai
 colorscheme spacegray
 
