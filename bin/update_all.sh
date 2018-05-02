@@ -121,7 +121,8 @@ if [ x$1 == xall ]; then
 fi
 
 # vim plugins
-vim -c PlugUpdate -c PlugUpgrade -c qa
+vim -c PlugUpgrade -c qa
+vim -c PlugInstall -c PlugUpdate -c qa
 echo "vim PlugUpdate finish"
 
 wait
