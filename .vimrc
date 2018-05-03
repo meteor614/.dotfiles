@@ -298,6 +298,21 @@ cnoremap <C-a> <home>
 " CTRL+E moves to end of line in command mode
 cnoremap <C-e> <end>
 
+" move current line down
+noremap <silent>- :m+<CR>
+" move current line up
+noremap <silent>_ :m-2<CR>
+" move visual selection down
+vnoremap <silent>- :m '>+1<CR>gv=gv
+" move visual selection up
+vnoremap <silent>_ :m '<-2<CR>gv=gv
+
+" replace word under cursor
+nnoremap <leader>; :%s/\<<C-r><C-w>\>//<Left>
+
+" switch between last two files
+nnoremap <leader><Tab> <c-^>
+
 " Correct spell
 cab Qa qa
 cab W w
@@ -401,7 +416,9 @@ colorscheme spacegray
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
     autocmd FileType vim nmap <buffer> <leader>r :source %<cr>
-    autocmd FileType sh nmap <buffer> <leader>r :!./%<cr>
+    autocmd FileType sh nmap <buffer> <leader>r :!bash %<cr>
+    autocmd FileType zsh nmap <buffer> <leader>r :!zsh %<cr>
+    autocmd FileType perl nmap <buffer> <leader>r :!perl %<cr>
     autocmd FileType markdown nmap <buffer> <leader>r :Xmark<cr>
 augroup END
 
