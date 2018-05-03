@@ -102,10 +102,10 @@ if [ x$1 == xall ]; then
     fi
 
     # go binaries
-	{
-		vim -c GoUpdateBinaries -c qa only_for_load_go.go
-		echo "vim GoUpdateBinaries finish"
-	}&
+    {
+        vim -c GoUpdateBinaries -c qa only_for_load_go.go
+        echo "vim GoUpdateBinaries finish"
+    }&
 
     # python modules
     {

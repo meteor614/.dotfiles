@@ -1,6 +1,6 @@
 #!/bin/bash
 
-script_path=$(cd $(dirname "${bash_source[0]}") && pwd)
+script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 
 # for .* file only
 echo -e '\033[31mInit dotfiles...\033[0m'

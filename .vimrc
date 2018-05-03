@@ -401,6 +401,8 @@ colorscheme spacegray
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags
     autocmd FileType vim nmap <buffer> <leader>r :source %<cr>
+    autocmd FileType sh nmap <buffer> <leader>r :!./%<cr>
+    autocmd FileType markdown nmap <buffer> <leader>r :Xmark<cr>
 augroup END
 
 " The alt (option) key on macs now behaves like the 'meta' key. This means we
