@@ -267,6 +267,3 @@ set -g mode-keys vi
 
 # move status line to top
 #set -g status-position top
-
-#set -ga terminal-overrides ',xterm-256color:Tc'
-#set -g default-terminal "screen-256color"

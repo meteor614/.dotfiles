@@ -33,9 +33,18 @@ for i in ${files[@]}; do
 done
 test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 
-# generate cpp_tags
-echo -e '\033[31mGenerate cpp tags...\033[0m'
-test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
+if type tmux &>/dev/null; then
+    if [ -d ~/.tmux ]; then
+        echo -e '\033[31mUpdate .tmux...\033[0m'
+        cd ~/.tmux
+        git pull
+    else
+        echo -e '\033[31mGet .tmux...\033[0m'
+        cd ~
+        git clone https://github.com/gpakosz/.tmux
+        ln -s .tmux/.tmux.conf
+    fi
+fi
 
 # install/update gdb-dashboard
 if type gdb &>/dev/null; then
@@ -64,6 +73,10 @@ if type lldb &>/dev/null; then
         ./install.sh -u -b lldb
     fi
 fi
+
+# generate cpp_tags
+echo -e '\033[31mGenerate cpp tags...\033[0m'
+test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
 
 if [ x$1 == xall ]; then
     echo -e '\033[31mInit ssh authorized_keys...\033[0m'

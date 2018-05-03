@@ -70,6 +70,12 @@ if type npm &>/dev/null; then
     }&
 fi
 
+# update .tmux from github
+if [ -d ~/.tmux ]; then
+    cd ~/.tmux
+    git pull &
+fi
+
 # update gdb-dashboard from github
 if [ -d ~/gdb-dashboard ]; then
     cd ~/gdb-dashboard
@@ -91,16 +97,6 @@ if type cpan &>/dev/null; then
 fi
 
 if [ x$1 == xall ]; then
-    # update .dotfiles
-    if [ -d ~/.dotfiles ]; then
-        {
-            cd ~/.dotfiles
-            git pull
-            ~/.dotfiles/setup.sh
-            echo ".dotfiles update finish"
-        }&
-    fi
-
     # go binaries
     {
         vim -c GoUpdateBinaries -c qa only_for_load_go.go
@@ -118,6 +114,16 @@ if [ x$1 == xall ]; then
             echo "pip upgrade finish"
         fi
     }&
+
+    # update .dotfiles
+    if [ -d ~/.dotfiles ]; then
+        {
+            cd ~/.dotfiles
+            git pull
+            ~/.dotfiles/setup.sh
+            echo ".dotfiles update finish"
+        }&
+    fi
 fi
 
 # vim plugins
