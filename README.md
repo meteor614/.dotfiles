@@ -7,5 +7,5 @@ All my dotfiles.
 * git
 * gdb/lldb
 * scripts
-* ...
+* …
 

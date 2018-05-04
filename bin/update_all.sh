@@ -56,8 +56,8 @@ fi
 # ruby modules
 if type gem &>/dev/null; then
     {
-        gem update -f
-        gem cleanup
+        sudo gem update -f
+        sudo gem cleanup
         echo "gem upgrade finish"
     }&
 fi
@@ -65,7 +65,7 @@ fi
 # node.js modules
 if type npm &>/dev/null; then
     {
-        npm update
+        sudo npm update
         echo "npm upgrade finish"
     }&
 fi
@@ -85,7 +85,7 @@ fi
 # perl modules
 if type cpan &>/dev/null; then
     {
-        cpan -u -T
+        sudo cpan -u -T
         echo "cpan upgrade finish"
     }&
 fi
