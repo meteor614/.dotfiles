@@ -2,6 +2,10 @@
 
 script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 
+# update submodule
+echo -e '\033[31mUpdate submodules...\033[0m'
+git submodule update --init --recursive 
+
 # for .* file only
 echo -e '\033[31mInit dotfiles...\033[0m'
 cd ~
