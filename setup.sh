@@ -33,18 +33,9 @@ for i in ${files[@]}; do
 done
 test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 
-if type tmux &>/dev/null; then
-    if [ -d ~/.tmux ]; then
-        echo -e '\033[31mUpdate .tmux...\033[0m'
-        cd ~/.tmux
-        git pull
-    else
-        echo -e '\033[31mGet .tmux...\033[0m'
-        cd ~
-        git clone https://github.com/gpakosz/.tmux
-        ln -s .tmux/.tmux.conf
-    fi
-fi
+# for tmux
+cd ~
+ln -s ${script_path}/.tmux/.tmux.conf
 
 # install/update gdb-dashboard
 if type gdb &>/dev/null; then

@@ -2,10 +2,10 @@
 
 All my dotfiles.
 * vim
-* zsh
+* zsh/bash
 * tmux/tmuxinator
-* bash
 * git
 * gdb/lldb
+* scripts
 * ...
 

@@ -70,12 +70,6 @@ if type npm &>/dev/null; then
     }&
 fi
 
-# update .tmux from github
-if [ -d ~/.tmux ]; then
-    cd ~/.tmux
-    git pull &
-fi
-
 # update gdb-dashboard from github
 if [ -d ~/gdb-dashboard ]; then
     cd ~/gdb-dashboard
