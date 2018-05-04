@@ -9,7 +9,7 @@ git submodule update --init --recursive
 # for .* file only
 echo -e '\033[31mInit dotfiles...\033[0m'
 cd ~
-files=($(ls -FA ${script_path}|grep '^\..*[^/]$'))
+files=($(ls -FA ${script_path}|grep '^\..*[^/]$'|grep -v '^\.gitmodules$'))
 for i in ${files[@]}; do
     ln -s ${script_path}/${i}
 done
