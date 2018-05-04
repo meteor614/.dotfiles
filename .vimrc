@@ -301,11 +301,11 @@ cnoremap <C-e> <end>
 " move current line down
 noremap <silent>- :m+<CR>
 " move current line up
-noremap <silent>_ :m-2<CR>
+noremap <silent><c-_> :m-2<CR>
 " move visual selection down
 vnoremap <silent>- :m '>+1<CR>gv=gv
 " move visual selection up
-vnoremap <silent>_ :m '<-2<CR>gv=gv
+vnoremap <silent><c-_> :m '<-2<CR>gv=gv
 
 " replace word under cursor
 nnoremap <leader>; :%s/\<<C-r><C-w>\>//<Left>
