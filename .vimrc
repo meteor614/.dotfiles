@@ -270,6 +270,9 @@ nnoremap <silent> g* g*zz
 nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
+" 去掉上次搜索高亮
+nnoremap <silent><leader>/ :nohls<cr>
+
 " files
 nnoremap <leader>qa :qa<cr>
 nnoremap <leader>w :w<cr>
@@ -277,9 +280,6 @@ nnoremap <leader>wq :wq<cr>
 nnoremap <leader>v :e ~/.vimrc<cr>
 nnoremap <leader>cd :cd %:p:h<cr>
 cmap w!! w !sudo tee >/dev/null %
-
-" 去掉上次搜索高亮
-nnoremap <silent><leader>/ :nohls<cr>
 
 "nnoremap <leader>h <c-w>h
 "nnoremap <leader>l <c-w>l
