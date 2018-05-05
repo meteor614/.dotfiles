@@ -30,15 +30,17 @@ begin=`date "+%s"`
 {
     if type pip3 &>/dev/null; then
         pip3 install --upgrade pip
-        for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`
-            do pip3 install --upgrade $i &
+        #flake8 3.5.0 require pycodestyle < 2.4.0
+        #for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`; do
+        for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle") {print $1}}'`; do
+            pip3 install --upgrade $i &
         done
         wait
         echo "pip3 upgrade finish"
     else
         pip install --upgrade pip
-        for i in `pip list --outdated|awk -F ' ' '{print $1}'`
-            do pip install --upgrade $i &
+        for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
+            pip install --upgrade $i &
         done
         wait
         echo "pip upgrade finish"
@@ -101,8 +103,8 @@ if [ x$1 == xall ]; then
     {
         if type pip3 &>/dev/null; then
             pip install --upgrade pip
-            for i in `pip list --outdated|awk -F ' ' '{print $1}'`
-                do pip install --upgrade $i &
+            for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
+                pip install --upgrade $i &
             done
             wait
             echo "pip upgrade finish"
