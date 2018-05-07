@@ -43,7 +43,7 @@ antigen bundle git
 antigen bundle heroku
 antigen bundle pip
 antigen bundle svn-fast-info
-antigen bundle command-not-find
+antigen bundle command-not-found
 
 antigen bundle colorize
 antigen bundle github
