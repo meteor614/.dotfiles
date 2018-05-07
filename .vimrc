@@ -139,6 +139,7 @@ let g:ale_linters = {
             \ }
 nmap <silent> <m-j> <Plug>(ale_next_wrap)
 nmap <silent> <m-k> <Plug>(ale_previous_wrap)
+nmap <silent> <m-f> <Plug>(ale_fix)
 nmap <silent> <leader>j <Plug>(ale_next_wrap)
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f <Plug>(ale_fix)

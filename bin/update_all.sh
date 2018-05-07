@@ -126,9 +126,11 @@ if [ x$1 == xall ]; then
 fi
 
 # vim plugins
-vim -c PlugUpgrade -c qa
-vim -c PlugInstall -c PlugUpdate -c qa
-echo "vim PlugUpdate finish"
+if type vim &>/dev/null; then
+    vim -c PlugUpgrade -c qa
+    vim -c PlugInstall -c PlugUpdate -c qa
+    echo "vim PlugUpdate finish"
+fi
 
 wait
 end=`date "+%s"`
