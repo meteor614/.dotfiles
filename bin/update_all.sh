@@ -49,10 +49,11 @@ begin=`date "+%s"`
 }&
 
 # zsh plugins
-if type upgrade_oh_my_zsh &>/dev/null; then
+if type antigen &>/dev/null; then
     {
-        upgrade_oh_my_zsh
-        echo "Oh My Zsh upgrade finish"
+        antigen update
+        antigen cleanup
+        echo "antigen upgrade finish"
     }&
 fi
 
