@@ -14,17 +14,17 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-if v:version > 704
+if v:version > 800
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " Syntax checker & Highlight
-if has('gui_macvim')
-    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-elseif has('nvim')
+if has('nvim')
     Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+elseif v:version > 800
+    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
 Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
@@ -67,7 +67,6 @@ Plug 'vim-airline/vim-airline'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
-"Plug 'gilligan/vim-lldb'
 Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
@@ -75,6 +74,10 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
 "Plug 'terryma/vim-smooth-scroll'
 Plug 'jpalardy/vim-slime'
+if !has('nvim')
+    " <m-?> and <a-?> key map fix for vim
+    Plug 'drmikehenry/vim-fixkey'
+endif
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -140,10 +143,6 @@ nmap <silent> <leader>j <Plug>(ale_next_wrap)
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 nmap <silent> <leader>f <Plug>(ale_fix)
 
-" clang-format
-map <C-L> :pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
-"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
-
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
 
@@ -157,9 +156,6 @@ nmap ga <Plug>(EasyAlign)
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
 nnoremap <leader>a :A<cr>
-"iunmap <leader>ih
-"iunmap <leader>is
-"iunmap <leader>ihn
 
 " vim-smooth-scroll
 "nnoremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<cr>
@@ -250,6 +246,9 @@ nmap <silent> <leader>h <Plug>DashSearch
 
 " vim-autoformat
 noremap <F3> :Autoformat<CR>
+" clang-format, use vim-autoformat
+"map <C-L> :pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
+"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
 
 " ctrlsf
 nmap <leader>s <Plug>CtrlSFPrompt
