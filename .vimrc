@@ -30,7 +30,7 @@ Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
 Plug 'w0rp/ale'
 Plug 'Chiel92/vim-autoformat'
-Plug 'python-mode/python-mode',  { 'branch': 'develop', 'for': 'python' }
+Plug 'python-mode/python-mode',  { 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
@@ -236,7 +236,6 @@ else
 endif
 
 " python-mode
-"let g:pymode_python = '/usr/local/bin/python3'
 let g:pymode_options_colorcolumn = 0
 let g:pymode_rope = 0
 let g:pymode_rope_lookup_project = 0
