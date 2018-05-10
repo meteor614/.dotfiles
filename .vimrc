@@ -14,7 +14,7 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-if v:version > 800
+if v:version > 740
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
@@ -23,14 +23,14 @@ Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 " Syntax checker & Highlight
 if has('nvim')
     Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-elseif v:version > 800
+elseif v:version > 740
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
 Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
 Plug 'w0rp/ale'
 Plug 'Chiel92/vim-autoformat'
-Plug 'python-mode/python-mode', { 'for': 'python' }
+Plug 'python-mode/python-mode',  { 'branch': 'develop', 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
@@ -236,6 +236,7 @@ else
 endif
 
 " python-mode
+"let g:pymode_python = '/usr/local/bin/python3'
 let g:pymode_options_colorcolumn = 0
 let g:pymode_rope = 0
 let g:pymode_rope_lookup_project = 0
