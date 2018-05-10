@@ -70,6 +70,7 @@ fi
 if type npm &>/dev/null; then
     {
         sudo npm update
+        sudo npm --force cache clean
         echo "npm upgrade finish"
     }&
 fi
