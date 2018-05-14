@@ -70,6 +70,14 @@ if type lldb &>/dev/null; then
     fi
 fi
 
+# ipython settings
+if type ipython &>/dev/null; then
+    if [ ! -e ~/.ipython/profile_default/ipython_config.py ] || [ x$(grep  'c\.InteractiveShellApp\.matplotlib[ \t]*=' ~/.ipython/profile_default/ipython_config.py -c) != x1 ]; then
+        mkdir -p ~/.ipython/profile_default
+        echo "c.InteractiveShellApp.matplotlib = 'inline'" >> ~/.ipython/profile_default/ipython_config.py
+    fi
+fi
+
 # generate cpp_tags
 echo -e '\033[31mGenerate cpp tags...\033[0m'
 test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
