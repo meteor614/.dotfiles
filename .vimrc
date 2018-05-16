@@ -420,6 +420,9 @@ augroup vimrc
     autocmd FileType zsh nmap <buffer> <leader>r :!zsh %<cr>
     autocmd FileType perl nmap <buffer> <leader>r :!perl %<cr>
     autocmd FileType markdown nmap <buffer> <leader>r :Xmark<cr>
+
+    " vim自动打开跳到上次的光标位置
+    autocmd BufReadPost * if line("'\"") > 0|if line("'\"") <= line("$")|exe("norm '\"")|else|exe "norm $"|endif|endif
 augroup END
 
 " The alt (option) key on macs now behaves like the 'meta' key. This means we
