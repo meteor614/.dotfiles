@@ -32,7 +32,7 @@ begin=`date "+%s"`
         pip3 install --upgrade pip
         #flake8 3.5.0 require pycodestyle < 2.4.0
         #for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`; do
-        for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle" && $2 ~ "[0-9].*") {print $1}}'`; do
+        for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle" && $1!="pyflakes" && $2 ~ "[0-9].*") {print $1}}'`; do
             pip3 install --upgrade $i &
         done
         wait
@@ -69,6 +69,7 @@ fi
 # node.js modules
 if type npm &>/dev/null; then
     {
+        sudo npm install -g npm
         sudo npm update
         sudo npm --force cache clean
         echo "npm upgrade finish"
@@ -136,3 +137,4 @@ fi
 wait
 end=`date "+%s"`
 echo "used `expr $end - $begin` seconds"
+
