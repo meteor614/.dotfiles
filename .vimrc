@@ -61,7 +61,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 
 " Misc
-Plug 'vim-scripts/FencView.vim'
+"Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
 Plug 'vim-airline/vim-airline'
 Plug 'rizzatti/dash.vim'
@@ -96,7 +96,7 @@ endif
 
 " vim common
 let g:mapleader=' '
-let g:maplocalleader='-'
+let g:maplocalleader=','
 let g:python2_host_skip_check=1
 let g:python2_host_prog='python2'
 let g:python3_host_skip_check=1
