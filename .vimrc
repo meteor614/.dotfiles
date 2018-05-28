@@ -28,7 +28,9 @@ elseif v:version > 740
 endif
 Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
-Plug 'w0rp/ale'
+if v:version > 740
+    Plug 'w0rp/ale'
+endif
 Plug 'Chiel92/vim-autoformat'
 Plug 'python-mode/python-mode',  { 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
