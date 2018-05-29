@@ -34,7 +34,7 @@ endif
 Plug 'Chiel92/vim-autoformat'
 Plug 'python-mode/python-mode',  { 'for': 'python' }
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
-Plug 'skywind3000/echofunc'
+"Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 
 " Search
