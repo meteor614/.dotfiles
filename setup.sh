@@ -80,7 +80,7 @@ fi
 
 # generate cpp_tags
 echo -e '\033[31mGenerate cpp tags...\033[0m'
-test ! type g++ &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
+test ! type g++ &>/dev/null || test ! type ctags &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
 
 if [ x$1 == xall ]; then
     echo -e '\033[31mInit ssh authorized_keys...\033[0m'
