@@ -14,7 +14,7 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-if v:version > 740
+if v:version > 704
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
@@ -23,12 +23,12 @@ Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 " Syntax checker & Highlight
 if has('nvim')
     Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-elseif v:version > 740
+elseif v:version > 704
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
 Plug 'luochen1990/rainbow'
 Plug 'Valloric/MatchTagAlways'
-if v:version > 740
+if v:version > 704
     Plug 'w0rp/ale'
 endif
 Plug 'Chiel92/vim-autoformat'
