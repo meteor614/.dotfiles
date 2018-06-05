@@ -66,7 +66,7 @@ if type lldb &>/dev/null; then
         cd ~
         git clone https://github.com/snare/voltron
         cd voltron
-        ./install.sh -u -b lldb
+        ./install.sh -b lldb
     fi
 fi
 
