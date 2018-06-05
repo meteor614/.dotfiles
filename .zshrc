@@ -231,3 +231,6 @@ test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
