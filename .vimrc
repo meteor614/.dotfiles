@@ -43,6 +43,8 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'dyng/ctrlsf.vim'
+Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
+Plug 'wsdjeg/FlyGrep.vim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
@@ -144,7 +146,7 @@ nmap <silent> <m-k> <Plug>(ale_previous_wrap)
 nmap <silent> <m-f> <Plug>(ale_fix)
 nmap <silent> <leader>j <Plug>(ale_next_wrap)
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
-nmap <silent> <leader>f <Plug>(ale_fix)
+"nmap <silent> <leader>f <Plug>(ale_fix)
 
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
