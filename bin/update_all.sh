@@ -31,8 +31,8 @@ begin=`date "+%s"`
     if type pip3 &>/dev/null; then
         pip3 install --upgrade pip
         #flake8 3.5.0 require pycodestyle < 2.4.0
-        #for i in `pip3 list --outdated|awk -F ' ' '{print $1}'`; do
-        for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle" && $1!="pyflakes" && $2 ~ "[0-9].*") {print $1}}'`; do
+        for i in `pip3 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+        #for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle" && $1!="pyflakes" && $2 ~ "[0-9].*") {print $1}}'`; do
             pip3 install --upgrade $i &
         done
         wait
