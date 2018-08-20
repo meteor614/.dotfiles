@@ -493,3 +493,9 @@ call s:tmux_map('<leader>to', '.top-right')
 call s:tmux_map('<leader>tn', '.bottom-left')
 call s:tmux_map('<leader>t.', '.bottom-right')
 
+" temporary fix
+" https://github.com/vim/vim/issues/3117
+if has('python3') && !has('nvim') && !has('patch-8.1.201')
+    silent! python3 1
+endif
+
