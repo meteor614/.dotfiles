@@ -60,8 +60,13 @@ fi
 # ruby modules
 if type gem &>/dev/null; then
     {
-        sudo gem update -f
-        sudo gem cleanup
+        if type brew &>/dev/null; then
+            gem update -f
+            gem cleanup
+        else
+            sudo gem update -f
+            sudo gem cleanup
+        fi
         echo "gem upgrade finish"
     }&
 fi
@@ -69,9 +74,15 @@ fi
 # node.js modules
 if type npm &>/dev/null; then
     {
-        sudo npm install -g npm
-        sudo npm update
-        sudo npm --force cache clean
+        if type brew &>/dev/null; then
+            npm install -g npm
+            npm update
+            npm --force cache clean
+        else
+            sudo npm install -g npm
+            sudo npm update
+            sudo npm --force cache clean
+        fi
         echo "npm upgrade finish"
     }&
 fi
