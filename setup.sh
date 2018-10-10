@@ -21,6 +21,7 @@ ln -s ${script_path}/.aria2
 # for neovim
 test -e ~/.config || mkdir ~/.config
 cd ~/.config
+test -e ~/.vim || mkdir ~/.vim
 ln -s ~/.vimrc ~/.vim/init.vim
 test -e nvim || ln -s ~/.vim nvim
 
