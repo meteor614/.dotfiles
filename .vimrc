@@ -27,12 +27,16 @@ elseif v:version > 704
     Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 endif
 Plug 'luochen1990/rainbow'
-Plug 'Valloric/MatchTagAlways'
+if has('python3') || has('python')
+    Plug 'Valloric/MatchTagAlways'
+endif
 if v:version > 704
     Plug 'w0rp/ale'
 endif
 Plug 'Chiel92/vim-autoformat'
-Plug 'python-mode/python-mode',  { 'for': 'python' }
+if has('python3') || has('python')
+    Plug 'python-mode/python-mode',  { 'for': 'python' }
+endif
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
@@ -56,8 +60,10 @@ Plug 'majutsushi/tagbar'
 "Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 
 " Snippets
-Plug 'sirver/UltiSnips'
-Plug 'honza/vim-snippets'
+if has('python3') || has('python')
+    Plug 'sirver/UltiSnips'
+    Plug 'honza/vim-snippets'
+endif
 
 " Git
 Plug 'airblade/vim-gitgutter'
