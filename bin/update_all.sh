@@ -41,7 +41,7 @@ begin=`date "+%s"`
         done
         wait
         echo "pip3 upgrade finish"
-    else
+    elif type pip &>/dev/null; then
         pip install --upgrade pip
         #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
         for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
