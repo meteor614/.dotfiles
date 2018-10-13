@@ -19,6 +19,10 @@ begin=`date "+%s"`
         sudo yum -y update
         sudo yum clean
         echo "yum update finish"
+    elif type ipkg &>/dev/null; then
+        sudo ipkg update
+        sudo ipkg upgrade
+        echo "ipkg update finish"
     else
         #sudo dnf upgrade 
         #sudo pkg upgrade
