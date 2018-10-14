@@ -84,7 +84,7 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
 "Plug 'terryma/vim-smooth-scroll'
 Plug 'jpalardy/vim-slime'
-if !has('nvim')
+if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
     Plug 'drmikehenry/vim-fixkey'
 endif
