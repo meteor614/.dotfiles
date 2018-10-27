@@ -14,7 +14,7 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-if v:version > 704
+if has('python3') || has('python') && v:version > 704
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
@@ -29,15 +29,13 @@ endif
 Plug 'luochen1990/rainbow'
 if has('python3') || has('python')
     Plug 'Valloric/MatchTagAlways'
+    Plug 'python-mode/python-mode',  { 'for': 'python' }
 endif
 if v:version > 704
     Plug 'w0rp/ale'
+    Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 endif
 Plug 'Chiel92/vim-autoformat'
-if has('python3') || has('python')
-    Plug 'python-mode/python-mode',  { 'for': 'python' }
-endif
-Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 
