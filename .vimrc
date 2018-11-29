@@ -15,7 +15,7 @@ call plug#begin('~/.vim/plugged')
 
 " Code completion
 if has('python3') || has('python') && v:version > 704
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
@@ -177,7 +177,7 @@ nnoremap <leader>a :A<cr>
 "map <F2> :FencView<cr>
 
 " nerdtree
-nmap <F11> :NERDTreeToggle<cr>
+nmap <F10> :NERDTreeToggle<cr>
 
 " tagbar
 nmap <F12> :TagbarToggle<cr>
@@ -502,4 +502,7 @@ call s:tmux_map('<leader>t.', '.bottom-right')
 if has('python3') && !has('nvim') && !has('patch-8.1.201')
     silent! python3 1
 endif
+
+au BufRead,BufNewFile *.ts set filetype=typescript 
+
 
