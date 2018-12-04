@@ -15,7 +15,7 @@ call plug#begin('~/.vim/plugged')
 
 " Code completion
 if has('python3') || has('python') && v:version > 704
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"`' }
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
     Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 endif
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
@@ -38,6 +38,7 @@ endif
 Plug 'Chiel92/vim-autoformat'
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
+Plug 'leafgarland/typescript-vim'
 
 " Search
 "Plug 'mileszs/ack.vim'
@@ -503,6 +504,6 @@ if has('python3') && !has('nvim') && !has('patch-8.1.201')
     silent! python3 1
 endif
 
-au BufRead,BufNewFile *.ts set filetype=typescript 
+"au BufRead,BufNewFile *.ts set filetype=typescript 
 
 
