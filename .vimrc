@@ -39,6 +39,8 @@ Plug 'Chiel92/vim-autoformat'
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'leafgarland/typescript-vim'
+Plug 'ap/vim-css-color', { 'for': 'css' }
+Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
 
 " Search
 "Plug 'mileszs/ack.vim'
@@ -72,7 +74,8 @@ Plug 'junegunn/gv.vim'
 " Misc
 "Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
-Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline'
+Plug 'itchyny/lightline.vim'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
@@ -87,6 +90,7 @@ if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
     Plug 'drmikehenry/vim-fixkey'
 endif
+Plug 'liuchengxu/vim-which-key'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -265,6 +269,10 @@ nmap <leader>s <Plug>CtrlSFPrompt
 vmap <leader>s <Plug>CtrlSFVwordPath
 let g:ctrlsf_regex_pattern = 1
 let g:ctrlsf_ackprg = 'rg'
+
+" vim-which-key
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 
 " vim
