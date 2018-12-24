@@ -132,22 +132,22 @@ let g:UltiSnipsJumpForwardTrigger='<tab>'
 let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 
 " YouCompleteMe
-let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
-let g:ycm_key_invoke_completion = ''
-nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
-nnoremap <leader>gt :YcmCompleter GoTo<cr>
-nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
-let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
-let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_python_binary_path = 'python'
-"let g:ycm_collect_identifiers_from_tags_files = 1
-let g:ycm_server_python_interpreter = g:ycm_python_binary_path
+"let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+"let g:ycm_key_invoke_completion = ''
+"nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
+"nnoremap <leader>gt :YcmCompleter GoTo<cr>
+"nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
+"let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
+"let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
+"let g:ycm_confirm_extra_conf = 0
+"let g:ycm_python_binary_path = 'python'
+""let g:ycm_collect_identifiers_from_tags_files = 1
+"let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 
 " vim-javacomplete2
-augroup vimrc
-    autocmd FileType java,jsp setlocal omnifunc=javacomplete#Complete
-augroup END
+"augroup vimrc
+"    autocmd FileType java,jsp setlocal omnifunc=javacomplete#Complete
+"augroup END
 
 " ale
 "let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
@@ -227,24 +227,23 @@ let g:tagbar_type_go = {
 let g:lt_height = 10
 
 " color_coded
-let g:color_coded_enabled = 1
-if &diff
-    " Disable color_coded in diff mode
-    let g:color_coded_enabled = 0
-endif
+"let g:color_coded_enabled = 1
+"if &diff
+"    " Disable color_coded in diff mode
+"    let g:color_coded_enabled = 0
+"endif
 
 " chromatica.nvim
-let g:chromatica#libclang_path='/usr/local/opt/llvm/lib'
-let g:chromatica#enable_at_startup=1
+"let g:chromatica#libclang_path='/usr/local/opt/llvm/lib'
+"let g:chromatica#enable_at_startup=1
 
 " vim-go
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_fmt_command = 'goimports'
-"let g:go_fmt_autosave = 1
+"let g:go_highlight_functions = 1
+"let g:go_highlight_methods = 1
+"let g:go_highlight_structs = 1
+"let g:go_highlight_operators = 1
+"let g:go_highlight_build_constraints = 1
+"let g:go_fmt_command = 'goimports'
 
 " vim-slime
 let g:slime_python_ipython = 1
