@@ -24,6 +24,8 @@ cd ~/.config
 test -e ~/.vim || mkdir ~/.vim
 ln -s ~/.vimrc ~/.vim/init.vim
 test -e nvim || ln -s ~/.vim nvim
+# for coc.nvim
+ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 
 # for tmuxinator
 ln -s ${script_path}/tmuxinator                                         # for mac
@@ -95,4 +97,14 @@ if [ x$1 == xall ]; then
     else
         cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
     fi
+    # luarocks install --server=http://luarocks.org/dev lua-lsp
+    # npm install -g dockerfile-language-server-nodejs
+    # npm i -g bash-language-server
+    # brew install cquery
+    # go get -u github.com/sourcegraph/go-langserver
+    #  go get -u -v github.com/mdempsky/gocode
+    #  go get -u -v github.com/golang/lint/golint
+    #  go get -u -v golang.org/x/tools/cmd/guru
+    #  go get -u -v golang.org/x/tools/cmd/goimports
+    #  go get -u -v golang.org/x/tools/cmd/gorename
 fi
