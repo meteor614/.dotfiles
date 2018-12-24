@@ -79,9 +79,9 @@ fi
 if type npm &>/dev/null; then
     {
         if type brew &>/dev/null; then
-            npm install -g npm
-            npm update
-            npm --force cache clean
+            sudo npm install -g npm
+            sudo npm update
+            sudo npm --force cache clean
         else
             sudo npm install -g npm
             sudo npm update
@@ -146,6 +146,7 @@ fi
 if type vim &>/dev/null; then
     vim -c PlugUpgrade -c qa
     vim -c PlugInstall -c PlugUpdate -c qa
+    vim -c CocUpdate -c qa
     echo "vim PlugUpdate finish"
 fi
 
