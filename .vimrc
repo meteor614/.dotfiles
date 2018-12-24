@@ -14,42 +14,47 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-if has('python3') || has('python') && v:version > 704
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--js-completer\"`' }
-    Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+"if has('python3') || has('python') && v:version > 704
+    "Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--ts-completer\"`', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+    "Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+"endif
+if v:version > 704
+    Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 endif
-Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
+"Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " Syntax checker & Highlight
-if has('nvim')
-    Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-elseif v:version > 704
-    Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-endif
+"if has('nvim')
+    "Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+"elseif v:version > 704
+    "Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
+"endif
 Plug 'luochen1990/rainbow'
 if has('python3') || has('python')
     Plug 'Valloric/MatchTagAlways'
-    Plug 'python-mode/python-mode',  { 'for': 'python' }
+    "Plug 'python-mode/python-mode',  { 'for': 'python' }
 endif
-if v:version > 704
-    Plug 'w0rp/ale'
-    Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
-endif
+"if v:version > 704
+    "Plug 'w0rp/ale'
+    "Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
+"endif
 Plug 'Chiel92/vim-autoformat'
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'leafgarland/typescript-vim'
 Plug 'ap/vim-css-color', { 'for': 'css' }
 Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
+Plug 'sheerun/vim-polyglot'
 
 " Search
 "Plug 'mileszs/ack.vim'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
+"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+"Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'dyng/ctrlsf.vim'
 Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 Plug 'wsdjeg/FlyGrep.vim'
+Plug 'Shougo/denite.nvim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
@@ -90,7 +95,7 @@ if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
     Plug 'drmikehenry/vim-fixkey'
 endif
-Plug 'liuchengxu/vim-which-key'
+"Plug 'liuchengxu/vim-which-key'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -145,23 +150,24 @@ augroup vimrc
 augroup END
 
 " ale
-let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
-let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/api/'
-let g:ale_linters = {
-            \ 'python': ['flake8']
-            \ }
-nmap <silent> <m-j> <Plug>(ale_next_wrap)
-nmap <silent> <m-k> <Plug>(ale_previous_wrap)
-nmap <silent> <m-f> <Plug>(ale_fix)
-nmap <silent> <leader>j <Plug>(ale_next_wrap)
-nmap <silent> <leader>k <Plug>(ale_previous_wrap)
-"nmap <silent> <leader>f <Plug>(ale_fix)
+"let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
+"let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/api/'
+"let g:ale_linters = {
+"            \ 'python': ['flake8']
+"            \ }
+"nmap <silent> <m-j> <Plug>(ale_next_wrap)
+"nmap <silent> <m-k> <Plug>(ale_previous_wrap)
+"nmap <silent> <m-f> <Plug>(ale_fix)
+"nmap <silent> <leader>j <Plug>(ale_next_wrap)
+"nmap <silent> <leader>k <Plug>(ale_previous_wrap)
 
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
 
-" FZF
-nnoremap <silent> <C-p> :FZF<cr>
+" LeaderF
+"nnoremap <silent> <C-p> :FZF<cr>
+nnoremap <silent> <C-p> :LeaderfFile<cr>
+let g:Lf_ReverseOrder = 1
 
 " vim-easy-align
 xmap ga <Plug>(EasyAlign)
@@ -249,11 +255,11 @@ else
 endif
 
 " python-mode
-let g:pymode_options_colorcolumn = 0
-let g:pymode_rope = 0
-let g:pymode_rope_lookup_project = 0
-let g:pymode_lint = 0                         " disable lint, use ale's
-autocmd vimrc FileType python setlocal wrap   " undo python-mode change
+"let g:pymode_options_colorcolumn = 0
+"let g:pymode_rope = 0
+"let g:pymode_rope_lookup_project = 0
+"let g:pymode_lint = 0                         " disable lint, use ale's
+"autocmd vimrc FileType python setlocal wrap   " undo python-mode change
 
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
@@ -273,6 +279,25 @@ let g:ctrlsf_ackprg = 'rg'
 " vim-which-key
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+
+" lightline.vim
+let g:lightline = {
+            \ 'colorscheme': 'wombat',
+            \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ],
+            \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+            \ },
+            \ 'component_function': {
+            \   'cocstatus': 'coc#status'
+            \ },
+            \ }
+
+" coc.nvim
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
 
 " vim
