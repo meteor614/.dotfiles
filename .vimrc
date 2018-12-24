@@ -41,9 +41,9 @@ endif
 Plug 'Chiel92/vim-autoformat'
 "Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
-Plug 'leafgarland/typescript-vim'
-Plug 'ap/vim-css-color', { 'for': 'css' }
-Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
+"Plug 'leafgarland/typescript-vim'
+"Plug 'ap/vim-css-color', { 'for': 'css' }
+"Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
 Plug 'sheerun/vim-polyglot'
 
 " Search
