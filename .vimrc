@@ -277,8 +277,8 @@ let g:ctrlsf_regex_pattern = 1
 let g:ctrlsf_ackprg = 'rg'
 
 " vim-which-key
-nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+"nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+"nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " lightline.vim
 let g:lightline = {
