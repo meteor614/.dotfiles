@@ -49,7 +49,10 @@ antigen bundle colorize
 antigen bundle github
 antigen bundle python
 antigen bundle rupa/z z.sh
+antigen bundle andrewferrier/fzf-z
 #antigen bundle z
+antigen bundle tysonwolker/iterm-tab-colors
+antigen bundle "MichaelAquilina/zsh-you-should-use"
 
 antigen bundle zsh-history-substring-search
 antigen bundle zsh-users/zsh-autosuggestions
@@ -58,6 +61,7 @@ antigen bundle supercrabtree/k
 antigen bundle Vifon/deer
 
 antigen bundle ssh-agent
+antigen bundle zsh-plugin-ssh
 antigen bundle popstas/zsh-command-time
 antigen bundle "greymd/tmux-xpanes"
 
@@ -114,6 +118,7 @@ ZSH_HIGHLIGHT_STYLES[assign]=none
 
 # enable syntax highlighting
 antigen bundle zsh-users/zsh-syntax-highlighting
+#antigen theme robbyrussell
 
 antigen apply
 
@@ -196,12 +201,9 @@ export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
 
 # Initialize command prompt
-#export PS1="%n@%m:%~%# "
-#export PS1="%{$fg[green]%}[%{$fg[magenta]%}%n%{$fg[green]%}@%{$fg[blue]%}%m%{$fg[green]%}:%{$fg[cyan]%}%~%{$fg[green]%}]$ "
 export PS1="%{$fg[magenta]%}%n%{$fg[green]%} %{$fg[cyan]%}%~%{$fg[green]%}> "
 # set RPROMPT only version >= 5.0
 if (echo ${ZSH_VERSION} | awk -F'.' '!($1>=5){exit 1}') then
-    #export RPROMPT="%{$fg[red]%}%(?..%?%1v) %{$fg[yellow]%}%*"
     export RPROMPT='%{$fg_bold[red]%}%(?..%?)%{$reset_color%}$(git_prompt_info)$(git_prompt_status)%{$reset_color%}'
 fi
 
