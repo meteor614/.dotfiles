@@ -126,80 +126,6 @@ antigen apply
 autoload -U deer
 zle -N deer
 
-# default keymap
-bindkey -s '\ee' 'vim\n'
-bindkey '\eh' backward-char
-bindkey '\el' forward-char
-bindkey '\ej' down-line-or-history
-bindkey '\ek' up-line-or-history
-# bindkey '\eu' undo
-bindkey '\eH' backward-word
-bindkey '\eL' forward-word
-bindkey '\eJ' beginning-of-line
-bindkey '\eK' end-of-line
-
-bindkey -s '\eo' 'cd ..\n'
-bindkey -s '\e;' 'll\n'
-
-bindkey '\e[1;3D' backward-word
-bindkey '\e[1;3C' forward-word
-bindkey '\e[1;3A' beginning-of-line
-bindkey '\e[1;3B' end-of-line
-
-bindkey '\ev' deer
-
-#alias ls='ls -G --color'
-alias grep='grep --color'
-alias egrep='egrep --color'
-alias fgrep='fgrep --color'
-
-alias ll='ls -lh'
-alias l='ls -l'
-alias -s gz='tar -xzvf'
-alias -s tgz='tar -xzvf'
-alias -s zip='unzip'
-alias -s bz2='tar -xjvf'
-
-# git icdiff
-if type icdiff>/dev/null 2>&1; then
-    alias gd='git icdiff'
-    alias gdca='git icdiff --cached'
-    alias gdcw='git icdiff --cached --word-diff'
-    alias gdw='git icdiff --word-diff'
-fi
-
-alias mux='tmuxinator'
-alias mak='make -j 10'
-
-type nvim >/dev/null 2>&1 && alias vim='nvim'
-
-# fzf
-if type rg>/dev/null 2>&1; then
-    export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
-elif type ag>/dev/null 2>&1; then
-    export FZF_DEFAULT_ COMMAND='ag -g ""'
-elif type fd>/dev/null 2>&1; then
-    export FZF_DEFAULT_COMMAND='fd --type f'
-fi
-export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
-
-export SVN_EDITOR='vim'
-export EDITOR='vim'
-export TERM=xterm-256color
-
-# pager
-export PAGER="less"
-export LESS="-R -i -g -c -W"
-type lesspipe.sh>/dev/null 2>&1 && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'
-# color man
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
-
 # Initialize command prompt
 export PS1="%{$fg[magenta]%}%n%{$fg[green]%} %{$fg[cyan]%}%~%{$fg[green]%}> "
 # set RPROMPT only version >= 5.0
@@ -219,21 +145,5 @@ ZSH_THEME_GIT_PROMPT_RENAMED="%{$fg_bold[magenta]%}>"
 ZSH_THEME_GIT_PROMPT_UNMERGED="%{$fg_bold[yellow]%}#"
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}?"
 
-setopt no_nomatch
-setopt no_beep
-
-[ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
-
-if [ -f /usr/libexec/java_home ]; then
-    export JAVA_HOME=`/usr/libexec/java_home`
-    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
-    export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
-fi
-
-test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
-type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
