@@ -15,11 +15,10 @@ bindkey '\eK' end-of-line
 bindkey -s '\eo' 'cd ..\n'
 bindkey -s '\e;' 'll\n'
 
-bindkey '\e[1;3D' backward-word
-bindkey '\e[1;3C' forward-word
-bindkey '\e[1;3A' beginning-of-line
-bindkey '\e[1;3B' end-of-line
-
+bindkey '\e[1;3D' backward-word       # ALT+左键：向后跳一个单词
+bindkey '\e[1;3C' forward-word        # ALT+右键：前跳一个单词
+bindkey '\e[1;3A' beginning-of-line   # ALT+上键：跳到行首
+bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 bindkey '\ev' deer
 
 #alias ls='ls -G --color'
@@ -32,7 +31,7 @@ alias l='ls -l'
 alias -s gz='tar -xzvf'
 alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
-type unzip >/dev/null 2>&1 && alias -s zip='unzip'
+alias -s zip='unzip'
 
 # git icdiff
 if type icdiff>/dev/null 2>&1; then
