@@ -1,4 +1,5 @@
 {
+  "highlight.disableLanguages":[""],
   "languageserver": {
     "cquery": {
       "command": "cquery",
