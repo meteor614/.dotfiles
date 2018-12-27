@@ -118,10 +118,12 @@ endif
 " vim common
 let g:mapleader=' '
 let g:maplocalleader=','
-let g:python2_host_skip_check=1
-let g:python2_host_prog='python2'
+let g:python_host_skip_check=1
+let g:python_host_prog='python2'
 let g:python3_host_skip_check=1
 let g:python3_host_prog='python3'
+let g:ruby_host_prog = exepath('neovim-ruby-host')
+let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
