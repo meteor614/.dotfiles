@@ -110,6 +110,9 @@ call plug#end()
 " Install all plugins
 if exists('s:first_init')
     PlugInstall
+    if v:version > 704
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-pyls coc-tslint coc-tsserver coc-wxml coc-yaml
+    endif
 endif
 
 " vim common
