@@ -319,7 +319,7 @@ function! s:show_documentation()
 endfunction
 
 " Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
+"autocmd CursorHold * silent call CocActionAsync('highlight')
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 " Remap for do codeAction of current line
@@ -438,7 +438,9 @@ set number
 "set relativenumber
 
 " always show signcolumns
-set signcolumn=yes
+if v:version > 704
+    set signcolumn=yes
+endif
 
 " Smaller updatetime for CursorHold & CursorHoldI
 set updatetime=300
