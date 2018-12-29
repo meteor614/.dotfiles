@@ -21,7 +21,6 @@ call plug#begin('~/.vim/plugged')
 if v:version > 704
     Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 endif
-"Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " Syntax checker & Highlight
 "if has('nvim')
@@ -39,17 +38,10 @@ endif
     "Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 "endif
 Plug 'Chiel92/vim-autoformat'
-"Plug 'skywind3000/echofunc'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
-"Plug 'leafgarland/typescript-vim'
-"Plug 'ap/vim-css-color', { 'for': 'css' }
-"Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
 Plug 'sheerun/vim-polyglot'
 
 " Search
-"Plug 'mileszs/ack.vim'
-"Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-"Plug 'junegunn/fzf.vim'
 Plug 'jremmen/vim-ripgrep'
 Plug 'dyng/ctrlsf.vim'
 Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
@@ -63,7 +55,6 @@ Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
 Plug 'majutsushi/tagbar'
 "Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
-"Plug 'simplyzhao/cscope_maps.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
 
 " Snippets
 if has('python3') || has('python')
@@ -89,7 +80,6 @@ Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'terryma/vim-expand-region'
-"Plug 'terryma/vim-smooth-scroll'
 Plug 'jpalardy/vim-slime'
 if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
@@ -111,6 +101,7 @@ call plug#end()
 if exists('s:first_init')
     PlugInstall
     if v:version > 704
+        " install coc.nvim extensions
         CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-pyls coc-tslint coc-tsserver coc-wxml coc-yaml
     endif
 endif
@@ -149,11 +140,6 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 ""let g:ycm_collect_identifiers_from_tags_files = 1
 "let g:ycm_server_python_interpreter = g:ycm_python_binary_path
 
-" vim-javacomplete2
-"augroup vimrc
-"    autocmd FileType java,jsp setlocal omnifunc=javacomplete#Complete
-"augroup END
-
 " ale
 "let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
 "let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/api/'
@@ -170,7 +156,6 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 nnoremap <leader>ma :AsyncRun make<cr>
 
 " LeaderF
-"nnoremap <silent> <C-p> :FZF<cr>
 nnoremap <silent> <C-p> :LeaderfFile<cr>
 let g:Lf_ReverseOrder = 1
 
@@ -581,7 +566,5 @@ call s:tmux_map('<leader>t.', '.bottom-right')
 if has('python3') && !has('nvim') && !has('patch-8.1.201')
     silent! python3 1
 endif
-
-"au BufRead,BufNewFile *.ts set filetype=typescript 
 
 
