@@ -44,7 +44,7 @@ Plug 'sheerun/vim-polyglot'
 " Search
 Plug 'mileszs/ack.vim'
 Plug 'jremmen/vim-ripgrep'
-if has('nvim') || v:version > 704
+if v:version > 704
     Plug 'dyng/ctrlsf.vim'
 endif
 if has('python3') || has('python')
