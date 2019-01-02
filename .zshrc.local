@@ -90,6 +90,9 @@ if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
     export PATH="/usr/local/bin:$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
 fi
+if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
+    PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
+fi
 
 test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
