@@ -119,8 +119,8 @@ if [ x$1 == xall ]; then
     }&
 
     # python modules
-    {
-        if type pip3 &>/dev/null; then
+    if type pip3 &>/dev/null; then
+        {
             pip install --upgrade pip
             #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
             for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
@@ -128,8 +128,8 @@ if [ x$1 == xall ]; then
             done
             wait
             echo "pip upgrade finish"
-        fi
-    }&
+        }&
+    fi
 
     # update .dotfiles
     if [ -d ~/.dotfiles ]; then
