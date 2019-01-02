@@ -3,9 +3,12 @@
 script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 
 # update submodule
-echo -e '\033[31mUpdate submodules...\033[0m'
-cd ${script_path}
-git submodule update --init --recursive 
+{
+    echo -e '\033[31mUpdate submodules...\033[0m'
+    cd ${script_path}
+    git submodule update --init --recursive 
+    echo -e '\033[33mUpdate submodules finish.\033[0m'
+}&
 
 # for .* file only
 echo -e '\033[31mInit dotfiles...\033[0m'
@@ -31,47 +34,9 @@ ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 ln -s ${script_path}/tmuxinator                                         # for mac
 test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
 
-# for bin/*
-echo -e '\033[31mInit scripts...\033[0m'
-test -d ~/bin || mkdir ~/bin
-cd ~/bin
-files=($(ls ${script_path}/bin))
-for i in ${files[@]}; do
-    ln -s ${script_path}/bin/${i}
-done
-test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
-
 # for tmux
 cd ~
 ln -s ${script_path}/.tmux/.tmux.conf
-
-# install/update gdb-dashboard
-if type gdb &>/dev/null; then
-    if [ -d ~/gdb-dashboard ]; then
-        echo -e '\033[31mUpdate gdb-dashboard...\033[0m'
-        cd ~/gdb-dashboard
-        git pull
-    else
-        echo -e '\033[31mGet gdb-dashboard...\033[0m'
-        cd ~
-        git clone https://github.com/cyrus-and/gdb-dashboard
-    fi
-fi
-
-# install/update voltron
-if type lldb &>/dev/null; then
-    if [ -d ~/voltron ]; then
-        echo -e '\033[31mUpdate voltron...\033[0m'
-        cd ~/voltron
-        git pull
-    else
-        echo -e '\033[31mGet & install voltron...\033[0m'
-        cd ~
-        git clone https://github.com/snare/voltron
-        cd voltron
-        ./install.sh -b lldb
-    fi
-fi
 
 # ipython settings
 if type ipython &>/dev/null; then
@@ -81,9 +46,65 @@ if type ipython &>/dev/null; then
     fi
 fi
 
+echo -e '\033[33mInit dotfiles finish.\033[0m'
+
+# for bin/*
+echo -e '\033[31mInit scripts...\033[0m'
+test -d ~/bin || mkdir ~/bin
+cd ~/bin
+files=($(ls ${script_path}/bin))
+for i in ${files[@]}; do
+    ln -s ${script_path}/bin/${i}
+done
+#test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
+echo -e '\033[33mInit scripts finish.\033[0m'
+
+# install/update gdb-dashboard
+if type gdb &>/dev/null; then
+    {
+        if [ -d ~/gdb-dashboard ]; then
+            echo -e '\033[31mUpdate gdb-dashboard...\033[0m'
+            cd ~/gdb-dashboard
+            git pull
+            echo -e '\033[33mUpdate gdb-dashboard finish.\033[0m'
+        else
+            echo -e '\033[31mGet gdb-dashboard...\033[0m'
+            cd ~
+            git clone https://github.com/cyrus-and/gdb-dashboard
+            echo -e '\033[33mGet gdb-dashboard finish.\033[0m'
+        fi
+    }&
+fi
+
+# install/update voltron
+if type lldb &>/dev/null; then
+    {
+        if [ -d ~/voltron ]; then
+            echo -e '\033[31mUpdate voltron...\033[0m'
+            cd ~/voltron
+            git pull
+            echo -e '\033[33mUpdate voltron finish.\033[0m'
+        else
+            echo -e '\033[31mGet & install voltron...\033[0m'
+            cd ~
+            git clone https://github.com/snare/voltron
+            cd voltron
+            ./install.sh -b lldb
+            echo -e '\033[33mGet & install voltron finish.\033[0m'
+        fi
+    }&
+fi
+
 # generate cpp_tags
-echo -e '\033[31mGenerate cpp tags...\033[0m'
-test ! type g++ &>/dev/null || test ! type ctags &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh
+if type g++ &>/dev/null && type ctags &>/dev/null && [ ! -f ~/cpp_tags ]; then
+    {
+        echo -e '\033[31mGenerate cpp tags...\033[0m'
+        ~/bin/generate_tags.sh
+        echo -e '\033[33mGenerate cpp tags finish.\033[0m'
+    }&
+fi
+#echo -e '\033[31mGenerate cpp tags...\033[0m'
+#test ! type g++ &>/dev/null || test ! type ctags &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh &
 
 if [ x$1 == xall ]; then
     echo -e '\033[31mInit ssh authorized_keys...\033[0m'
@@ -97,6 +118,7 @@ if [ x$1 == xall ]; then
     else
         cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
     fi
+    echo -e '\033[33mInit ssh authorized_keys finish.\033[0m'
     # luarocks install --server=http://luarocks.org/dev lua-lsp
     # npm install -g dockerfile-language-server-nodejs
     # npm i -g bash-language-server
@@ -108,3 +130,7 @@ if [ x$1 == xall ]; then
     #  go get -u -v golang.org/x/tools/cmd/goimports
     #  go get -u -v golang.org/x/tools/cmd/gorename
 fi
+
+wait
+echo -e '\033[33mSetup finish.\033[0m'
+
