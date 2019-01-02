@@ -42,8 +42,11 @@ Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'sheerun/vim-polyglot'
 
 " Search
+Plug 'mileszs/ack.vim'
 Plug 'jremmen/vim-ripgrep'
-Plug 'dyng/ctrlsf.vim'
+if !has('nvim') && v:version > 704
+    Plug 'dyng/ctrlsf.vim'
+endif
 if has('python3') || has('python')
     Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 else
@@ -160,6 +163,16 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
 
+" vim-ripgrep
+let g:rg_highlight = 1
+
+" ack.vim
+if executable('rg')
+    let g:ackprg = 'rg --vimgrep'
+elseif executable('ag')
+	let g:ackprg = 'ag --vimgrep'
+endif
+
 if has('python3') || has('python')
     " LeaderF
     nnoremap <silent> <C-p> :LeaderfFile<cr>
@@ -167,6 +180,14 @@ if has('python3') || has('python')
 else
     " FZF
     nnoremap <silent> <C-p> :FZF<cr>
+endif
+
+" ctrlsf
+nmap <leader>s <Plug>CtrlSFPrompt
+vmap <leader>s <Plug>CtrlSFVwordPath
+let g:ctrlsf_regex_pattern = 1
+if executable('rg')
+    let g:ctrlsf_ackprg = 'rg'
 endif
 
 " vim-easy-align
@@ -268,12 +289,6 @@ noremap <F3> :Autoformat<CR>
 " clang-format, use vim-autoformat
 "map <C-L> :pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
 "imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
-
-" ctrlsf
-nmap <leader>s <Plug>CtrlSFPrompt
-vmap <leader>s <Plug>CtrlSFVwordPath
-let g:ctrlsf_regex_pattern = 1
-let g:ctrlsf_ackprg = 'rg'
 
 " vim-which-key
 "nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
