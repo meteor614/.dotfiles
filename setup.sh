@@ -1,5 +1,7 @@
 #!/bin/bash
 
+begin=`date "+%s"`
+
 script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 
 # update submodule
@@ -134,3 +136,5 @@ fi
 wait
 echo -e '\033[33mSetup finish.\033[0m'
 
+end=`date "+%s"`
+echo "used `expr $end - $begin` seconds"

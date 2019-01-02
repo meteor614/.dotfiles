@@ -4,7 +4,7 @@ find_opt="! -path '*/@eaDir*' ! -path '*/.git/*'"
 find_size_opt=""
 #find_size_opt="-size +4k"
 dir="."
-if [ -n "$1" ]; then
+if [ x$1 != x ]; then
     dir="$1"
 fi
 
