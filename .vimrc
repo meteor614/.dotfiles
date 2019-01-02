@@ -44,7 +44,12 @@ Plug 'sheerun/vim-polyglot'
 " Search
 Plug 'jremmen/vim-ripgrep'
 Plug 'dyng/ctrlsf.vim'
-Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
+if has('python3') || has('python')
+    Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
+else
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
+endif
 Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Shougo/denite.nvim'
 
@@ -155,9 +160,14 @@ let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
 
-" LeaderF
-nnoremap <silent> <C-p> :LeaderfFile<cr>
-let g:Lf_ReverseOrder = 1
+if has('python3') || has('python')
+    " LeaderF
+    nnoremap <silent> <C-p> :LeaderfFile<cr>
+    let g:Lf_ReverseOrder = 1
+else
+    " FZF
+    nnoremap <silent> <C-p> :FZF<cr>
+endif
 
 " vim-easy-align
 xmap ga <Plug>(EasyAlign)
