@@ -119,15 +119,15 @@ if [ x$1 == xall ]; then
     }&
 
     # python modules
-    if type pip3 &>/dev/null; then
+    if type pip3 &>/dev/null && type pip2 &>/dev/null; then
         {
-            pip install --upgrade pip
+            pip2 install --upgrade pip
             #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
-            for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-                pip install --upgrade $i &
+            for i in `pip2 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+                pip2 install --upgrade $i &
             done
             wait
-            echo "pip upgrade finish"
+            echo "pip2 upgrade finish"
         }&
     fi
 
@@ -146,7 +146,9 @@ fi
 if type vim &>/dev/null; then
     vim -c PlugUpgrade -c qa
     vim -c PlugInstall -c PlugUpdate -c qa
-    vim -c CocUpdate -c qa
+    if [ -d ~/.vim/plugged/coc.nvim ]; then
+        vim -c CocUpdate -c qa
+    fi
     echo "vim PlugUpdate finish"
 fi
 

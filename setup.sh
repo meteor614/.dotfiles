@@ -134,7 +134,6 @@ if [ x$1 == xall ]; then
 fi
 
 wait
-echo -e '\033[33mSetup finish.\033[0m'
-
 end=`date "+%s"`
-echo "used `expr $end - $begin` seconds"
+echo -e "\033[33mSetup finish in `expr $end - $begin` seconds.\033[0m"
+
