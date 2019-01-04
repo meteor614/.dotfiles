@@ -244,7 +244,7 @@ let g:tagbar_type_go = {
 " ListToggle
 " You can set the key mappings for toggling Vim's locationlist and quickfix windows in your vimrc file:
 "let g:lt_location_list_toggle_map = '<leader>l'
-"let g:lt_quickfix_list_toggle_map = '<leader>q'
+let g:lt_quickfix_list_toggle_map = '<leader>qq'
 let g:lt_height = 10
 
 " color_coded
@@ -484,7 +484,7 @@ nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 nnoremap zr zR
 augroup vimrc
     autocmd FileType java,c,cpp,go,json,js set foldmethod=syntax foldlevel=100
-    autocmd FileType python set foldlevel=100
+    "autocmd FileType python set foldlevel=100
 augroup END
 
 " Other
