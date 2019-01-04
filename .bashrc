@@ -6,7 +6,6 @@ alias fgrep='fgrep --color'
 
 alias ll='ls -lh'
 alias l='ls -l'
-#alias vim='nvim'
 
 export PS1='[\u@\h \w]$ '
 
