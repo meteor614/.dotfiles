@@ -23,9 +23,15 @@ done
 # for .aria2
 ln -s ${script_path}/.aria2
 
-# for neovim
+# for .config
 test -e ~/.config || mkdir ~/.config
 cd ~/.config
+files=($(ls -FA ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
+for i in ${files[@]}; do
+    ln -s ${script_path}/.config/${i}
+done
+
+# for neovim
 test -e ~/.vim || mkdir ~/.vim
 ln -s ~/.vimrc ~/.vim/init.vim
 test -e nvim || ln -s ~/.vim nvim
