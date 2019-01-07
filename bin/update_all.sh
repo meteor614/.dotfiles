@@ -53,12 +53,17 @@ begin=`date "+%s"`
 }&
 
 # zsh plugins
-if type antigen &>/dev/null; then
-    {
-        antigen update
-        antigen cleanup
-        echo "antigen upgrade finish"
-    }&
+if type zsh &>/dev/null; then
+    # antigen
+    echo 'type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' | zsh -i -s &
+
+    # oh-my-zsh
+    if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
+        {
+            source ~/.oh-my-zsh/tools/upgrade.sh
+            echo "oh my zsh upgrade finish"
+        }&
+    fi
 fi
 
 # ruby modules
@@ -108,14 +113,6 @@ if type cpan &>/dev/null; then
     {
         sudo cpan -u -T
         echo "cpan upgrade finish"
-    }&
-fi
-
-# oh-my-zsh
-if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
-    {
-        source ~/.oh-my-zsh/tools/upgrade.sh
-        echo "oh my zsh upgrade finish"
     }&
 fi
 
