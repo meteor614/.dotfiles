@@ -111,6 +111,14 @@ if type cpan &>/dev/null; then
     }&
 fi
 
+# oh-my-zsh
+if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
+    {
+        source ~/.oh-my-zsh/tools/upgrade.sh
+        echo "oh my zsh upgrade finish"
+    }&
+fi
+
 if [ x$1 == xall ]; then
     # go binaries
     {
