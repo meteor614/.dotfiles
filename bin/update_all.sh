@@ -52,20 +52,6 @@ begin=`date "+%s"`
     fi
 }&
 
-# zsh plugins
-if type zsh &>/dev/null; then
-    # antigen
-    echo 'type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' | zsh -i -s &
-
-    # oh-my-zsh
-    if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
-        {
-            source ~/.oh-my-zsh/tools/upgrade.sh
-            echo "oh my zsh upgrade finish"
-        }&
-    fi
-fi
-
 # ruby modules
 if type gem &>/dev/null; then
     {
@@ -145,6 +131,20 @@ if [ x$1 == xall ]; then
             echo ".dotfiles update finish"
         }&
     fi
+fi
+
+# zsh plugins
+if type zsh &>/dev/null; then
+    # oh-my-zsh
+    if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
+        {
+            source ~/.oh-my-zsh/tools/upgrade.sh
+            echo "oh my zsh upgrade finish"
+        }&
+    fi
+
+    # antigen
+    echo 'type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' | zsh -i -s
 fi
 
 # vim plugins
