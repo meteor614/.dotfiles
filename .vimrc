@@ -118,11 +118,9 @@ endif
 let g:mapleader=' '
 let g:maplocalleader=','
 let g:python_host_skip_check=1
-if executable('python2')
-    let g:python_host_prog='python2'
-endif
+let g:python_host_prog=exepath('python2')
 let g:python3_host_skip_check=1
-let g:python3_host_prog='python3'
+let g:python3_host_prog=exepath('python3')
 let g:ruby_host_prog = exepath('neovim-ruby-host')
 let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 
