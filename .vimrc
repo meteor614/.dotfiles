@@ -593,4 +593,4 @@ if has('python3') && !has('nvim') && !has('patch-8.1.201')
     silent! python3 1
 endif
 
-
+au BufRead,BufNewFile *.bcm set filetype=json
