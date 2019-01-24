@@ -42,11 +42,19 @@ begin=`date "+%s"`
         wait
         echo "pip3 upgrade finish"
     elif type pip &>/dev/null; then
-        pip install --upgrade pip
-        #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
-        for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-            pip install --upgrade $i &
-        done
+        if type brew &>/dev/null; then
+            pip install --upgrade pip
+            #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
+            for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+                pip install --upgrade $i &
+            done
+        else
+            sudo pip install --upgrade pip
+            #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
+            for i in `sudo pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+                sudo pip install --upgrade $i &
+            done
+        fi
         wait
         echo "pip upgrade finish"
     fi
