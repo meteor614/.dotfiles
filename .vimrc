@@ -115,12 +115,15 @@ if exists('s:first_init')
 endif
 
 " vim common
-let g:mapleader=' '
-let g:maplocalleader=','
-let g:python_host_skip_check=1
-let g:python_host_prog=exepath('python2')
-let g:python3_host_skip_check=1
-let g:python3_host_prog=exepath('python3')
+let g:mapleader = ' '
+let g:maplocalleader = ','
+let g:python_host_skip_check = 1
+let g:python_host_prog = exepath('python2')
+if g:python_host_prog == ""
+    let g:python_host_prog = exepath('python2.7')
+endif
+let g:python3_host_skip_check = 1
+let g:python3_host_prog = exepath('python3')
 let g:ruby_host_prog = exepath('neovim-ruby-host')
 let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 
