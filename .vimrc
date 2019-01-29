@@ -14,29 +14,15 @@ endif
 call plug#begin('~/.vim/plugged')
 
 " Code completion
-"if has('python3') || has('python') && v:version > 704
-    "Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-completer `type go &> /dev/null && echo \"--go-completer\"` `type node &>/dev/null && echo \"--ts-completer\"`', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-    "Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
-"endif
 if v:version > 704
     Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
 endif
 
 " Syntax checker & Highlight
-"if has('nvim')
-    "Plug 'arakashic/chromatica.nvim', { 'do': ':UpdateRemotePlugins', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-"elseif v:version > 704
-    "Plug 'jeaye/color_coded', { 'do': 'rm -f CMakeCache.txt && cmake . -DDOWNLOAD_CLANG=FALSE && make clean && make && make install', 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-"endif
 Plug 'luochen1990/rainbow'
 if has('python3') || has('python')
     Plug 'Valloric/MatchTagAlways'
-    "Plug 'python-mode/python-mode',  { 'for': 'python' }
 endif
-"if v:version > 704
-    "Plug 'w0rp/ale'
-    "Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
-"endif
 Plug 'Chiel92/vim-autoformat'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'sheerun/vim-polyglot'
@@ -62,7 +48,6 @@ Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
 Plug 'majutsushi/tagbar'
-"Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
 
 " Snippets
 if has('python3') || has('python')
@@ -99,9 +84,10 @@ endif
 "Plug 'CodeFalling/fcitx-vim-osx'
 
 " ColorScheme
-Plug 'tomasr/molokai'
+"Plug 'tomasr/molokai'
 Plug 'ajh17/Spacegray.vim'
-Plug 'Valloric/vim-valloric-colorscheme'
+"Plug 'Valloric/vim-valloric-colorscheme'
+"Plug 'joshdick/onedark.vim'
 
 call plug#end()
 
@@ -129,39 +115,11 @@ let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
-
-" EasyMotion
-"let g:EasyMotion_leader_key = '<leader>'
  
 " UltiSnips
-let g:UltiSnipsExpandTrigger='<tab>'
-let g:UltiSnipsJumpForwardTrigger='<tab>'
-let g:UltiSnipsJumpBackwardTrigger='<s-tab>'
-
-" YouCompleteMe
-"let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
-"let g:ycm_key_invoke_completion = ''
-"nnoremap <leader>y :YcmForceCompileAndDiagnostics<cr>
-"nnoremap <leader>gt :YcmCompleter GoTo<cr>
-"nnoremap <leader>gd :YcmCompleter GoToDefinitionElseDeclaration<cr>
-"let g:ycm_key_list_select_completion = ['<c-n>', '<Down>']
-"let g:ycm_key_list_previous_completion = ['<c-p>', '<Up>']
-"let g:ycm_confirm_extra_conf = 0
-"let g:ycm_python_binary_path = 'python'
-""let g:ycm_collect_identifiers_from_tags_files = 1
-"let g:ycm_server_python_interpreter = g:ycm_python_binary_path
-
-" ale
-"let g:ale_cpp_clang_options = '-std=c++14 -Wall -isystem ~/wbl/ -system ~/gnp/src/api/'
-"let g:ale_cpp_gcc_options = '-std=c++14 -Wall -I~/admin/wbl/ -I~/admin/gnp/src/api/'
-"let g:ale_linters = {
-"            \ 'python': ['flake8']
-"            \ }
-"nmap <silent> <m-j> <Plug>(ale_next_wrap)
-"nmap <silent> <m-k> <Plug>(ale_previous_wrap)
-"nmap <silent> <m-f> <Plug>(ale_fix)
-"nmap <silent> <leader>j <Plug>(ale_next_wrap)
-"nmap <silent> <leader>k <Plug>(ale_previous_wrap)
+let g:UltiSnipsExpandTrigger = '<tab>'
+let g:UltiSnipsJumpForwardTrigger = '<tab>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
 
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
@@ -200,12 +158,6 @@ nmap ga <Plug>(EasyAlign)
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
 nnoremap <leader>a :A<cr>
-
-" vim-smooth-scroll
-"nnoremap <silent> <c-u> :call smooth_scroll#up(&scroll, 0, 2)<cr>
-"nnoremap <silent> <c-d> :call smooth_scroll#down(&scroll, 0, 2)<cr>
-"nnoremap <silent> <c-b> :call smooth_scroll#up(&scroll*2, 0, 4)<cr>
-"nnoremap <silent> <c-f> :call smooth_scroll#down(&scroll*2, 0, 4)<cr>
 
 " fencview
 "let g:fencview_autodetect=0
@@ -250,25 +202,6 @@ let g:tagbar_type_go = {
 let g:lt_quickfix_list_toggle_map = '<leader>qq'
 let g:lt_height = 10
 
-" color_coded
-"let g:color_coded_enabled = 1
-"if &diff
-"    " Disable color_coded in diff mode
-"    let g:color_coded_enabled = 0
-"endif
-
-" chromatica.nvim
-"let g:chromatica#libclang_path='/usr/local/opt/llvm/lib'
-"let g:chromatica#enable_at_startup=1
-
-" vim-go
-"let g:go_highlight_functions = 1
-"let g:go_highlight_methods = 1
-"let g:go_highlight_structs = 1
-"let g:go_highlight_operators = 1
-"let g:go_highlight_build_constraints = 1
-"let g:go_fmt_command = 'goimports'
-
 " vim-slime
 let g:slime_python_ipython = 1
 if has('nvim')
@@ -277,21 +210,11 @@ else
 	let g:slime_target = 'vimterminal'
 endif
 
-" python-mode
-"let g:pymode_options_colorcolumn = 0
-"let g:pymode_rope = 0
-"let g:pymode_rope_lookup_project = 0
-"let g:pymode_lint = 0                         " disable lint, use ale's
-"autocmd vimrc FileType python setlocal wrap   " undo python-mode change
-
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
 
 " vim-autoformat
 noremap <F3> :Autoformat<CR>
-" clang-format, use vim-autoformat
-"map <C-L> :pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
-"imap <C-K> <c-o>:pyf /usr/local/Cellar/llvm/6.0.0/share/clang/clang-format.py<cr>
 
 " vim-which-key
 "nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
@@ -299,7 +222,6 @@ noremap <F3> :Autoformat<CR>
 
 " lightline.vim
 let g:lightline = {
-            \ 'colorscheme': 'wombat',
             \ 'active': {
             \   'left': [ [ 'mode', 'paste' ],
             \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
@@ -347,7 +269,7 @@ nmap <leader>qf  <Plug>(coc-fix-current)
 " Use `:Format` for format current buffer
 command! -nargs=0 Format :call CocAction('format')
 " Use `:Fold` for fold current buffer
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
 
 " vim
@@ -513,6 +435,7 @@ syntax enable
 syntax on
 "colorscheme molokai
 colorscheme spacegray
+"colorscheme onedark
 
 augroup vimrc
 	autocmd FileType cpp set tags+=~/cpp_tags

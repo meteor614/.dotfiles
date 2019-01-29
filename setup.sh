@@ -115,8 +115,6 @@ if type g++ &>/dev/null && type ctags &>/dev/null && [ ! -f ~/cpp_tags ]; then
         echo -e '\033[33mGenerate cpp tags finish.\033[0m'
     }&
 fi
-#echo -e '\033[31mGenerate cpp tags...\033[0m'
-#test ! type g++ &>/dev/null || test ! type ctags &>/dev/null || test -f ~/cpp_tags || ~/bin/generate_tags.sh &
 
 if [ x$1 == xall ]; then
     echo -e '\033[31mInit ssh authorized_keys...\033[0m'
@@ -141,6 +139,10 @@ if [ x$1 == xall ]; then
     #  go get -u -v golang.org/x/tools/cmd/guru
     #  go get -u -v golang.org/x/tools/cmd/goimports
     #  go get -u -v golang.org/x/tools/cmd/gorename
+
+    # gem install neovim
+    # pip install neovim
+    # npm install -g neovim
 fi
 
 wait
