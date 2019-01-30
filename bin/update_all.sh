@@ -111,12 +111,6 @@ if type cpan &>/dev/null; then
 fi
 
 if [ x$1 == xall ]; then
-    # go binaries
-    {
-        vim -c GoUpdateBinaries -c qa only_for_load_go.go
-        echo "vim GoUpdateBinaries finish"
-    }&
-
     # python modules
     if type pip3 &>/dev/null && type pip2 &>/dev/null; then
         {
