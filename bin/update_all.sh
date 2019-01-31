@@ -2,6 +2,8 @@
 
 begin=`date "+%s"`
 
+type parallel >/dev/null 2>&1 || alias parallel='xargs -P 16'
+
 # os package manager
 {
     if type brew &>/dev/null; then
@@ -34,28 +36,27 @@ begin=`date "+%s"`
 {
     if type pip3 &>/dev/null; then
         pip3 install --upgrade pip
-        #flake8 3.5.0 require pycodestyle < 2.4.0
-        for i in `pip3 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-        #for i in `pip3 list --outdated|awk -F ' ' '{if ($1!="pycodestyle" && $1!="pyflakes" && $2 ~ "[0-9].*") {print $1}}'`; do
-            pip3 install --upgrade $i &
-        done
-        wait
+        pip3 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel pip3 install --upgrade
+        #for i in `pip3 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+        #    pip3 install --upgrade $i &
+        #done
+        #wait
         echo "pip3 upgrade finish"
     elif type pip &>/dev/null; then
         if type brew &>/dev/null; then
             pip install --upgrade pip
-            #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
-            for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-                pip install --upgrade $i &
-            done
+            pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel pip install --upgrade
+            #for i in `pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+            #    pip install --upgrade $i &
+            #done
         else
             sudo pip install --upgrade pip
-            #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
-            for i in `sudo pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-                sudo pip install --upgrade $i &
-            done
+            sudo pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel sudo pip install --upgrade
+            #for i in `sudo pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+            #    sudo pip install --upgrade $i &
+            #done
         fi
-        wait
+        #wait
         echo "pip upgrade finish"
     fi
 }&
@@ -115,11 +116,11 @@ if [ x$1 == xall ]; then
     if type pip3 &>/dev/null && type pip2 &>/dev/null; then
         {
             pip2 install --upgrade pip
-            #for i in `pip list --outdated|awk -F ' ' '{print $1}'`; do
-            for i in `pip2 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
-                pip2 install --upgrade $i &
-            done
-            wait
+            pip2 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel pip2 install --upgrade
+            #for i in `pip2 list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}'`; do
+            #    pip2 install --upgrade $i &
+            #done
+            #wait
             echo "pip2 upgrade finish"
         }&
     fi
