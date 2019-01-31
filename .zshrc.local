@@ -40,6 +40,13 @@ if type icdiff>/dev/null 2>&1; then
     alias gdcw='git icdiff --cached --word-diff'
     alias gdw='git icdiff --word-diff'
 fi
+# parallel
+if type parallel>/dev/null 2>&1; then
+    alias p='parallel'
+    alias pp='parallel --pipe -k'
+else
+    alias p='xargs -P 16'
+fi
 
 type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
