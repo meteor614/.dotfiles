@@ -445,6 +445,7 @@ augroup vimrc
     autocmd FileType perl nmap <buffer> <leader>r :!perl %<cr>
     autocmd FileType python nmap <buffer> <leader>r :!python %<cr>
     autocmd FileType ruby nmap <buffer> <leader>r :!ruby %<cr>
+    autocmd FileType javascript nmap <buffer> <leader>r :!node %<cr>
     autocmd FileType markdown nmap <buffer> <leader>r :Xmark<cr>
 
     " vim自动打开跳到上次的光标位置
