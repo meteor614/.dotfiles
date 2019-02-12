@@ -18,7 +18,9 @@ type guniq >/dev/null 2>&1 && alias uniq='guniq'
 md5sum=md5sum
 type gmd5sum >/dev/null 2>&1 && md5sum='gmd5sum'
 
-find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%h/%f\t%s\n" | sort -rn -k2 | uniq -f1 -D | cut -f1 | parallel $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
+find "${dir}" ! -path '*/@eaDir*' ! -path '*/.git/*' ${find_size_opt} -not -empty -type f -printf "%h/%f\t%s\n" | sort -rn -k2 | uniq -f1 -D | cut -f1 | parallel $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
+
+#find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%h/%f\t%s\n" | sort -rn -k2 | uniq -f1 -D | cut -f1 | parallel $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
 
 #find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | parallel -I{} -n1 find "${dir}" ${find_opt} -type f -size {}c -print0 | parallel -0 $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
 
