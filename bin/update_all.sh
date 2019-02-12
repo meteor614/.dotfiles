@@ -7,6 +7,7 @@ type parallel >/dev/null 2>&1 || alias parallel='xargs -P 16'
 # os package manager
 {
     if type brew &>/dev/null; then
+        export HOMEBREW_INSTALL_CLEANUP=1
         brew update
         brew upgrade --cleanup
         brew cleanup
