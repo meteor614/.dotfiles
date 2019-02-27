@@ -46,7 +46,7 @@ windows:
     - editor:
         #layout: main-vertical
         # you can use command 'tmux list-windows' to get your layout
-        layout: 0a35,178x44,0,0{108x44,0,0,0,69x44,109,0[69x21,109,0,1,69x22,109,22,2]}
+        layout: ed8d,208x52,0,0{130x52,0,0,0,77x52,131,0,1}
         # Synchronize all panes of this window, can be enabled before or after the pane commands run.
         # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
         # synchronize: after
