@@ -37,6 +37,23 @@ ln -s ~/.vimrc ~/.vim/init.vim
 test -e nvim || ln -s ~/.vim nvim
 # for coc.nvim
 ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
+if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
+    brew install cquery
+fi
+if type npm &>/dev/null; then
+    if ! type bash-language-server &>/dev/null; then
+        npm i -g bash-language-server
+    fi
+    if ! type docker-langserver &>/dev/null; then
+        npm i -g dockerfile-language-server-nodejs
+    fi
+fi
+if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
+    luarocks install --server=http://luarocks.org/dev lua-lsp
+fi
+if type go &>/dev/null && ! type go-langserver &>/dev/null; then
+    go get -u github.com/sourcegraph/go-langserver
+fi
 
 # for tmuxinator
 ln -s ${script_path}/tmuxinator                                         # for mac
