@@ -9,7 +9,7 @@ type parallel >/dev/null 2>&1 || alias parallel='xargs -P 16'
     if type brew &>/dev/null; then
         export HOMEBREW_INSTALL_CLEANUP=1
         brew update
-        brew upgrade --cleanup
+        brew upgrade
         brew cleanup
         echo "brew update finish"
     elif type apt &>/dev/null; then
@@ -156,7 +156,7 @@ if type vim &>/dev/null; then
     vim -c PlugUpgrade -c qa
     vim -c PlugInstall -c PlugUpdate -c qa
     if [ -d ~/.vim/plugged/coc.nvim ]; then
-        vim -c CocUpdate -c qa
+        vim -c CocUpdateSync -c qa
     fi
     echo "vim PlugUpdate finish"
 fi
