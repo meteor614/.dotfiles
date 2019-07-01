@@ -23,6 +23,9 @@ done
 # for .aria2
 ln -s ${script_path}/.aria2
 
+# for .pip
+ln -s ${script_path}/.pip
+
 # for .config
 test -e ~/.config || mkdir ~/.config
 cd ~/.config
