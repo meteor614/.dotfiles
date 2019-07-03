@@ -48,6 +48,13 @@ else
     alias p='xargs -P 16'
 fi
 
+if [ -d /usr/local/opt/ruby/bin ]; then
+    export PATH="/usr/local/opt/ruby/bin:$PATH"
+fi
+
+if type gem >/dev/null 2>&1 && ! type tmuxinator >/dev/null 2<&1; then
+    export PATH="$PATH:`gem environment|grep 'EXECUTABLE DIRECTORY'|awk -F': ' '{print $2}'`"
+fi
 type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
 type nvim >/dev/null 2>&1 && alias vim='nvim'
