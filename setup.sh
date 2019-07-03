@@ -26,6 +26,16 @@ ln -s ${script_path}/.aria2
 # for .pip
 ln -s ${script_path}/.pip
 
+# brew mirrors
+if type brew &>/dev/null && type git &>/dev/null; then
+    cd "$(brew --repo)"
+    git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core"
+    git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
+    git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+fi
+
 # for .config
 test -e ~/.config || mkdir ~/.config
 cd ~/.config
