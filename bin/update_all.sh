@@ -36,16 +36,25 @@ type parallel &>/dev/null 2>&1 || alias parallel='xargs -P 16'
 # python modules
 {
     if type python3 &>/dev/null; then
-        python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
-        python3 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+        if type brew &>/dev/null; then
+            python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
+            #python3 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            python3 -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+        else
+            sudo python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
+            #sudo python3 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            sudo python3 -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python3 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+        fi
         echo "pip3 upgrade finish"
     elif type python &>/dev/null; then
         if type brew &>/dev/null; then
             python -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
-            python -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            #python -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            python -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python -m pip --trusted-host mirrors.aliyun.com install --upgrade
         else
             sudo python -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
-            sudo python -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel sudo python -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            #sudo python -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel sudo python -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            sudo python -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel sudo python -m pip --trusted-host mirrors.aliyun.com install --upgrade
         fi
         #wait
         echo "pip upgrade finish"
@@ -106,8 +115,15 @@ if [ x$1 == xall ]; then
     # python modules
     if type python3 &>/dev/null && type python2 &>/dev/null; then
         {
-            python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
-            python2 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            if type brew &>/dev/null; then
+                python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
+                #python2 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+                python2 -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            else
+                sudo python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade pip
+                #sudo python2 -m pip --trusted-host mirrors.aliyun.com list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+                sudo python2 -m pip --trusted-host mirrors.aliyun.com list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel python2 -m pip --trusted-host mirrors.aliyun.com install --upgrade
+            fi
             echo "pip2 upgrade finish"
         }&
     fi
