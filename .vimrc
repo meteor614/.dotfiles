@@ -443,7 +443,7 @@ augroup vimrc
     autocmd FileType sh nmap <buffer> <leader>r :!bash %<cr>
     autocmd FileType zsh nmap <buffer> <leader>r :!zsh %<cr>
     autocmd FileType perl nmap <buffer> <leader>r :!perl %<cr>
-    autocmd FileType python nmap <buffer> <leader>r :!python %<cr>
+    autocmd FileType python nmap <buffer> <leader>r :!python3 %<cr>
     autocmd FileType ruby nmap <buffer> <leader>r :!ruby %<cr>
     autocmd FileType javascript nmap <buffer> <leader>r :!node %<cr>
     autocmd FileType markdown nmap <buffer> <leader>r :Xmark<cr>
