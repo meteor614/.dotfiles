@@ -119,3 +119,4 @@ type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+type kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
