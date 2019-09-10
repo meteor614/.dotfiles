@@ -9,6 +9,7 @@ script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
     echo -e '\033[31mUpdate submodules...\033[0m'
     cd ${script_path}
     git submodule update --init --recursive 
+    git submodule update --remote
     echo -e '\033[33mUpdate submodules finish.\033[0m'
 }&
 
