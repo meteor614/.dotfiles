@@ -54,6 +54,14 @@ ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
     brew install cquery
 fi
+if type python3 &>/dev/null; then
+    python3 -m pip install python-language-server
+    python3 -m pip install neovim
+fi
+if type python2 &>/dev/null; then
+    python2 -m pip install python-language-server
+    python2 -m pip install neovim
+fi
 if type npm &>/dev/null; then
     if ! type bash-language-server &>/dev/null; then
         npm i -g bash-language-server
@@ -61,6 +69,10 @@ if type npm &>/dev/null; then
     if ! type docker-langserver &>/dev/null; then
         npm i -g dockerfile-language-server-nodejs
     fi
+    npm install -g neovim
+fi
+if type gem &>/dev/null; then
+    gem install neovim
 fi
 if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
     luarocks install --server=http://luarocks.org/dev lua-lsp
@@ -72,7 +84,6 @@ fi
 # for tmuxinator
 ln -s ${script_path}/tmuxinator                                         # for mac
 test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
-
 # for tmux
 cd ~
 ln -s ${script_path}/.tmux/.tmux.conf
