@@ -33,6 +33,10 @@ alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
 alias -s zip='unzip'
 
+if type docker>/dev/null 2>&1; then
+    alias docker=sudo -E docker
+fi
+
 # git icdiff
 if type icdiff>/dev/null 2>&1; then
     alias gd='git icdiff'
