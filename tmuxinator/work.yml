@@ -1,7 +1,7 @@
 # ~/.tmuxinator/work.yml
 
 name: work
-root: ~/
+root: ~/work
 
 # Optional tmux socket
 # socket_name: foo
@@ -52,4 +52,4 @@ windows:
         # synchronize: after
         panes:
             - 
-            - 
+            -
