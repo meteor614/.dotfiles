@@ -34,7 +34,7 @@ alias -s bz2='tar -xjvf'
 alias -s zip='unzip'
 
 if type docker>/dev/null 2>&1; then
-    alias docker=sudo -E docker
+    alias docker='sudo -E docker'
 fi
 
 # git icdiff
