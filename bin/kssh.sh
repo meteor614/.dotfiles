@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ $# -lt 2 ];then
     echo "usage: $0 pods_patten node_patten [context]"
