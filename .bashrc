@@ -9,6 +9,10 @@ alias l='ls -l'
 
 export PS1='[\u@\h \w]$ '
 
+if type docker>/dev/null 2>&1; then
+    alias docker='sudo -E docker'
+fi
+
 # git icdiff
 if type icdiff>/dev/null 2>&1; then
     alias gd='git icdiff'
