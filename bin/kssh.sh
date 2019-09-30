@@ -60,6 +60,7 @@ for v in $@; do
     grep_cmd="grep $v | ${grep_cmd}"
 done
 cmd="kubectl get pods -n \"${pods_patten}\" ${ctxopt} | $grep_cmd | awk '{printf \" \"\$1}'"
+echo $cmd
 nodes=`eval $cmd`
 arr=($nodes)
 if [ l${#arr[@]} == l0 ];then
@@ -69,5 +70,5 @@ if [ l${#arr[@]} == l0 ];then
     exit
 fi
 echo "connecting $nodes"
-#xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- /bin/bash" $nodes
+xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- /bin/bash" $nodes
 
