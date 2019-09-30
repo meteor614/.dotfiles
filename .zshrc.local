@@ -113,6 +113,9 @@ fi
 if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
     export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 fi
+if [ -d /usr/local/opt/gnu-getopt/bin ]; then
+    export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+fi
 #if [ -d /usr/local/opt/node@10/bin ] && ! type node >/dev/null 2>&1; then
 if [ -d /usr/local/opt/node@10/bin ]; then
     export PATH="/usr/local/opt/node@10/bin:$PATH"
