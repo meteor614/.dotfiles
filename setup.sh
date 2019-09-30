@@ -82,7 +82,7 @@ if type go &>/dev/null && ! type go-langserver &>/dev/null; then
 fi
 
 # for tmuxinator
-ln -s ${script_path}/tmuxinator                                         # for mac
+#ln -s ${script_path}/tmuxinator                                         # for mac
 test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
 # for tmux
 cd ~
