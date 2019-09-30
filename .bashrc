@@ -68,6 +68,10 @@ if [ -f /usr/libexec/java_home ]; then
     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
 fi
 
+if [ -d /usr/local/opt/gnu-getopt/bin ]; then
+    export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+fi
+
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
     export PATH="/usr/local/bin:$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
