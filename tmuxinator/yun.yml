@@ -54,4 +54,4 @@ windows:
             - eval `kubectl get pod -n base|grep mongo-client|awk '{print "kubectl exec -it -n base "$1" -- /opt/mongo_tools/mongo.sh"}'`
             - kubectl get pods -n autokit
             -
-            - eval `kubectl get pod -n base|grep kafka-client|awk '{print "kubectl exec -it -n base "$1" -- /bin/bash"}'`
+            - watch eval `kubectl get pod -n base|grep kfk-0|awk '{print "kubectl exec -it -n base "$1" -- /opt/kafka/chensheng/spider_info.sh|sort"}'`
