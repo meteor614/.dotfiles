@@ -1,13 +1,14 @@
 #!/bin/bash
 
 org_cmd="$0 $@"
-ARGS=`getopt -o "ie:t:v:h" -l "ignore-case,regexp:,context:,invert-match:help" -n "$0" -- "$@"`
+ARGS=`getopt -o "ie:t:v:c:h" -l "ignore-case,regexp:,context:,invert-match:cmd:help" -n "$0" -- "$@"`
  
 eval set -- "${ARGS}"
 
 grep_cmd="grep -w Running"
 grep_opts=''
 ctx_opt=''
+shell_cmd='/bin/bash'
 
 while true; do
     case "${1}" in
@@ -36,6 +37,13 @@ while true; do
             shift;
         fi
         ;;
+        -c|--cmd)
+        shift;
+        if [[ -n "${1}" ]]; then
+            shell_cmd="$1"
+            shift;
+        fi
+        ;;
         -h|--help)
         shift;
         echo "usage:"
@@ -45,6 +53,7 @@ while true; do
         echo "      -v pattern, --invert-match=pattern      Selected nodes are those not matching any of the specified patterns"
         echo "      -i, --ignore-case                       Perform case insensitive matching"
         echo "      -t ctx, --context=ctx                   kubectl context"
+        echo "      -c cmd, --cmd=cmd                       command line to exec"
         exit
         ;;
         --)
@@ -70,5 +79,6 @@ if [ l${#arr[@]} == l0 ];then
     exit
 fi
 echo "connecting $nodes"
-xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- /bin/bash" $nodes
+#xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- /bin/bash" $nodes
+xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd}" $nodes
 
