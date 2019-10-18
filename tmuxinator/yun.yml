@@ -46,7 +46,8 @@ windows:
     - editor:
         #layout: main-vertical
         # you can use command 'tmux list-windows' to get your layout
-        layout: badb,490x82,0,0{294x82,0,0[294x41,0,0,0,294x40,0,42{144x40,0,42,1,149x40,145,42,2}],195x82,295,0,3}
+        # layout: badb,490x82,0,0{294x82,0,0[294x41,0,0,0,294x40,0,42{144x40,0,42,1,149x40,145,42,2}],195x82,295,0,3}
+        layout: be65,490x82,0,0{407x82,0,0[407x41,0,0,18,407x40,0,42{223x40,0,42,19,183x40,224,42,20}],82x82,408,0,21}
         # Synchronize all panes of this window, can be enabled before or after the pane commands run.
         # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
         # synchronize: after
@@ -54,4 +55,4 @@ windows:
             - eval `kubectl get pod -n base|grep mongo-client|awk '{print "kubectl exec -it -n base "$1" -- /opt/mongo_tools/mongo.sh"}'`
             - kubectl get pods -n autokit
             -
-            - watch eval `kubectl get pod -n base|grep kfk-0|awk '{print "kubectl exec -it -n base "$1" -- /opt/kafka/chensheng/spider_info.sh|sort"}'`
+            - watch eval `kubectl get pod -n base|grep kfk-0|awk '{print "kubectl exec -it -n base "$1" -- /opt/kafka/chensheng/spider_info.sh|sort|color.sh"}'`
