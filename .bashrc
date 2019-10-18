@@ -9,10 +9,6 @@ alias l='ls -l'
 
 export PS1='[\u@\h \w]$ '
 
-if type docker>/dev/null 2>&1; then
-    alias docker='sudo -E docker'
-fi
-
 # git icdiff
 if type icdiff>/dev/null 2>&1; then
     alias gd='git icdiff'
@@ -32,6 +28,8 @@ type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
 type nvim >/dev/null 2>&1 && alias vim='nvim'
 type pip3 >/dev/null 2>&1 && alias pip=pip3
+type watch >/dev/null 2>&1 && alias watch='watch -c'
+type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
 
 # fzf
 if type rg>/dev/null 2>&1; then
