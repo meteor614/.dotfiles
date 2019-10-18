@@ -79,6 +79,6 @@ if [ l${#arr[@]} == l0 ];then
     exit
 fi
 echo "connecting $nodes"
-#xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- /bin/bash" $nodes
-xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd}" $nodes
+#xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd}" $nodes
+xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd} ; exit" $nodes
 
