@@ -80,5 +80,5 @@ if [ l${#arr[@]} == l0 ];then
 fi
 echo "connecting $nodes"
 #xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd}" $nodes
-xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd} ; exit" $nodes
+xpanes -c "kubectl ${ctxopt} exec -it -n ${pods_patten} {} -- ${shell_cmd} ; read -n 1; exit" $nodes
 
