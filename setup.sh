@@ -185,6 +185,8 @@ if [ x$1 == xall ]; then
     # gem install neovim
     # pip install neovim
     # npm install -g neovim
+
+    # brew install ack antigen cheat cscope ctags curl gawk gnu-getopt icdiff neovim osxutils parallel pstree psutils tmux tmux-xpanes zsh watch wget coreutils
 fi
 
 wait
