@@ -23,7 +23,8 @@ Plug 'luochen1990/rainbow'
 if has('python3') || has('python')
     Plug 'Valloric/MatchTagAlways'
 endif
-Plug 'Chiel92/vim-autoformat'
+"Plug 'Chiel92/vim-autoformat'
+Plug 'sbdchd/neoformat'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'sheerun/vim-polyglot'
 
@@ -71,7 +72,8 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
-Plug 'terryma/vim-multiple-cursors'
+"Plug 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi'
 Plug 'terryma/vim-expand-region'
 Plug 'jpalardy/vim-slime'
 if !has('nvim') && v:version > 704
@@ -96,7 +98,7 @@ if exists('s:first_init')
     PlugInstall
     if v:version > 704
         " install coc.nvim extensions
-        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets
     endif
 endif
 
@@ -214,7 +216,7 @@ endif
 nmap <silent> <leader>h <Plug>DashSearch
 
 " vim-autoformat
-noremap <F3> :Autoformat<CR>
+"noremap <F3> :Autoformat<CR>
 
 " vim-which-key
 "nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
