@@ -1,6 +1,7 @@
 # dotfiles
 
 All my dotfiles.
+
 * vim/neovim/ideavim
 * zsh/bash
 * tmux/tmuxinator

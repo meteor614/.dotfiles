@@ -99,7 +99,7 @@ if exists('s:first_init')
     PlugInstall
     if v:version > 704
         " install coc.nvim extensions
-        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace coc-markdownlint
     endif
 endif
 
