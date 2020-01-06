@@ -45,8 +45,8 @@ Plug 'Shougo/denite.nvim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-Plug 'Xuyuanp/nerdtree-git-plugin'
+"Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+"Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
 Plug 'majutsushi/tagbar'
 
@@ -99,7 +99,7 @@ if exists('s:first_init')
     PlugInstall
     if v:version > 704
         " install coc.nvim extensions
-        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace
     endif
 endif
 
@@ -167,7 +167,8 @@ nnoremap <leader>a :A<cr>
 "map <F2> :FencView<cr>
 
 " nerdtree
-nmap <F10> :NERDTreeToggle<cr>
+"nmap <F10> :NERDTreeToggle<cr>
+nmap <F10> :CocCommand explorer<CR>
 
 " tagbar
 nmap <F12> :TagbarToggle<cr>
@@ -291,6 +292,8 @@ nnoremap <silent> g, g,zz
 nnoremap <silent><leader>/ :nohls<cr>
 
 " files
+inoremap <C-s>     <C-O>:update<cr>
+nnoremap <C-s>     :update<cr>
 nnoremap <leader>qa :qa<cr>
 nnoremap <leader>w :w<cr>
 nnoremap <leader>wq :wq<cr>
@@ -306,9 +309,33 @@ cmap w!! w !sudo tee >/dev/null %
 nnoremap <leader>n :bn<cr>
 nnoremap <leader>p :bp<cr>
 
+" Movement in insert mode
+inoremap <C-h> <C-o>h
+inoremap <C-l> <C-o>a
+inoremap <C-j> <C-o>j
+inoremap <C-k> <C-o>k
+inoremap <C-^> <C-o><C-^>
+
+" Make Y behave like other capitals
+"nnoremap Y y$
+
 " jump
 noremap <c-j> 15gj
 noremap <c-k> 15gk
+
+" Quickfix
+nnoremap ]q :cnext<cr>zz
+nnoremap [q :cprev<cr>zz
+nnoremap ]l :lnext<cr>zz
+nnoremap [l :lprev<cr>zz
+
+" Buffers
+nnoremap ]b :bnext<cr>
+nnoremap [b :bprev<cr>
+
+" Tabs
+nnoremap ]t :tabn<cr>
+nnoremap [t :tabp<cr>
 
 " CTRL+A moves to start of line in command mode
 cnoremap <C-a> <home>
