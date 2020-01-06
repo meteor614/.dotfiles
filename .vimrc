@@ -99,7 +99,7 @@ if exists('s:first_init')
     PlugInstall
     if v:version > 704
         " install coc.nvim extensions
-        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace coc-markdownlint
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace coc-markdownlint coc-pairs
     endif
 endif
 
@@ -263,7 +263,7 @@ function! s:show_documentation()
 endfunction
 
 " Highlight symbol under cursor on CursorHold
-"autocmd CursorHold * silent call CocActionAsync('highlight')
+autocmd CursorHold * silent call CocActionAsync('highlight')
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 " Remap for do codeAction of current line
