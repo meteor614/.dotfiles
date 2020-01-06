@@ -81,6 +81,7 @@ if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
     Plug 'drmikehenry/vim-fixkey'
 endif
+Plug 'easymotion/vim-easymotion'
 "Plug 'liuchengxu/vim-which-key'
 
 " 进入vim normal模式时，自动切换为英文输入法
