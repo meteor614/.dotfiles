@@ -75,7 +75,8 @@ Plug 'godlygeek/tabular'
 "Plug 'terryma/vim-multiple-cursors'
 Plug 'mg979/vim-visual-multi'
 Plug 'terryma/vim-expand-region'
-Plug 'jpalardy/vim-slime'
+"Plug 'sillybun/vim-repl'
+"Plug 'jpalardy/vim-slime'
 if !has('nvim') && v:version > 704
     " <m-?> and <a-?> key map fix for vim
     Plug 'drmikehenry/vim-fixkey'
@@ -205,12 +206,12 @@ let g:lt_quickfix_list_toggle_map = '<leader>qq'
 let g:lt_height = 10
 
 " vim-slime
-let g:slime_python_ipython = 1
-if has('nvim')
-	let g:slime_target = 'neovim'
-else
-	let g:slime_target = 'vimterminal'
-endif
+"let g:slime_python_ipython = 1
+"if has('nvim')
+"	let g:slime_target = 'neovim'
+"else
+"	let g:slime_target = 'vimterminal'
+"endif
 
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
