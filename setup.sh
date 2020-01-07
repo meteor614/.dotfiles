@@ -40,7 +40,7 @@ fi
 # for .config
 test -e ~/.config || mkdir ~/.config
 cd ~/.config
-files=($(ls -FA ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
+files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
 for i in ${files[@]}; do
     ln -s ${script_path}/.config/${i}
 done

@@ -1,0 +1,1 @@
+pandoc -f docx -t markdown x.docx -o x.md --extract-media=.

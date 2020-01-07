@@ -1,0 +1,25 @@
+rg (ripgrep)：比grep、ack、ag更快的递归搜索文件内容。
+tig：字符模式下交互查看git项目，可以替代git命令。
+mosh：基于UDP的终端连接，可以替代ssh，连接更稳定，即使IP变了，也能自动重连。
+fzf：命令行下模糊搜索工具，能够交互式智能搜索并选取文件或者内容，配合终端ctrl-r历史命令搜索简直完美。
+axel：多线程下载工具，下载文件时可以替代curl、wget。
+cloc：代码统计工具，能够统计代码的空行数、注释行、编程语言。
+cppman：C++ 98/11/14 手册查询 for Linux/MacOS
+ncdu：可视化的空间分析程序
+glances：更强大的 htop / top 代替者
+htop：top替代者
+cheat：命令行笔记
+multitail：多重  tail
+thefuck - 使用易记的命令修复常见的shell错误
+cpulimit，命令行敲一行解决所有痛点，哪个进程 导致电脑发热，我就 limit 之，谁敢不服233
+pip install pypinyin 获取汉字拼音
+mycli，mysql客户端，带语法高亮、提示
+icdiff：比传统 diff 更明白些，是吧？效果比 sdiff 好不少，还可以配置到 git 里，变成默认的 git diff查看工具，比原来的 diff 漂亮不少吧？
+Graphviz 可以将文本转成图表
+jq，命令行的json查询和格式化工具，适合查看rest接口的输出
+ttygif - 将终端录制转换成GIF动画。
+aria2c ：度盘下载全靠它
+xpanes: 基于tmux的同步分屏工具
+pydf: 更简洁的df
+nnn: 文件分析工具
+bpython: 强大的Python交互终端

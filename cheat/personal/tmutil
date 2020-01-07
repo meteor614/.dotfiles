@@ -1,0 +1,8 @@
+# list local time machine snapshots
+sudo tmutil listlocalsnapshots /
+
+# delete local snapshots
+tmutil deletelocalsnapshots 2018-02-14-212342
+
+# delete all local snapshots
+sudo tmutil listlocalsnapshots / |awk -F'.' '{print "tmutil deletelocalsnapshots "$4}'|zsh

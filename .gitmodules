@@ -1,3 +1,6 @@
 [submodule ".tmux"]
 	path = .tmux
 	url = https://github.com/gpakosz/.tmux
+[submodule "cheat/cheatsheets"]
+	path = cheat/cheatsheets
+	url = https://github.com/cheat/cheatsheets
