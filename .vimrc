@@ -23,7 +23,6 @@ Plug 'luochen1990/rainbow'
 if has('python3') || has('python')
     Plug 'Valloric/MatchTagAlways'
 endif
-"Plug 'Chiel92/vim-autoformat'
 Plug 'sbdchd/neoformat'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'sheerun/vim-polyglot'
@@ -45,14 +44,12 @@ Plug 'Shougo/denite.nvim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
-"Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-"Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'Valloric/ListToggle'
 Plug 'majutsushi/tagbar'
 
 " Snippets
-if has('python3') || has('python')
-    "Plug 'sirver/UltiSnips'
+"if has('python3') || has('python')
+if v:version > 704
     Plug 'honza/vim-snippets'
 endif
 
@@ -64,7 +61,6 @@ Plug 'junegunn/gv.vim'
 " Misc
 "Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
-"Plug 'vim-airline/vim-airline'
 Plug 'itchyny/lightline.vim'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
@@ -118,34 +114,19 @@ let g:python3_host_prog = exepath('python3')
 let g:ruby_host_prog = exepath('neovim-ruby-host')
 let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 
+"===================
 " rainbow
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
  
-" UltiSnips
-"let g:UltiSnipsExpandTrigger = '<tab>'
-"let g:UltiSnipsJumpForwardTrigger = '<tab>'
-"let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
-
-" coc-snippets
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? coc#_select_confirm() :
-            \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ coc#refresh()
-
-function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-let g:coc_snippet_next = '<tab>'
-
+"===================
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
 
+"===================
 " vim-ripgrep
 let g:rg_highlight = 1
 
+"===================
 " ack.vim
 if executable('rg')
     let g:ackprg = 'rg --vimgrep'
@@ -162,6 +143,7 @@ else
     nnoremap <silent> <C-p> :FZF<cr>
 endif
 
+"===================
 " ctrlsf
 nmap <leader>s <Plug>CtrlSFPrompt
 vmap <leader>s <Plug>CtrlSFVwordPath
@@ -170,22 +152,17 @@ if executable('rg')
     let g:ctrlsf_ackprg = 'rg'
 endif
 
+"===================
 " vim-easy-align
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
+"===================
 " A
 let g:alternateSearchPath = 'sfr:../source,sfr:../src,sfr:../include,sfr:../inc,sfr:../wbl,sfr:../gnp'
 nnoremap <leader>a :A<cr>
 
-" fencview
-"let g:fencview_autodetect=0
-"map <F2> :FencView<cr>
-
-" nerdtree
-"nmap <F10> :NERDTreeToggle<cr>
-nmap <F10> :CocCommand explorer<CR>
-
+"===================
 " tagbar
 nmap <F12> :TagbarToggle<cr>
 let g:tagbar_type_go = {
@@ -216,30 +193,23 @@ let g:tagbar_type_go = {
     \ 'ctagsargs' : '-sort -silent'
 \ }
 
+"===================
 " ListToggle
 " You can set the key mappings for toggling Vim's locationlist and quickfix windows in your vimrc file:
 "let g:lt_location_list_toggle_map = '<leader>l'
 let g:lt_quickfix_list_toggle_map = '<leader>qq'
 let g:lt_height = 10
 
-" vim-slime
-"let g:slime_python_ipython = 1
-"if has('nvim')
-"	let g:slime_target = 'neovim'
-"else
-"	let g:slime_target = 'vimterminal'
-"endif
-
+"===================
 " dash
 nmap <silent> <leader>h <Plug>DashSearch
 
-" vim-autoformat
-"noremap <F3> :Autoformat<CR>
-
+"===================
 " vim-which-key
 "nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 "nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
+"===================
 " lightline.vim
 let g:lightline = {
             \ 'active': {
@@ -251,6 +221,7 @@ let g:lightline = {
             \ },
             \ }
 
+"===================
 " coc.nvim
 " Use `[c` and `]c` for navigate diagnostics
 "nmap <silent> [c <Plug>(coc-diagnostic-prev)
@@ -291,7 +262,40 @@ command! -nargs=0 Format :call CocAction('format')
 " Use `:Fold` for fold current buffer
 command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
+"===================
+" coc-snippets
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? coc#_select_confirm() :
+            \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+            \ <SID>check_back_space() ? "\<TAB>" :
+            \ coc#refresh()
 
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
+
+"===================
+" coc-lists grep
+command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
+
+function! s:GrepArgs(...)
+  let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+        \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+  return join(list, "\n")
+endfunction
+
+" Keymapping for grep word under cursor with interactive mode
+nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+
+"===================
+" coc-command
+nmap <F10> :CocCommand explorer<CR>
+
+
+"===================
 " vim
 nnoremap ; :
 
