@@ -145,11 +145,13 @@ endif
 
 "===================
 " ctrlsf
-nmap <leader>s <Plug>CtrlSFPrompt
-vmap <leader>s <Plug>CtrlSFVwordPath
-let g:ctrlsf_regex_pattern = 1
-if executable('rg')
-    let g:ctrlsf_ackprg = 'rg'
+if v:version > 704
+    nmap <leader>s <Plug>CtrlSFPrompt
+    vmap <leader>s <Plug>CtrlSFVwordPath
+    let g:ctrlsf_regex_pattern = 1
+    if executable('rg')
+        let g:ctrlsf_ackprg = 'rg'
+    endif
 endif
 
 "===================
@@ -223,76 +225,78 @@ let g:lightline = {
 
 "===================
 " coc.nvim
-" Use `[c` and `]c` for navigate diagnostics
-"nmap <silent> [c <Plug>(coc-diagnostic-prev)
-"nmap <silent> ]c <Plug>(coc-diagnostic-next)
-nmap <silent> <m-k> <Plug>(coc-diagnostic-prev)
-nmap <silent> <m-j> <Plug>(coc-diagnostic-next)
-nmap <silent> <leader>k <Plug>(coc-diagnostic-prev)
-nmap <silent> <leader>j <Plug>(coc-diagnostic-next)
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-" Use K for show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-" Remap for format selected region
-"vmap <leader>f  <Plug>(coc-format-selected)
-"nmap <leader>f  <Plug>(coc-format-selected)
+if v:version > 704
+    " Use `[c` and `]c` for navigate diagnostics
+    "nmap <silent> [c <Plug>(coc-diagnostic-prev)
+    "nmap <silent> ]c <Plug>(coc-diagnostic-next)
+    nmap <silent> <m-k> <Plug>(coc-diagnostic-prev)
+    nmap <silent> <m-j> <Plug>(coc-diagnostic-next)
+    nmap <silent> <leader>k <Plug>(coc-diagnostic-prev)
+    nmap <silent> <leader>j <Plug>(coc-diagnostic-next)
+    " Remap keys for gotos
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+    " Use K for show documentation in preview window
+    nnoremap <silent> K :call <SID>show_documentation()<CR>
+    " Remap for format selected region
+    "vmap <leader>f  <Plug>(coc-format-selected)
+    "nmap <leader>f  <Plug>(coc-format-selected)
 
-function! s:show_documentation()
-  if &filetype == 'vim'
-    execute 'h '.expand('<cword>')
-  else
-    call CocAction('doHover')
-  endif
-endfunction
+    function! s:show_documentation()
+    if &filetype == 'vim'
+        execute 'h '.expand('<cword>')
+    else
+        call CocAction('doHover')
+    endif
+    endfunction
 
-" Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
-" Remap for rename current word
-nmap <leader>rn <Plug>(coc-rename)
-" Remap for do codeAction of current line
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
-nmap <leader>qf  <Plug>(coc-fix-current)
-" Use `:Format` for format current buffer
-command! -nargs=0 Format :call CocAction('format')
-" Use `:Fold` for fold current buffer
-command! -nargs=? Fold :call CocAction('fold', <f-args>)
+    " Highlight symbol under cursor on CursorHold
+    autocmd CursorHold * silent call CocActionAsync('highlight')
+    " Remap for rename current word
+    nmap <leader>rn <Plug>(coc-rename)
+    " Remap for do codeAction of current line
+    nmap <leader>ac  <Plug>(coc-codeaction)
+    " Fix autofix problem of current line
+    nmap <leader>qf  <Plug>(coc-fix-current)
+    " Use `:Format` for format current buffer
+    command! -nargs=0 Format :call CocAction('format')
+    " Use `:Fold` for fold current buffer
+    command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
-"===================
-" coc-snippets
-inoremap <silent><expr> <TAB>
-            \ pumvisible() ? coc#_select_confirm() :
-            \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
-            \ <SID>check_back_space() ? "\<TAB>" :
-            \ coc#refresh()
+    "===================
+    " coc-snippets
+    inoremap <silent><expr> <TAB>
+                \ pumvisible() ? coc#_select_confirm() :
+                \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+                \ <SID>check_back_space() ? "\<TAB>" :
+                \ coc#refresh()
 
-function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+    function! s:check_back_space() abort
+        let col = col('.') - 1
+        return !col || getline('.')[col - 1]  =~# '\s'
+    endfunction
 
-let g:coc_snippet_next = '<tab>'
+    let g:coc_snippet_next = '<tab>'
 
-"===================
-" coc-lists grep
-command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
+    "===================
+    " coc-lists grep
+    command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
 
-function! s:GrepArgs(...)
-  let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
-        \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
-  return join(list, "\n")
-endfunction
+    function! s:GrepArgs(...)
+    let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+            \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+    return join(list, "\n")
+    endfunction
 
-" Keymapping for grep word under cursor with interactive mode
-nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+    " Keymapping for grep word under cursor with interactive mode
+    nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
 
-"===================
-" coc-command
-nmap <F10> :CocCommand explorer<CR>
+    "===================
+    " coc-command
+    nmap <F10> :CocCommand explorer<CR>
+endif
 
 
 "===================
