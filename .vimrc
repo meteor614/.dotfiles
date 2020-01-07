@@ -52,7 +52,7 @@ Plug 'majutsushi/tagbar'
 
 " Snippets
 if has('python3') || has('python')
-    Plug 'sirver/UltiSnips'
+    "Plug 'sirver/UltiSnips'
     Plug 'honza/vim-snippets'
 endif
 
@@ -100,7 +100,7 @@ if exists('s:first_init')
     PlugInstall
     if v:version > 704
         " install coc.nvim extensions
-        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-explorer coc-marketplace coc-markdownlint coc-pairs
+        CocInstall coc-css coc-eslint coc-gocode coc-highlight coc-html coc-java coc-json coc-prettier coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-tabnine coc-snippets coc-ultisnips coc-neosnippet coc-explorer coc-marketplace coc-markdownlint coc-pairs
     endif
 endif
 
@@ -121,9 +121,23 @@ let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
 let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
  
 " UltiSnips
-let g:UltiSnipsExpandTrigger = '<tab>'
-let g:UltiSnipsJumpForwardTrigger = '<tab>'
-let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+"let g:UltiSnipsExpandTrigger = '<tab>'
+"let g:UltiSnipsJumpForwardTrigger = '<tab>'
+"let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+
+" coc-snippets
+inoremap <silent><expr> <TAB>
+            \ pumvisible() ? coc#_select_confirm() :
+            \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+            \ <SID>check_back_space() ? "\<TAB>" :
+            \ coc#refresh()
+
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
 
 " asyncrun
 nnoremap <leader>ma :AsyncRun make<cr>
