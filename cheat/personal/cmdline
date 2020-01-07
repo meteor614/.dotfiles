@@ -4,12 +4,12 @@ mosh：基于UDP的终端连接，可以替代ssh，连接更稳定，即使IP�
 fzf：命令行下模糊搜索工具，能够交互式智能搜索并选取文件或者内容，配合终端ctrl-r历史命令搜索简直完美。
 axel：多线程下载工具，下载文件时可以替代curl、wget。
 cloc：代码统计工具，能够统计代码的空行数、注释行、编程语言。
-cppman：C++ 98/11/14 手册查询 for Linux/MacOS
+cppman：C++ 98/11/14 手册查询 for Linux/MacOS，pip install cppman
 ncdu：可视化的空间分析程序
-glances：更强大的 htop / top 代替者
+glances：更强大的 htop / top 代替者，pip install Glances
 htop：top替代者
-cheat：命令行笔记
-multitail：多重  tail
+cheat：命令行笔记，pip install cheat
+multitail：多重 tail
 thefuck - 使用易记的命令修复常见的shell错误
 cpulimit，命令行敲一行解决所有痛点，哪个进程 导致电脑发热，我就 limit 之，谁敢不服233
 pip install pypinyin 获取汉字拼音
@@ -19,7 +19,21 @@ Graphviz 可以将文本转成图表
 jq，命令行的json查询和格式化工具，适合查看rest接口的输出
 ttygif - 将终端录制转换成GIF动画。
 aria2c ：度盘下载全靠它
-xpanes: 基于tmux的同步分屏工具
-pydf: 更简洁的df
-nnn: 文件分析工具
-bpython: 强大的Python交互终端
+tmuxinator，gem install tmuxinator
+xpanes：基于tmux的同步分屏工具
+pydf：更简洁的df
+you-get: 非常强大的媒体下载工具，支持youtube、google+、优酷、芒果TV、腾讯视频、秒拍等视频下载。
+parallel：xargs 是一个比较古老的命令，有简单的并行功能，这个不说了。对于GNU parallel ( online manpage )来说，它不仅能够处理本机上多执行绪，还能分散至远端电脑协助处理，https://www.jianshu.com/p/c5a2369fa613
+vian：基于puppeteer的网页截图工具 npm install -g vian
+bpython：强大的python交互式终端，pip install bpython
+nnn：文本分析工具
+
+
+#图片识别
+npm install baidu-ocr-api -g
+ocr --help
+# 远程图片
+ocr http://7pun4e.com1.z0.glb.clouddn.com/test.jpg
+# 本地图片
+ocr ./test.jpg
+explainshell.com
