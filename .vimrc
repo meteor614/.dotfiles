@@ -78,7 +78,7 @@ if !has('nvim') && v:version > 704
     Plug 'drmikehenry/vim-fixkey'
 endif
 Plug 'easymotion/vim-easymotion'
-"Plug 'liuchengxu/vim-which-key'
+Plug 'liuchengxu/vim-which-key'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
@@ -98,7 +98,7 @@ if exists('s:first_init')
         " install coc.nvim extensions
         CocInstall coc-css coc-eslint coc-gocode coc-html coc-java coc-json coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-vimlsp coc-sh coc-sql coc-markdownlint
         CocInstall coc-highlight coc-prettier coc-explorer coc-marketplace coc-lists
-        CocInstall coc-tabnine coc-snippets coc-ultisnips coc-neosnippet coc-pairs
+        CocInstall coc-tabnine coc-snippets coc-ultisnips coc-neosnippet coc-pairs coc-tag coc-yank
     endif
 endif
 
@@ -209,8 +209,9 @@ nmap <silent> <leader>h <Plug>DashSearch
 
 "===================
 " vim-which-key
-"nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
-"nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+set timeoutlen=2000
 
 "===================
 " lightline.vim
