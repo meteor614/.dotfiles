@@ -1,4 +1,6 @@
 {
+  "coc.source.around.enable": false,
+  "coc.source.buffer.enable": false,
   "highlight.disableLanguages":[""],
   "python.linting.flake8Enabled": true,
   "python.linting.pylintEnabled": false,
