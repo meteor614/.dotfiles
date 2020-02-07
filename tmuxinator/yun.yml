@@ -52,7 +52,7 @@ windows:
         # 'before' represents legacy functionality and will be deprecated in a future release, in favour of 'after'
         # synchronize: after
         panes:
-            - eval `kubectl get pod -n base|grep mongo-client|awk '{print "kubectl exec -it -n base "$1" -- bash /opt/mongo_tools/mongo.sh"}'`
+            - eval `kubectl get pod -n base|grep mongo-client|grep Running|awk '{print "kubectl exec -it -n base "$1" -- bash /opt/mongo_tools/mongo.sh"}'`
             - kubectl get pods -n autokit
             -
             - watch eval `kubectl get pod -n base|grep kfk-0|awk '{print "kubectl exec -it -n base "$1" -- /opt/kafka/spider_info.sh|sort|color.sh"}'`
