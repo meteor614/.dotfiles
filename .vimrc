@@ -305,6 +305,12 @@ endif
 "===================
 " vim
 nnoremap ; :
+" 中文字符
+nnoremap 、 /
+nnoremap ？ ?
+nnoremap 。 .
+nnoremap 】】 ]]
+nnoremap 【【 [[
 
 " Keep search pattern at the center of the screen.
 nnoremap <silent> n nzz
