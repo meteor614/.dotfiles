@@ -70,7 +70,9 @@ Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
 "Plug 'terryma/vim-multiple-cursors'
-Plug 'mg979/vim-visual-multi'
+if v:version > 704
+    Plug 'mg979/vim-visual-multi'
+endif
 Plug 'terryma/vim-expand-region'
 "Plug 'sillybun/vim-repl'
 "Plug 'jpalardy/vim-slime'
@@ -325,8 +327,8 @@ nnoremap <silent> g, g,zz
 nnoremap <silent><leader>/ :nohls<cr>
 
 " files
-inoremap <C-s>     <C-O>:update<cr>
-nnoremap <C-s>     :update<cr>
+inoremap <C-s> <C-O>:update<cr>
+nnoremap <C-s> :update<cr>
 nnoremap <leader>qa :qa<cr>
 nnoremap <leader>w :w<cr>
 nnoremap <leader>wq :wq<cr>
