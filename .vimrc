@@ -82,6 +82,7 @@ if !has('nvim') && v:version > 704
 endif
 Plug 'easymotion/vim-easymotion'
 Plug 'liuchengxu/vim-which-key'
+Plug 'ryanoasis/vim-devicons'
 
 " 进入vim normal模式时，自动切换为英文输入法
 "Plug 'CodeFalling/fcitx-vim-osx'
