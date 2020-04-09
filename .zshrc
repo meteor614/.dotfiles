@@ -64,6 +64,7 @@ antigen bundle ssh-agent
 antigen bundle zsh-plugin-ssh
 antigen bundle popstas/zsh-command-time
 antigen bundle "greymd/tmux-xpanes"
+#antigen bundle vi-mode
 
 # OS specific plugins
 if [[ $CURRENT_OS == 'OS X' ]]; then
@@ -126,13 +127,6 @@ antigen apply
 autoload -U deer
 zle -N deer
 
-# Initialize command prompt
-export PS1="%{$fg[magenta]%}%n%{$fg[green]%} %{$fg[cyan]%}%~%{$fg[green]%}> "
-# set RPROMPT only version >= 5.0
-if (echo ${ZSH_VERSION} | awk -F'.' '!($1>=5){exit 1}') then
-    export RPROMPT='%{$fg_bold[red]%}%(?..%?)%{$reset_color%}$(git_prompt_info)$(git_prompt_status)%{$reset_color%}'
-fi
-
 ZSH_THEME_GIT_PROMPT_PREFIX=" "
 ZSH_THEME_GIT_PROMPT_SUFFIX=""
 ZSH_THEME_GIT_PROMPT_DIRTY=""
@@ -144,6 +138,13 @@ ZSH_THEME_GIT_PROMPT_DELETED="%{$fg_bold[red]%}-"
 ZSH_THEME_GIT_PROMPT_RENAMED="%{$fg_bold[magenta]%}>"
 ZSH_THEME_GIT_PROMPT_UNMERGED="%{$fg_bold[yellow]%}#"
 ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg_bold[cyan]%}?"
+
+# Initialize command prompt
+export PS1="%{$fg[magenta]%}%n%{$fg[green]%} %{$fg[cyan]%}%~%{$fg[green]%}> "
+# set RPROMPT only version >= 5.0
+if (echo ${ZSH_VERSION} | awk -F'.' '!($1>=5){exit 1}') then
+    export RPROMPT='%{$fg_bold[red]%}%(?..%?)%{$reset_color%}$(git_prompt_info)$(git_prompt_status)%{$reset_color%}'
+fi
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
