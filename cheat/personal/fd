@@ -1,0 +1,17 @@
+# 查找名字含有某个字符的文件
+fd hello
+
+# 使用正则表达式查找
+fd '\d{2}_ti'
+
+# 指定目录
+fd hello examples
+
+# 按后缀名查找文件
+fd -e md
+
+# 排除某个文件夹
+fd -E examples '.go$'
+
+# 使用 exec
+fd -e md --exec wc -l {}
