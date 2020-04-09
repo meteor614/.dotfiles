@@ -1,0 +1,32 @@
+# mac hotkeys
+
+# iterm2
+ctrl + u                    清除整行
+option + b/f                单词跳转
+command + r                 清屏
+command + d                 垂直分屏
+command + shift + d         水平分屏
+command + option + 方向键   切换屏幕
+command + [/]               切换屏幕
+command + option + b        按键回放
+
+# 窗口跳转
+command + 左/右 
+command + 数字
+
+
+# 同⼀个应⽤不同显示器跳转
+command + `
+
+# 文稿
+ctrl + a            移到行首
+ctrl + e            移到行尾
+option + 左/右      其他应用单词跳转
+Command + 上/下     将插入点移至文稿开头/末尾
+Command + 左/右     将插入点移至当前行的行首/行尾
+
+# 截图
+Command + Shift + 3 截取全部屏幕到文件
+Command + Shift + Control + 3 截取全部屏幕到剪贴板
+Command + Shift + 4 截取所选屏幕区域到一个文件，或按空格键仅捕捉一个窗口
+Command + Shift + Control + 4 截取所选屏幕区域到剪贴板，或按空格键仅捕捉一个窗口
