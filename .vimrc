@@ -311,6 +311,8 @@ endif
 " vim
 nnoremap ; :
 " 中文字符
+"nnoremap ； :
+nnoremap ： :
 nnoremap 、 /
 nnoremap ？ ?
 nnoremap 。 .
