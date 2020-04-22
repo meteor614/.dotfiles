@@ -81,8 +81,8 @@ if !has('nvim') && v:version > 704
     Plug 'drmikehenry/vim-fixkey'
 endif
 Plug 'easymotion/vim-easymotion'
-Plug 'liuchengxu/vim-which-key'
 if v:version > 704
+    Plug 'liuchengxu/vim-which-key'
     Plug 'ryanoasis/vim-devicons'
 endif
 
