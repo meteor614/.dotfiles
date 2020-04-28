@@ -532,9 +532,9 @@ endif
 
 if has('gui_running')
     "set guifont=Monaco:h13   " 设置默认字体为monaco
-    "set guifontwide=Microsoft\ YaHei:h13
+    "set guifontwide="Hiragino Sans GB"
     set guifont=Hack\ Nerd\ Font:h13   " 设置默认字体为Nerd Font
-    set guifontwide="Hiragino Sans GB"
+    set guifontwide=Microsoft\ YaHei:h13
     "set go=aAce              " 去掉难看的工具栏和滑动条
     set transparency=15      " 透明背景
     set showtabline=2        " 开启自带的tab栏
