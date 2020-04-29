@@ -38,5 +38,7 @@
       "command": "lua-lsp",
       "filetypes": ["lua"]
     }
-  }
+  },
+  "explorer.icon.enableNerdfont": true,
+  "explorer.icon.enableVimDevicons": true,
 }

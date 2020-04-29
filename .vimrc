@@ -304,6 +304,7 @@ if v:version > 704
     "===================
     " coc-command
     nmap <F10> :CocCommand explorer<CR>
+    nmap <leader>e :CocCommand explorer<CR>
 endif
 
 
@@ -533,6 +534,7 @@ endif
 if has('gui_running')
     "set guifont=Monaco:h13   " 设置默认字体为monaco
     "set guifontwide="Hiragino Sans GB"
+    " 须安装相应的字体，否则可能会提示错误
     set guifont=Hack\ Nerd\ Font:h13   " 设置默认字体为Nerd Font
     set guifontwide=Microsoft\ YaHei:h13
     "set go=aAce              " 去掉难看的工具栏和滑动条
