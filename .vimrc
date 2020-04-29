@@ -28,7 +28,7 @@ Plug 'sbdchd/neoformat'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'sheerun/vim-polyglot'
 
-" Search
+" Search & Replace
 Plug 'mileszs/ack.vim'
 Plug 'jremmen/vim-ripgrep'
 if v:version > 704
@@ -42,6 +42,7 @@ else
 endif
 Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Shougo/denite.nvim'
+Plug 'brooth/far.vim'
 
 " Navigation
 Plug 'vim-scripts/a.vim', { 'for': ['c', 'cpp', 'objc', 'objcpp'] }
@@ -173,6 +174,7 @@ nnoremap <leader>a :A<cr>
 
 "===================
 " tagbar
+nmap <leader>i :TagbarToggle<cr>
 nmap <F12> :TagbarToggle<cr>
 let g:tagbar_type_go = {
 	\ 'ctagstype' : 'go',
