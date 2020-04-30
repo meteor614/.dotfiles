@@ -186,7 +186,7 @@ if [ x$1 == xall ]; then
     # pip install neovim
     # npm install -g neovim
 
-    # brew install ack antigen cheat cscope ctags curl gawk gnu-getopt icdiff neovim osxutils parallel pstree psutils tmux tmux-xpanes zsh watch wget coreutils
+    # brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils flake8 fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh
 fi
 
 wait
