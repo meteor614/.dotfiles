@@ -156,6 +156,14 @@ if type zsh &>/dev/null; then
     #echo 'type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' | zsh -i -s
 fi
 
+if [ -d ~/.dotfiles ]; then
+    {
+        cd ~/.dotfiles
+        git submodule update --remote
+        echo ".dotfiles submodule update finish"
+    }&
+fi
+
 # vim plugins
 if type vim &>/dev/null; then
     vim -c PlugUpgrade -c qa
