@@ -96,6 +96,8 @@ setopt no_beep
 unsetopt share_history
 unsetopt inc_append_history
 
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.cloud.tencent.com/homebrew-bottles
+
 [ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
 
 if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then

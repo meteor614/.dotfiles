@@ -30,11 +30,14 @@ ln -s ${script_path}/.pip
 # brew mirrors
 if type brew &>/dev/null && type git &>/dev/null; then
     cd "$(brew --repo)"
-    git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+    git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/brew.git
     cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core"
-    git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+    git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
     cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
     git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+else
+    ehco 'brew not installed'
+    echo '    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
 fi
 
 # for .config
