@@ -39,6 +39,9 @@ else
     ehco 'brew not installed'
     echo '    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
 fi
+if type npm &>/dev/null; then
+    npm config set registry https://mirrors.tencent.com/npm/
+fi
 
 # for .config
 test -e ~/.config || mkdir ~/.config
