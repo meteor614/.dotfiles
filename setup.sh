@@ -37,7 +37,7 @@ if type brew &>/dev/null && type git &>/dev/null; then
     git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
 else
     ehco 'brew not installed'
-    echo '    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+    echo '    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
 fi
 
 # for .config
