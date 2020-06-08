@@ -27,6 +27,12 @@ ln -s ${script_path}/.aria2
 # for .pip
 ln -s ${script_path}/.pip
 
+# brew
+if ! type brew &>/dev/null; then
+    echo -e '\033[31mInstall brew...\033[0m'
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+fi
+
 # brew mirrors
 if type brew &>/dev/null && type git &>/dev/null; then
     cd "$(brew --repo)"
@@ -35,9 +41,6 @@ if type brew &>/dev/null && type git &>/dev/null; then
     git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
     cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
     git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
-else
-    ehco 'brew not installed'
-    echo '    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"'
 fi
 if type npm &>/dev/null; then
     npm config set registry https://mirrors.tencent.com/npm/
