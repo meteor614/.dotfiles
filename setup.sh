@@ -31,6 +31,13 @@ ln -s ${script_path}/.pip
 if ! type brew &>/dev/null; then
     echo -e '\033[31mInstall brew...\033[0m'
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+    if type brew &>/dev/null; then
+        brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils flake8 fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh
+        brew tap Homebrew/homebrew-cask
+        brew cask install font-hack-nerd-font
+        brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
+    fi
 fi
 
 # brew mirrors
@@ -42,6 +49,7 @@ if type brew &>/dev/null && type git &>/dev/null; then
     cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
     git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
 fi
+# npm mirrors
 if type npm &>/dev/null; then
     npm config set registry https://mirrors.tencent.com/npm/
 fi
@@ -88,6 +96,11 @@ if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
 fi
 if type go &>/dev/null && ! type go-langserver &>/dev/null; then
     go get -u github.com/sourcegraph/go-langserver
+    go get -u -v github.com/mdempsky/gocode
+    go get -u -v github.com/golang/lint/golint
+    go get -u -v golang.org/x/tools/cmd/guru
+    go get -u -v golang.org/x/tools/cmd/goimports
+    go get -u -v golang.org/x/tools/cmd/gorename
 fi
 
 # for tmuxinator
@@ -180,24 +193,6 @@ if [ x$1 == xall ]; then
         cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
     fi
     echo -e '\033[33mInit ssh authorized_keys finish.\033[0m'
-    # luarocks install --server=http://luarocks.org/dev lua-lsp
-    # npm install -g dockerfile-language-server-nodejs
-    # npm i -g bash-language-server
-    # brew install cquery
-    # go get -u github.com/sourcegraph/go-langserver
-    #  go get -u -v github.com/mdempsky/gocode
-    #  go get -u -v github.com/golang/lint/golint
-    #  go get -u -v golang.org/x/tools/cmd/guru
-    #  go get -u -v golang.org/x/tools/cmd/goimports
-    #  go get -u -v golang.org/x/tools/cmd/gorename
-
-    # gem install neovim
-    # pip install neovim
-    # npm install -g neovim
-
-    # brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils flake8 fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh
-    # brew cask install font-hack-nerd-font
-    # brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
 
 wait
