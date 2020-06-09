@@ -75,6 +75,7 @@ fi
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
     export PATH="/usr/local/bin:$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
+    export GOPROXY=https://mirrors.tencent.com/go/
 fi
 if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
     PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"

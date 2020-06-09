@@ -53,6 +53,10 @@ fi
 if type npm &>/dev/null; then
     npm config set registry https://mirrors.tencent.com/npm/
 fi
+# gem mirrors
+if type gem &>/dev/null; then
+    gem sources --add http://mirrors.tencent.com/rubygems/ --remove https://rubygems.org/
+fi
 
 # for .config
 test -e ~/.config || mkdir ~/.config
