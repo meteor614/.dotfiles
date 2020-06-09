@@ -71,6 +71,10 @@ ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
     brew install cquery
 fi
+# python
+if type python3 &>/dev/null && ! type pip &>/dev/null; then
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py
+fi
 if type python3 &>/dev/null; then
     python3 -m pip install python-language-server
     python3 -m pip install neovim
@@ -79,6 +83,7 @@ if type python2 &>/dev/null; then
     python2 -m pip install python-language-server
     python2 -m pip install neovim
 fi
+# npm
 if type npm &>/dev/null; then
     if ! type bash-language-server &>/dev/null; then
         npm i -g bash-language-server
@@ -88,12 +93,15 @@ if type npm &>/dev/null; then
     fi
     npm install -g neovim
 fi
+# gem
 if type gem &>/dev/null; then
     gem install neovim
 fi
+# lua
 if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
     luarocks install --server=http://luarocks.org/dev lua-lsp
 fi
+# go
 if type go &>/dev/null && ! type go-langserver &>/dev/null; then
     go get -u github.com/sourcegraph/go-langserver
     go get -u -v github.com/mdempsky/gocode
