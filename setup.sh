@@ -31,13 +31,7 @@ ln -s ${script_path}/.pip
 if ! type brew &>/dev/null; then
     echo -e '\033[31mInstall brew...\033[0m'
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-
-    if type brew &>/dev/null; then
-        brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils flake8 fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh
-        brew tap Homebrew/homebrew-cask
-        brew cask install font-hack-nerd-font
-        brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
-    fi
+    brew tap Homebrew/homebrew-cask
 fi
 
 # brew mirrors
@@ -48,6 +42,12 @@ if type brew &>/dev/null && type git &>/dev/null; then
     git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
     cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
     git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+fi
+# install package
+if type brew &>/dev/null && ! type nvim &>/dev/null; then
+    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils flake8 fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh
+    brew cask install font-hack-nerd-font
+    brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
 # npm mirrors
 if type npm &>/dev/null; then
@@ -149,7 +149,7 @@ if type gdb &>/dev/null; then
         if [ -d ~/gdb-dashboard ]; then
             echo -e '\033[31mUpdate gdb-dashboard...\033[0m'
             cd ~/gdb-dashboard
-            git pull
+            git pull --no-rebase
             echo -e '\033[33mUpdate gdb-dashboard finish.\033[0m'
         else
             echo -e '\033[31mGet gdb-dashboard...\033[0m'
@@ -166,7 +166,7 @@ if type lldb &>/dev/null; then
         if [ -d ~/voltron ]; then
             echo -e '\033[31mUpdate voltron...\033[0m'
             cd ~/voltron
-            git pull
+            git pull --no-rebase
             echo -e '\033[33mUpdate voltron finish.\033[0m'
         else
             echo -e '\033[31mGet & install voltron...\033[0m'
