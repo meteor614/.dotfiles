@@ -32,16 +32,17 @@ if ! type brew &>/dev/null; then
     echo -e '\033[31mInstall brew...\033[0m'
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     brew tap Homebrew/homebrew-cask
+    brew tap Homebrew/homebrew-cask-fonts
+    brew tap Homebrew/homebrew-cask-drivers
 fi
 
 # brew mirrors
 if type brew &>/dev/null && type git &>/dev/null; then
-    cd "$(brew --repo)"
-    git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/brew.git
-    cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core"
-    git remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
-    cd "$(brew --repo)"/Library/Taps/homebrew/homebrew-cask
-    git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+    git -C "$(brew --repo)" remote set-url origin https://mirrors.cloud.tencent.com/homebrew/brew.git
+    git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
+    git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+    git -C "$(brew --repo homebrew/cask-fonts)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-fonts.git
+    git -C "$(brew --repo homebrew/cask-drivers)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-drivers.git
 fi
 # install package
 if type brew &>/dev/null && ! type nvim &>/dev/null; then
