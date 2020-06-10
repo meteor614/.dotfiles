@@ -94,13 +94,13 @@ fi
 # update gdb-dashboard from github
 if [ -d ~/gdb-dashboard ]; then
     cd ~/gdb-dashboard
-    git pull &
+    git pull --no-rebase &
 fi
 
 # update voltron from github
 if [ -d ~/voltron ]; then
     cd ~/voltron
-    git pull &
+    git pull --no-rebase &
 fi
 
 # perl modules
@@ -132,7 +132,7 @@ if [ x$1 == xall ]; then
     if [ -d ~/.dotfiles ]; then
         {
             cd ~/.dotfiles
-            git pull
+            git pull --no-rebase
             ~/.dotfiles/setup.sh
             echo ".dotfiles update finish"
         }&
