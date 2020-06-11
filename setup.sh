@@ -174,6 +174,8 @@ if type lldb &>/dev/null; then
             cd ~
             git clone https://github.com/snare/voltron
             cd voltron
+        fi
+        if ! type voltron &>/dev/null; then
             ./install.sh -b lldb
             voltron_script=$(grep '^command script import .*/voltron/entry.py$' ~/.lldbinit|awk '{print $4}'|awk -F'/lib/' '{print $1"/bin/voltron"}')
             if [ -f ${voltron_script} ]; then

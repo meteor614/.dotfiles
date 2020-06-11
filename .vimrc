@@ -6,8 +6,7 @@ if !filereadable(expand('~/.vim/autoload/plug.vim'))
 endif
 if exists('s:first_init')
     echom 'Plugin manager: vim-plug has not been installed. Try to install...'
-    exec 'silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs '.
-                \ 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    exec 'silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     echom 'Installing vim-plug complete.'
 endif
 
