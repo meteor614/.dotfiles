@@ -1,7 +1,7 @@
 #!/bin/bash
 
 begin=`date "+%s"`
-
+os=$(uname|tr '[:upper:]' '[:lower:]')
 script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 
 # update submodule
@@ -28,7 +28,7 @@ ln -s ${script_path}/.aria2
 ln -s ${script_path}/.pip
 
 # brew
-if ! type brew &>/dev/null; then
+if ! type brew &>/dev/null && [ "$os" = "darwin" ]; then
     echo -e '\033[31mInstall brew...\033[0m'
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     brew tap Homebrew/homebrew-cask
