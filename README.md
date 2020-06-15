@@ -7,6 +7,8 @@ All my dotfiles.
 * tmux/tmuxinator
 * git
 * gdb/lldb
+* cheats
+* brew/go/npm/gem/pip source mirrors
 * scripts
 * …
 
