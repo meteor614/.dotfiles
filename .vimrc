@@ -306,6 +306,7 @@ if v:version > 704
     " coc-command
     nmap <F10> :CocCommand explorer<CR>
     nmap <leader>e :CocCommand explorer<CR>
+    " :CocCommand java.clean.workspace
 endif
 
 
