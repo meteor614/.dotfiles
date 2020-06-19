@@ -18,14 +18,52 @@ echo -e '\033[31mInit dotfiles...\033[0m'
 cd ~
 files=($(ls -FA ${script_path}|grep '^\..*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
 for i in ${files[@]}; do
-    ln -s ${script_path}/${i}
+    test -e ${i} || ln -s ${script_path}/${i}
 done
 
 # for .aria2
-ln -s ${script_path}/.aria2
+test -e .aria2 || ln -s ${script_path}/.aria2
 
 # for .pip
-ln -s ${script_path}/.pip
+test -e .pip || ln -s ${script_path}/.pip
+
+# for .config
+test -e ~/.config || mkdir ~/.config
+files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
+for i in ${files[@]}; do
+    if [ -L ${script_path}/.config/${i} ]; then
+        echo "skip .config/${i}"
+    elif [ -d ${script_path}/.config/${i} ]; then
+        cd ~/.config/${i}
+        files2=($(ls -A ${script_path}/.config/${i}|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
+        for j in ${files2[@]}; do
+            test -e ${j} || ln -s ${script_path}/.config/${i}/${j}
+        done
+    else
+        cd ~/.config
+        test -e ${i} || ln -s ${script_path}/.config/${i}
+    fi
+done
+
+# for neovim
+test -e ~/.vim || mkdir ~/.vim
+test -e ~/.vim/init.vim || ln -s ~/.vimrc ~/.vim/init.vim
+test -e nvim || ln -s ~/.vim nvim
+
+# for tmuxinator
+#ln -s ${script_path}/tmuxinator                                         # for mac
+test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
+# for tmux
+cd ~
+ln -s ${script_path}/.tmux/.tmux.conf
+
+# ipython settings
+if type ipython &>/dev/null; then
+    if [ ! -e ~/.ipython/profile_default/ipython_config.py ] || [ x$(grep  'c\.InteractiveShellApp\.matplotlib[ \t]*=' ~/.ipython/profile_default/ipython_config.py -c) != x1 ]; then
+        mkdir -p ~/.ipython/profile_default
+        echo "c.InteractiveShellApp.matplotlib = 'inline'" >> ~/.ipython/profile_default/ipython_config.py
+    fi
+fi
 
 # brew
 if ! type brew &>/dev/null && [ "$os" = "darwin" ]; then
@@ -59,20 +97,8 @@ if type gem &>/dev/null; then
     gem sources --add http://mirrors.tencent.com/rubygems/ --remove https://rubygems.org/
 fi
 
-# for .config
-test -e ~/.config || mkdir ~/.config
-cd ~/.config
-files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
-for i in ${files[@]}; do
-    ln -s ${script_path}/.config/${i}
-done
-
-# for neovim
-test -e ~/.vim || mkdir ~/.vim
-ln -s ~/.vimrc ~/.vim/init.vim
-test -e nvim || ln -s ~/.vim nvim
 # for coc.nvim
-ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
+test -e ~/.vim/coc-settings.json || ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
     brew install cquery
 fi
@@ -81,54 +107,41 @@ if type python3 &>/dev/null && ! type pip &>/dev/null; then
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py
 fi
 if type python3 &>/dev/null; then
-    python3 -m pip install python-language-server
-    python3 -m pip install neovim
+    python3 -m pip install python-language-server neovim &
 fi
 if type python2 &>/dev/null; then
-    python2 -m pip install python-language-server
-    python2 -m pip install neovim
+    python2 -m pip install python-language-server neovim &
 fi
 # npm
 if type npm &>/dev/null; then
-    if ! type bash-language-server &>/dev/null; then
-        npm i -g bash-language-server
-    fi
-    if ! type docker-langserver &>/dev/null; then
-        npm i -g dockerfile-language-server-nodejs
-    fi
-    npm install -g neovim
+    {
+        if ! type bash-language-server &>/dev/null; then
+            npm i -g bash-language-server
+        fi
+        if ! type docker-langserver &>/dev/null; then
+            npm i -g dockerfile-language-server-nodejs
+        fi
+        npm install -g neovim
+    }&
 fi
 # gem
 if type gem &>/dev/null; then
-    gem install neovim
+    gem install neovim &
 fi
 # lua
 if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
-    luarocks install --server=http://luarocks.org/dev lua-lsp
+    luarocks install --server=http://luarocks.org/dev lua-lsp &
 fi
 # go
 if type go &>/dev/null && ! type go-langserver &>/dev/null; then
-    go get -u github.com/sourcegraph/go-langserver
-    go get -u -v github.com/mdempsky/gocode
-    go get -u -v github.com/golang/lint/golint
-    go get -u -v golang.org/x/tools/cmd/guru
-    go get -u -v golang.org/x/tools/cmd/goimports
-    go get -u -v golang.org/x/tools/cmd/gorename
-fi
-
-# for tmuxinator
-#ln -s ${script_path}/tmuxinator                                         # for mac
-test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
-# for tmux
-cd ~
-ln -s ${script_path}/.tmux/.tmux.conf
-
-# ipython settings
-if type ipython &>/dev/null; then
-    if [ ! -e ~/.ipython/profile_default/ipython_config.py ] || [ x$(grep  'c\.InteractiveShellApp\.matplotlib[ \t]*=' ~/.ipython/profile_default/ipython_config.py -c) != x1 ]; then
-        mkdir -p ~/.ipython/profile_default
-        echo "c.InteractiveShellApp.matplotlib = 'inline'" >> ~/.ipython/profile_default/ipython_config.py
-    fi
+    {
+        go get -u github.com/sourcegraph/go-langserver
+        go get -u -v github.com/mdempsky/gocode
+        go get -u -v github.com/golang/lint/golint
+        go get -u -v golang.org/x/tools/cmd/guru
+        go get -u -v golang.org/x/tools/cmd/goimports
+        go get -u -v golang.org/x/tools/cmd/gorename
+    }&
 fi
 
 echo -e '\033[33mInit dotfiles finish.\033[0m'
