@@ -105,6 +105,7 @@ fi
 # python
 if type python3 &>/dev/null && ! type pip &>/dev/null; then
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py
+    python3 -m pip install bpython
 fi
 if type python3 &>/dev/null; then
     python3 -m pip install python-language-server neovim &
