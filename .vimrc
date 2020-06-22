@@ -10,7 +10,7 @@ if exists('s:first_init')
     echom 'Installing vim-plug complete.'
 endif
 
-" more plugins: https://zhuanlan.zhihu.com/p/58816186
+" more plugins: https://zhuanlan.zhihu.com/p/58816186、https://www.zhihu.com/question/23590572
 call plug#begin('~/.vim/plugged')
 
 " Code completion
