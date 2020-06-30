@@ -82,7 +82,7 @@ if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
 fi
 
 if [ -d /volume1/\@optware/bin/ ]; then
-    export PATH="$PATH:volume1/\@optware/bin"
+    export PATH="$PATH:/volume1/\@optware/bin"
 fi
 
 test -d ~/bin && export PATH="$PATH:~/bin"
