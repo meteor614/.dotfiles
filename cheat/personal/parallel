@@ -1,0 +1,16 @@
+
+# 建议加上alias
+alias p='parallel'
+alias pp='parallel --pipe -k'
+
+# 压缩一下所有的html文件。
+find . -name '*.html' | parallel gzip --best
+
+# 在云计算操作中，经常有批量操作，比如建立10个云硬盘
+seq 10 | parallel  cinder create 10 --display-name test_{}
+
+# 另一种模式就是 parallel --pipe
+cat my_large_log   |parallel --pipe grep pattern
+
+# 这样制造并发太方便了，只需要管道后面加个p, 我就时时刻刻可以制造并发来观察响应。以你核的个数并发请求。-n0的意思是seq输出不作为参数传给后面的命令。
+seq 50 | p -n0 -q  curl 'example.com'
