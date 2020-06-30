@@ -137,5 +137,5 @@ if [ -d ~/apache-maven-3.6.3 ]; then
 fi
 
 if [ -d /volume1/\@optware/bin/ ]; then
-    export PATH="$PATH:/volume1/\@optware/bin"
+    export PATH="$PATH:/volume1/@optware/bin"
 fi
