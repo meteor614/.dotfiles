@@ -135,3 +135,7 @@ if [ -d ~/apache-maven-3.6.3 ]; then
     export MAVEN_HOME="$M2_HOME"
     export PATH="$PATH:$M2_HOME/bin"
 fi
+
+if [ -d /volume1/\@optware/bin/ ]; then
+    export PATH="$PATH:volume1/\@optware/bin"
+fi

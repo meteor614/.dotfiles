@@ -81,6 +81,10 @@ if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
     PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 fi
 
+if [ -d /volume1/\@optware/bin/ ]; then
+    export PATH="$PATH:volume1/\@optware/bin"
+fi
+
 test -d ~/bin && export PATH="$PATH:~/bin"
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "~/.iterm2_shell_integration.zsh" && source "~/.iterm2_shell_integration.zsh"
