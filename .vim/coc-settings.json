@@ -40,7 +40,7 @@
     }
   },
   "explorer.icon.enableNerdfont": true,
-  "explorer.icon.enableVimDevicons": true,
+  "explorer.icon.enableVimDevicons": false,
   "explorer.openAction.strategy": "previousBuffer",
   "java.import.gradle.wrapper.checksums": {
       "sha256": "381dff8aa434499aa93bc25572b049c8c586a67faff2c02f375e4f23e17e49de", 

@@ -517,6 +517,7 @@ augroup vimrc
     autocmd FileType zsh nmap <buffer> <leader>r :!zsh %<cr>
     autocmd FileType perl nmap <buffer> <leader>r :!perl %<cr>
     autocmd FileType java nmap <buffer> <leader>r :!echo %:r\|awk -F'src/main/java/' '{print "echo launch java "$2"...\n java -cp "$1"target/classes "$2}'\|bash<cr>
+    "autocmd FileType java nmap <buffer> <leader>r :AsyncRun echo %:r\|awk -F'src/main/java/' '{print "echo launch java "$2"...\n java -cp "$1"target/classes "$2}'\|bash<cr><leader>qq
     autocmd FileType python nmap <buffer> <leader>r :!python3 %<cr>
     autocmd FileType ruby nmap <buffer> <leader>r :!ruby %<cr>
     autocmd FileType javascript nmap <buffer> <leader>r :!node %<cr>
