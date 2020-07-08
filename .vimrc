@@ -235,11 +235,12 @@ let g:lightline = {
 "===================
 " coc.nvim
 if v:version > 704
-    " Use `[c` and `]c` for navigate diagnostics
-    "nmap <silent> [c <Plug>(coc-diagnostic-prev)
-    "nmap <silent> ]c <Plug>(coc-diagnostic-next)
-    nmap <silent> <m-k> <Plug>(coc-diagnostic-prev)
-    nmap <silent> <m-j> <Plug>(coc-diagnostic-next)
+    " Use `[g` and `]g` to navigate diagnostics
+    " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+    nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    "nmap <silent> <m-k> <Plug>(coc-diagnostic-prev)
+    "nmap <silent> <m-j> <Plug>(coc-diagnostic-next)
     nmap <silent> <leader>k <Plug>(coc-diagnostic-prev)
     nmap <silent> <leader>j <Plug>(coc-diagnostic-next)
     " Remap keys for gotos
@@ -252,13 +253,14 @@ if v:version > 704
     " Remap for format selected region
     "vmap <leader>f  <Plug>(coc-format-selected)
     "nmap <leader>f  <Plug>(coc-format-selected)
+    "nnoremap <silent><nowait> <leader>a  :<C-u>CocList diagnostics<cr>
 
     function! s:show_documentation()
-    if &filetype == 'vim'
-        execute 'h '.expand('<cword>')
-    else
-        call CocAction('doHover')
-    endif
+        if &filetype == 'vim'
+            execute 'h '.expand('<cword>')
+        else
+            call CocAction('doHover')
+        endif
     endfunction
 
     " Highlight symbol under cursor on CursorHold
@@ -294,9 +296,9 @@ if v:version > 704
     command! -nargs=+ -complete=custom,s:GrepArgs Rg exe 'CocList grep '.<q-args>
 
     function! s:GrepArgs(...)
-    let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
-            \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
-    return join(list, "\n")
+        let list = ['-S', '-smartcase', '-i', '-ignorecase', '-w', '-word',
+                \ '-e', '-regex', '-u', '-skip-vcs-ignores', '-t', '-extension']
+        return join(list, "\n")
     endfunction
 
     " Keymapping for grep word under cursor with interactive mode
