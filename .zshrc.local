@@ -61,6 +61,7 @@ type nvim >/dev/null 2>&1 && alias vim='nvim'
 type pip3 >/dev/null 2>&1 && alias pip=pip3
 type watch >/dev/null 2>&1 && alias watch='watch -c'
 type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
+type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
 
 # fzf
 if [ -z $FZF_DEFAULT_COMMAND ]; then
