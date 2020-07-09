@@ -55,14 +55,15 @@ if v:version > 704
 endif
 
 " Git
-Plug 'airblade/vim-gitgutter'
+"Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 Plug 'junegunn/gv.vim'
 
 " Misc
 "Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
-Plug 'itchyny/lightline.vim'
+"Plug 'itchyny/lightline.vim'
+Plug 'hardcoreplayers/spaceline.vim'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
@@ -271,10 +272,19 @@ if v:version > 704
     nmap <leader>ac  <Plug>(coc-codeaction)
     " Fix autofix problem of current line
     nmap <leader>qf  <Plug>(coc-fix-current)
+
+    " Use CTRL-S for selections ranges.
+    " Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
+    nmap <silent> <C-s> <Plug>(coc-range-select)
+    xmap <silent> <C-s> <Plug>(coc-range-select)
+
     " Use `:Format` for format current buffer
     command! -nargs=0 Format :call CocAction('format')
     " Use `:Fold` for fold current buffer
     command! -nargs=? Fold :call CocAction('fold', <f-args>)
+
+    " Add `:OR` command for organize imports of the current buffer.
+    command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
     "===================
     " coc-snippets
