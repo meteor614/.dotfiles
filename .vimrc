@@ -39,7 +39,7 @@ else
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
 endif
-Plug 'wsdjeg/FlyGrep.vim'
+"Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Shougo/denite.nvim'
 Plug 'brooth/far.vim'
 
@@ -313,6 +313,7 @@ if v:version > 704
 
     " Keymapping for grep word under cursor with interactive mode
     nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
+    nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
 
     "===================
     " coc-command
