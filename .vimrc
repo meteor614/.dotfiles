@@ -222,18 +222,6 @@ nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 set timeoutlen=2000
 
 "===================
-" lightline.vim
-let g:lightline = {
-            \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ],
-            \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-            \ },
-            \ 'component_function': {
-            \   'cocstatus': 'coc#status'
-            \ },
-            \ }
-
-"===================
 " coc.nvim
 if v:version > 704
     " Use `[g` and `]g` to navigate diagnostics
@@ -275,8 +263,8 @@ if v:version > 704
 
     " Use CTRL-S for selections ranges.
     " Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
-    nmap <silent> <C-s> <Plug>(coc-range-select)
-    xmap <silent> <C-s> <Plug>(coc-range-select)
+    "nmap <silent> <C-s> <Plug>(coc-range-select)
+    "xmap <silent> <C-s> <Plug>(coc-range-select)
 
     " Use `:Format` for format current buffer
     command! -nargs=0 Format :call CocAction('format')
@@ -320,6 +308,13 @@ if v:version > 704
     nmap <F10> :CocCommand explorer<CR>
     nmap <leader>e :CocCommand explorer<CR>
     " :CocCommand java.clean.workspace
+
+    " Show all diagnostics.
+    nnoremap <silent><nowait> <space>d  :<C-u>CocList diagnostics<cr>
+    " Find symbol of current document.
+    nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+    " Resume latest coc list.
+    nnoremap <silent><nowait> <space>l  :<C-u>CocListResume<CR>
 endif
 
 
