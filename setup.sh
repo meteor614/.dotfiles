@@ -108,10 +108,10 @@ if type python3 &>/dev/null && ! type pip &>/dev/null; then
     python3 -m pip install bpython
 fi
 if type python3 &>/dev/null; then
-    python3 -m pip install python-language-server neovim &
+    python3 -m pip install python-language-server pynvim &
 fi
 if type python2 &>/dev/null; then
-    python2 -m pip install python-language-server neovim &
+    python2 -m pip install python-language-server pynvim &
 fi
 # npm
 if type npm &>/dev/null; then
