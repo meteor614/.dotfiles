@@ -70,10 +70,6 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
-"Plug 'terryma/vim-multiple-cursors'
-if v:version > 704
-    Plug 'mg979/vim-visual-multi'
-endif
 Plug 'terryma/vim-expand-region'
 "Plug 'sillybun/vim-repl'
 "Plug 'jpalardy/vim-slime'
@@ -82,7 +78,9 @@ if !has('nvim') && v:version > 704
     Plug 'drmikehenry/vim-fixkey'
 endif
 Plug 'easymotion/vim-easymotion'
+"Plug 'terryma/vim-multiple-cursors'
 if v:version > 704
+    Plug 'mg979/vim-visual-multi'
     Plug 'liuchengxu/vim-which-key'
     Plug 'ryanoasis/vim-devicons'
 endif
@@ -310,11 +308,11 @@ if v:version > 704
     " :CocCommand java.clean.workspace
 
     " Show all diagnostics.
-    nnoremap <silent><nowait> <space>d  :<C-u>CocList diagnostics<cr>
+    nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
     " Find symbol of current document.
-    nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+    nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
     " Resume latest coc list.
-    nnoremap <silent><nowait> <space>l  :<C-u>CocListResume<CR>
+    nnoremap <silent><nowait> <leader>l  :<C-u>CocListResume<CR>
 endif
 
 
@@ -544,8 +542,6 @@ if has('gui_macvim') || exists('+macmeta')
 endif
 
 if has('gui_running')
-    "set guifont=Monaco:h13   " 设置默认字体为monaco
-    "set guifontwide="Hiragino Sans GB"
     " 须安装相应的字体，否则可能会提示错误
     set guifont=Hack\ Nerd\ Font:h13   " 设置默认字体为Nerd Font
     set guifontwide=Microsoft\ YaHei:h13
