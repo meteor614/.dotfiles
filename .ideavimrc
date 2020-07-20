@@ -5,6 +5,23 @@ let g:mapleader=' '
 let g:maplocalleader='-'
 nnoremap ; :
 
+""" Plugins  --------------------------------
+set surround
+set multiple-cursors
+set commentary
+set argtextobj
+set easymotion
+set textobj-entire
+set ReplaceWithRegister
+
+""" Plugin settings -------------------------
+let g:argtextobj_pairs="[:],(:),<:>"
+
+""" Idea specific settings ------------------
+set ideajoin
+set ideastatusicon=gray
+set idearefactormode=keep
+
 " Keep search pattern at the center of the screen.
 nnoremap <silent> n nzz
 nnoremap <silent> N Nzz
@@ -99,8 +116,8 @@ set fileignorecase
 set showcmd
 
 " Fold
-nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
-nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+"nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
+"nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 nnoremap zr zR
 
 " Other
@@ -112,3 +129,20 @@ set matchtime=2
 set title
 set autoread
 set clipboard=unnamedplus,unnamed
+
+map <leader>j :action GotoNextError<CR>
+map <leader>k :action GotoPreviousError<CR>
+map ]g :action GotoNextError<CR>
+map [g :action GotoPreviousError<CR>
+map <leader>rn :action RenameElement<CR>
+map gd :action GotoDeclaration<CR>
+map gi :action GotoDeclaration<CR>
+map gr :action FindUsages<CR>
+
+map <leader><leader>b <Plug>(easymotion-b)
+map <leader><leader>e <Plug>(easymotion-e)
+map <leader><leader>n <Plug>(easymotion-n)
+map <leader><leader>s <Plug>(easymotion-s)
+map <leader><leader>f <Plug>(easymotion-f)
+map <leader><leader>w <Plug>(easymotion-w)
+map <leader><leader>W <Plug>(easymotion-W)
