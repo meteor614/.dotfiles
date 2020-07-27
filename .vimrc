@@ -270,7 +270,7 @@ if v:version > 704
     command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
     " Add `:OR` command for organize imports of the current buffer.
-    command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+    command! -nargs=0 OR :call CocAction('runCommand', 'editor.action.organizeImport')
 
     "===================
     " coc-snippets
@@ -301,18 +301,18 @@ if v:version > 704
     nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
     nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
 
-    "===================
-    " coc-command
-    nmap <F10> :CocCommand explorer<CR>
-    nmap <leader>e :CocCommand explorer<CR>
-    " :CocCommand java.clean.workspace
-
     " Show all diagnostics.
     nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
     " Find symbol of current document.
     nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
     " Resume latest coc list.
     nnoremap <silent><nowait> <leader>l  :<C-u>CocListResume<CR>
+
+    "===================
+    " coc-command
+    nmap <F10> :CocCommand explorer<CR>
+    nmap <leader>e :CocCommand explorer<CR>
+    " :CocCommand java.clean.workspace
 endif
 
 
@@ -487,7 +487,7 @@ nnoremap zc @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 nnoremap zo @=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>
 nnoremap zr zR
 augroup vimrc
-    autocmd FileType java,c,cpp,go,json,js set foldmethod=syntax foldlevel=100
+    autocmd FileType java,c,cpp,objc,objcpp,go,json,js,xml set foldmethod=syntax foldlevel=100
     "autocmd FileType python set foldlevel=100
 augroup END
 
