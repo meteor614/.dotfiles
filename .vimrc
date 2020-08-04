@@ -62,8 +62,8 @@ Plug 'junegunn/gv.vim'
 " Misc
 "Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
-"Plug 'itchyny/lightline.vim'
-Plug 'hardcoreplayers/spaceline.vim'
+Plug 'itchyny/lightline.vim'
+"Plug 'hardcoreplayers/spaceline.vim'
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
@@ -218,6 +218,18 @@ nmap <silent> <leader>h <Plug>DashSearch
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 set timeoutlen=2000
+
+"===================
+" lightline.vim
+let g:lightline = {
+            \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ],
+            \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+            \ },
+            \ 'component_function': {
+            \   'cocstatus': 'coc#status'
+            \ },
+            \ }
 
 "===================
 " coc.nvim
