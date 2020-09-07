@@ -63,7 +63,11 @@ Plug 'junegunn/gv.vim'
 "Plug 'vim-scripts/FencView.vim'
 Plug 'will133/vim-dirdiff'
 "Plug 'itchyny/lightline.vim'
-Plug 'hardcoreplayers/spaceline.vim'
+if has('nvim') 
+    Plug 'hardcoreplayers/spaceline.vim'
+else
+    Plug 'itchyny/lightline.vim'
+endif
 Plug 'rizzatti/dash.vim'
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
