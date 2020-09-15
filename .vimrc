@@ -15,7 +15,8 @@ call plug#begin('~/.vim/plugged')
 
 " Code completion
 if v:version > 704
-    Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
+    "Plug 'neoclide/coc.nvim', {'tag': '*', 'do': { -> coc#util#install()}}
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
 endif
 
 " Syntax checker & Highlight
