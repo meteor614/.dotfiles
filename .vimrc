@@ -34,12 +34,13 @@ Plug 'jremmen/vim-ripgrep'
 if v:version > 704
     Plug 'dyng/ctrlsf.vim'
 endif
-if has('python3') || has('python')
-    Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
-else
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
-endif
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"if has('python3') || has('python')
+"    Plug 'Yggdroot/LeaderF', { 'do': ':/install.sh' }
+"else
+"    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"    Plug 'junegunn/fzf.vim'
+"endif
 "Plug 'wsdjeg/FlyGrep.vim'
 Plug 'Shougo/denite.nvim'
 Plug 'brooth/far.vim'
@@ -108,7 +109,7 @@ if exists('s:first_init')
         " install coc.nvim extensions
         CocInstall coc-css coc-eslint coc-gocode coc-html coc-java coc-json coc-python coc-tslint coc-tsserver coc-wxml coc-yaml coc-svg coc-vimlsp coc-sh coc-sql coc-markdownlint coc-cmake coc-perl coc-xml
         CocInstall coc-highlight coc-prettier coc-explorer coc-marketplace coc-lists coc-git
-        CocInstall coc-tabnine coc-snippets coc-ultisnips coc-neosnippet coc-pairs coc-tag coc-yank
+        CocInstall coc-tabnine coc-snippets coc-ultisnips coc-neosnippet coc-pairs coc-tag coc-yank coc-fzf-preview
     endif
 endif
 
@@ -145,14 +146,14 @@ elseif executable('ag')
 	let g:ackprg = 'ag --vimgrep'
 endif
 
-if has('python3') || has('python')
+"if has('python3') || has('python')
     " LeaderF
-    nnoremap <silent> <C-p> :LeaderfFile<cr>
-    let g:Lf_ReverseOrder = 1
-else
+"    nnoremap <silent> <C-p> :LeaderfFile<cr>
+"    let g:Lf_ReverseOrder = 1
+"else
     " FZF
-    nnoremap <silent> <C-p> :FZF<cr>
-endif
+"    nnoremap <silent> <C-p> :FZF<cr>
+"endif
 
 "===================
 " ctrlsf
@@ -330,6 +331,31 @@ if v:version > 704
     nmap <F10> :CocCommand explorer<CR>
     nmap <leader>e :CocCommand explorer<CR>
     " :CocCommand java.clean.workspace
+
+    "===================
+    " coc-fzf-preview
+    let g:fzf_preview_use_dev_icons = 1
+
+    nnoremap <silent> <C-p> :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
+    nmap <Leader>f [fzf-p]
+    xmap <Leader>f [fzf-p]
+
+    nnoremap <silent> [fzf-p]      :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
+    nnoremap <silent> [fzf-p]p     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
+    nnoremap <silent> [fzf-p]gs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
+    nnoremap <silent> [fzf-p]ga    :<C-u>CocCommand fzf-preview.GitActions<CR>
+    nnoremap <silent> [fzf-p]b     :<C-u>CocCommand fzf-preview.Buffers<CR>
+    nnoremap <silent> [fzf-p]B     :<C-u>CocCommand fzf-preview.AllBuffers<CR>
+    nnoremap <silent> [fzf-p]o     :<C-u>CocCommand fzf-preview.FromResources buffer project_mru<CR>
+    nnoremap <silent> [fzf-p]<C-o> :<C-u>CocCommand fzf-preview.Jumps<CR>
+    nnoremap <silent> [fzf-p]g;    :<C-u>CocCommand fzf-preview.Changes<CR>
+    nnoremap <silent> [fzf-p]/     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
+    nnoremap <silent> [fzf-p]*     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
+    nnoremap          [fzf-p]gr    :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
+    xnoremap          [fzf-p]gr    "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
+    nnoremap <silent> [fzf-p]t     :<C-u>CocCommand fzf-preview.BufferTags<CR>
+    nnoremap <silent> [fzf-p]q     :<C-u>CocCommand fzf-preview.QuickFix<CR>
+    nnoremap <silent> [fzf-p]l     :<C-u>CocCommand fzf-preview.LocationList<CR>
 endif
 
 
