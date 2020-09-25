@@ -337,7 +337,7 @@ if v:version > 704
     let g:fzf_preview_use_dev_icons = 1
 
     nnoremap <silent> <C-p> :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
-    nnoremap <silent> <Leader>f      :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
+    nnoremap <silent> <Leader>ff      :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
     nnoremap <silent> <Leader>fp     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
     nnoremap <silent> <Leader>fgs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
     nnoremap <silent> <Leader>fga    :<C-u>CocCommand fzf-preview.GitActions<CR>
