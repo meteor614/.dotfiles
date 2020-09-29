@@ -353,6 +353,9 @@ if v:version > 704
     nnoremap <silent> <Leader>ft     :<C-u>CocCommand fzf-preview.BufferTags<CR>
     nnoremap <silent> <Leader>fq     :<C-u>CocCommand fzf-preview.QuickFix<CR>
     nnoremap <silent> <Leader>fl     :<C-u>CocCommand fzf-preview.LocationList<CR>
+    nnoremap <silent> <Leader>fd     :<C-u>CocCommand fzf-preview.DirectoryFiles<CR>
+    nnoremap <silent> <Leader>fm     :<C-u>CocCommand fzf-preview.MruFiles<CR>
+    "CocCommand fzf-preview.Ctags
 endif
 
 
