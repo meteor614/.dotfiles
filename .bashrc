@@ -40,7 +40,11 @@ elif type ag>/dev/null 2>&1; then
 elif type fd>/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fd --type f'
 fi
-export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
+if type bat>/dev/null 2>&1; then
+    export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
+else
+    export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
+fi
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
