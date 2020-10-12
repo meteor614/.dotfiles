@@ -38,7 +38,7 @@ if type rg>/dev/null 2>&1; then
 elif type ag>/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='ag -g ""'
 elif type fd>/dev/null 2>&1; then
-    export FZF_DEFAULT_COMMAND='fd --type f'
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 fi
 if type bat>/dev/null 2>&1; then
     export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
