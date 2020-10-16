@@ -26,8 +26,14 @@ alias grep='grep --color'
 alias egrep='egrep --color'
 alias fgrep='fgrep --color'
 
-alias ll='ls -lh'
-alias l='ls -l'
+if type exa>/dev/null 2>&1; then
+    alias ll='exa -l'
+    alias l='exa -l'
+    alias k='exa -l'
+else
+    alias ll='ls -lh'
+    alias l='ls -l'
+fi
 alias -s gz='tar -xzvf'
 alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
