@@ -29,6 +29,9 @@ bpython：强大的python交互式终端，pip install bpython
 nnn：文本分析工具
 PathPicker(fpp):在命令行输出中自动识别目录和文件，支持交互式，配合git非常有用。
 lnav：Linux 下一个基于控制台的高级日志文件查看器
+exa: 替代ls命令的超好用工具
+peco: 交互式过滤
+hexyl: 十六进制查看器
 
 
 #图片识别
