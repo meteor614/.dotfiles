@@ -6,6 +6,7 @@ alias fgrep='fgrep --color'
 if type exa>/dev/null 2>&1; then
     alias ll='exa -l'
     alias l='exa -l'
+    alias la='exa -la'
     alias k='exa -l'
     alias ls='exa'
 else
