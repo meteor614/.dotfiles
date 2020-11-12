@@ -26,15 +26,17 @@ if has('python3') || has('python')
 endif
 Plug 'sbdchd/neoformat'
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
-Plug 'sheerun/vim-polyglot'
+if v:version > 704
+    Plug 'sheerun/vim-polyglot'
+endif
 
 " Search & Replace
 Plug 'mileszs/ack.vim'
 Plug 'jremmen/vim-ripgrep'
 if v:version > 704
     Plug 'dyng/ctrlsf.vim'
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 endif
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 "if has('python3') || has('python')
 "    Plug 'Yggdroot/LeaderF', { 'do': ':/install.sh' }
 "else
