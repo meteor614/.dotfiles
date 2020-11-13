@@ -69,10 +69,12 @@ Plug 'will133/vim-dirdiff'
 "Plug 'itchyny/lightline.vim'
 if has('nvim') 
     Plug 'hardcoreplayers/spaceline.vim'
-else
+elseif v:version > 704
     Plug 'itchyny/lightline.vim'
 endif
-Plug 'rizzatti/dash.vim'
+if v:version > 704
+    Plug 'rizzatti/dash.vim'
+endif
 Plug 'skywind3000/asyncrun.vim'
 "Plug 'tpope/vim-surround'
 Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
