@@ -72,7 +72,7 @@ if has('nvim')
 elseif v:version > 704
     Plug 'itchyny/lightline.vim'
 endif
-if v:version > 704
+if has('mac')
     Plug 'rizzatti/dash.vim'
 endif
 Plug 'skywind3000/asyncrun.vim'
