@@ -116,6 +116,9 @@ export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bott
 if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
     #export JAVA_HOME=`/usr/libexec/java_home`
     export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+    if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
+        export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
+    fi
     export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
     export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
 fi
