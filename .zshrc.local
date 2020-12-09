@@ -135,8 +135,8 @@ if [ -d /usr/local/opt/gnu-getopt/bin ]; then
     export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
 fi
 #if [ -d /usr/local/opt/node@10/bin ] && ! type node >/dev/null 2>&1; then
-if [ -d /usr/local/opt/node@10/bin ]; then
-    export PATH="/usr/local/opt/node@10/bin:$PATH"
+if [ -d /usr/local/opt/node/bin ]; then
+    export PATH="/usr/local/opt/node/bin:$PATH"
 fi
 
 test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
