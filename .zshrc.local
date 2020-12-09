@@ -123,9 +123,12 @@ if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
     export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
 fi
 
+if [ -d /usr/local/bin ]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
-    export PATH="/usr/local/bin:$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
+    export PATH="$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
     export GOPROXY=https://mirrors.tencent.com/go/
 fi
 if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
