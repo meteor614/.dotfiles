@@ -141,6 +141,9 @@ fi
 if [ -d /usr/local/opt/node/bin ]; then
     export PATH="/usr/local/opt/node/bin:$PATH"
 fi
+if [ -d /usr/local/opt/python@3.9/bin ]; then
+    export PATH="/usr/local/opt/python@3.9/bin:$PATH"
+fi
 
 test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)

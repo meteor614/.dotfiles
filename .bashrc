@@ -94,6 +94,9 @@ fi
 if [ -d /usr/local/opt/node/bin ]; then
     export PATH="/usr/local/opt/node/bin:$PATH"
 fi
+if [ -d /usr/local/opt/python@3.9/bin ]; then
+    export PATH="/usr/local/opt/python@3.9/bin:$PATH"
+fi
 
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
