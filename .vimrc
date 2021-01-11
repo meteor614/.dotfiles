@@ -72,7 +72,7 @@ if has('nvim')
 elseif v:version > 704
     Plug 'itchyny/lightline.vim'
 endif
-if v:version > 704
+if has('mac')
     Plug 'rizzatti/dash.vim'
 endif
 Plug 'skywind3000/asyncrun.vim'
@@ -350,10 +350,13 @@ if v:version > 704
     nnoremap <silent> <Leader>fo     :<C-u>CocCommand fzf-preview.FromResources buffer project_mru<CR>
     nnoremap <silent> <Leader>f<C-o> :<C-u>CocCommand fzf-preview.Jumps<CR>
     nnoremap <silent> <Leader>fg;    :<C-u>CocCommand fzf-preview.Changes<CR>
+    nnoremap <silent> <Leader>fc     :<C-u>CocCommand fzf-preview.Changes<CR>
     nnoremap <silent> <Leader>f/     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
     nnoremap <silent> <Leader>f*     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
     nnoremap          <Leader>fgr    :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
     xnoremap          <Leader>fgr    "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
+    nnoremap          <Leader>fr     :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
+    xnoremap          <Leader>fr     "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
     nnoremap <silent> <Leader>ft     :<C-u>CocCommand fzf-preview.BufferTags<CR>
     nnoremap <silent> <Leader>fq     :<C-u>CocCommand fzf-preview.QuickFix<CR>
     nnoremap <silent> <Leader>fl     :<C-u>CocCommand fzf-preview.LocationList<CR>

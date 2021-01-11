@@ -78,17 +78,29 @@ export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bott
 
 if [ -f /usr/libexec/java_home ]; then
     export JAVA_HOME=`/usr/libexec/java_home`
+    if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
+        export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
+    fi
     export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
 fi
 
+if [ -d /usr/local/bin ]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
 if [ -d /usr/local/opt/gnu-getopt/bin ]; then
     export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+fi
+if [ -d /usr/local/opt/node/bin ]; then
+    export PATH="/usr/local/opt/node/bin:$PATH"
+fi
+if [ -d /usr/local/opt/python@3.9/bin ]; then
+    export PATH="/usr/local/opt/python@3.9/bin:$PATH"
 fi
 
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
-    export PATH="/usr/local/bin:$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
+    export PATH="$PATH:$GOPATH/bin:/usr/local/opt/go/libexec/bin"
     export GOPROXY=https://mirrors.tencent.com/go/
 fi
 if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
