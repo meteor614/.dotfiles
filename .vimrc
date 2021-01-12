@@ -81,6 +81,7 @@ Plug 'junegunn/vim-xmark', { 'do': 'make', 'for': 'markdown' }
 Plug 'junegunn/vim-easy-align'
 Plug 'godlygeek/tabular'
 Plug 'terryma/vim-expand-region'
+"Plug 'metakirby5/codi.vim'
 "Plug 'sillybun/vim-repl'
 "Plug 'jpalardy/vim-slime'
 if !has('nvim') && v:version > 704
@@ -120,15 +121,18 @@ endif
 " vim common
 let g:mapleader = ' '
 let g:maplocalleader = ','
-let g:python_host_skip_check = 1
-let g:python_host_prog = exepath('python2')
-if g:python_host_prog == ""
-    let g:python_host_prog = exepath('python2.7')
-endif
 let g:python3_host_skip_check = 1
 let g:python3_host_prog = exepath('python3')
+let g:python_host_prog = g:python3_host_prog
+let g:python_host_skip_check = 1
+if g:python_host_prog == ""
+    let g:python_host_prog = exepath('python2')
+    if g:python_host_prog == ""
+        let g:python_host_prog = exepath('python2.7')
+    endif
+endif
 let g:ruby_host_prog = exepath('neovim-ruby-host')
-let g:node_host_prog = '/usr/local/lib/node_modules/neovim/bin/cli.js'
+let g:node_host_prog = exepath('neovim-node-host')
 
 "===================
 " rainbow
@@ -321,7 +325,7 @@ if v:version > 704
 
     " Keymapping for grep word under cursor with interactive mode
     nnoremap <silent> <Leader>g :exe 'CocList -I --input='.expand('<cword>').' grep'<CR>
-    nnoremap <silent> <leader>y  :<C-u>CocList -A --normal yank<cr>
+    nnoremap <silent> <leader>y :<C-u>CocList -A --normal yank<cr>
 
     " Show all diagnostics.
     nnoremap <silent><nowait> <leader>d  :<C-u>CocList diagnostics<cr>
@@ -341,7 +345,7 @@ if v:version > 704
     let g:fzf_preview_use_dev_icons = 1
 
     nnoremap <silent> <C-p> :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
-    nnoremap <silent> <Leader>ff      :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
+    nnoremap <silent> <Leader>ff     :<C-u>CocCommand fzf-preview.ProjectFiles<CR>
     nnoremap <silent> <Leader>fp     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
     nnoremap <silent> <Leader>fgs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
     nnoremap <silent> <Leader>fga    :<C-u>CocCommand fzf-preview.GitActions<CR>
