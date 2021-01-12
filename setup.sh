@@ -117,12 +117,12 @@ fi
 if type npm &>/dev/null; then
     {
         if ! type bash-language-server &>/dev/null; then
-            npm i -g bash-language-server
+            sudo npm i -g bash-language-server
         fi
         if ! type docker-langserver &>/dev/null; then
-            npm i -g dockerfile-language-server-nodejs
+            sudo npm i -g dockerfile-language-server-nodejs
         fi
-        npm install -g neovim
+        sudo npm install -g neovim
     }&
 fi
 # gem
