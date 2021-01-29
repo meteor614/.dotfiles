@@ -23,7 +23,7 @@ tmuxinator，gem install tmuxinator
 xpanes：基于tmux的同步分屏工具
 pydf：更简洁的df
 you-get: 非常强大的媒体下载工具，支持youtube、google+、优酷、芒果TV、腾讯视频、秒拍等视频下载。
-parallel：xargs 是一个比较古老的命令，有简单的并行功能，这个不说了。对于GNU parallel ( online manpage )来说，它不仅能够处理本机上多执行绪，还能分散至远端电脑协助处理，https://www.jianshu.com/p/c5a2369fa613
+parallel：xargs 是一个比较古老的命令，有简单的并行功能，这个不说了。对于GNU parallel来说，它不仅能够处理本机上多执行绪，还能分散至远端电脑协助处理，https://www.jianshu.com/p/c5a2369fa613
 vian：基于puppeteer的网页截图工具 npm install -g vian
 bpython：强大的python交互式终端，pip install bpython
 nnn：文本分析工具
