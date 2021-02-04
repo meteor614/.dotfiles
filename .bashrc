@@ -117,3 +117,7 @@ test -e "~/.iterm2_shell_integration.zsh" && source "~/.iterm2_shell_integration
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 type kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
+
+if [ -f /Applications/WeTERM.app/Contents/Resources/app/external/ssh ]; then
+    alias mnet="/Applications/WeTERM.app/Contents/Resources/app/external/ssh -p 36000 -U `whoami`@csig.mnet2.com"
+fi
