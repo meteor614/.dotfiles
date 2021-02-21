@@ -209,7 +209,7 @@ if type g++ &>/dev/null && type ctags &>/dev/null && [ ! -f ~/cpp_tags ]; then
     }&
 fi
 
-if [ x$1 == xall ]; then
+if [ x$1 = xall ]; then
     echo -e '\033[31mInit ssh authorized_keys...\033[0m'
     # init ssh authorized_keys
     test -d ~/.ssh || mkdir ~/.ssh
