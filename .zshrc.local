@@ -108,6 +108,7 @@ setopt no_beep
 unsetopt share_history
 unsetopt inc_append_history
 
+#export HOMEBREW_BOTTLE_DOMAIN=https://homebrew.bintray.com
 #export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.cloud.tencent.com/homebrew-bottles
 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
 
