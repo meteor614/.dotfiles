@@ -76,6 +76,12 @@ fi
 
 # brew mirrors
 if type brew &>/dev/null && type git &>/dev/null; then
+    #git -C "$(brew --repo)" remote set-url origin https://github.com/homebrew/brew.git
+    #git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
+    #git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/homebrew/homebrew-cask.git
+    #git -C "$(brew --repo homebrew/cask-fonts)" remote set-url origin https://github.com/homebrew/homebrew-cask-fonts.git
+    #git -C "$(brew --repo homebrew/cask-drivers)" remote set-url origin https://github.com/homebrew/homebrew-cask-drivers.git
+
     git -C "$(brew --repo)" remote set-url origin https://mirrors.cloud.tencent.com/homebrew/brew.git
     git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git
     git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
