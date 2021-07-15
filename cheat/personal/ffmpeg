@@ -23,3 +23,7 @@ ffmpeg -ss 00:34:24.85 -t 10 -i path/to/file.mp4 -f mp3 pipe:play | ffplay -i pi
 
 # cut
 ffmpeg -i input.mp4 -ss 00:26:50 -t 02:28:02 -acodec copy -vcodec copy output.mp4
+
+
+# -codec copy 应该是让 ffmpeg 不要做解码/编码操作,
+ffmpeg -i in.mp4 -vn -codec copy out.aac
