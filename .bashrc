@@ -86,6 +86,9 @@ if [ -f /usr/libexec/java_home ]; then
     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
 fi
 
+if [ -d /opt/bin ]; then
+    export PATH="/opt/bin:$PATH"
+fi
 if [ -d /usr/local/bin ]; then
     export PATH="/usr/local/bin:$PATH"
 fi

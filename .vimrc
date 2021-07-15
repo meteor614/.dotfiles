@@ -122,17 +122,19 @@ endif
 let g:mapleader = ' '
 let g:maplocalleader = ','
 let g:python3_host_skip_check = 1
-let g:python3_host_prog = exepath('python3')
-let g:python_host_prog = g:python3_host_prog
-let g:python_host_skip_check = 1
-if g:python_host_prog == ""
-    let g:python_host_prog = exepath('python2')
+if v:version > 704
+    let g:python3_host_prog = exepath('python3')
+    let g:python_host_prog = g:python3_host_prog
+    let g:python_host_skip_check = 1
     if g:python_host_prog == ""
-        let g:python_host_prog = exepath('python2.7')
+        let g:python_host_prog = exepath('python2')
+        if g:python_host_prog == ""
+            let g:python_host_prog = exepath('python2.7')
+        endif
     endif
+    let g:ruby_host_prog = exepath('neovim-ruby-host')
+    let g:node_host_prog = exepath('neovim-node-host')
 endif
-let g:ruby_host_prog = exepath('neovim-ruby-host')
-let g:node_host_prog = exepath('neovim-node-host')
 
 "===================
 " rainbow
@@ -503,7 +505,9 @@ set ignorecase
 set smartcase
 set hlsearch
 set incsearch
-set fileignorecase
+if v:version > 704
+    set fileignorecase
+endif
 set showcmd
 
 " Rule the define
