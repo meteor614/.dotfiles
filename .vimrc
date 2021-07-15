@@ -32,7 +32,7 @@ endif
 
 " Search & Replace
 Plug 'mileszs/ack.vim'
-Plug 'jremmen/vim-ripgrep'
+"Plug 'jremmen/vim-ripgrep'
 if v:version > 704
     Plug 'dyng/ctrlsf.vim'
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -392,7 +392,7 @@ nnoremap <silent> g; g;zz
 nnoremap <silent> g, g,zz
 
 " 去掉上次搜索高亮
-nnoremap <silent><leader>/ :nohls<cr>
+nnoremap <silent><leader>h :nohls<cr>
 
 " files
 inoremap <C-s> <C-O>:update<cr>
@@ -414,7 +414,7 @@ nnoremap <leader>p :bp<cr>
 
 " Movement in insert mode
 inoremap <C-h> <C-o>h
-inoremap <C-l> <C-o>a
+inoremap <C-l> <C-o>l
 inoremap <C-j> <C-o>j
 inoremap <C-k> <C-o>k
 inoremap <C-^> <C-o><C-^>
@@ -459,6 +459,9 @@ nnoremap <leader>; :%s/\<<C-r><C-w>\>//<Left>
 
 " switch between last two files
 nnoremap <leader><Tab> <c-^>
+
+vnoremap p "0p
+vnoremap P "0P
 
 " Correct spell
 cab Qa qa
@@ -529,7 +532,8 @@ set mousemodel=popup_setpos
 
 " undo
 set undolevels=1000     " use many levels of undo<Paste>
-if exists('+undofile')
+"if exists('+undofile')
+if has('nvim')
     set undodir=~/.undodir_vim
     set undofile
 endif
