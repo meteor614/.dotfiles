@@ -165,6 +165,7 @@ if [ -d ~/.dotfiles ]; then
 fi
 
 if type nvim &>/dev/null; then
+    cd ~/.config/nvim && git pull
     nvim +'autocmd User PackerComplete sleep 100m | qall' +PackerUpdate
     nvim +TSUpdateSync +qall
     echo "nvim PlugUpdate finish"
