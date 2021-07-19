@@ -164,6 +164,11 @@ if [ -d ~/.dotfiles ]; then
     }&
 fi
 
+if type nvim &>/dev/null; then
+    nvim +'autocmd User PackerComplete sleep 100m | qall' +PackerUpdate
+    nvim +TSUpdateSync +qall
+    echo "nvim PlugUpdate finish"
+fi
 # vim plugins
 if type vim &>/dev/null; then
     vim -c PlugUpgrade -c qa
