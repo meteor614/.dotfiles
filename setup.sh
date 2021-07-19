@@ -29,11 +29,12 @@ test -e .pip || ln -s ${script_path}/.pip
 
 # for .config
 test -e ~/.config || mkdir ~/.config
-files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
+files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'|grep -v '^nvim$'))
 for i in ${files[@]}; do
     if [ -L ${script_path}/.config/${i} ]; then
         echo "skip .config/${i}"
     elif [ -d ${script_path}/.config/${i} ]; then
+        test -e ~/.config/${i} || mkdir ~/.config/${i}
         cd ~/.config/${i}
         files2=($(ls -A ${script_path}/.config/${i}|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
         for j in ${files2[@]}; do
@@ -46,9 +47,14 @@ for i in ${files[@]}; do
 done
 
 # for neovim
-test -e ~/.vim || mkdir ~/.vim
-test -e ~/.vim/init.vim || ln -s ~/.vimrc ~/.vim/init.vim
-test -e nvim || ln -s ~/.vim nvim
+if [ ! -d ~/.config/nvim ]; then
+    bash <(curl -s https://raw.githubusercontent.com/ChristianChiarulli/lunarvim/master/utils/installer/install.sh)
+    rm ~/.config/nvim/lv-config.lua
+    ln -s ${script_path}/.config/nvim/lv-config.lua ~/.config/nvim/lv-config.lua
+fi
+# test -e ~/.vim || mkdir ~/.vim
+# test -e ~/.vim/init.vim || ln -s ~/.vimrc ~/.vim/init.vim
+# test -e nvim || ln -s ~/.vim nvim
 
 # for tmuxinator
 #ln -s ${script_path}/tmuxinator                                         # for mac
