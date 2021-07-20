@@ -71,6 +71,9 @@ if type ipython &>/dev/null; then
     fi
 fi
 
+# git mirrors
+# git config --global url."https://hub.fastgit.org".insteadOf https://github.com
+
 # brew
 if ! type brew &>/dev/null && [ "$os" = "darwin" ]; then
     echo -e '\033[31mInstall brew...\033[0m'
