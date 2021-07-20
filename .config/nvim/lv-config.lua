@@ -291,7 +291,7 @@ O.user_plugins = {
         disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    { "dunstontc/vim-vscode-theme" },
+    { "dunstontc/vim-vscode-theme", disable = true },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
