@@ -172,5 +172,5 @@ if [ -f /Applications/WeTERM.app/Contents/Resources/app/external/ssh ]; then
 fi
 # start tmux if ssh
 if type tmux >/dev/null 2>&1 && [[ -z "$TMUX"  ]] && [ "$SSH_CONNECTION" != ""  ]; then
-    tmux attach || tmux new
+    tmux attach -t default || tmux new -t default
 fi
