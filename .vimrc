@@ -626,7 +626,7 @@ if has('termguicolors') && $TERM_PROGRAM ==# 'iTerm.app'
     set termguicolors
 elseif exists('$TMUX')
     if !has('nvim')
-        set term=screen-256color
+        set term=xterm-256color
         if has('termguicolors')
             set notermguicolors
         endif
