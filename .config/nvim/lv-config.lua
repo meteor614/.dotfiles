@@ -204,10 +204,11 @@ vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 
 -- general
+-- O.colorscheme = "dark_plus"
+O.colorscheme = "spacegray"
 
 O.format_on_save = true
 O.completion.autocomplete = true
-O.colorscheme = "spacegray"
 O.auto_close_tree = 0
 O.default_options.wrap = true
 O.default_options.timeoutlen = 100
@@ -277,6 +278,20 @@ O.user_plugins = {
         cmd = "SymbolsOutline",
         disable = false,
     },
+    -- Diffview
+    -- :DiffviewOpen [git rev] [args] [ -- {paths...}]
+    -- :DiffviewOpen
+    -- :DiffviewOpen HEAD~2
+    -- :DiffviewOpen HEAD~4..HEAD~2
+    -- :DiffviewOpen d4a7b0d
+    -- :DiffviewOpen d4a7b0d..519b30e
+    {
+        "sindrets/diffview.nvim",
+        cmd = "DiffviewOpen",
+        disable = false,
+    },
+    -- { "overcache/NeoSolarized" },
+    { "dunstontc/vim-vscode-theme" },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -321,3 +336,4 @@ vim.api.nvim_set_keymap(
     "<C-\\><C-n><CMD>lua _G.__fterm_lazygit()<CR>",
     { noremap = true, silent = true }
 )
+
