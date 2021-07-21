@@ -95,11 +95,11 @@ opt.showmatch = true
 opt.matchtime = 2
 opt.title = true
 opt.autoread = true
-opt.clipboard = "unnamedplus,unnamed"
+-- opt.clipboard = "unnamedplus,unnamed"
 opt.history = 1000
 opt.maxmempattern = 2000000
-opt.timeoutlen = 100 -- time to wait for a mapped sequence to complete (in milliseconds)
-opt.pumheight = 50 -- pop up menu height
+-- opt.timeoutlen = 100 -- time to wait for a mapped sequence to complete (in milliseconds)
+-- opt.pumheight = 50 -- pop up menu height
 
 -- keymapping
 -- fix
@@ -219,6 +219,7 @@ O.default_options.tabstop = 4
 O.default_options.ignorecase = true
 O.default_options.smartcase = true
 O.default_options.hlsearch = true
+O.default_options.pumheight = 50
 O.leader_key = " "
 
 -- TODO: User Config for predefined plugins
@@ -231,7 +232,7 @@ O.plugin.zen.window.height = 0.90
 -- if you don't want all the parsers change this to a table of the ones you want
 O.treesitter.ensure_installed = { }
 O.treesitter.ignore_install = { "haskell" }
-O.treesitter.highlight.enabled = true
+O.treesitter.highlight.enable = true
 O.treesitter.rainbow = {
     enable = true,
     extended_mode = true,
@@ -301,7 +302,7 @@ vim.api.nvim_command("autocmd FileType vim nmap <buffer> <space>r :source %<cr>"
 vim.api.nvim_command("autocmd FileType sh nmap <buffer> <space>r :!bash %<cr>")
 vim.api.nvim_command("autocmd FileType zsh nmap <buffer> <space>r :!zsh %<cr>")
 vim.api.nvim_command("autocmd FileType perl nmap <buffer> <space>r :!perl %<cr>")
-vim.api.nvim_command("autocmd FileType java nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>")
+vim.api.nvim_command("autocmd FileType java nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>")
 vim.api.nvim_command("autocmd FileType python nmap <buffer> <space>r :!python3 %<cr>")
 vim.api.nvim_command("autocmd FileType ruby nmap <buffer> <space>r :!ruby %<cr>")
 vim.api.nvim_command("autocmd FileType javascript nmap <buffer> <space>r :!node %<cr>")
