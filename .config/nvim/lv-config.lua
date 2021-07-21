@@ -21,86 +21,6 @@ cmd "cab Wa wa"
 cmd "cab X x"
 -- cmd "cmap w!! w !sudo tee >/dev/null %"
 
---- No surround sound ---
-opt.errorbells = false
-opt.visualbell = false
-
---- For index ---
-opt.wrap = true
-opt.autoindent = true
-opt.copyindent = true
-opt.smartindent = true
-opt.cindent = true
-opt.cinoptions = ":0g0"
-opt.smarttab = true
-opt.shiftround = true
-
---- Format ---
-opt.tabstop = 4
-opt.shiftwidth = 4
-opt.softtabstop = 4
-opt.expandtab = true
-
---- Encoding setting ---
-opt.fileencodings = "ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1"
-
---- Search and Case ---
-opt.gdefault = true
-opt.ignorecase = true
-opt.smartcase = true
-opt.hlsearch = true
-opt.incsearch = true
-opt.fileignorecase = true
-opt.showcmd = true
-
---- Rule the define ---
-opt.ruler = true
-opt.cursorline = true
-opt.number = true
-
---- always show signcolumns ---
-opt.signcolumn = "yes"
-
---- faster completion ---
-opt.updatetime = 300
-
---- No back up files ---
-opt.swapfile = false
-opt.backup = false
-opt.writebackup = false
-
---- Mouse ---
-opt.mouse = "a"
-opt.mousemodel = "popup_setpos"
-
---- Undo ---
-opt.undolevels = 1000
-
---- Fold ---
-opt.foldmethod = "indent"
-opt.foldlevel = 100
-
---- split ---
-opt.splitbelow = true -- force all horizontal splits to go below current window
-opt.splitright = true -- force all vertical splits to go to the right of current window
-
---- Other ---
-opt.helplang = "cn"
-opt.backspace = 'indent,eol,start'
-opt.cscopetag = true
-opt.cscopetagorder = 1
-opt.virtualedit = 'block'
-opt.wildmenu = true
-opt.showmatch = true
-opt.matchtime = 2
-opt.title = true
-opt.autoread = true
--- opt.clipboard = "unnamedplus,unnamed"
-opt.history = 1000
-opt.maxmempattern = 2000000
--- opt.timeoutlen = 100 -- time to wait for a mapped sequence to complete (in milliseconds)
--- opt.pumheight = 50 -- pop up menu height
-
 -- keymapping
 -- fix
 vim.api.nvim_set_keymap("n", ";", ":", { noremap = true, silent = false })
@@ -210,16 +130,87 @@ O.colorscheme = "spacegray"
 O.format_on_save = true
 O.completion.autocomplete = true
 O.auto_close_tree = 0
+
+--- No surround sound ---
+O.default_options.errorbells = false
+O.default_options.visualbell = false
+
+-- For index
 O.default_options.wrap = true
-O.default_options.timeoutlen = 100
-O.default_options.clipboard = "unnamedplus,unnamed"
-O.default_options.wrap = true
-O.default_options.shiftwidth = 4
+O.default_options.autoindent = true
+O.default_options.copyindent = true
+O.default_options.smartindent = true
+O.default_options.cindent = true
+O.default_options.cinoptions = ":0g0"
+O.default_options.smarttab = true
+O.default_options.shiftround = true
+
+--- Format ---
 O.default_options.tabstop = 4
+O.default_options.shiftwidth = 4
+O.default_options.softtabstop = 4
+O.default_options.expandtab = true
+
+--- Encoding setting ---
+O.default_options.fileencodings = "ucs-bom,utf-8,cp936,gb18030,big5,euc-jp,euc-kr,latin1"
+
+--- Search and Case ---
+O.default_options.gdefault = true
 O.default_options.ignorecase = true
 O.default_options.smartcase = true
 O.default_options.hlsearch = true
+O.default_options.incsearch = true
+O.default_options.fileignorecase = true
+O.default_options.showcmd = true
+
+--- Rule the define ---
+O.default_options.ruler = true
+O.default_options.cursorline = true
+O.default_options.number = true
+
+--- always show signcolumns ---
+O.default_options.signcolumn = "yes"
+
+--- faster completion ---
+O.default_options.updatetime = 300
+
+--- No back up files ---
+O.default_options.swapfile = false
+O.default_options.backup = false
+O.default_options.writebackup = false
+
+--- Mouse ---
+O.default_options.mouse = "a"
+O.default_options.mousemodel = "popup_setpos"
+
+--- Undo ---
+O.default_options.undolevels = 1000
+
+--- Fold ---
+O.default_options.foldmethod = "indent"
+O.default_options.foldlevel = 100
+
+--- split ---
+O.default_options.splitbelow = true -- force all horizontal splits to go below current window
+O.default_options.splitright = true -- force all vertical splits to go to the right of current window
+
+--- Other ---
+O.default_options.helplang = "cn"
+O.default_options.backspace = 'indent,eol,start'
+O.default_options.cscopetag = true
+O.default_options.cscopetagorder = 1
+O.default_options.virtualedit = 'block'
+O.default_options.wildmenu = true
+O.default_options.showmatch = true
+O.default_options.matchtime = 2
+O.default_options.title = true
+O.default_options.autoread = true
+O.default_options.clipboard = "unnamedplus,unnamed"
+O.default_options.history = 1000
+O.default_options.maxmempattern = 2000000
 O.default_options.pumheight = 50
+O.default_options.timeoutlen = 100
+
 O.leader_key = " "
 
 -- TODO: User Config for predefined plugins
