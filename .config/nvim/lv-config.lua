@@ -126,7 +126,8 @@ vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 
 -- general
-O.colorscheme = "dark_plus"
+O.colorscheme = "tokyonight"
+-- O.colorscheme = "dark_plus"
 -- O.colorscheme = "spacegray"
 
 O.format_on_save = true
@@ -285,7 +286,8 @@ O.user_plugins = {
         disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    { "dunstontc/vim-vscode-theme", disable = false },
+    {"folke/tokyonight.nvim", disable = false},
+    -- { "dunstontc/vim-vscode-theme", disable = false },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -312,6 +314,9 @@ O.user_which_key = {
     o = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" },
     j = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = O.lsp.popup_border}})<cr>", "Next Diagnostic" },
     k = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = O.lsp.popup_border}})<cr>", "Prev Diagnostic" },
+    s = {
+        w = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
+    }
     -- A = {
     --     name = "+Custom Leader Keys",
     --     a = { "<cmd>echo 'first custom command'<cr>", "Description for a" },
