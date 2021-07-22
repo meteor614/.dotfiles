@@ -1,5 +1,6 @@
 rg (ripgrep)：比grep、ack、ag更快的递归搜索文件内容。
 tig：字符模式下交互查看git项目，可以替代git命令。
+lazygit: lazy git tool
 mosh：基于UDP的终端连接，可以替代ssh，连接更稳定，即使IP变了，也能自动重连。
 fzf：命令行下模糊搜索工具，能够交互式智能搜索并选取文件或者内容，配合终端ctrl-r历史命令搜索简直完美。
 axel：多线程下载工具，下载文件时可以替代curl、wget。
