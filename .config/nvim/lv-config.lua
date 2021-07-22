@@ -69,6 +69,8 @@ vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = f
 -- jump
 vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
 vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
 
 -- Quickfix
 vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
@@ -124,8 +126,8 @@ vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 
 -- general
--- O.colorscheme = "dark_plus"
-O.colorscheme = "spacegray"
+O.colorscheme = "dark_plus"
+-- O.colorscheme = "spacegray"
 
 O.format_on_save = true
 O.completion.autocomplete = true
@@ -283,7 +285,7 @@ O.user_plugins = {
         disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    { "dunstontc/vim-vscode-theme", disable = true },
+    { "dunstontc/vim-vscode-theme", disable = false },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
