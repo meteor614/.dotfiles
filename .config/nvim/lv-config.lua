@@ -113,12 +113,12 @@ vim.api.nvim_set_keymap('v', 'p', '"0p', {silent = true})
 vim.api.nvim_set_keymap('v', 'P', '"0P', {silent = true})
 
 -- fold
-vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'zr', 'zR', {noremap = true, silent = true})
 
 -- terminal
-vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', {noremap = true, silent = false})
+vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = false })
 
 -- better indenting
 vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
@@ -227,11 +227,10 @@ O.plugin.zen.window.height = 0.90
 O.treesitter.ensure_installed = { }
 O.treesitter.ignore_install = { "haskell" }
 O.treesitter.highlight.enable = true
-O.treesitter.rainbow = {
-    enable = true,
-    extended_mode = true,
-    max_file_lines = 1000,
-}
+O.treesitter.rainbow.enable = true
+O.treesitter.playground.enable = true
+O.treesitter.matchup.enable = true
+O.treesitter.autotag.enable = true
 
 O.completion.source.tabnine = { kind = "   (TabNine)", max_line = 1000, max_num_results = 6, priority = 5000, sort = false, show_prediction_strength = true, ignore_pattern = "" }
 
@@ -267,7 +266,7 @@ O.lang.tsserver.linter = nil
 -- Additional Plugins
 O.user_plugins = {
     { "p00f/nvim-ts-rainbow", disable = false },
-    {'tzachar/compe-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-compe' },
+    { 'tzachar/compe-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-compe' },
     {
         "simrat39/symbols-outline.nvim",
         cmd = "SymbolsOutline",
@@ -286,8 +285,57 @@ O.user_plugins = {
         disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    {"folke/tokyonight.nvim", disable = false},
+    { "folke/tokyonight.nvim", disable = false },
     -- { "dunstontc/vim-vscode-theme", disable = false },
+    {
+        "ray-x/lsp_signature.nvim",
+        config = function()
+            require("lsp_signature").on_attach()
+        end,
+        event = "InsertEnter",
+    },
+    {
+        "unblevable/quick-scope",
+        config = function()
+            vim.cmd [[
+            let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+            ]]
+        end,
+    },
+    {
+        "phaazon/hop.nvim",
+        event = "BufRead",
+        config = function()
+            require("hop").setup()
+        end,
+    },
+    {
+        "andymass/vim-matchup",
+        event = "CursorMoved",
+        config = function()
+            vim.g.loaded_matchit = 1
+            vim.g.matchup_matchparen_offscreen = { method = "popup" }
+        end,
+    },
+    {
+        "windwp/nvim-ts-autotag",
+        event = "InsertEnter",
+        disable = true,
+    },
+    {
+        "norcalli/nvim-colorizer.lua",
+        config = function()
+            require("colorizer").setup({ "*" }, {
+                RGB = true, -- #RGB hex codes
+                RRGGBB = true, -- #RRGGBB hex codes
+                RRGGBBAA = true, -- #RRGGBBAA hex codes
+                rgb_fn = true, -- CSS rgb() and rgba() functions
+                hsl_fn = true, -- CSS hsl() and hsla() functions
+                css = true, -- Enable all CSS features: rgb_fn, hsl_fn, names, RGB, RRGGBB
+                css_fn = true, -- Enable all CSS *functions*: rgb_fn, hsl_fn
+            })
+        end,
+    },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -316,7 +364,15 @@ O.user_which_key = {
     k = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = O.lsp.popup_border}})<cr>", "Prev Diagnostic" },
     s = {
         w = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
-    }
+    },
+    ["<leader>"] = {
+        name = "Hop Motions",
+        w = { "<cmd>HopWord<cr>", "Word Mode" },
+        l = { "<cmd>HopLine<cr>", "Line Mode" },
+        c = { "<cmd>HopChar1<cr>", "1-Char Mode" },
+        d = { "<cmd>HopChar2<cr>", "2-Char Mode" },
+        p = { "<cmd>HopPattern<cr>", "Pattern Mode" },
+    },
     -- A = {
     --     name = "+Custom Leader Keys",
     --     a = { "<cmd>echo 'first custom command'<cr>", "Description for a" },
@@ -326,13 +382,8 @@ O.user_which_key = {
 
 
 vim.api.nvim_command("autocmd BufReadPost * noremap <c-p> :lua require('telescope.builtin').find_files()<cr>")
-vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", {silent = true, noremap = true})
+vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-;>", "<CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap(
-    "t",
-    "<A-;>",
-    "<C-\\><C-n><CMD>lua _G.__fterm_lazygit()<CR>",
-    { noremap = true, silent = true }
-)
+vim.api.nvim_set_keymap("t", "<A-;>", "<C-\\><C-n><CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
 
