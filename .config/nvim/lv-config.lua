@@ -354,13 +354,19 @@ function _G.__run_current_file()
         python = ":!python3 %",
         ruby = ":!ruby %",
         javascript = ":!node %",
-        markdown = ":MarkdownPreview",
+        -- markdown = ":MarkdownPreview",
         java = ":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash",
+        html = ":!open %",
     }
+    if vim.fn.exists(":MarkdownPreview") then
+        cs.markdown = ":MarkdownPreview"
+    elseif vim.fn.exists(":Xmark") then
+        cs.markdown = ":Xmark"
+    end
     if cs[ft] ~= nil then
         cmd(cs[ft])
     else
-        print("not supported filetype(" .. ft .. "), supported:")
+        print("not supported filetype(" .. ft .. "), supported filetype:")
         for k, v in pairs(cs) do
             print("  " .. k)
         end
@@ -385,18 +391,6 @@ O.user_autocommands = {
     -- 覆盖<c-p>映射
     { "BufReadPost", "*", "noremap <c-p> :lua require('telescope.builtin').find_files()<cr>"},
 }
--- vim.api.nvim_command("autocmd FileType cpp set tags+=~/cpp_tags")
--- vim.api.nvim_command("autocmd FileType vim nmap <buffer> <space>r :source %<cr>")
--- vim.api.nvim_command("autocmd FileType sh nmap <buffer> <space>r :!bash %<cr>")
--- vim.api.nvim_command("autocmd FileType zsh nmap <buffer> <space>r :!zsh %<cr>")
--- vim.api.nvim_command("autocmd FileType perl nmap <buffer> <space>r :!perl %<cr>")
--- vim.api.nvim_command("autocmd FileType java nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>")
--- vim.api.nvim_command("autocmd FileType python nmap <buffer> <space>r :!python3 %<cr>")
--- vim.api.nvim_command("autocmd FileType ruby nmap <buffer> <space>r :!ruby %<cr>")
--- vim.api.nvim_command("autocmd FileType javascript nmap <buffer> <space>r :!node %<cr>")
--- vim.api.nvim_command("autocmd FileType markdown nmap <buffer> <space>r :Xmark<cr>")
--- -- vim自动打开跳到上次的光标位置
--- vim.api.nvim_command("autocmd BufReadPost * if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif")
 
 -- Additional Leader bindings for WhichKey
 O.user_which_key = {
@@ -419,11 +413,6 @@ O.user_which_key = {
         d = { "<cmd>HopChar2<cr>", "2-Char Mode" },
         p = { "<cmd>HopPattern<cr>", "Pattern Mode" },
     },
-    -- A = {
-    --     name = "+Custom Leader Keys",
-    --     a = { "<cmd>echo 'first custom command'<cr>", "Description for a" },
-    --     b = { "<cmd>echo 'second custom command'<cr>", "Description for b" },
-    -- },
 }
 
 
