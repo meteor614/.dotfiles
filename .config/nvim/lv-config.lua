@@ -228,7 +228,7 @@ O.treesitter.ensure_installed = { }
 O.treesitter.ignore_install = { "haskell" }
 O.treesitter.highlight.enable = true
 O.treesitter.rainbow.enable = true
-O.treesitter.playground.enable = true
+-- O.treesitter.playground.enable = true
 O.treesitter.matchup.enable = true
 O.treesitter.autotag.enable = true
 
@@ -254,6 +254,7 @@ O.lang.python.analysis.use_library_code_types = true
 O.lang.tsserver.linter = nil
 
 -- rust
+-- O.lang.rust.rust_tools.active = true
 -- O.lang.rust.formatter = {
 --   exe = "rustfmt",
 --   args = {"--emit=stdout", "--edition=2018"},
@@ -320,7 +321,7 @@ O.user_plugins = {
     {
         "windwp/nvim-ts-autotag",
         event = "InsertEnter",
-        disable = true,
+        disable = false,
     },
     {
         "norcalli/nvim-colorizer.lua",
@@ -336,22 +337,68 @@ O.user_plugins = {
             })
         end,
     },
+    {
+        "iamcco/markdown-preview.nvim",
+        run = "cd app && npm install",
+        ft = "markdown",
+    },
 }
+
+function _G.__run_current_file()
+    local ft = vim.api.nvim_buf_get_option(0, "filetype")
+    if ft == "vim" then
+        cmd(":source %")
+    elseif ft == "sh" then
+        cmd(":!bash %")
+    elseif ft == "zsh" then
+        cmd(":!zsh %")
+    elseif ft == "perl" then
+        cmd(":!perl %")
+    elseif ft == "python" then
+        cmd(":!python3 %")
+    elseif ft == "ruby" then
+        cmd(":!ruby %")
+    elseif ft == "javascript" then
+        cmd(":!node %")
+    elseif ft == "markdown" then
+        cmd(":MarkdownPreview")
+    elseif ft == "java" then
+        cmd(":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash")
+    else
+        print("not supported filetype, supported [vim, sh, zsh, perl, python, ruby, javascript, markdown, java]")
+    end
+end
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- O.user_autocommands = {{ "BufWinEnter", "*", "echo \"hi again\""}}
-vim.api.nvim_command("autocmd FileType cpp set tags+=~/cpp_tags")
-vim.api.nvim_command("autocmd FileType vim nmap <buffer> <space>r :source %<cr>")
-vim.api.nvim_command("autocmd FileType sh nmap <buffer> <space>r :!bash %<cr>")
-vim.api.nvim_command("autocmd FileType zsh nmap <buffer> <space>r :!zsh %<cr>")
-vim.api.nvim_command("autocmd FileType perl nmap <buffer> <space>r :!perl %<cr>")
-vim.api.nvim_command("autocmd FileType java nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>")
-vim.api.nvim_command("autocmd FileType python nmap <buffer> <space>r :!python3 %<cr>")
-vim.api.nvim_command("autocmd FileType ruby nmap <buffer> <space>r :!ruby %<cr>")
-vim.api.nvim_command("autocmd FileType javascript nmap <buffer> <space>r :!node %<cr>")
-vim.api.nvim_command("autocmd FileType markdown nmap <buffer> <space>r :Xmark<cr>")
--- vim自动打开跳到上次的光标位置
-vim.api.nvim_command("autocmd BufReadPost * if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif")
+O.user_autocommands = {
+    { "FileType", "cpp", "set tags+=~/cpp_tags" },
+    -- { "FileType", "vim", "nmap <buffer> <space>r :source %<cr>"},
+    -- { "FileType", "sh", "nmap <buffer> <space>r :!bash %<cr>"},
+    -- { "FileType", "zsh", "nmap <buffer> <space>r :!zsh %<cr>"},
+    -- { "FileType", "perl", "nmap <buffer> <space>r :!perl %<cr>"},
+    -- { "FileType", "java", "nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>"},
+    -- { "FileType", "python", "nmap <buffer> <space>r :!python3 %<cr>"},
+    -- { "FileType", "ruby", "nmap <buffer> <space>r :!ruby %<cr>"},
+    -- { "FileType", "javascript", "nmap <buffer> <space>r :!node %<cr>"},
+    -- { "FileType", "markdown", "nmap <buffer> <space>r :Xmark<cr>"},
+    -- vim自动打开跳到上次的光标位置
+    { "BufReadPost", "*", "if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif"},
+    -- 覆盖<c-p>映射
+    { "BufReadPost", "*", "noremap <c-p> :lua require('telescope.builtin').find_files()<cr>"},
+}
+-- vim.api.nvim_command("autocmd FileType cpp set tags+=~/cpp_tags")
+-- vim.api.nvim_command("autocmd FileType vim nmap <buffer> <space>r :source %<cr>")
+-- vim.api.nvim_command("autocmd FileType sh nmap <buffer> <space>r :!bash %<cr>")
+-- vim.api.nvim_command("autocmd FileType zsh nmap <buffer> <space>r :!zsh %<cr>")
+-- vim.api.nvim_command("autocmd FileType perl nmap <buffer> <space>r :!perl %<cr>")
+-- vim.api.nvim_command("autocmd FileType java nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>")
+-- vim.api.nvim_command("autocmd FileType python nmap <buffer> <space>r :!python3 %<cr>")
+-- vim.api.nvim_command("autocmd FileType ruby nmap <buffer> <space>r :!ruby %<cr>")
+-- vim.api.nvim_command("autocmd FileType javascript nmap <buffer> <space>r :!node %<cr>")
+-- vim.api.nvim_command("autocmd FileType markdown nmap <buffer> <space>r :Xmark<cr>")
+-- -- vim自动打开跳到上次的光标位置
+-- vim.api.nvim_command("autocmd BufReadPost * if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif")
 
 -- Additional Leader bindings for WhichKey
 O.user_which_key = {
@@ -365,6 +412,7 @@ O.user_which_key = {
     s = {
         w = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
     },
+    r = { ":lua _G.__run_current_file()<CR>", "Run Current File" },
     ["<leader>"] = {
         name = "Hop Motions",
         w = { "<cmd>HopWord<cr>", "Word Mode" },
@@ -381,7 +429,7 @@ O.user_which_key = {
 }
 
 
-vim.api.nvim_command("autocmd BufReadPost * noremap <c-p> :lua require('telescope.builtin').find_files()<cr>")
+-- vim.api.nvim_command("autocmd BufReadPost * noremap <c-p> :lua require('telescope.builtin').find_files()<cr>")
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-;>", "<CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
