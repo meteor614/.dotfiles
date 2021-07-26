@@ -346,26 +346,24 @@ O.user_plugins = {
 
 function _G.__run_current_file()
     local ft = vim.api.nvim_buf_get_option(0, "filetype")
-    if ft == "vim" then
-        cmd(":source %")
-    elseif ft == "sh" then
-        cmd(":!bash %")
-    elseif ft == "zsh" then
-        cmd(":!zsh %")
-    elseif ft == "perl" then
-        cmd(":!perl %")
-    elseif ft == "python" then
-        cmd(":!python3 %")
-    elseif ft == "ruby" then
-        cmd(":!ruby %")
-    elseif ft == "javascript" then
-        cmd(":!node %")
-    elseif ft == "markdown" then
-        cmd(":MarkdownPreview")
-    elseif ft == "java" then
-        cmd(":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash")
+    local cs = {
+        vim = ":source %",
+        sh = "!bash %",
+        zsh = "!zsh %",
+        perl = "!perl %",
+        python = ":!python3 %",
+        ruby = ":!ruby %",
+        javascript = ":!node %",
+        markdown = ":!MarkdownPreview",
+        java = ":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash",
+    }
+    if cs[ft] ~= nil then
+        cmd(cs[ft])
     else
-        print("not supported filetype(" .. ft .. "), supported [vim, sh, zsh, perl, python, ruby, javascript, markdown, java]")
+        print("not supported filetype(" .. ft .. "), supported:")
+        for k, v in pairs(cs) do
+            print("  " .. k)
+        end
     end
 end
 
