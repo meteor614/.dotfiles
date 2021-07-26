@@ -365,7 +365,7 @@ function _G.__run_current_file()
     elseif ft == "java" then
         cmd(":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash")
     else
-        print("not supported filetype, supported [vim, sh, zsh, perl, python, ruby, javascript, markdown, java]")
+        print("not supported filetype(" .. ft .. "), supported [vim, sh, zsh, perl, python, ruby, javascript, markdown, java]")
     end
 end
 
