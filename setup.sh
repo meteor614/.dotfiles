@@ -51,6 +51,12 @@ if [ ! -d ~/.config/nvim ]; then
     bash <(curl -s https://raw.githubusercontent.com/ChristianChiarulli/lunarvim/master/utils/installer/install.sh)
     rm ~/.config/nvim/lv-config.lua
     ln -s ${script_path}/.config/nvim/lv-config.lua ~/.config/nvim/lv-config.lua
+    nvim +'autocmd User PackerComplete sleep 100m | qall' +PackerInstall
+    # nvim +'TSInstall all'
+    # lss=(bash, cpp, cmake, css, dockerfile, go, html, java, json, kotlin, latex, lua, php, python, ruby, rust, typescript, vim, yaml)
+    # for i in ${lls[@]}; do
+    #     nvim +"LspInstall ${i}"
+    # done
 fi
 # test -e ~/.vim || mkdir ~/.vim
 # test -e ~/.vim/init.vim || ln -s ~/.vimrc ~/.vim/init.vim
