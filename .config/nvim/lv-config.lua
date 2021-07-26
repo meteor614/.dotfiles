@@ -354,7 +354,7 @@ function _G.__run_current_file()
         python = ":!python3 %",
         ruby = ":!ruby %",
         javascript = ":!node %",
-        markdown = ":!MarkdownPreview",
+        markdown = ":MarkdownPreview",
         java = ":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash",
     }
     if cs[ft] ~= nil then
