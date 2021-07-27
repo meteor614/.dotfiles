@@ -21,110 +21,6 @@ cmd "cab Wa wa"
 cmd "cab X x"
 -- cmd "cmap w!! w !sudo tee >/dev/null %"
 
--- keymapping
--- fix
-vim.api.nvim_set_keymap("n", ";", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", ";", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "：", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "：", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "、", "/", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "？", "?", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "。", ".", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "【【", "[[", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "】】", "]]", { noremap = true, silent = false })
-
-
- -- Keep search pattern at the center of the screen.
-vim.api.nvim_set_keymap("n", "n", "nzz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "N", "Nzz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "*", "*zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "#", "#zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g*", "g*zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g;", "g;zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g,", "g,zz", { noremap = true, silent = true })
-
--- 去掉上次搜索高亮
---vim.api.nvim_set_keymap("n", "<leader>/", ":nohls", { noremap = true, silent = true })
-
--- files
-vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", { noremap = true, silent = false })
--- nnoremap <leader>qa :qa<cr>
--- nnoremap <leader>w :w<cr>
--- nnoremap <leader>wq :wq<cr>
--- nnoremap <leader>v :e ~/.vimrc<cr>
--- nnoremap <leader>cd :cd %:p:h<cr>
-
--- vim.api.nvim_set_keymap("n", "<leader>n", ":bn<cr>", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("n", "<leader>p", ":bp<cr>", { noremap = true, silent = false })
-
--- Movement in insert mode
-vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", { noremap = true, silent = false })
--- <c-j> and <c-k> map in compe plugins
--- vim.api.nvim_set_keymap("i", "<C-j>", "<C-o>j", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("i", "<C-k>", "<C-o>k", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = false })
-
--- jump
-vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
-
--- Quickfix
-vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[q", ":cprev<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "]l", ":lnext<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[l", ":lprev<cr>zz", { noremap = true, silent = false })
-
--- Buffers
-vim.api.nvim_set_keymap("n", "]b", ":bnext<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[b", ":bprev<cr>", { noremap = true, silent = false })
-
--- Tabs
-vim.api.nvim_set_keymap("n", "]t", ":tabn<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[t", ":tabp<cr>", { noremap = true, silent = false })
-
--- CTRL+A moves to start of line in command mode
-vim.api.nvim_set_keymap("c", "<c-a>", "<home>", { noremap = true, silent = false })
--- CTRL+E moves to end of line in command mode
-vim.api.nvim_set_keymap("c", "<c-e>", "<end>", { noremap = true, silent = false })
-
--- move current line down
-vim.api.nvim_set_keymap("", "-", ":m+<cr>", { noremap = true, silent = true })
--- move current line up
-vim.api.nvim_set_keymap("", "<c-_>", ":m-2<cr>", { noremap = true, silent = true })
--- move visual selection down
-vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", { noremap = true, silent = true })
--- move visual selection up
-vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
-vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
-
--- replace word under cursor
--- vim.api.nvim_set_keymap("n", "<leader>;", ":%s/<<c-r><c-w>>//<left>", { noremap = true, silent = false })
-
--- switch between last two files
--- vim.api.nvim_set_keymap("n", "<leader><tab>", "<c-^>", { noremap = true, silent = false })
-
-vim.api.nvim_set_keymap('v', 'p', '"0p', {silent = true})
-vim.api.nvim_set_keymap('v', 'P', '"0P', {silent = true})
-
--- fold
-vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'zr', 'zR', {noremap = true, silent = true})
-
--- terminal
-vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = false })
-
--- better indenting
-vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
-
-
 -- general
 O.colorscheme = "tokyonight"
 -- O.colorscheme = "dark_plus"
@@ -216,8 +112,6 @@ O.default_options.timeoutlen = 100
 
 O.leader_key = " "
 
--- TODO: User Config for predefined plugins
--- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 O.plugin.dashboard.active = true
 O.plugin.floatterm.active = true
 O.plugin.zen.active = false
@@ -374,18 +268,8 @@ function _G.__run_current_file()
 end
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
--- O.user_autocommands = {{ "BufWinEnter", "*", "echo \"hi again\""}}
 O.user_autocommands = {
     { "FileType", "cpp", "set tags+=~/cpp_tags" },
-    -- { "FileType", "vim", "nmap <buffer> <space>r :source %<cr>"},
-    -- { "FileType", "sh", "nmap <buffer> <space>r :!bash %<cr>"},
-    -- { "FileType", "zsh", "nmap <buffer> <space>r :!zsh %<cr>"},
-    -- { "FileType", "perl", "nmap <buffer> <space>r :!perl %<cr>"},
-    -- { "FileType", "java", "nmap <buffer> <space>r :!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash<cr>"},
-    -- { "FileType", "python", "nmap <buffer> <space>r :!python3 %<cr>"},
-    -- { "FileType", "ruby", "nmap <buffer> <space>r :!ruby %<cr>"},
-    -- { "FileType", "javascript", "nmap <buffer> <space>r :!node %<cr>"},
-    -- { "FileType", "markdown", "nmap <buffer> <space>r :Xmark<cr>"},
     -- vim自动打开跳到上次的光标位置
     { "BufReadPost", "*", "if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif"},
     -- 覆盖<c-p>映射
@@ -408,13 +292,111 @@ O.user_which_key = {
     ["<leader>"] = {
         name = "Hop Motions",
         w = { "<cmd>HopWord<cr>", "Word Mode" },
+        n = { "<cmd>HopWordAC<cr>", "Word+ Mode" },
+        p = { "<cmd>HopWordBC<cr>", "Word- Mode" },
         l = { "<cmd>HopLine<cr>", "Line Mode" },
+        j = { "<cmd>HopLineAC<cr>", "Line+ Mode" },
+        k = { "<cmd>HopLineBC<cr>", "Line- Mode" },
         c = { "<cmd>HopChar1<cr>", "1-Char Mode" },
         d = { "<cmd>HopChar2<cr>", "2-Char Mode" },
-        p = { "<cmd>HopPattern<cr>", "Pattern Mode" },
+        ["/"] = { "<cmd>HopPattern<cr>", "Pattern Mode" },
     },
 }
 
+-- keymapping
+-- fix
+vim.api.nvim_set_keymap("n", ";", ":", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", ";", ":", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "：", ":", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", "：", ":", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "、", "/", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "？", "?", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "。", ".", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "【【", "[[", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "】】", "]]", { noremap = true, silent = false })
+
+
+ -- Keep search pattern at the center of the screen.
+vim.api.nvim_set_keymap("n", "n", "nzz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "N", "Nzz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "*", "*zz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "#", "#zz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "g*", "g*zz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "g;", "g;zz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "g,", "g,zz", { noremap = true, silent = true })
+
+-- 去掉上次搜索高亮
+--vim.api.nvim_set_keymap("n", "<leader>/", ":nohls", { noremap = true, silent = true })
+
+-- files
+vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", { noremap = true, silent = false })
+
+-- vim.api.nvim_set_keymap("n", "<leader>n", ":bn<cr>", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("n", "<leader>p", ":bp<cr>", { noremap = true, silent = false })
+
+-- Movement in insert mode
+vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = false })
+
+-- jump
+vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
+
+-- Quickfix
+vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "[q", ":cprev<cr>zz", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "]l", ":lnext<cr>zz", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "[l", ":lprev<cr>zz", { noremap = true, silent = false })
+
+-- Buffers
+vim.api.nvim_set_keymap("n", "]b", ":bnext<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "[b", ":bprev<cr>", { noremap = true, silent = false })
+
+-- Tabs
+vim.api.nvim_set_keymap("n", "]t", ":tabn<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "[t", ":tabp<cr>", { noremap = true, silent = false })
+
+-- CTRL+A moves to start of line in command mode
+vim.api.nvim_set_keymap("c", "<c-a>", "<home>", { noremap = true, silent = false })
+-- CTRL+E moves to end of line in command mode
+vim.api.nvim_set_keymap("c", "<c-e>", "<end>", { noremap = true, silent = false })
+
+-- move current line down
+vim.api.nvim_set_keymap("", "-", ":m+<cr>", { noremap = true, silent = true })
+-- move current line up
+vim.api.nvim_set_keymap("", "<c-_>", ":m-2<cr>", { noremap = true, silent = true })
+-- move visual selection down
+vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", { noremap = true, silent = true })
+-- move visual selection up
+vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
+
+-- replace word under cursor
+-- vim.api.nvim_set_keymap("n", "<leader>;", ":%s/<<c-r><c-w>>//<left>", { noremap = true, silent = false })
+
+-- switch between last two files
+-- vim.api.nvim_set_keymap("n", "<leader><tab>", "<c-^>", { noremap = true, silent = false })
+
+vim.api.nvim_set_keymap('v', 'p', '"0p', {silent = true})
+vim.api.nvim_set_keymap('v', 'P', '"0P', {silent = true})
+
+-- fold
+vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'zr', 'zR', {noremap = true, silent = true})
+
+-- terminal
+vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = false })
+
+-- better indenting
+vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 -- vim.api.nvim_command("autocmd BufReadPost * noremap <c-p> :lua require('telescope.builtin').find_files()<cr>")
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
