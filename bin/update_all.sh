@@ -164,11 +164,11 @@ if [ -d ~/.dotfiles ]; then
     }&
 fi
 
-if type nvim &>/dev/null; then
-    cd ~/.config/nvim && git pull
-    nvim +'autocmd User PackerComplete sleep 100m | qall' +PackerUpdate
-    nvim +TSUpdateSync +qall
-    echo "nvim PlugUpdate finish"
+if type lvim &>/dev/null; then
+    cd ~/.config/lvim && git pull
+    lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerUpdate
+    lvim +TSUpdateSync +qall
+    echo "lvim PlugUpdate finish"
 fi
 # vim plugins
 if type vim &>/dev/null; then

@@ -34,7 +34,7 @@ fi
 
 type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
-type nvim >/dev/null 2>&1 && alias vim='nvim'
+type lvim >/dev/null 2>&1 && alias vim='lvim' || type nvim >/dev/null 2>&1 && alias vim='nvim'
 type pip3 >/dev/null 2>&1 && alias pip=pip3
 type watch >/dev/null 2>&1 && alias watch='watch -c'
 type docker >/dev/null 2>&1 && alias docker='sudo -E docker'

@@ -47,15 +47,15 @@ for i in ${files[@]}; do
 done
 
 # for neovim
-if [ ! -d ~/.config/nvim ]; then
+if [ ! -d ~/.config/lvim ]; then
     bash <(curl -s https://raw.githubusercontent.com/ChristianChiarulli/lunarvim/master/utils/installer/install.sh)
-    rm ~/.config/nvim/lv-config.lua
-    ln -s ${script_path}/.config/nvim/lv-config.lua ~/.config/nvim/lv-config.lua
-    nvim +'autocmd User PackerComplete sleep 100m | qall' +PackerInstall
-    # nvim +'TSInstall all'
+    rm ~/.config/lvim/lv-config.lua
+    ln -s ${script_path}/.config/lvim/lv-config.lua ~/.config/lvim/lv-config.lua
+    lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerInstall
+    # lvim +'TSInstall all'
     # lss=(bash, cpp, cmake, css, dockerfile, go, html, java, json, kotlin, latex, lua, php, python, ruby, rust, typescript, vim, yaml)
     # for i in ${lls[@]}; do
-    #     nvim +"LspInstall ${i}"
+    #     lvim +"LspInstall ${i}"
     # done
 fi
 # test -e ~/.vim || mkdir ~/.vim
