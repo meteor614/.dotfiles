@@ -217,8 +217,8 @@ vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
-vim.api.nvim_set_keymap("n", "<A-;>", "<CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-;>", "<C-\\><C-n><CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
+vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
 
 
 -- TODO: User Config for predefined plugins
