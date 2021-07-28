@@ -124,9 +124,6 @@ vim.o.timeoutlen = 100
 -- })
 -- you can also use the native vim way directly
 -- vim.api.nvim_set_keymap("i", "<C-Space>", "compe#complete()", { noremap = true, silent = true, expr = true })
--- lvim.keys.normal_mode = {
---     { "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>" },
--- }
 
 -- keymapping
 -- fix
@@ -218,7 +215,6 @@ vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = 
 vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
--- vim.api.nvim_command("autocmd BufReadPost * noremap <c-p> :lua require('telescope.builtin').find_files()<cr>")
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-;>", "<CMD>lua _G.__fterm_lazygit()<CR>", { noremap = true, silent = true })
@@ -243,7 +239,6 @@ lvim.builtin.treesitter.rainbow.enable = true
 lvim.builtin.treesitter.matchup.enable = true
 lvim.builtin.treesitter.autotag.enable = true
 
--- lvim.completion.source.tabnine = { kind = "   (TabNine)", max_line = 1000, max_num_results = 6, priority = 5000, sort = false, show_prediction_strength = true, ignore_pattern = "" }
 lvim.builtin.compe.source.tabnine = { kind = "   (TabNine)", max_line = 1000, max_num_results = 6, priority = 5000, sort = false, show_prediction_strength = true, ignore_pattern = "" }
 
 lvim.builtin.telescope.defaults.path_display = { "smart" }
@@ -389,8 +384,6 @@ lvim.autocommands.custom_groups = {
     { "FileType", "cpp", "set tags+=~/cpp_tags" },
     -- vim自动打开跳到上次的光标位置
     { "BufReadPost", "*", "if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif" },
-    -- 覆盖<c-p>映射
-    -- { "BufReadPost", "*", "noremap <c-p> :lua require('telescope.builtin').find_files()<cr>" },
 }
 
 -- Additional Leader bindings for WhichKey
