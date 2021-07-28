@@ -157,8 +157,9 @@ vim.api.nvim_set_keymap("n", "g,", "g,zz", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", { noremap = true, silent = false })
 vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", { noremap = true, silent = false })
 
--- vim.api.nvim_set_keymap("n", "<leader>n", ":bn<cr>", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("n", "<leader>p", ":bp<cr>", { noremap = true, silent = false })
+-- Navigate buffers
+vim.api.nvim_set_keymap("n", '<Tab>', ':bnext<CR>', { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", '<S-Tab>', ':bprevious<CR>', { noremap = true, silent = false })
 
 -- Movement in insert mode
 vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", { noremap = true, silent = false })
@@ -247,11 +248,19 @@ lvim.builtin.compe.source.tabnine = { kind = "   (TabNine)", max_line = 1000,
 
 lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
--- lvim.plugin.telescope.defaults.mappings.i["<A-j>"] = require("telescope.actions").move_selection_next + require("telescope.actions").move_selection_next 
--- lvim.plugin.telescope.defaults.mappings.i["<A-k>"] = require("telescope.actions").move_selection_previous + require("telescope.actions").move_selection_previous 
-
+-- lvim.plugin.telescope.defaults.mappings.i["<A-j>"] = require("telescope.actions").move_selection_next + require("telescope.actions").move_selection_next
+-- lvim.plugin.telescope.defaults.mappings.i["<A-k>"] = require("telescope.actions").move_selection_previous + require("telescope.actions").move_selection_previous
 
 -- generic LSP settings
+lvim.lsp.default_keybinds = false
+vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", { noremap = true, silent = true })
+vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
 -- lvim.lsp.on_attach_callback = function(client, bufnr)
@@ -381,7 +390,7 @@ lvim.autocommands.custom_groups = {
     -- vim自动打开跳到上次的光标位置
     { "BufReadPost", "*", "if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif" },
     -- 覆盖<c-p>映射
-    { "BufReadPost", "*", "noremap <c-p> :lua require('telescope.builtin').find_files()<cr>" },
+    -- { "BufReadPost", "*", "noremap <c-p> :lua require('telescope.builtin').find_files()<cr>" },
 }
 
 -- Additional Leader bindings for WhichKey
@@ -390,11 +399,9 @@ lvim.builtin.which_key.mappings[";"] = { ":%s/\\<<c-r><c-w>\\>//<left>", "Replac
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
 lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/lv-config.lua<cr>", "Open lv-config.lua" }
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
-lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = O.lsp.popup_border}})<cr>", "Next Diagnostic" }
-lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = O.lsp.popup_border}})<cr>", "Prev Diagnostic" }
-lvim.builtin.which_key.mappings["s"] = {
-    w = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
-}
+lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Next Diagnostic" }
+lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Prev Diagnostic" }
+lvim.builtin.which_key.mappings["s"]["w"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
 lvim.builtin.which_key.mappings["r"] = { ":lua _G.__run_current_file()<CR>", "Run Current File" }
 lvim.builtin.which_key.mappings["<leader>"] = {
     name = "Hop Motions",
