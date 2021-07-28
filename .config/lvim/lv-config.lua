@@ -355,27 +355,24 @@ lvim.plugins = {
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 function _G.__run_current_file()
     local ft = vim.api.nvim_buf_get_option(0, "filetype")
+    local head = ":!"
+    local tail = ""
+    if vim.fn.exists(":TermExec") then
+        head = ":TermExec cmd='"
+        tail = "'\nToggleTerm"
+    end
     local cs = {
         vim = ":source %",
-        sh = "!bash %",
-        zsh = "!zsh %",
-        perl = "!perl %",
-        python = ":!python3 %",
-        ruby = ":!ruby %",
-        javascript = ":!node %",
+        sh = head .. "bash %" .. tail,
+        zsh = head .. "zsh %" .. tail,
+        perl = head .. "perl %" .. tail,
+        python = head .. "python3 %" .. tail,
+        ruby = head .. "ruby %" .. tail,
+        javascript = head .. "node %" .. tail,
         -- markdown = ":MarkdownPreview",
-        java = ":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash",
+        java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
         html = ":!open %",
     }
-    if vim.fn.exists(":TermExec") then
-        cs.sh = ":TermExec cmd='bash %'\nToggleTerm"
-        cs.zsh = ":TermExec cmd='zsh %'\nToggleTerm"
-        cs.perl = ":TermExec cmd='perl %'\nToggleTerm"
-        cs.python = ":TermExec cmd='python3 %'\nToggleTerm"
-        cs.ruby = ":TermExec cmd='ruby %'\nToggleTerm"
-        cs.javascript = ":TermExec cmd='node %'\nToggleTerm"
-        cs.java = ":TermExec cmd='java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. "'\nToggleTerm"
-    end
     if vim.fn.exists(":MarkdownPreview") then
         cs.markdown = ":MarkdownPreview"
     elseif vim.fn.exists(":Xmark") then
