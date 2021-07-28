@@ -226,7 +226,8 @@ vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true 
 lvim.builtin.dashboard.active = true
 lvim.builtin.terminal.active = true
 lvim.builtin.nvimtree.side = "left"
-lvim.builtin.nvimtree.show_icons.git = 0
+lvim.builtin.nvimtree.disable_window_picker = 1
+lvim.builtin.nvimtree.hide_dotfiles = 0
 
 lvim.builtin.which_key.active = true
 
@@ -245,6 +246,11 @@ lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
 -- lvim.plugin.telescope.defaults.mappings.i["<A-j>"] = require("telescope.actions").move_selection_next + require("telescope.actions").move_selection_next
 -- lvim.plugin.telescope.defaults.mappings.i["<A-k>"] = require("telescope.actions").move_selection_previous + require("telescope.actions").move_selection_previous
+--
+lvim.builtin.rooter.on_config_done = function()
+    vim.g.rooter_patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", }
+    vim.g.rooter_resolve_links = 1
+end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
@@ -361,6 +367,15 @@ function _G.__run_current_file()
         java = ":!echo %:r\\|awk -F'src/main/java/' '{print \"echo launch java \"$2\"...\\n java -cp \"$1\"target/classes \"$2}'\\|bash",
         html = ":!open %",
     }
+    if vim.fn.exists(":TermExec") then
+        cs.sh = ":TermExec cmd='bash %'\nToggleTerm"
+        cs.zsh = ":TermExec cmd='zsh %'\nToggleTerm"
+        cs.perl = ":TermExec cmd='perl %'\nToggleTerm"
+        cs.python = ":TermExec cmd='python3 %'\nToggleTerm"
+        cs.ruby = ":TermExec cmd='ruby %'\nToggleTerm"
+        cs.javascript = ":TermExec cmd='node %'\nToggleTerm"
+        cs.java = ":TermExec cmd='java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. "'\nToggleTerm"
+    end
     if vim.fn.exists(":MarkdownPreview") then
         cs.markdown = ":MarkdownPreview"
     elseif vim.fn.exists(":Xmark") then
@@ -394,7 +409,7 @@ lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/lv-config.lua<cr
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
 lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Next Diagnostic" }
 lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Prev Diagnostic" }
-lvim.builtin.which_key.mappings["s"]["w"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
+lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
 lvim.builtin.which_key.mappings["r"] = { ":lua _G.__run_current_file()<CR>", "Run Current File" }
 lvim.builtin.which_key.mappings["<leader>"] = {
     name = "Hop Motions",
