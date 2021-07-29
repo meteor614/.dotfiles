@@ -168,7 +168,6 @@ vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = f
 -- vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
 -- vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
 -- vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", { noremap = true, silent = false })
 
 -- Quickfix
 vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
@@ -211,6 +210,7 @@ vim.api.nvim_set_keymap('n', 'zr', 'zR', {noremap = true, silent = true})
 
 -- terminal
 vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = false })
+vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", { noremap = true, silent = false })
 
 -- better indenting
 vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
