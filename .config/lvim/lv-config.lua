@@ -219,6 +219,12 @@ vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').fin
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
+vim.api.nvim_set_keymap("n", "<A-f>", "<cmd>ToggleTerm direction=float<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-f>", "<cmd>ToggleTerm direction=float<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-b>", "<cmd>ToggleTerm size=20 direction=horizontal<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-b>", "<cmd>ToggleTerm size=20 direction=horizontal<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-v>", "<cmd>ToggleTerm size=60 direction=vertical<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-v>", "<cmd>ToggleTerm size=60 direction=vertical<cr>", { noremap = true, silent = true })
 
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
