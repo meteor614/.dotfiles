@@ -221,7 +221,6 @@ vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true 
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
 
 
--- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 lvim.builtin.dashboard.active = true
 lvim.builtin.terminal.active = true
@@ -236,7 +235,6 @@ lvim.builtin.treesitter.ensure_installed = { }
 lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.builtin.treesitter.highlight.enable = true
 lvim.builtin.treesitter.rainbow.enable = true
--- lvim.treesitter.playground.enable = true
 lvim.builtin.treesitter.matchup.enable = true
 lvim.builtin.treesitter.autotag.enable = true
 
@@ -244,9 +242,7 @@ lvim.builtin.compe.source.tabnine = { kind = "   (TabNine)", max_line = 1000,
 
 lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
--- lvim.plugin.telescope.defaults.mappings.i["<A-j>"] = require("telescope.actions").move_selection_next + require("telescope.actions").move_selection_next
--- lvim.plugin.telescope.defaults.mappings.i["<A-k>"] = require("telescope.actions").move_selection_previous + require("telescope.actions").move_selection_previous
---
+
 lvim.builtin.rooter.on_config_done = function()
     vim.g.rooter_patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", }
     vim.g.rooter_resolve_links = 1
@@ -261,6 +257,8 @@ vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", 
 vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
@@ -353,6 +351,12 @@ lvim.plugins = {
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
+lvim.autocommands.custom_groups = {
+    { "FileType", "cpp", "set tags+=~/cpp_tags" },
+    -- vim自动打开跳到上次的光标位置
+    { "BufReadPost", "*", "if line(\".\") <= 1 && line(\"'\\\"\") > 1 && line(\"'\\\"\") <= line(\"$\") | exe \"normal! g'\\\"\" | endif" },
+}
+
 function _G.__run_current_file()
     local ft = vim.api.nvim_buf_get_option(0, "filetype")
     local head = ":!"
@@ -387,16 +391,6 @@ function _G.__run_current_file()
         end
     end
 end
-
--- Autocommands (https://neovim.io/doc/user/autocmd.html)
--- lvim.autocommands.custom_groups = {
---   { "BufWinEnter", "*.lua", "setlocal ts=8 sw=8" },
--- }
-lvim.autocommands.custom_groups = {
-    { "FileType", "cpp", "set tags+=~/cpp_tags" },
-    -- vim自动打开跳到上次的光标位置
-    { "BufReadPost", "*", "if line(\"'\\\"\") > 0|if line(\"'\\\"\") <= line(\"$\")|exe(\"norm '\\\"\")|else|exe \"norm $\"|endif|endif" },
-}
 
 -- Additional Leader bindings for WhichKey
 lvim.builtin.which_key.mappings["<TAB>"] = { "<c-^>", "Switch Last Files" }
