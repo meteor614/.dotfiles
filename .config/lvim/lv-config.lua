@@ -6,11 +6,13 @@ lvim.lint_on_save = true
 lvim.colorscheme = "spacegray"
 
 --- Correct spell ---
-vim.cmd "cab Qa qa"
-vim.cmd "cab W w"
-vim.cmd "cab Wq wq"
-vim.cmd "cab Wa wa"
-vim.cmd "cab X x"
+vim.cmd([[
+    cab Qa qa
+    cab W w
+    cab Wq wq
+    cab Wa wa
+    cab X x
+]])
 -- cmd "cmap w!! w !sudo tee >/dev/null %"
 
 -- keymappings
@@ -358,11 +360,15 @@ lvim.plugins = {
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
-lvim.autocommands.custom_groups = {
-    { "FileType", "cpp", "set tags+=~/cpp_tags" },
-    -- vim自动打开跳到上次的光标位置
-    { "BufReadPost", "*", "if line(\".\") <= 1 && line(\"'\\\"\") > 1 && line(\"'\\\"\") <= line(\"$\") | exe \"normal! g'\\\"\" | endif" },
-}
+-- lvim.autocommands.custom_groups = {
+--     { "FileType", "cpp", "set tags+=~/cpp_tags" },
+--     -- vim自动打开跳到上次的光标位置
+--     { "BufReadPost", "*", "if line(\".\") <= 1 && line(\"'\\\"\") > 1 && line(\"'\\\"\") <= line(\"$\") | exe \"normal! g'\\\"\" | endif" },
+-- }
+vim.cmd([[
+    autocmd FileType cpp set tags+=~/cpp_tags
+    autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+]])
 
 function _G.__run_current_file()
     local head, tail = ":!", ""
