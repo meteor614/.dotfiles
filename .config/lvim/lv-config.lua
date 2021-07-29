@@ -358,12 +358,9 @@ lvim.autocommands.custom_groups = {
 }
 
 function _G.__run_current_file()
-    local ft = vim.api.nvim_buf_get_option(0, "filetype")
-    local head = ":!"
-    local tail = ""
+    local head, tail = ":!", ""
     if vim.fn.exists(":TermExec") then
-        head = ":TermExec cmd='"
-        tail = "'\nToggleTerm"
+        head, tail = ":TermExec cmd='", "'<cr>ToggleTerm"
     end
     local cs = {
         vim = ":source %",
@@ -382,6 +379,7 @@ function _G.__run_current_file()
     elseif vim.fn.exists(":Xmark") then
         cs.markdown = ":Xmark"
     end
+    local ft = vim.api.nvim_buf_get_option(0, "filetype")
     if cs[ft] ~= nil then
         vim.cmd(cs[ft])
     else
