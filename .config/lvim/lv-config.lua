@@ -164,10 +164,11 @@ vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", { noremap = true, silent = false
 vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = false })
 
 -- jump
-vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", { noremap = true, silent = false })
 
 -- Quickfix
 vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
@@ -219,12 +220,12 @@ vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').fin
 -- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
-vim.api.nvim_set_keymap("n", "<A-f>", "<cmd>ToggleTerm direction=float<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-f>", "<cmd>ToggleTerm direction=float<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<A-b>", "<cmd>ToggleTerm size=20 direction=horizontal<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-b>", "<cmd>ToggleTerm size=20 direction=horizontal<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<A-v>", "<cmd>ToggleTerm size=60 direction=vertical<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-v>", "<cmd>ToggleTerm size=60 direction=vertical<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', { noremap = true, silent = true })
 
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -263,8 +264,8 @@ vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", 
 vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
