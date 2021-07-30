@@ -24,8 +24,6 @@ lvim.colorscheme = "tokyonight"
 -- lvim.colorscheme = "spacegray"
 
 lvim.format_on_save = true
--- lvim.completion.autocomplete = true
-lvim.builtin.compe.autocomplete = true
 lvim.auto_close_tree = 0
 
 --- No surround sound ---
@@ -220,7 +218,6 @@ vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
--- vim.api.nvim_set_keymap("i", "<Tab>", "compe#confirm('<C-n>')", { noremap = true, silent = true, expr = true })
 vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', { noremap = true, silent = true })
@@ -248,8 +245,35 @@ lvim.builtin.treesitter.rainbow.enable = true
 lvim.builtin.treesitter.matchup.enable = true
 lvim.builtin.treesitter.autotag.enable = true
 
-lvim.builtin.compe.source.tabnine = { kind = "   (TabNine)", max_line = 1000, max_num_results = 6, priority = 5000, sort = false, show_prediction_strength = true, ignore_pattern = "" }
+lvim.builtin.compe.autocomplete = true
+lvim.builtin.compe.source.tabnine = {
+    kind = "   (TabNine)",
+    max_line = 1000,
+    max_num_results = 6,
+    priority = 5000,
+    sort = false,
+    show_prediction_strength = true,
+    ignore_pattern = ""
+}
+-- local is_excluded = function(file_type)
+--     for _, type in ipairs(lvim.builtin.compe.exclude_filetypes) do
+--         if type == file_type then
+--             return true
+--         end
+--     end
+--     return false
+-- end
+-- require'core.compe'.set_tab_keybindings = function()
+--     local file_type = vim.fn.expand "%:e"
+--     if is_excluded(file_type) == false then
+--         vim.api.nvim_buf_set_keymap(0, "i", "<Tab>", "compe#confirm('<c-n>')", { expr = true })
+--         vim.api.nvim_buf_set_keymap(0, "s", "<Tab>", "v:lua.tab_complete()", { expr = true })
+--         vim.api.nvim_buf_set_keymap(0, "i", "<S-Tab>", "v:lua.s_tab_complete()", { expr = true })
+--         vim.api.nvim_buf_set_keymap(0, "s", "<S-Tab>", "v:lua.s_tab_complete()", { expr = true })
+--     end
+-- end
 
+lvim.builtin.compe.source.nvim_lua = true
 lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
 
@@ -358,6 +382,7 @@ lvim.plugins = {
         run = "cd app && npm install",
         ft = "markdown",
     },
+    { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
