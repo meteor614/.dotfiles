@@ -231,11 +231,12 @@ vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 d
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 lvim.builtin.dashboard.active = false
 lvim.builtin.terminal.active = true
+lvim.builtin.which_key.active = true
+
+-- lvim.builtin.nvimtree.auto_open = 0
 lvim.builtin.nvimtree.side = "left"
 lvim.builtin.nvimtree.disable_window_picker = 1
 lvim.builtin.nvimtree.hide_dotfiles = 0
-
-lvim.builtin.which_key.active = true
 
 -- if you don't want all the parsers change this to a table of the ones you want
 lvim.builtin.treesitter.ensure_installed = { }
@@ -246,6 +247,7 @@ lvim.builtin.treesitter.matchup.enable = true
 lvim.builtin.treesitter.autotag.enable = true
 
 lvim.builtin.compe.autocomplete = true
+lvim.builtin.compe.source.nvim_lua = true
 lvim.builtin.compe.source.tabnine = {
     kind = "   (TabNine)",
     max_line = 1000,
@@ -273,7 +275,6 @@ lvim.builtin.compe.source.tabnine = {
 --     end
 -- end
 
-lvim.builtin.compe.source.nvim_lua = true
 lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
 
@@ -383,6 +384,7 @@ lvim.plugins = {
         ft = "markdown",
     },
     { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
+    { "metakirby5/codi.vim", cmd = "Codi", },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -395,6 +397,8 @@ vim.cmd([[
     autocmd FileType cpp set tags+=~/cpp_tags
     autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 ]])
+
+vim.cmd([[let g:codi#interpreters = { 'python': { 'bin': 'python', 'prompt': '^\(>>>\|\.\.\.\) ', }, }]])
 
 function _G.__run_current_file()
     local head, tail = ":!", ""
