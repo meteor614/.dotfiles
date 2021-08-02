@@ -398,8 +398,6 @@ vim.cmd([[
     autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 ]])
 
-vim.cmd([[let g:codi#interpreters = { 'python': { 'bin': 'python', 'prompt': '^\(>>>\|\.\.\.\) ', }, }]])
-
 function _G.__run_current_file()
     local head, tail = ":!", ""
     if vim.fn.exists(":TermExec") then
