@@ -1,0 +1,39 @@
+
+background_opacity: 0.8
+
+# 设置字体
+font:
+  normal:
+    family: "Hack Nerd Font"
+    style: Regular
+  bold:
+    family: "Hack Nerd Font"
+    style: Bold
+  italic:
+    family: "Hack Nerd Font"
+    style: Italic
+  bold_italic:
+    family: "Hack Nerd Font"
+    style: Bold Italic
+
+  # 字大小
+  size: 12.0 
+
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+
+tabspaces: 4
+live_config_reload: true
+# alt_send_esc: true
+
+key_bindings:
+  - { key: F,  mods: Alt,           chars: "\x1bf" }
+  - { key: B,  mods: Alt,           chars: "\x1bb" }
+  - { key: V,  mods: Alt,           chars: "\x1bv" }
+  - { key: I,  mods: Alt,           chars: "\x1bi" }
+  - { key: Return,   mods: Alt,           action: ToggleFullscreen }
+
