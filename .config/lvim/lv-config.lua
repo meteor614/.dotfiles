@@ -1,11 +1,5 @@
 -- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
 
--- general
-lvim.format_on_save = false
-lvim.lint_on_save = true
-lvim.transparent_window = true
-lvim.colorscheme = "spacegray"
-
 --- Correct spell ---
 vim.cmd([[
     cab Qa qa
@@ -20,12 +14,12 @@ vim.cmd([[
 lvim.leader = "space"
 
 -- general
-lvim.colorscheme = "tokyonight"
--- lvim.colorscheme = "dark_plus"
--- lvim.colorscheme = "spacegray"
-
-lvim.format_on_save = true
+lvim.format_on_save = false
+lvim.lint_on_save = true
+lvim.transparent_window = true
 lvim.auto_close_tree = 0
+lvim.colorscheme = "tokyonight"
+-- lvim.colorscheme = "spacegray"
 
 --- No surround sound ---
 vim.o.errorbells = false
@@ -340,9 +334,7 @@ lvim.plugins = {
     {
         "unblevable/quick-scope",
         config = function()
-            vim.cmd [[
-            let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
-            ]]
+            vim.cmd [[ let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] ]]
         end,
     },
     {
@@ -386,6 +378,19 @@ lvim.plugins = {
     },
     { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
     { "metakirby5/codi.vim", cmd = "Codi", },
+    { "gelguy/wilder.nvim",
+        config = function ()
+            -- vim.cmd("source $HOME/.config/lvim/lua/user/wilder.vim")
+            vim.cmd([[
+            call wilder#enable_cmdline_enter()
+            set wildcharm=<Tab>
+            cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
+            cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+            call wilder#set_option('modes', ['/', '?', ':'])
+            call wilder#set_option('renderer', wilder#popupmenu_renderer({ 'highlighter': wilder#basic_highlighter(), }))
+            ]])
+        end
+    },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
@@ -440,7 +445,7 @@ lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/lv-config.lua<cr
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
 lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Next Diagnostic" }
 lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Prev Diagnostic" }
-lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word"}
+lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word" }
 lvim.builtin.which_key.mappings["ss"] = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" }
 lvim.builtin.which_key.mappings["sS"] = { "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", "Workspace Symbols" }
 lvim.builtin.which_key.mappings["r"] = { ":lua _G.__run_current_file()<CR>", "Run Current File" }
@@ -456,4 +461,4 @@ lvim.builtin.which_key.mappings["<leader>"] = {
     d = { "<cmd>HopChar2<cr>", "2-Char Mode" },
     ["/"] = { "<cmd>HopPattern<cr>", "Pattern Mode" },
 }
-
+lvim.builtin.which_key.vmappings["<leader>"] = lvim.builtin.which_key.mappings["<leader>"]
