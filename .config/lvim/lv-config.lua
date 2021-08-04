@@ -122,105 +122,107 @@ vim.o.inccommand = 'split'
 -- vim.api.nvim_set_keymap("i", "<C-Space>", "compe#complete()", { noremap = true, silent = true, expr = true })
 
 -- keymapping
--- fix
-vim.api.nvim_set_keymap("n", ";", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", ";", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "：", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("v", "：", ":", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "、", "/", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "？", "?", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "。", ".", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "【【", "[[", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "】】", "]]", { noremap = true, silent = false })
+local opt_tf = { noremap = true, silent = false }
+local opt_tt = { noremap = true, silent = true }
 
+-- fix
+vim.api.nvim_set_keymap("n", ";", ":", opt_tf)
+vim.api.nvim_set_keymap("v", ";", ":", opt_tf)
+vim.api.nvim_set_keymap("n", "：", ":", opt_tf)
+vim.api.nvim_set_keymap("v", "：", ":", opt_tf)
+vim.api.nvim_set_keymap("n", "、", "/", opt_tf)
+vim.api.nvim_set_keymap("n", "？", "?", opt_tf)
+vim.api.nvim_set_keymap("n", "。", ".", opt_tf)
+vim.api.nvim_set_keymap("n", "【【", "[[", opt_tf)
+vim.api.nvim_set_keymap("n", "】】", "]]", opt_tf)
 
  -- Keep search pattern at the center of the screen.
-vim.api.nvim_set_keymap("n", "n", "nzz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "N", "Nzz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "*", "*zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "#", "#zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g*", "g*zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g;", "g;zz", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "g,", "g,zz", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "n", "nzz", opt_tt)
+vim.api.nvim_set_keymap("n", "N", "Nzz", opt_tt)
+vim.api.nvim_set_keymap("n", "*", "*zz", opt_tt)
+vim.api.nvim_set_keymap("n", "#", "#zz", opt_tt)
+vim.api.nvim_set_keymap("n", "g*", "g*zz", opt_tt)
+vim.api.nvim_set_keymap("n", "g;", "g;zz", opt_tt)
+vim.api.nvim_set_keymap("n", "g,", "g,zz", opt_tt)
 
 -- 去掉上次搜索高亮
---vim.api.nvim_set_keymap("n", "<leader>/", ":nohls", { noremap = true, silent = true })
+--vim.api.nvim_set_keymap("n", "<leader>/", ":nohls", opt_tt)
 
 -- files
-vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", opt_tf)
+vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", opt_tf)
 
 -- Navigate buffers
-vim.api.nvim_set_keymap("n", '<Tab>', ':bnext<CR>', { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", '<S-Tab>', ':bprevious<CR>', { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", '<Tab>', ':bnext<CR>', opt_tf)
+vim.api.nvim_set_keymap("n", '<S-Tab>', ':bprevious<CR>', opt_tf)
 
 -- Movement in insert mode
-vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", opt_tf)
+vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", opt_tf)
+vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", opt_tf)
 
 -- jump
--- vim.api.nvim_set_keymap("n", "<c-j>", "15gj", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("n", "<c-k>", "15gk", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("v", "<c-j>", "15gj", { noremap = true, silent = false })
--- vim.api.nvim_set_keymap("v", "<c-k>", "15gk", { noremap = true, silent = false })
+-- vim.api.nvim_set_keymap("n", "<c-j>", "15gj", kopt)
+-- vim.api.nvim_set_keymap("n", "<c-k>", "15gk", kopt)
+-- vim.api.nvim_set_keymap("v", "<c-j>", "15gj", kopt)
+-- vim.api.nvim_set_keymap("v", "<c-k>", "15gk", kopt)
 
 -- Quickfix
-vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[q", ":cprev<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "]l", ":lnext<cr>zz", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[l", ":lprev<cr>zz", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", opt_tf)
+vim.api.nvim_set_keymap("n", "[q", ":cprev<cr>zz", opt_tf)
+vim.api.nvim_set_keymap("n", "]l", ":lnext<cr>zz", opt_tf)
+vim.api.nvim_set_keymap("n", "[l", ":lprev<cr>zz", opt_tf)
 
 -- Buffers
-vim.api.nvim_set_keymap("n", "]b", ":bnext<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[b", ":bprev<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "]b", ":bnext<cr>", opt_tf)
+vim.api.nvim_set_keymap("n", "[b", ":bprev<cr>", opt_tf)
 
 -- Tabs
-vim.api.nvim_set_keymap("n", "]t", ":tabn<cr>", { noremap = true, silent = false })
-vim.api.nvim_set_keymap("n", "[t", ":tabp<cr>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "]t", ":tabn<cr>", opt_tf)
+vim.api.nvim_set_keymap("n", "[t", ":tabp<cr>", opt_tf)
 
 -- CTRL+A moves to start of line in command mode
-vim.api.nvim_set_keymap("c", "<c-a>", "<home>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("c", "<c-a>", "<home>", opt_tf)
 -- CTRL+E moves to end of line in command mode
-vim.api.nvim_set_keymap("c", "<c-e>", "<end>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap("c", "<c-e>", "<end>", opt_tf)
 
 -- move current line down
-vim.api.nvim_set_keymap("", "-", ":m+<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("", "-", ":m+<cr>", opt_tt)
 -- move current line up
-vim.api.nvim_set_keymap("", "<c-_>", ":m-2<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("", "<c-_>", ":m-2<cr>", opt_tt)
 -- move visual selection down
-vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", opt_tt)
 -- move visual selection up
-vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", opt_tt)
 
-vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', { noremap=true, silent=true })
-vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', { noremap=true, silent=true })
+vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opt_tt)
+vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opt_tt)
 
-vim.api.nvim_set_keymap('v', 'p', '"0p', {silent = true})
-vim.api.nvim_set_keymap('v', 'P', '"0P', {silent = true})
+vim.api.nvim_set_keymap('v', 'p', '"0p', opt_tt)
+vim.api.nvim_set_keymap('v', 'P', '"0P', opt_tt)
 
 -- fold
-vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'zr', 'zR', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opt_tt)
+vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opt_tt)
+vim.api.nvim_set_keymap('n', 'zr', 'zR', opt_tt)
 
 -- terminal
-vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', { noremap = true, silent = false })
-vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", { noremap = true, silent = false })
+vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', opt_tf)
+vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", opt_tf)
 
 -- better indenting
-vim.api.nvim_set_keymap("v", "<", "<gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("v", ">", ">gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("v", "<", "<gv", opt_tt)
+vim.api.nvim_set_keymap("v", ">", ">gv", opt_tt)
 
-vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", { silent = true, noremap = true })
+vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", opt_tt)
 vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
-vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
+vim.api.nvim_set_keymap("t", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
+vim.api.nvim_set_keymap("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opt_tt)
+vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opt_tt)
+vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
+vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -280,15 +282,15 @@ end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
-vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", { noremap = true, silent = true })
--- vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
--- vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opt_tt)
+vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opt_tt)
+vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opt_tt)
+vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opt_tt)
+vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', opt_tt)
+vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", opt_tt)
+vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", opt_tt)
+-- vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
+-- vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 -- you can set a custom on_attach function that will be used for all the language servers
 -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
