@@ -228,7 +228,7 @@ lvim.builtin.dashboard.active = false
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
 
--- lvim.builtin.nvimtree.auto_open = 0
+lvim.builtin.nvimtree.auto_open = 0
 lvim.builtin.nvimtree.side = "left"
 lvim.builtin.nvimtree.disable_window_picker = 1
 lvim.builtin.nvimtree.hide_dotfiles = 0
@@ -396,7 +396,6 @@ lvim.plugins = {
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- lvim.autocommands.custom_groups = {
 --     { "FileType", "cpp", "set tags+=~/cpp_tags" },
---     -- vim自动打开跳到上次的光标位置
 --     { "BufReadPost", "*", "if line(\".\") <= 1 && line(\"'\\\"\") > 1 && line(\"'\\\"\") <= line(\"$\") | exe \"normal! g'\\\"\" | endif" },
 -- }
 vim.cmd([[
