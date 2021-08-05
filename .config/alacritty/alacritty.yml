@@ -1,6 +1,9 @@
 
 background_opacity: 0.8
 
+env:
+  TERM_PROGRAM: alacritty
+
 # 设置字体
 font:
   normal:
