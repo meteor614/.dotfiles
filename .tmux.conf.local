@@ -164,7 +164,8 @@ tmux_conf_theme_right_separator_sub='|'
 #     - #{username}
 #     - #{username_ssh}
 tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
-tmux_conf_theme_status_right='#{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} '
+# tmux_conf_theme_status_right='#{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} '
+tmux_conf_theme_status_right="#[fg=#e4e4e4,bg=#d70000]#([ $(tmux show-option -qv key-table) = 'off' ] && echo 'OFF')#[default] #{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
 
 # status left style
 tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white , white
@@ -270,4 +271,20 @@ set -g mode-keys vi
 # bind C-a send-prefix
 
 # move status line to top
-#set -g status-position top
+# set -g status-position top
+if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'
+
+bind -T root C-M-a  \
+    set prefix None \;\
+    set prefix2 None \;\
+    set key-table off \;\
+    refresh-client -S \;\
+    display-message "prefix OFF"
+
+bind -T off C-M-a \
+    set -u prefix \;\
+    set -u prefix2 \;\
+    set -u key-table \;\
+    refresh-client -S \;\
+    display-message "prefix ON"
+
