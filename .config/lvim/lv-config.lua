@@ -450,6 +450,7 @@ lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').gre
 lvim.builtin.which_key.mappings["ss"] = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" }
 lvim.builtin.which_key.mappings["sS"] = { "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", "Workspace Symbols" }
 lvim.builtin.which_key.mappings["r"] = { ":lua _G.__run_current_file()<CR>", "Run Current File" }
+lvim.builtin.which_key.mappings["Tu"] = { ":TSUpdate<CR>", "Update" }
 lvim.builtin.which_key.mappings["<leader>"] = {
     name = "Hop Motions",
     w = { "<cmd>HopWord<cr>", "Word Mode" },
