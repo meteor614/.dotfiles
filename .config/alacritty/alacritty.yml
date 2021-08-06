@@ -34,22 +34,22 @@ live_config_reload: true
 # alt_send_esc: true
 
 key_bindings:
-  - { key: F,  mods: Alt,           chars: "\x1bf" }
-  - { key: B,  mods: Alt,           chars: "\x1bb" }
-  - { key: V,  mods: Alt,           chars: "\x1bv" }
-  - { key: I,  mods: Alt,           chars: "\x1bi" }
-  - { key: Return,   mods: Alt,           action: ToggleFullscreen }
-  - { key: W,        mods: Command,       chars: "\x02&" }  # close tab (kill)
-  - { key: T,        mods: Command,       chars: "\x02c" }  # new tab
-  - { key: RBracket, mods: Command,       chars: "\x02o" }  # select next pane
-  - { key: LBracket, mods: Command,       chars: "\x02;" }  # select last (previously used) pane
-  - { key: Key1,        mods: Alt,       chars: "\x021" }
-  - { key: Key2,        mods: Alt,       chars: "\x022" }
-  - { key: Key3,        mods: Alt,       chars: "\x023" }
-  - { key: Key4,        mods: Alt,       chars: "\x024" }
-  - { key: Key5,        mods: Alt,       chars: "\x025" }
-  - { key: Key6,        mods: Alt,       chars: "\x026" }
-  - { key: Key7,        mods: Alt,       chars: "\x027" }
-  - { key: Key8,        mods: Alt,       chars: "\x028" }
-  - { key: Key9,        mods: Alt,       chars: "\x029" }
+  - { key: F,        mods: Alt,       chars: "\x1bf" }
+  - { key: B,        mods: Alt,       chars: "\x1bb" }
+  - { key: V,        mods: Alt,       chars: "\x1bv" }
+  - { key: I,        mods: Alt,       chars: "\x1bi" }
+  - { key: Return,   mods: Alt,       action: ToggleFullscreen }
+  - { key: W,        mods: Command,   chars: "\x02&" }  # close tab (kill)
+  - { key: T,        mods: Command,   chars: "\x02c" }  # new tab
+  - { key: RBracket, mods: Command,   chars: "\x02o" }  # select next pane
+  - { key: LBracket, mods: Command,   chars: "\x02;" }  # select last (previously used) pane
+  - { key: Key1,     mods: Command,   chars: "\x021" }
+  - { key: Key2,     mods: Command,   chars: "\x022" }
+  - { key: Key3,     mods: Command,   chars: "\x023" }
+  - { key: Key4,     mods: Command,   chars: "\x024" }
+  - { key: Key5,     mods: Command,   chars: "\x025" }
+  - { key: Key6,     mods: Command,   chars: "\x026" }
+  - { key: Key7,     mods: Command,   chars: "\x027" }
+  - { key: Key8,     mods: Command,   chars: "\x028" }
+  - { key: Key9,     mods: Command,   chars: "\x029" }
 
