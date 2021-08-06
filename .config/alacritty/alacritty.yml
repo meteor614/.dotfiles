@@ -52,4 +52,7 @@ key_bindings:
   - { key: Key7,     mods: Command,   chars: "\x027" }
   - { key: Key8,     mods: Command,   chars: "\x028" }
   - { key: Key9,     mods: Command,   chars: "\x029" }
+  - { key: RBracket, mods: Command|Shift,   chars: "\x02\x0c" }  # select next window
+  - { key: LBracket, mods: Command|Shift,   chars: "\x02\x08" }  # select previous window
+  - { key: C,        mods: Command|Shift,   chars: "\x02[" }  # copy mode
 
