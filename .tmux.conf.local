@@ -274,17 +274,6 @@ set -g mode-keys vi
 # set -g status-position top
 if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'
 
-bind -T root C-M-a  \
-    set prefix None \;\
-    set prefix2 None \;\
-    set key-table off \;\
-    refresh-client -S \;\
-    display-message "prefix OFF"
-
-bind -T off C-M-a \
-    set -u prefix \;\
-    set -u prefix2 \;\
-    set -u key-table \;\
-    refresh-client -S \;\
-    display-message "prefix ON"
+bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; refresh-client -S
+bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
