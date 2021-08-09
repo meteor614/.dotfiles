@@ -441,6 +441,7 @@ end
 -- Additional Leader bindings for WhichKey
 lvim.builtin.which_key.mappings["<TAB>"] = { "<c-^>", "Switch Last Files" }
 lvim.builtin.which_key.mappings[";"] = { ":%s/\\<<c-r><c-w>\\>//<left>", "Replace Word", silent = false }
+lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
 lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/lv-config.lua<cr>", "Open lv-config.lua" }
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
