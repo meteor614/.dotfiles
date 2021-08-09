@@ -72,5 +72,4 @@ key_bindings:
   - { key: RBracket, mods: Command|Shift,   chars: "\x02\x0c" }  # select next window
   - { key: LBracket, mods: Command|Shift,   chars: "\x02\x08" }  # select previous window
   - { key: C,        mods: Command|Shift,   chars: "\x02[" }  # copy mode
-  - { key: A,        mods: Command|Alt,   chars: "\x00" }  # 
 
