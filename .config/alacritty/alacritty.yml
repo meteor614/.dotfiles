@@ -47,8 +47,8 @@ key_bindings:
   - { key: I,        mods: Alt,       chars: "\x1bi" }
   - { key: Return,   mods: Alt,       action: ToggleFullscreen }
   - { key: W,        mods: Command,   chars: "\x02&" }  # close tab (kill)
-  - { key: D,        mods: Command,       chars: "\x02\x76" } 
-  - { key: D,        mods: Command|Shift, chars: "\x02\x73" }
+  - { key: D,        mods: Command,       chars: "\x02_" }  # vsp
+  - { key: D,        mods: Command|Shift, chars: "\x02-" }  # sp
   - { key: T,        mods: Command,   chars: "\x02c" }  # new tab
   - { key: H,        mods: Command,       chars: "\x02\x68" }
   - { key: J,        mods: Command,       chars: "\x02\x6a" }
