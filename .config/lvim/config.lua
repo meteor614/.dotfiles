@@ -443,7 +443,7 @@ lvim.builtin.which_key.mappings["<TAB>"] = { "<c-^>", "Switch Last Files" }
 lvim.builtin.which_key.mappings[";"] = { ":%s/\\<<c-r><c-w>\\>//<left>", "Replace Word", silent = false }
 lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
-lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/lv-config.lua<cr>", "Open lv-config.lua" }
+lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/config.lua<cr>", "Open config.lua" }
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
 lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Next Diagnostic" }
 lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Prev Diagnostic" }
