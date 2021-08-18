@@ -58,12 +58,8 @@ if [ ! -d ~/.config/lvim ]; then
     #     lvim +"LspInstall ${i}"
     # done
 fi
-# test -e ~/.vim || mkdir ~/.vim
-# test -e ~/.vim/init.vim || ln -s ~/.vimrc ~/.vim/init.vim
-# test -e nvim || ln -s ~/.vim nvim
 
 # for tmuxinator
-#ln -s ${script_path}/tmuxinator                                         # for mac
 test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
 # for tmux
 cd ~
@@ -176,7 +172,6 @@ files=($(ls ${script_path}/bin))
 for i in ${files[@]}; do
     ln -s ${script_path}/bin/${i}
 done
-#test -f ~/.vim/plugged/YCM-Generator/config_gen.py && ln -s ~/.vim/plugged/YCM-Generator/config_gen.py
 echo -e '\033[33mInit scripts finish.\033[0m'
 
 # install/update gdb-dashboard

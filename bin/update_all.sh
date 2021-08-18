@@ -153,7 +153,6 @@ if type zsh &>/dev/null; then
     if [ -f ~/.antigen/init.zsh ]; then
         zsh  -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' &
     fi
-    #echo 'type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' | zsh -i -s
 fi
 
 if [ -d ~/.dotfiles ]; then
@@ -165,7 +164,6 @@ if [ -d ~/.dotfiles ]; then
 fi
 
 if type lvim &>/dev/null; then
-    # cd ~/.config/lvim && git pull
     cd ~/.local/share/lunarvim/lvim && git pull
     lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerSync
     lvim +TSUpdateSync +qall
