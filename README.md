@@ -10,7 +10,7 @@ All my dotfiles.
 * alacritty
 * karabiner
 * cheats
-* brew/go/npm/gem/pip source mirrors
+* brew/go/npm/gem/pip/conda source mirrors
 * scripts
 * …
 
