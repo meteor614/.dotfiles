@@ -71,5 +71,8 @@ key_bindings:
   - { key: Key9,     mods: Command,   chars: "\x029" }
   - { key: RBracket, mods: Command|Shift,   chars: "\x02\x0c" }  # select next window
   - { key: LBracket, mods: Command|Shift,   chars: "\x02\x08" }  # select previous window
-  - { key: C,        mods: Command|Shift,   chars: "\x02[" }  # copy mode
+  # - { key: C,        mods: Command|Shift,   chars: "\x02[" }  # copy mode
+  - { key: C,  mods: Shift|Command, mode: ~Search,    action: ToggleViMode            }
+  - { key: C,  mods: Shift|Command, mode: Vi|~Search, action: ScrollToBottom          }
+  - { key: Escape,                      mode: Vi|~Search, action: ToggleViMode        }
 
