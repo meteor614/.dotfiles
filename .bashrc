@@ -3,6 +3,8 @@ alias grep='grep --color'
 alias egrep='egrep --color'
 alias fgrep='fgrep --color'
 
+alias 。。=..
+
 if type exa>/dev/null 2>&1; then
     alias ll='exa -l'
     alias l='exa -l'
