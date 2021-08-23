@@ -33,6 +33,11 @@ tabspaces: 4
 live_config_reload: true
 alt_send_esc: true
 
+bell:
+  animation: EaseOutExpo
+  duration: 0
+  color: '#ffffff'
+
 shell:
   program: /usr/local/bin/zsh
   args:
