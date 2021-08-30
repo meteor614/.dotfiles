@@ -275,10 +275,13 @@ lvim.builtin.compe.source.tabnine = {
 lvim.builtin.telescope.defaults.path_display = { "smart" }
 lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
 
-lvim.builtin.rooter.on_config_done = function()
-    vim.g.rooter_patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", }
-    vim.g.rooter_resolve_links = 1
+if lvim.builtin.project ~= nil then
+    lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
 end
+-- lvim.builtin.rooter.on_config_done = function()
+--     vim.g.rooter_patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", }
+--     vim.g.rooter_resolve_links = 1
+-- end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
