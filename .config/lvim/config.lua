@@ -226,7 +226,9 @@ vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 d
 
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
-lvim.builtin.dashboard.active = false
+if lvim.builtin.dashboard ~= nil then
+    lvim.builtin.dashboard.active = false
+end
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
 
@@ -238,24 +240,28 @@ if lvim.builtin.nvimtree ~= nil then
 end
 
 -- if you don't want all the parsers change this to a table of the ones you want
-lvim.builtin.treesitter.ensure_installed = { }
-lvim.builtin.treesitter.ignore_install = { "haskell" }
-lvim.builtin.treesitter.highlight.enable = true
-lvim.builtin.treesitter.rainbow.enable = true
-lvim.builtin.treesitter.matchup.enable = true
-lvim.builtin.treesitter.autotag.enable = true
+if lvim.builtin.treesitter ~= nil then
+    lvim.builtin.treesitter.ensure_installed = { }
+    lvim.builtin.treesitter.ignore_install = { "haskell" }
+    lvim.builtin.treesitter.highlight.enable = true
+    lvim.builtin.treesitter.rainbow.enable = true
+    lvim.builtin.treesitter.matchup.enable = true
+    lvim.builtin.treesitter.autotag.enable = true
+end
 
-lvim.builtin.compe.autocomplete = true
-lvim.builtin.compe.source.nvim_lua = true
-lvim.builtin.compe.source.tabnine = {
-    kind = "   (TabNine)",
-    max_line = 1000,
-    max_num_results = 6,
-    priority = 5000,
-    sort = false,
-    show_prediction_strength = true,
-    ignore_pattern = ""
-}
+if lvim.builtin.compe ~= nil then
+    lvim.builtin.compe.autocomplete = true
+    lvim.builtin.compe.source.nvim_lua = true
+    lvim.builtin.compe.source.tabnine = {
+        kind = "   (TabNine)",
+        max_line = 1000,
+        max_num_results = 6,
+        priority = 5000,
+        sort = false,
+        show_prediction_strength = true,
+        ignore_pattern = ""
+    }
+end
 -- local is_excluded = function(file_type)
 --     for _, type in ipairs(lvim.builtin.compe.exclude_filetypes) do
 --         if type == file_type then
@@ -274,8 +280,10 @@ lvim.builtin.compe.source.tabnine = {
 --     end
 -- end
 
-lvim.builtin.telescope.defaults.path_display = { "smart" }
-lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+if lvim.builtin.telescope ~= nil then
+    lvim.builtin.telescope.defaults.path_display = { "smart" }
+    lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+end
 
 if lvim.builtin.project ~= nil then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
