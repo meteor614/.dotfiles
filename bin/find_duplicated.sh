@@ -18,24 +18,5 @@ type guniq >/dev/null 2>&1 && alias uniq='guniq'
 md5sum=md5sum
 type gmd5sum >/dev/null 2>&1 && md5sum='gmd5sum'
 
-#find "${dir}" ! -path '*/@eaDir*' ! -path '*/.git/*' ${find_size_opt} -not -empty -type f -printf "%016s\t%h/%f\n" | sort -rn -k1 | uniq -w16 -D | cut -f2 | parallel $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
-
 find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%016s\t%h/%f\n" | grep -v '/@eaDir/' | sort -rn -k1 | uniq -w16 -D | cut -f2 | parallel -P 16 $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
 
-#find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | parallel -I{} -n1 find "${dir}" ${find_opt} -type f -size {}c -print0 | parallel -0 $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
-
-#find "${dir}" ${find_opt} ${find_size_opt} -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | parallel -I{} -n1 find "${dir}" ${find_opt} -type f -size {}c -print0 | parallel -0 "xxd -l 16 -ps {} | awk -v v={} '{print \$0\"  \"v}'" | sort | uniq -w32 -D | cut -b 35- | parallel $md5sum -b | sort | uniq -w32 --all-repeated=separate | cut -b 35-
-
-#find ! -path '*/@eaDir*' -not -empty -type f -printf "%s\n" | sort -rn |uniq -d | parallel -I{} -n1 find ! -path '*/@eaDir*' -type f -size {}c -print0 | parallel -0 md5sum | sort | uniq -w32 --all-repeated=separate | cut -b 36-
-
-#awk '{
-#if (length($0) == 0) {
-#  f = "";
-#  print("");
-#} else if (f == "") {
-#  f = $0;
-#} else {
-#  print("rm \""$0"\"");
-#  print("ln \""f"\" \""$0"\"");
-#}
-#}'
