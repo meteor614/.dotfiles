@@ -34,18 +34,6 @@ else
     alias p='xargs -P 16'
 fi
 
-type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
-type make >/dev/null 2>&1 && alias mak='make -j 16'
-if type lvim >/dev/null 2>&1; then
-    alias vim='lvim' 
-else
-    type nvim >/dev/null 2>&1 && alias vim='nvim'
-fi
-type pip3 >/dev/null 2>&1 && alias pip=pip3
-type watch >/dev/null 2>&1 && alias watch='watch -c'
-type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
-type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
-
 # fzf
 if type rg>/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
@@ -104,8 +92,8 @@ fi
 if [ -d /usr/local/opt/node/bin ]; then
     export PATH="/usr/local/opt/node/bin:$PATH"
 fi
-if [ -d /usr/local/opt/python@3.9/bin ]; then
-    export PATH="/usr/local/opt/python@3.9/bin:$PATH"
+if [ -d /usr/local/opt/python@3.10/bin ]; then
+    export PATH="/usr/local/opt/python@3.10/bin:$PATH"
 fi
 
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
@@ -132,3 +120,16 @@ type kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
 if [ -f /Applications/WeTERM.app/Contents/Resources/app/external/ssh ]; then
     alias mnet="/Applications/WeTERM.app/Contents/Resources/app/external/ssh -p 36000 -U `whoami`@csig.mnet2.com"
 fi
+
+type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
+type make >/dev/null 2>&1 && alias mak='make -j 16'
+if type lvim >/dev/null 2>&1; then
+    alias vim='lvim' 
+else
+    type nvim >/dev/null 2>&1 && alias vim='nvim'
+fi
+type pip3 >/dev/null 2>&1 && alias pip=pip3
+type watch >/dev/null 2>&1 && alias watch='watch -c'
+type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
+type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
+
