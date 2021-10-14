@@ -233,10 +233,10 @@ lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
 
 if lvim.builtin.nvimtree ~= nil then
-    lvim.builtin.nvimtree.auto_open = 0
-    lvim.builtin.nvimtree.side = "left"
-    lvim.builtin.nvimtree.disable_window_picker = 1
-    lvim.builtin.nvimtree.hide_dotfiles = 0
+    lvim.builtin.nvimtree.setup.auto_open = 0
+    lvim.builtin.nvimtree.setup.side = "left"
+    lvim.builtin.nvimtree.setup.disable_window_picker = 1
+    lvim.builtin.nvimtree.setup.hide_dotfiles = 0
 end
 
 -- if you don't want all the parsers change this to a table of the ones you want
