@@ -285,11 +285,15 @@ if lvim.builtin.telescope ~= nil then
     if lvim.builtin.telescope.defaults.mappings == nil then
         lvim.builtin.telescope.defaults.mappings = {
             i = {
-                ["<esc>"] = require("telescope.actions").close
+                ["<esc>"] = require("telescope.actions").close,
+                ["<c-j>"] = require("telescope.actions").move_selection_next,
+                ["<c-k>"] = require("telescope.actions").move_selection_previous,
             }
         }
     else
         lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+        lvim.builtin.telescope.defaults.mappings.i["<c-j>"] = require("telescope.actions").move_selection_next
+        lvim.builtin.telescope.defaults.mappings.i["<c-k>"] = require("telescope.actions").move_selection_previous
     end
 end
 
