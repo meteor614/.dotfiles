@@ -282,7 +282,15 @@ end
 
 if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.defaults.path_display = { "smart" }
-    lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+    if lvim.builtin.telescope.defaults.mappings == nil then
+        lvim.builtin.telescope.defaults.mappings = {
+            i = {
+                ["<esc>"] = require("telescope.actions").close
+            }
+        }
+    else
+        lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+    end
 end
 
 if lvim.builtin.project ~= nil then
