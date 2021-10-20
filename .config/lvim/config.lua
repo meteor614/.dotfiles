@@ -224,6 +224,7 @@ vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 d
 vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 
+vim.api.nvim_set_keymap("n", "<space>；", ":%s/\\<<c-r><c-w>\\>//<left>", opt_tf)
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 if lvim.builtin.dashboard ~= nil then
@@ -466,7 +467,7 @@ end
 -- Additional Leader bindings for WhichKey
 lvim.builtin.which_key.mappings["<TAB>"] = { "<c-^>", "Switch Last Files" }
 lvim.builtin.which_key.mappings[";"] = { ":%s/\\<<c-r><c-w>\\>//<left>", "Replace Word", silent = false }
-lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
+-- lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
 lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/config.lua<cr>", "Open config.lua" }
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
