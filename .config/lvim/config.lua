@@ -263,48 +263,22 @@ if lvim.builtin.compe ~= nil then
         ignore_pattern = ""
     }
 end
--- local is_excluded = function(file_type)
---     for _, type in ipairs(lvim.builtin.compe.exclude_filetypes) do
---         if type == file_type then
---             return true
---         end
---     end
---     return false
--- end
--- require'core.compe'.set_tab_keybindings = function()
---     local file_type = vim.fn.expand "%:e"
---     if is_excluded(file_type) == false then
---         vim.api.nvim_buf_set_keymap(0, "i", "<Tab>", "compe#confirm('<c-n>')", { expr = true })
---         vim.api.nvim_buf_set_keymap(0, "s", "<Tab>", "v:lua.tab_complete()", { expr = true })
---         vim.api.nvim_buf_set_keymap(0, "i", "<S-Tab>", "v:lua.s_tab_complete()", { expr = true })
---         vim.api.nvim_buf_set_keymap(0, "s", "<S-Tab>", "v:lua.s_tab_complete()", { expr = true })
---     end
--- end
 
 if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.defaults.path_display = { "smart" }
     if lvim.builtin.telescope.defaults.mappings == nil then
         lvim.builtin.telescope.defaults.mappings = {
-            i = {
-                ["<esc>"] = require("telescope.actions").close,
-                ["<c-j>"] = require("telescope.actions").move_selection_next,
-                ["<c-k>"] = require("telescope.actions").move_selection_previous,
-            }
+            i = { }
         }
-    else
-        lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
-        lvim.builtin.telescope.defaults.mappings.i["<c-j>"] = require("telescope.actions").move_selection_next
-        lvim.builtin.telescope.defaults.mappings.i["<c-k>"] = require("telescope.actions").move_selection_previous
     end
+    lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
+    lvim.builtin.telescope.defaults.mappings.i["<c-j>"] = require("telescope.actions").move_selection_next
+    lvim.builtin.telescope.defaults.mappings.i["<c-k>"] = require("telescope.actions").move_selection_previous
 end
 
 if lvim.builtin.project ~= nil then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
 end
--- lvim.builtin.rooter.on_config_done = function()
---     vim.g.rooter_patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", }
---     vim.g.rooter_resolve_links = 1
--- end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
