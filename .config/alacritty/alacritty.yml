@@ -80,4 +80,15 @@ key_bindings:
   - { key: C,  mods: Shift|Command, mode: ~Search,    action: ToggleViMode            }
   - { key: C,  mods: Shift|Command, mode: Vi|~Search, action: ScrollToBottom          }
   - { key: Escape,                      mode: Vi|~Search, action: ToggleViMode        }
+  - { key: RBracket, mods: Command|Control,   chars: "\x02\x02o" }  # select next pane
+  - { key: LBracket, mods: Command|Control,   chars: "\x02\x02;" }  # select last (previously used) pane
+  - { key: Key1,     mods: Command|Control,   chars: "\x02\x021" }
+  - { key: Key2,     mods: Command|Control,   chars: "\x02\x022" }
+  - { key: Key3,     mods: Command|Control,   chars: "\x02\x023" }
+  - { key: Key4,     mods: Command|Control,   chars: "\x02\x024" }
+  - { key: Key5,     mods: Command|Control,   chars: "\x02\x025" }
+  - { key: Key6,     mods: Command|Control,   chars: "\x02\x026" }
+  - { key: Key7,     mods: Command|Control,   chars: "\x02\x027" }
+  - { key: Key8,     mods: Command|Control,   chars: "\x02\x028" }
+  - { key: Key9,     mods: Command|Control,   chars: "\x02\x029" }
 
