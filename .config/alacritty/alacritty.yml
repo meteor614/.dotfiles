@@ -80,6 +80,18 @@ key_bindings:
   - { key: C,  mods: Shift|Command, mode: ~Search,    action: ToggleViMode            }
   - { key: C,  mods: Shift|Command, mode: Vi|~Search, action: ScrollToBottom          }
   - { key: Escape,                      mode: Vi|~Search, action: ToggleViMode        }
+  # - { key: W,        mods: Command|Control,   chars: "\x02\x02&" }  # close tab (kill)
+  # - { key: D,        mods: Command|Control,   chars: "\x02\x02_" }  # vsp
+  # - { key: D,        mods: Command|Shift|Control, chars: "\x02\x02-" }  # sp
+  - { key: T,        mods: Command|Control,   chars: "\x02\x02c" }  # new tab
+  - { key: H,        mods: Command|Control,   chars: "\x02\x02h" }
+  - { key: J,        mods: Command|Control,   chars: "\x02\x02j" }
+  - { key: K,        mods: Command|Control,   chars: "\x02\x02k" }
+  - { key: L,        mods: Command|Control,   chars: "\x02\x02l" }
+  - { key: Left,     mods: Command|Control,   chars: "\x02\x02\x48" }
+  - { key: Down,     mods: Command|Control,   chars: "\x02\x02\x4a" }
+  - { key: Up,       mods: Command|Control,   chars: "\x02\x02\x4b" }
+  - { key: Right,    mods: Command|Control,   chars: "\x02\x02\x4c" }
   - { key: RBracket, mods: Command|Control,   chars: "\x02\x02o" }  # select next pane
   - { key: LBracket, mods: Command|Control,   chars: "\x02\x02;" }  # select last (previously used) pane
   - { key: Key1,     mods: Command|Control,   chars: "\x02\x021" }
