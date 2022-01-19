@@ -164,10 +164,14 @@ if [ -d ~/.dotfiles ]; then
 fi
 
 if type lvim &>/dev/null; then
-    cd ~/.local/share/lunarvim/lvim && git pull
-    lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerSync
-    lvim +TSUpdateSync +qall
-    echo "lvim PlugUpdate finish"
+    {
+        cd ~/.local/share/lunarvim/lvim && git pull
+        lvim +LvimUpdate +qall
+        lvim +TSUpdateSync +qall
+        lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerSync
+        lvim +PackerCompile +qall
+        echo "lvim PlugUpdate finish"
+    }&
 fi
 # vim plugins
 if type vim &>/dev/null; then
