@@ -1,5 +1,5 @@
 
-background_opacity: 0.8
+window.opacity: 0.8
 
 env:
   TERM_PROGRAM: alacritty
