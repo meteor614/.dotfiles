@@ -7,6 +7,7 @@ axel：多线程下载工具，下载文件时可以替代curl、wget。
 cloc：代码统计工具，能够统计代码的空行数、注释行、编程语言。
 cppman：C++ 98/11/14 手册查询 for Linux/MacOS，pip install cppman
 ncdu：可视化的空间分析程序
+dust: 可视化du
 glances：更强大的 htop / top 代替者，pip install Glances
 htop：top替代者
 cheat：命令行笔记，pip install cheat
@@ -33,6 +34,7 @@ lnav：Linux 下一个基于控制台的高级日志文件查看器
 exa: 替代ls命令的超好用工具
 peco: 交互式过滤
 hexyl: 十六进制查看器
+procs: 升级版ps
 
 
 #图片识别
