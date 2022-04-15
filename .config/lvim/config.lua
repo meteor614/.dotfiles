@@ -230,6 +230,7 @@ vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 d
 if lvim.builtin.dashboard ~= nil then
     lvim.builtin.dashboard.active = false
 end
+lvim.builtin.alpha.active = false
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
 
