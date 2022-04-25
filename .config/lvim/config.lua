@@ -197,8 +197,8 @@ vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", opt_tt)
 -- move visual selection up
 vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", opt_tt)
 
-vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opt_tt)
-vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opt_tt)
+vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opt_tt)
+vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opt_tt)
 
 vim.api.nvim_set_keymap('v', 'p', '"0p', opt_tt)
 vim.api.nvim_set_keymap('v', 'P', '"0P', opt_tt)
@@ -448,8 +448,8 @@ lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
 lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/config.lua<cr>", "Open config.lua" }
 lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
-lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Next Diagnostic" }
-lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", "Prev Diagnostic" }
+lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.diagnostic.goto_next()<cr>", "Next Diagnostic" }
+lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.diagnostic.goto_prev()<cr>", "Prev Diagnostic" }
 lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word" }
 lvim.builtin.which_key.mappings["ss"] = { "<cmd>Telescope lsp_document_symbols<cr>", "Document Symbols" }
 lvim.builtin.which_key.mappings["sS"] = { "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", "Workspace Symbols" }
