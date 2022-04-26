@@ -164,10 +164,10 @@ vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", opt_tf)
 vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", opt_tf)
 
 -- jump
--- vim.api.nvim_set_keymap("n", "<c-j>", "15gj", kopt)
--- vim.api.nvim_set_keymap("n", "<c-k>", "15gk", kopt)
--- vim.api.nvim_set_keymap("v", "<c-j>", "15gj", kopt)
--- vim.api.nvim_set_keymap("v", "<c-k>", "15gk", kopt)
+vim.api.nvim_set_keymap("n", "<c-j>", "15gj", opt_tf)
+vim.api.nvim_set_keymap("n", "<c-k>", "15gk", opt_tf)
+vim.api.nvim_set_keymap("v", "<c-j>", "15gj", opt_tf)
+vim.api.nvim_set_keymap("v", "<c-k>", "15gk", opt_tf)
 
 -- Quickfix
 vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", opt_tf)
@@ -227,9 +227,6 @@ vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 d
 vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
-if lvim.builtin.dashboard ~= nil then
-    lvim.builtin.dashboard.active = false
-end
 if lvim.builtin.alpha ~= nil then
     lvim.builtin.alpha.active = false
 end
@@ -282,6 +279,9 @@ end
 if lvim.builtin.project ~= nil then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
 end
+
+-- lvim.builtin.treesitter.ensure_installed = "maintained"
+-- lvim.builtin.treesitter.ignore_install = { "haskell" }
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
@@ -396,6 +396,10 @@ lvim.plugins = {
             ]])
         end
     },
+    -- {
+    --     "folke/lsp-colors.nvim",
+    --     event = "BufRead",
+    -- },
 }
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
