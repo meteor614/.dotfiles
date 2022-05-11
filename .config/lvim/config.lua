@@ -233,12 +233,12 @@ end
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
 
-if lvim.builtin.nvimtree ~= nil then
-    lvim.builtin.nvimtree.setup.auto_open = 0
-    lvim.builtin.nvimtree.setup.side = "left"
-    lvim.builtin.nvimtree.setup.disable_window_picker = 1
-    lvim.builtin.nvimtree.setup.hide_dotfiles = 0
-end
+-- if lvim.builtin.nvimtree ~= nil then
+--     lvim.builtin.nvimtree.setup.auto_open = 0
+--     lvim.builtin.nvimtree.setup.side = "left"
+--     lvim.builtin.nvimtree.setup.disable_window_picker = 1
+--     lvim.builtin.nvimtree.setup.hide_dotfiles = 0
+-- end
 
 -- if you don't want all the parsers change this to a table of the ones you want
 if lvim.builtin.treesitter ~= nil then
@@ -426,7 +426,7 @@ function _G.__run_current_file()
         ruby = head .. "ruby %" .. tail,
         javascript = head .. "node %" .. tail,
         -- markdown = ":MarkdownPreview",
-        java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
+        java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r", nil, nil), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
         html = ":!open %",
     }
     if vim.fn.exists(":MarkdownPreview") then
