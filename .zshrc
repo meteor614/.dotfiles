@@ -50,8 +50,8 @@ antigen bundle github
 antigen bundle python
 antigen bundle rupa/z z.sh
 antigen bundle andrewferrier/fzf-z
-#antigen bundle z
-antigen bundle tysonwolker/iterm-tab-colors
+# antigen bundle z
+# antigen bundle tysonwolker/iterm-tab-colors
 antigen bundle "MichaelAquilina/zsh-you-should-use"
 
 antigen bundle zsh-history-substring-search
