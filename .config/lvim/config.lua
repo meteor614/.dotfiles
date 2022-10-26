@@ -242,6 +242,7 @@ lvim.builtin.which_key.active = true
 
 -- if you don't want all the parsers change this to a table of the ones you want
 if lvim.builtin.treesitter ~= nil then
+    -- lvim.builtin.treesitter.ensure_installed = "maintained"
     lvim.builtin.treesitter.ensure_installed = { }
     lvim.builtin.treesitter.ignore_install = { "haskell" }
     lvim.builtin.treesitter.highlight.enable = true
@@ -265,23 +266,52 @@ if lvim.builtin.compe ~= nil then
 end
 
 if lvim.builtin.telescope ~= nil then
+    lvim.builtin.telescope.defaults.initial_mode = "insert"
     lvim.builtin.telescope.defaults.path_display = { "smart" }
     if lvim.builtin.telescope.defaults.mappings == nil then
         lvim.builtin.telescope.defaults.mappings = {
             i = { }
         }
     end
-    lvim.builtin.telescope.defaults.mappings.i["<esc>"] = require("telescope.actions").close
-    lvim.builtin.telescope.defaults.mappings.i["<c-j>"] = require("telescope.actions").move_selection_next
-    lvim.builtin.telescope.defaults.mappings.i["<c-k>"] = require("telescope.actions").move_selection_previous
+    local actions = require "telescope.actions"
+    lvim.builtin.telescope.defaults.mappings.i["<esc>"] = actions.close
+    lvim.builtin.telescope.defaults.mappings.i["<C-j>"] = actions.move_selection_next
+    lvim.builtin.telescope.defaults.mappings.i["<C-k>"] = actions.move_selection_previous
+    lvim.builtin.telescope.defaults.mappings.n["<C-j>"] = actions.move_selection_next
+    lvim.builtin.telescope.defaults.mappings.n["<C-k>"] = actions.move_selection_previous
+    -- lvim.builtin.telescope.pickers.find_files.previewer = nil
+    -- lvim.builtin.telescope.defaults.preview = true
+    -- lvim.builtin.telescope.defaults.preview = {
+    --     treesitter = true,
+    --     mime_hook = function(filepath, bufnr, opts)
+    --         local is_image = function(filepath)
+    --             local image_extensions = {'png','jpg'}   -- Supported image formats
+    --             local split_path = vim.split(filepath:lower(), '.', {plain=true})
+    --             local extension = split_path[#split_path]
+    --             return vim.tbl_contains(image_extensions, extension)
+    --         end
+    --         if is_image(filepath) then
+    --             local term = vim.api.nvim_open_term(bufnr, {})
+    --             local function send_output(_, data, _ )
+    --                 for _, d in ipairs(data) do
+    --                     vim.api.nvim_chan_send(term, d..'\r\n')
+    --                 end
+    --             end
+    --             vim.fn.jobstart(
+    --                 {
+    --                     'catimg', filepath  -- Terminal image viewer command
+    --                 }, 
+    --                 {on_stdout=send_output, stdout_buffered=true})
+    --         else
+    --             require("telescope.previewers.utils").set_preview_message(bufnr, opts.winid, "Binary cannot be previewed")
+    --         end
+    --     end
+    -- }
 end
 
 if lvim.builtin.project ~= nil then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
 end
-
--- lvim.builtin.treesitter.ensure_installed = "maintained"
--- lvim.builtin.treesitter.ignore_install = { "haskell" }
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
@@ -311,8 +341,8 @@ lvim.plugins = {
     { 'tzachar/compe-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-compe' },
     {
         "simrat39/symbols-outline.nvim",
-        cmd = "SymbolsOutline",
-        disable = false,
+        -- cmd = "SymbolsOutline",
+        -- disable = false,
     },
     -- Diffview
     -- :DiffviewOpen [git rev] [args] [ -- {paths...}]
@@ -327,7 +357,7 @@ lvim.plugins = {
         disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    { "folke/tokyonight.nvim", disable = false },
+    -- { "folke/tokyonight.nvim", disable = false },
     -- { "dunstontc/vim-vscode-theme", disable = false },
     {
         "ray-x/lsp_signature.nvim",
@@ -383,7 +413,8 @@ lvim.plugins = {
     },
     { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
     { "metakirby5/codi.vim", cmd = "Codi", },
-    { "gelguy/wilder.nvim",
+    {
+        "gelguy/wilder.nvim",
         config = function ()
             -- vim.cmd("source $HOME/.config/lvim/lua/user/wilder.vim")
             vim.cmd([[
@@ -401,6 +432,8 @@ lvim.plugins = {
     --     event = "BufRead",
     -- },
 }
+
+require("symbols-outline").setup()
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- lvim.autocommands.custom_groups = {
@@ -426,7 +459,8 @@ function _G.__run_current_file()
         ruby = head .. "ruby %" .. tail,
         javascript = head .. "node %" .. tail,
         -- markdown = ":MarkdownPreview",
-        java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r", nil, nil), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
+        -- java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r", nil, nil), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
+        java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
         html = ":!open %",
     }
     if vim.fn.exists(":MarkdownPreview") then
