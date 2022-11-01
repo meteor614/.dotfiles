@@ -279,9 +279,17 @@ if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.defaults.mappings.i["<C-k>"] = actions.move_selection_previous
     lvim.builtin.telescope.defaults.mappings.n["<C-j>"] = actions.move_selection_next
     lvim.builtin.telescope.defaults.mappings.n["<C-k>"] = actions.move_selection_previous
-    -- lvim.builtin.telescope.pickers.find_files.previewer = nil
+    if lvim.builtin.telescope.pickers ~= nil then
+        -- disable LunarVim's modifications, enable preview again
+        lvim.builtin.telescope.pickers = nil
+    end
     -- lvim.builtin.telescope.defaults.preview = true
     -- lvim.builtin.telescope.defaults.preview = {
+    --     check_mime_type = true,
+    --     filesize_limit = 25,
+    --     timeout = 250,
+    --     msg_bg_fillchar = "╱",
+    --     hide_on_startup = false,
     --     treesitter = true,
     --     mime_hook = function(filepath, bufnr, opts)
     --         local is_image = function(filepath)
