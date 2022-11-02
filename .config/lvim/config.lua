@@ -283,7 +283,6 @@ if lvim.builtin.telescope ~= nil then
         -- disable LunarVim's modifications, enable preview again
         lvim.builtin.telescope.pickers = nil
     end
-    -- lvim.builtin.telescope.defaults.preview = true
     -- lvim.builtin.telescope.defaults.preview = {
     --     check_mime_type = true,
     --     filesize_limit = 25,
@@ -292,9 +291,9 @@ if lvim.builtin.telescope ~= nil then
     --     hide_on_startup = false,
     --     treesitter = true,
     --     mime_hook = function(filepath, bufnr, opts)
-    --         local is_image = function(filepath)
-    --             local image_extensions = {'png','jpg'}   -- Supported image formats
-    --             local split_path = vim.split(filepath:lower(), '.', {plain=true})
+    --         local is_image = function(filepath2)
+    --             local image_extensions = {'png', 'jpg', 'jpeg'}   -- Supported image formats
+    --             local split_path = vim.split(filepath2:lower(), '.', {plain=true})
     --             local extension = split_path[#split_path]
     --             return vim.tbl_contains(image_extensions, extension)
     --         end
@@ -308,7 +307,7 @@ if lvim.builtin.telescope ~= nil then
     --             vim.fn.jobstart(
     --                 {
     --                     'catimg', filepath  -- Terminal image viewer command
-    --                 }, 
+    --                 },
     --                 {on_stdout=send_output, stdout_buffered=true})
     --         else
     --             require("telescope.previewers.utils").set_preview_message(bufnr, opts.winid, "Binary cannot be previewed")
