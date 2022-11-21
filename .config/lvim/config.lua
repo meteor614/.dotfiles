@@ -217,6 +217,8 @@ vim.api.nvim_set_keymap("v", "<", "<gv", opt_tt)
 vim.api.nvim_set_keymap("v", ">", ">gv", opt_tt)
 
 vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", opt_tt)
+vim.api.nvim_set_keymap("n", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
+vim.api.nvim_set_keymap("t", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
 vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
 vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
