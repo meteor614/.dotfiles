@@ -39,7 +39,8 @@ bell:
   color: '#ffffff'
 
 shell:
-  program: /usr/local/bin/zsh
+  #program: /usr/local/bin/zsh
+  program: zsh
   args:
     - -l
     - -c
