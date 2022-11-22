@@ -33,6 +33,7 @@ if type parallel>/dev/null 2>&1; then
 else
     alias p='xargs -P 16'
 fi
+alias scp="scp -O"
 
 # fzf
 if type rg>/dev/null 2>&1; then
@@ -107,6 +108,9 @@ fi
 
 if [ -d /volume1/\@optware/bin/ ]; then
     export PATH="$PATH:/volume1/@optware/bin"
+fi
+if [ -d /opt/homebrew/bin ]; then
+    export PATH="/opt/homebrew/bin:$PATH"
 fi
 
 test -d $HOME/bin && export PATH="$PATH:$HOME/bin"
