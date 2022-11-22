@@ -285,37 +285,43 @@ if lvim.builtin.telescope ~= nil then
         -- disable LunarVim's modifications, enable preview again
         lvim.builtin.telescope.pickers = nil
     end
-    -- lvim.builtin.telescope.defaults.preview = {
-    --     check_mime_type = true,
-    --     filesize_limit = 25,
-    --     timeout = 250,
-    --     msg_bg_fillchar = "╱",
-    --     hide_on_startup = false,
-    --     treesitter = true,
-    --     mime_hook = function(filepath, bufnr, opts)
-    --         local is_image = function(filepath2)
-    --             local image_extensions = {'png', 'jpg', 'jpeg'}   -- Supported image formats
-    --             local split_path = vim.split(filepath2:lower(), '.', {plain=true})
-    --             local extension = split_path[#split_path]
-    --             return vim.tbl_contains(image_extensions, extension)
-    --         end
-    --         if is_image(filepath) then
-    --             local term = vim.api.nvim_open_term(bufnr, {})
-    --             local function send_output(_, data, _ )
-    --                 for _, d in ipairs(data) do
-    --                     vim.api.nvim_chan_send(term, d..'\r\n')
-    --                 end
-    --             end
-    --             vim.fn.jobstart(
-    --                 {
-    --                     'catimg', filepath  -- Terminal image viewer command
-    --                 },
-    --                 {on_stdout=send_output, stdout_buffered=true})
-    --         else
-    --             require("telescope.previewers.utils").set_preview_message(bufnr, opts.winid, "Binary cannot be previewed")
-    --         end
-    --     end
-    -- }
+    lvim.builtin.telescope.defaults.preview = {
+        check_mime_type = true,
+        filesize_limit = 25,
+        timeout = 250,
+        msg_bg_fillchar = "╱",
+        hide_on_startup = false,
+        treesitter = true,
+        mime_hook = function(filepath, bufnr, opts)
+				local is_image = function(filepath1)
+					local image_extensions = { "png", "jpg", "jpeg" } -- Supported image formats
+					local split_path = vim.split(filepath1:lower(), ".", { plain = true })
+					local extension = split_path[#split_path]
+					return vim.tbl_contains(image_extensions, extension)
+				end
+				if is_image(filepath) then
+					local term = vim.api.nvim_open_term(bufnr, {})
+					local function send_output(_, data, _)
+						for _, d in ipairs(data) do
+							vim.api.nvim_chan_send(term, d .. "\r\n")
+						end
+					end
+					vim.fn.jobstart({
+						"viu",
+						filepath,
+					}, {
+						on_stdout = send_output,
+						stdout_buffered = true,
+					})
+				else
+					require("telescope.previewers.utils").set_preview_message(
+						bufnr,
+						opts.winid,
+						"Binary cannot be previewed"
+					)
+				end
+			end
+    }
 end
 
 if lvim.builtin.project ~= nil then
