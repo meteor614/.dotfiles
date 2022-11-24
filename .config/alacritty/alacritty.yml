@@ -38,13 +38,12 @@ bell:
   duration: 0
   color: '#ffffff'
 
-shell:
-  #program: /usr/local/bin/zsh
-  program: zsh
-  args:
-    - -l
-    - -c
-    - "tmux attach -t default || tmux new -t default"
+# shell:
+#   program: zsh
+#   args:
+#     - -l
+#     - -c
+#     - "tmux attach -t default || tmux new -t default"
 
 key_bindings:
   - { key: F,        mods: Alt,       chars: "\x1bf" }
