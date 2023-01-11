@@ -352,12 +352,20 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 
 -- Additional Plugins
 lvim.plugins = {
-    { "p00f/nvim-ts-rainbow", disable = false },
-    { 'tzachar/compe-tabnine', run='./install.sh', requires = 'hrsh7th/nvim-compe' },
+    { "p00f/nvim-ts-rainbow" },
+    {
+        "tzachar/cmp-tabnine",
+        build = "./install.sh",
+        -- run = "./install.sh",
+        -- requires = "hrsh7th/nvim-cmp",
+        dependencies = "hrsh7th/nvim-cmp",
+        event = "InsertEnter",
+    },
     {
         "simrat39/symbols-outline.nvim",
-        -- cmd = "SymbolsOutline",
-        -- disable = false,
+        config = function()
+            require('symbols-outline').setup()
+        end
     },
     -- Diffview
     -- :DiffviewOpen [git rev] [args] [ -- {paths...}]
@@ -369,7 +377,7 @@ lvim.plugins = {
     {
         "sindrets/diffview.nvim",
         cmd = "DiffviewOpen",
-        disable = false,
+        -- disable = false,
     },
     -- { "overcache/NeoSolarized" },
     -- { "folke/tokyonight.nvim", disable = false },
@@ -405,7 +413,7 @@ lvim.plugins = {
     {
         "windwp/nvim-ts-autotag",
         event = "InsertEnter",
-        disable = false,
+        -- disable = false,
     },
     {
         "norcalli/nvim-colorizer.lua",
@@ -423,10 +431,12 @@ lvim.plugins = {
     },
     {
         "iamcco/markdown-preview.nvim",
-        run = "cd app && npm install",
+        -- run = "cd app && npm install",
+        build = "cd app && npm install",
         ft = "markdown",
     },
-    { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
+    -- { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
+    { "folke/trouble.nvim", cmd = "TroubleToggle" },
     { "metakirby5/codi.vim", cmd = "Codi", },
     {
         "gelguy/wilder.nvim",
