@@ -81,7 +81,7 @@ fi
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
-export TERM=xterm-256color
+export TERM=screen-256color
 
 # pager
 export PAGER="less"
