@@ -245,10 +245,12 @@ lvim.builtin.which_key.active = true
 -- if you don't want all the parsers change this to a table of the ones you want
 if lvim.builtin.treesitter ~= nil then
     -- lvim.builtin.treesitter.ensure_installed = "maintained"
-    lvim.builtin.treesitter.ensure_installed = { }
+    lvim.builtin.treesitter.ensure_installed = { "lua", "help", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
     lvim.builtin.treesitter.ignore_install = { "haskell" }
     lvim.builtin.treesitter.highlight.enable = true
     lvim.builtin.treesitter.rainbow.enable = true
+    lvim.builtin.treesitter.rainbow.extended_mode = true
+    lvim.builtin.treesitter.rainbow.max_file_lines = nil
     lvim.builtin.treesitter.matchup.enable = true
     lvim.builtin.treesitter.autotag.enable = true
 end
@@ -330,6 +332,7 @@ end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
+lvim.lsp.installer.setup.automatic_installation = true
 vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opt_tt)
 vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opt_tt)
 vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opt_tt)
@@ -352,7 +355,8 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 
 -- Additional Plugins
 lvim.plugins = {
-    { "p00f/nvim-ts-rainbow" },
+    -- { "p00f/nvim-ts-rainbow" },
+    { "mrjones2014/nvim-ts-rainbow" },
     {
         "tzachar/cmp-tabnine",
         build = "./install.sh",
@@ -380,7 +384,7 @@ lvim.plugins = {
         -- disable = false,
     },
     -- { "overcache/NeoSolarized" },
-    -- { "folke/tokyonight.nvim", disable = false },
+    -- { "folke/tokyonight.nvim" },
     -- { "dunstontc/vim-vscode-theme", disable = false },
     {
         "ray-x/lsp_signature.nvim",
@@ -389,12 +393,12 @@ lvim.plugins = {
         end,
         event = "InsertEnter",
     },
-    {
-        "unblevable/quick-scope",
-        config = function()
-            vim.cmd [[ let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] ]]
-        end,
-    },
+    -- {
+    --     "unblevable/quick-scope",
+    --     config = function()
+    --         vim.cmd [[ let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] ]]
+    --     end,
+    -- },
     {
         "phaazon/hop.nvim",
         event = "BufRead",
