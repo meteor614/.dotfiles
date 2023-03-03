@@ -21,8 +21,6 @@ lvim.transparent_window = true
 lvim.auto_close_tree = 0
 lvim.colorscheme = "tokyonight"
 
--- lvim.colorscheme = "spacegray"
-
 --- No surround sound ---
 vim.o.errorbells = false
 vim.o.visualbell = false
@@ -228,7 +226,6 @@ vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 d
 vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 
--- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
 if lvim.builtin.alpha ~= nil then
     lvim.builtin.alpha.active = false
 end
@@ -283,10 +280,10 @@ if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.defaults.mappings.i["<C-k>"] = actions.move_selection_previous
     lvim.builtin.telescope.defaults.mappings.n["<C-j>"] = actions.move_selection_next
     lvim.builtin.telescope.defaults.mappings.n["<C-k>"] = actions.move_selection_previous
-    if lvim.builtin.telescope.pickers ~= nil then
-        -- disable LunarVim's modifications, enable preview again
-        lvim.builtin.telescope.pickers = nil
-    end
+    -- if lvim.builtin.telescope.pickers ~= nil then
+    --     -- disable LunarVim's modifications, enable preview again
+    --     lvim.builtin.telescope.pickers = nil
+    -- end
     lvim.builtin.telescope.defaults.preview = {
         check_mime_type = true,
         filesize_limit = 25,
@@ -360,8 +357,6 @@ lvim.plugins = {
     {
         "tzachar/cmp-tabnine",
         build = "./install.sh",
-        -- run = "./install.sh",
-        -- requires = "hrsh7th/nvim-cmp",
         dependencies = "hrsh7th/nvim-cmp",
         event = "InsertEnter",
     },
@@ -381,11 +376,7 @@ lvim.plugins = {
     {
         "sindrets/diffview.nvim",
         cmd = "DiffviewOpen",
-        -- disable = false,
     },
-    -- { "overcache/NeoSolarized" },
-    -- { "folke/tokyonight.nvim" },
-    -- { "dunstontc/vim-vscode-theme", disable = false },
     {
         "ray-x/lsp_signature.nvim",
         config = function()
@@ -417,7 +408,6 @@ lvim.plugins = {
     {
         "windwp/nvim-ts-autotag",
         event = "InsertEnter",
-        -- disable = false,
     },
     {
         "norcalli/nvim-colorizer.lua",
@@ -435,11 +425,9 @@ lvim.plugins = {
     },
     {
         "iamcco/markdown-preview.nvim",
-        -- run = "cd app && npm install",
         build = "cd app && npm install",
         ft = "markdown",
     },
-    -- { "folke/trouble.nvim", cmd = "TroubleToggle", disable = true },
     { "folke/trouble.nvim", cmd = "TroubleToggle" },
     { "metakirby5/codi.vim", cmd = "Codi", },
     {
