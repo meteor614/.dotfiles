@@ -352,7 +352,6 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 
 -- Additional Plugins
 lvim.plugins = {
-    -- { "p00f/nvim-ts-rainbow" },
     { "mrjones2014/nvim-ts-rainbow" },
     {
         "tzachar/cmp-tabnine",
@@ -524,3 +523,23 @@ lvim.builtin.which_key.mappings["<leader>"] = {
     ["/"] = { "<cmd>HopPattern<cr>", "Pattern Mode" },
 }
 lvim.builtin.which_key.vmappings["<leader>"] = lvim.builtin.which_key.mappings["<leader>"]
+
+require('lspconfig').lua_ls.setup {
+  settings = {
+    Lua = {
+      runtime = {
+        version = 'LuaJIT',
+      },
+      diagnostics = {
+        globals = { 'vim' },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file('', true),
+        checkThirdParty = false, -- THIS IS THE IMPORTANT LINE TO ADD
+      },
+      telemetry = {
+        enable = false,
+      },
+    },
+  },
+}
