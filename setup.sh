@@ -51,7 +51,7 @@ if [ ! -d ~/.config/lvim ]; then
     bash <(curl -s https://raw.githubusercontent.com/ChristianChiarulli/lunarvim/master/utils/installer/install.sh)
     rm ~/.config/lvim/config.lua
     ln -s ${script_path}/.config/lvim/config.lua ~/.config/lvim/config.lua
-    lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerInstall
+    # lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerInstall
     # lvim +'TSInstall all'
     # lss=(bash, cpp, cmake, css, dockerfile, go, html, java, json, kotlin, latex, lua, php, python, ruby, rust, typescript, vim, yaml)
     # for i in ${lls[@]}; do
@@ -127,9 +127,9 @@ fi
 if type python3 &>/dev/null; then
     python3 -m pip install python-language-server pynvim &
 fi
-if type python2 &>/dev/null; then
-    python2 -m pip install python-language-server pynvim &
-fi
+# if type python2 &>/dev/null; then
+#     python2 -m pip install python-language-server pynvim &
+# fi
 # npm
 if type npm &>/dev/null; then
     {
