@@ -168,8 +168,7 @@ if type lvim &>/dev/null; then
         cd ~/.local/share/lunarvim/lvim && git pull
         lvim +LvimUpdate +qall
         lvim +TSUpdateSync +qall
-        lvim +'autocmd User PackerComplete sleep 100m | qall' +PackerSync
-        lvim +PackerCompile +qall
+        lvim +LvimSyncCorePlugins +qa
         echo "lvim PlugUpdate finish"
     }&
 fi
