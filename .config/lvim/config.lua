@@ -284,6 +284,9 @@ if lvim.builtin.telescope ~= nil then
     --     -- disable LunarVim's modifications, enable preview again
     --     lvim.builtin.telescope.pickers = nil
     -- end
+    lvim.builtin.telescope.on_config_done = function(telescope)
+        pcall(telescope.load_extension, "media_files")
+    end
     lvim.builtin.telescope.defaults.preview = {
         check_mime_type = true,
         filesize_limit = 25,
@@ -293,7 +296,8 @@ if lvim.builtin.telescope ~= nil then
         treesitter = true,
         mime_hook = function(filepath, bufnr, opts)
 				local is_image = function(filepath1)
-					local image_extensions = { "png", "jpg", "jpeg" } -- Supported image formats
+					-- local image_extensions = { "png", "jpg", "jpeg" } -- Supported image formats
+					local image_extensions = { "png", "jpg", "jpeg", "webp", "gif" } -- Supported image formats
 					local split_path = vim.split(filepath1:lower(), ".", { plain = true })
 					local extension = split_path[#split_path]
 					return vim.tbl_contains(image_extensions, extension)
@@ -306,7 +310,8 @@ if lvim.builtin.telescope ~= nil then
 						end
 					end
 					vim.fn.jobstart({
-						"viu",
+						-- "viu",
+						"chafa",
 						filepath,
 					}, {
 						on_stdout = send_output,
@@ -443,10 +448,23 @@ lvim.plugins = {
             ]])
         end
     },
+    { "nvim-telescope/telescope-media-files.nvim" },
     -- {
     --     "folke/lsp-colors.nvim",
     --     event = "BufRead",
     -- },
+    {
+        dir = "~/qpilot-nvim-v0.3",
+        event = "VeryLazy",
+        config = function()
+            require("qpilot").setup()
+        end,
+        dependencies = {
+            "MunifTanjim/nui.nvim",
+            "nvim-lua/plenary.nvim",
+            "nvim-telescope/telescope.nvim"
+        }
+    },
 }
 
 require("symbols-outline").setup()
@@ -521,6 +539,12 @@ lvim.builtin.which_key.mappings["<leader>"] = {
     c = { "<cmd>HopChar1<cr>", "1-Char Mode" },
     d = { "<cmd>HopChar2<cr>", "2-Char Mode" },
     ["/"] = { "<cmd>HopPattern<cr>", "Pattern Mode" },
+}
+lvim.builtin.which_key.mappings["P"] = {
+    name = "Qpilot",
+    c = { "<cmd>QPCHAT<cr>", "open a qpilot chat window" },
+    a = { "<cmd>QPCHATAS<cr>", "Awesome ChatGPT Prompts" },
+    p = { "<cmd>QPCODE<cr>", "complete code" },
 }
 lvim.builtin.which_key.vmappings["<leader>"] = lvim.builtin.which_key.mappings["<leader>"]
 
