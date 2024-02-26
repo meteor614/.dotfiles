@@ -1,0 +1,307 @@
+live_config_reload = true
+# tabspaces = 4
+
+[bell]
+animation = "EaseOutExpo"
+color = "#ffffff"
+duration = 0
+
+[env]
+TERM_PROGRAM = "alacritty"
+
+[font]
+size = 12.0
+
+[font.bold]
+family = "Hack Nerd Font"
+style = "Bold"
+
+[font.bold_italic]
+family = "Hack Nerd Font"
+style = "Bold Italic"
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.italic]
+family = "Hack Nerd Font"
+style = "Italic"
+
+[font.normal]
+family = "Hack Nerd Font"
+style = "Regular"
+
+[font.offset]
+x = 0
+y = 0
+
+[[keyboard.bindings]]
+chars = "\u001Bf"
+key = "F"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u001Bb"
+key = "B"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u001Bv"
+key = "V"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u001Bi"
+key = "I"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "ToggleFullscreen"
+key = "Return"
+mods = "Alt"
+
+[[keyboard.bindings]]
+chars = "\u0002&"
+key = "W"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002_"
+key = "D"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002-"
+key = "D"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u0002c"
+key = "T"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002h"
+key = "H"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002j"
+key = "J"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002k"
+key = "K"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002l"
+key = "L"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002H"
+key = "Left"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002J"
+key = "Down"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002K"
+key = "Up"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002L"
+key = "Right"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002o"
+key = "RBracket"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002;"
+key = "LBracket"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00021"
+key = "Key1"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00022"
+key = "Key2"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00023"
+key = "Key3"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00024"
+key = "Key4"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00025"
+key = "Key5"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00026"
+key = "Key6"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00027"
+key = "Key7"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00028"
+key = "Key8"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u00029"
+key = "Key9"
+mods = "Command"
+
+[[keyboard.bindings]]
+chars = "\u0002\f"
+key = "RBracket"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+chars = "\u0002\b"
+key = "LBracket"
+mods = "Command|Shift"
+
+[[keyboard.bindings]]
+action = "ToggleViMode"
+key = "C"
+mode = "~Search"
+mods = "Shift|Command"
+
+[[keyboard.bindings]]
+action = "ScrollToBottom"
+key = "C"
+mode = "Vi|~Search"
+mods = "Shift|Command"
+
+[[keyboard.bindings]]
+action = "ToggleViMode"
+key = "Escape"
+mode = "Vi|~Search"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002c"
+key = "T"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002h"
+key = "H"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002j"
+key = "J"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002k"
+key = "K"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002l"
+key = "L"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002H"
+key = "Left"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002J"
+key = "Down"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002K"
+key = "Up"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002L"
+key = "Right"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002o"
+key = "RBracket"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u0002;"
+key = "LBracket"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00021"
+key = "Key1"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00022"
+key = "Key2"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00023"
+key = "Key3"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00024"
+key = "Key4"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00025"
+key = "Key5"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00026"
+key = "Key6"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00027"
+key = "Key7"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00028"
+key = "Key8"
+mods = "Command|Control"
+
+[[keyboard.bindings]]
+chars = "\u0002\u00029"
+key = "Key9"
+mods = "Command|Control"
+
+[window]
+opacity = 0.8
