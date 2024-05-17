@@ -87,8 +87,8 @@ vim.o.splitright = true -- force all vertical splits to go to the right of curre
 --- Other ---
 vim.o.helplang = "cn"
 vim.o.backspace = 'indent,eol,start'
-vim.o.cscopetag = true
-vim.o.cscopetagorder = 1
+-- vim.o.cscopetag = true
+-- vim.o.cscopetagorder = 1
 vim.o.virtualedit = 'block'
 vim.o.wildmenu = true
 vim.o.showmatch = true
