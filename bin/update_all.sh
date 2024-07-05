@@ -148,6 +148,7 @@ if type zsh &>/dev/null; then
             echo "oh my zsh upgrade finish"
         }&
     fi
+    zsh -ic "omz update"
 
     # antigen
     if [ -f ~/.antigen/init.zsh ]; then
