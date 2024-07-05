@@ -66,6 +66,8 @@ antigen bundle popstas/zsh-command-time
 antigen bundle "greymd/tmux-xpanes"
 #antigen bundle vi-mode
 
+zstyle ':omz:alpha:lib:git' async-prompt no
+
 # OS specific plugins
 if [[ $CURRENT_OS == 'OS X' ]]; then
     antigen bundle brew
