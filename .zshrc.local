@@ -28,11 +28,11 @@ alias fgrep='fgrep --color'
 
 alias 。。=..
 
-if type exa>/dev/null 2>&1; then
-    alias ll='exa -l'
-    alias l='exa -l'
-    alias la='exa -la'
-    alias k='exa -l'
+if type eza>/dev/null 2>&1; then
+    alias ll='eza -l'
+    alias l='eza -l'
+    alias la='eza -la'
+    alias k='eza -l'
 else
     alias ll='ls -lh'
     alias l='ls -l'
