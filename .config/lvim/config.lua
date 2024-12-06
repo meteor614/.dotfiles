@@ -433,7 +433,7 @@ lvim.plugins = {
         ft = "markdown",
     },
     { "folke/trouble.nvim", cmd = "TroubleToggle" },
-    { "metakirby5/codi.vim", cmd = "Codi", },
+    -- { "metakirby5/codi.vim", cmd = "Codi", },
     {
         "gelguy/wilder.nvim",
         config = function ()
@@ -453,18 +453,18 @@ lvim.plugins = {
     --     "folke/lsp-colors.nvim",
     --     event = "BufRead",
     -- },
-    {
-        dir = "~/qpilot-nvim-v0.3",
-        event = "VeryLazy",
-        config = function()
-            require("qpilot").setup()
-        end,
-        dependencies = {
-            "MunifTanjim/nui.nvim",
-            "nvim-lua/plenary.nvim",
-            "nvim-telescope/telescope.nvim"
-        }
-    },
+    -- {
+    --     dir = "~/qpilot-nvim-v0.3",
+    --     event = "VeryLazy",
+    --     config = function()
+    --         require("qpilot").setup()
+    --     end,
+    --     dependencies = {
+    --         "MunifTanjim/nui.nvim",
+    --         "nvim-lua/plenary.nvim",
+    --         "nvim-telescope/telescope.nvim"
+    --     }
+    -- },
 }
 
 require("symbols-outline").setup()
