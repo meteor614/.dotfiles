@@ -225,6 +225,9 @@ vim.api.nvim_set_keymap("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 d
 vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opt_tt)
 vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
+-- Bind <leader>y to forward last-yanked text to Clipper
+-- nnoremap <leader>y :call system('nc -c localhost 8377', @0)<CR>
+vim.api.nvim_set_keymap("n", "y", ":call system('nc -c localhost 8377', @0)<cr>", opt_tf)
 
 if lvim.builtin.alpha ~= nil then
     lvim.builtin.alpha.active = false

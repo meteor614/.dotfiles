@@ -279,3 +279,5 @@ if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'
 bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; refresh-client -S
 bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
+# Bind <prefix>-y to forward to Clipper
+bind-key y run-shell "tmux save-buffer - | nc -c localhost 8377"
