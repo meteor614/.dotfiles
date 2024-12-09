@@ -184,6 +184,7 @@ type python3 >/dev/null 2>&1 && alias python=python3
 type watch >/dev/null 2>&1 && alias watch='watch -c'
 type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
 type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
+type nc > /dev/null 2>&1 && alias clip="nc -c localhost 8377"
 
 export QPILOT_API_KEY="ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmhjSEFpT2lKd1pYSnpiMjVoYkMxdFpYUmxiM0pqYUdWdUlpd2lZM0psWVhSbFgyRjBJam94TmprME5qY3pPVEEwTENKdmNtY2lPaUxvaGI3b3JxX2xoYXpsajdndlExTkpSLVM2a2VTNGp1YVp1dWFGcC1TNnAtUzRtdVM2aS1TNG11ZS1wQ19tbWJybWhhZmxoN3Jvb1l6a3Vvdmt1SnJwZzZndjVvcUE1cHl2NXBTdjVveUI1N3VFSWl3aWIzZHVaWElpT2lKdFpYUmxiM0pqYUdWdUluMC4wbTFYdmJnNUx3OWVOb0ZDdXVfNkh1NnJUNjUtNTdsRDZDYWJHa0Fmb2pj"
 
