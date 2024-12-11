@@ -242,7 +242,7 @@ lvim.builtin.which_key.active = true
 -- if you don't want all the parsers change this to a table of the ones you want
 if lvim.builtin.treesitter ~= nil then
     -- lvim.builtin.treesitter.ensure_installed = "maintained"
-    lvim.builtin.treesitter.ensure_installed = { "lua", "help", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
+    lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
     lvim.builtin.treesitter.ignore_install = { "haskell" }
     lvim.builtin.treesitter.highlight.enable = true
     lvim.builtin.treesitter.rainbow.enable = true
