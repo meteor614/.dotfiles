@@ -226,6 +226,9 @@ vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 d
 vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
 
+-- disable deprecated message
+vim.deprecate = function() end
+
 if lvim.builtin.alpha ~= nil then
     lvim.builtin.alpha.active = false
 end
@@ -242,8 +245,9 @@ lvim.builtin.which_key.active = true
 -- if you don't want all the parsers change this to a table of the ones you want
 if lvim.builtin.treesitter ~= nil then
     -- lvim.builtin.treesitter.ensure_installed = "maintained"
-    lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
-    lvim.builtin.treesitter.ignore_install = { "haskell" }
+    -- lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
+    lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
+    lvim.builtin.treesitter.ignore_install = { "haskell", "html" }
     lvim.builtin.treesitter.highlight.enable = true
     lvim.builtin.treesitter.rainbow.enable = true
     lvim.builtin.treesitter.rainbow.extended_mode = true
@@ -357,19 +361,29 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 
 -- Additional Plugins
 lvim.plugins = {
-    { "mrjones2014/nvim-ts-rainbow" },
+    -- { "mrjones2014/nvim-ts-rainbow" },
+    -- { "HiPhish/nvim-ts-rainbow2" },
+    -- {
+    --     "tzachar/cmp-tabnine",
+    --     build = "./install.sh",
+    --     dependencies = "hrsh7th/nvim-cmp",
+    --     event = "InsertEnter",
+    -- },
     {
-        "tzachar/cmp-tabnine",
-        build = "./install.sh",
-        dependencies = "hrsh7th/nvim-cmp",
-        event = "InsertEnter",
+        'stevearc/aerial.nvim',
+        opts = {},
+        -- Optional dependencies
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            "nvim-tree/nvim-web-devicons"
+        },
     },
-    {
-        "simrat39/symbols-outline.nvim",
-        config = function()
-            require('symbols-outline').setup()
-        end
-    },
+    -- {
+    --     "simrat39/symbols-outline.nvim",
+    --     config = function()
+    --         require('symbols-outline').setup()
+    --     end
+    -- },
     -- Diffview
     -- :DiffviewOpen [git rev] [args] [ -- {paths...}]
     -- :DiffviewOpen
@@ -401,14 +415,14 @@ lvim.plugins = {
             require("hop").setup()
         end,
     },
-    {
-        "andymass/vim-matchup",
-        event = "CursorMoved",
-        config = function()
-            vim.g.loaded_matchit = 1
-            vim.g.matchup_matchparen_offscreen = { method = "popup" }
-        end,
-    },
+    -- {
+    --     "andymass/vim-matchup",
+    --     event = "CursorMoved",
+    --     config = function()
+    --         vim.g.loaded_matchit = 1
+    --         vim.g.matchup_matchparen_offscreen = { method = "popup" }
+    --     end,
+    -- },
     {
         "windwp/nvim-ts-autotag",
         event = "InsertEnter",
@@ -427,12 +441,12 @@ lvim.plugins = {
             })
         end,
     },
-    {
-        "iamcco/markdown-preview.nvim",
-        build = "cd app && npm install",
-        ft = "markdown",
-    },
-    { "folke/trouble.nvim", cmd = "TroubleToggle" },
+    -- {
+    --     "iamcco/markdown-preview.nvim",
+    --     build = "cd app && npm install",
+    --     ft = "markdown",
+    -- },
+    -- { "folke/trouble.nvim", cmd = "TroubleToggle" },
     -- { "metakirby5/codi.vim", cmd = "Codi", },
     {
         "gelguy/wilder.nvim",
@@ -467,7 +481,7 @@ lvim.plugins = {
     -- },
 }
 
-require("symbols-outline").setup()
+-- require("symbols-outline").setup()
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 -- lvim.autocommands.custom_groups = {
@@ -519,7 +533,9 @@ lvim.builtin.which_key.mappings[";"] = { ":%s/\\<<c-r><c-w>\\>//<left>", "Replac
 lvim.builtin.which_key.mappings["；"] = lvim.builtin.which_key.mappings[";"]
 lvim.builtin.which_key.mappings["q"] = { "<cmd>qa<CR>", "Quit" }
 lvim.builtin.which_key.mappings["v"] = { "<cmd>e ~/.config/lvim/config.lua<cr>", "Open config.lua" }
-lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
+-- lvim.builtin.which_key.mappings["o"] = { "<cmd>SymbolsOutline<CR>", "Symbols Outline" }
+lvim.builtin.which_key.mappings["o"] = { "<cmd>AerialToggle<CR>", "Open or close the aerial window" }
+lvim.builtin.which_key.mappings["n"] = { "<cmd>AerialNavToggle<CR>", "Open or close the aerial nav window" }
 lvim.builtin.which_key.mappings["j"] = { "<cmd>lua vim.diagnostic.goto_next()<cr>", "Next Diagnostic" }
 lvim.builtin.which_key.mappings["k"] = { "<cmd>lua vim.diagnostic.goto_prev()<cr>", "Prev Diagnostic" }
 lvim.builtin.which_key.mappings["sw"] = { ":lua require('telescope.builtin').grep_string({search='<c-r><c-w>'})<cr>", "Grep Current Word" }
