@@ -448,20 +448,20 @@ lvim.plugins = {
     -- },
     -- { "folke/trouble.nvim", cmd = "TroubleToggle" },
     -- { "metakirby5/codi.vim", cmd = "Codi", },
-    {
-        "gelguy/wilder.nvim",
-        config = function ()
-            -- vim.cmd("source $HOME/.config/lvim/lua/user/wilder.vim")
-            vim.cmd([[
-            call wilder#enable_cmdline_enter()
-            set wildcharm=<Tab>
-            cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
-            cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
-            call wilder#set_option('modes', ['/', '?', ':'])
-            call wilder#set_option('renderer', wilder#popupmenu_renderer({ 'highlighter': wilder#basic_highlighter(), }))
-            ]])
-        end
-    },
+    -- {
+    --     "gelguy/wilder.nvim",
+    --     config = function ()
+    --         -- vim.cmd("source $HOME/.config/lvim/lua/user/wilder.vim")
+    --         vim.cmd([[
+    --         call wilder#enable_cmdline_enter()
+    --         set wildcharm=<Tab>
+    --         cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
+    --         cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+    --         call wilder#set_option('modes', ['/', '?', ':'])
+    --         call wilder#set_option('renderer', wilder#popupmenu_renderer({ 'highlighter': wilder#basic_highlighter(), }))
+    --         ]])
+    --     end
+    -- },
     { "nvim-telescope/telescope-media-files.nvim" },
     -- {
     --     "folke/lsp-colors.nvim",

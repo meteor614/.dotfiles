@@ -575,7 +575,7 @@ filetype plugin on
 syntax enable
 syntax on
 "colorscheme molokai
-colorscheme spacegray
+"colorscheme spacegray
 "colorscheme onedark
 
 augroup vimrc
