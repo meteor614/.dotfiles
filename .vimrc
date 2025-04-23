@@ -101,7 +101,8 @@ endif
 
 " ColorScheme
 "Plug 'tomasr/molokai'
-Plug 'ajh17/Spacegray.vim'
+"Plug 'ajh17/Spacegray.vim'
+Plug 'ignu/Spacegray.vim'
 "Plug 'Valloric/vim-valloric-colorscheme'
 "Plug 'joshdick/onedark.vim'
 
@@ -575,7 +576,7 @@ filetype plugin on
 syntax enable
 syntax on
 "colorscheme molokai
-"colorscheme spacegray
+colorscheme spacegray
 "colorscheme onedark
 
 augroup vimrc
