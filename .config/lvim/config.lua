@@ -364,8 +364,7 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 
 -- Additional Plugins
 lvim.plugins = {
-    -- { "mrjones2014/nvim-ts-rainbow" },
-    -- { "HiPhish/nvim-ts-rainbow2" },
+    { "HiPhish/rainbow-delimiters.nvim" },
     -- {
     --     "tzachar/cmp-tabnine",
     --     build = "./install.sh",
