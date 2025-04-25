@@ -125,7 +125,6 @@ vim.o.inccommand = 'split'
 local opt_tf = { noremap = true, silent = false }
 local opt_tt = { noremap = true, silent = true }
 
--- fix
 vim.api.nvim_set_keymap("n", ";", ":", opt_tf)
 vim.api.nvim_set_keymap("v", ";", ":", opt_tf)
 vim.api.nvim_set_keymap("n", "：", ":", opt_tf)
@@ -334,6 +333,10 @@ end
 
 if lvim.builtin.project ~= nil then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
+end
+
+if lvim.builtin.nvimtree ~= nil then
+    lvim.builtin.nvimtree.setup.view.width = 40
 end
 
 -- generic LSP settings
