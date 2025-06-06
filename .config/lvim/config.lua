@@ -332,8 +332,10 @@ if lvim.builtin.telescope ~= nil then
 end
 
 if lvim.builtin.project ~= nil then
-    lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile" }
+    lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", "package.json", ".venv" }
 end
+
+require('telescope').load_extension('projects')
 
 if lvim.builtin.nvimtree ~= nil then
     lvim.builtin.nvimtree.setup.view.width = 40
