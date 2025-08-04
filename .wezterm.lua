@@ -4,13 +4,12 @@ local wezterm = require 'wezterm'
 return {
   max_fps = 100,
 
-  -- 1. 实时重载
   automatically_reload_config = true,
 
-  -- 2. 终端标识
-  set_environment_variables = { TERM_PROGRAM = 'alacritty' },
+  -- set_environment_variables = { TERM_PROGRAM = 'alacritty' },
+  -- color_scheme = 'AdventureTime',
 
-  -- 3. 字体
+  -- 字体
   font = wezterm.font_with_fallback {
     { family = 'Hack Nerd Font', weight = 'Regular' },
     -- { family = 'PingFang SC',    weight = 'Regular' },
@@ -18,10 +17,8 @@ return {
   },
   font_size = 18,
 
-  -- 4. 窗口外观
   window_background_opacity = 0.8,
 
-  -- 5. 禁用 bell
   audible_bell = 'Disabled',
 
   -- 6. 键位映射（全部照搬你原 Alacritty）
