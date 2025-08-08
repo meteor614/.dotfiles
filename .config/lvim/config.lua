@@ -228,11 +228,23 @@ vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 d
 -- disable deprecated message
 vim.deprecate = function() end
 
+-- vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
+--   if result and result.message and result.message:match('position_encoding') then
+--     return  -- 直接丢弃这条消息
+--   end
+--   return vim.lsp.handlers['window/showMessage'](_, result, ctx)
+-- end
+
+
 if lvim.builtin.alpha ~= nil then
     lvim.builtin.alpha.active = false
 end
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
+
+lvim.builtin.bigfile.config = {
+    filesize = 4,
+}
 
 -- if lvim.builtin.nvimtree ~= nil then
 --     lvim.builtin.nvimtree.setup.auto_open = 0
