@@ -79,7 +79,7 @@ fi
 if type npm &>/dev/null; then
     {
         if type brew &>/dev/null; then
-            sudo npm install -g npm
+            sudo npm install -g npm --force
             sudo npm update
             sudo npm --force cache clean
         else
