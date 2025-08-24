@@ -88,6 +88,7 @@ get_process_info() {
 }
 
 echo "开始监控进程..."
+echo "当前脚本的进程ID (PID): $$"
 if [[ -n "$PROCESS_ID" ]]; then
     echo "指定进程ID: $PROCESS_ID"
     if [[ -n "$PROCESS_NAME" ]]; then
