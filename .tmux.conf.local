@@ -280,4 +280,6 @@ bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; 
 bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
 # Bind <prefix>-y to forward to Clipper
-bind-key y run-shell "tmux save-buffer - | nc -c localhost 8377"
+# bind-key y run-shell "tmux save-buffer - | nc -c localhost 8377"
+if -b 'command -v nc > /dev/null 2>&1' 'bind y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | nc -c localhost 8377"'
+if -b 'command -v socat > /dev/null 2>&1' 'bind y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | socat - tcp:localhost:8377"'
