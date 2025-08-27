@@ -182,10 +182,10 @@ fi
 type watch >/dev/null 2>&1 && alias watch='watch -c'
 type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
 type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
-if type nc >/dev/null 2>&1; then
-    alias clip="nc -c localhost 8377"
-elif type socat>/dev/null 2>&1; then
+if type socat>/dev/null 2>&1; then
     alias clip="socat - tcp:localhost:8377"
+elif type nc >/dev/null 2>&1; then
+    alias clip="nc -c localhost 8377"
 fi
 
 type pip3 >/dev/null 2>&1 && alias pip=pip3
