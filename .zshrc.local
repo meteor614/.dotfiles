@@ -165,8 +165,10 @@ if [ -f /Applications/WeTERM.app/Contents/Resources/app/external/ssh ]; then
     alias mnet="/Applications/WeTERM.app/Contents/Resources/app/external/ssh -p 36000 -U `whoami`@csig.mnet2.com"
 fi
 # start tmux if ssh
-if type tmux >/dev/null 2>&1 && [[ -z "$TMUX"  ]] && [ "$SSH_CONNECTION" != "" ]; then
-    tmux attach -t default || tmux new -t default
+# if type tmux >/dev/null 2>&1 && [[ -z "$TMUX"  ]] && [ "$SSH_CONNECTION" != "" ]; then
+#     tmux attach -t default || tmux new -t default
+if type tmux >/dev/null 2>&1 && [[ -z "$TMUX" && -n "$SSH_CLIENT" && -t 0 ]] && [ "$SSH_CONNECTION" != "" ]; then
+    exec tmux attach -t default || exec tmux new -t default
 fi
 
 if type gem >/dev/null 2>&1 && ! type tmuxinator >/dev/null 2<&1; then
