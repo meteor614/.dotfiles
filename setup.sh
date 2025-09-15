@@ -100,7 +100,7 @@ fi
 # install package
 if type brew &>/dev/null && ! type nvim &>/dev/null; then
     brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zsh cppman bat reattach-to-user-namespace exa lazygit procs dust cargo
-    brew install font-hack-nerd-font
+    brew install font-hack-nerd-font font-fira-code font-sarasa-gothic
     # brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
 # npm mirrors
