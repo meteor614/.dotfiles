@@ -136,8 +136,11 @@ if [ -d /usr/local/opt/gnu-getopt/bin ]; then
     export PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
 fi
 #if [ -d /usr/local/opt/node@10/bin ] && ! type node >/dev/null 2>&1; then
-if [ -d /usr/local/opt/node/bin ]; then
-    export PATH="/usr/local/opt/node/bin:$PATH"
+# if [ -d /usr/local/opt/node/bin ]; then
+#     export PATH="/usr/local/opt/node/bin:$PATH"
+# fi
+if type npm >/dev/null 2>&1 && [ -d `npm config get prefix`/bin ]; then
+    export PATH="`npm config get prefix`/bin:$PATH"
 fi
 if [ -d /opt/homebrew/bin ]; then
     export PATH="/opt/homebrew/bin:$PATH"
@@ -214,3 +217,4 @@ type conda >/dev/null 2>&1 && conda activate py311
 
 export DISABLE_VERSION_CHECK=1
 # export PATH="/Users/meteorchen/miniconda3/bin:$PATH"
+export LLM_KEY=sk-9xY7iqSrtU6ZwRgqf3FvgIe8aaaxfxNKG4PpTJlolBhKYfbQ  # kimi api-key
