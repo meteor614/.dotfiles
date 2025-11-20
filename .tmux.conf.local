@@ -19,6 +19,13 @@ set -g default-terminal "screen-256color"
 # set-option -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
 
+set -g allow-passthrough on
+set -ga update-environment TERM
+set -ga update-environment TERM_PROGRAM
+
+# 关键：添加 Kitty 协议支持
+set -as terminal-overrides ',xterm-kitty:RGB'
+set -g default-terminal "xterm-kitty"
 
 # -- windows & pane creation ---------------------------------------------------
 

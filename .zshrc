@@ -123,3 +123,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+
+# Added by CodeBuddy CN
+export PATH="/Users/meteorchen/.codebuddy/bin:$PATH"

@@ -303,43 +303,27 @@ if lvim.builtin.telescope ~= nil then
         pcall(telescope.load_extension, "media_files")
     end
     lvim.builtin.telescope.defaults.preview = {
-        check_mime_type = true,
-        filesize_limit = 25,
-        timeout = 250,
-        msg_bg_fillchar = "╱",
-        hide_on_startup = false,
-        treesitter = true,
         mime_hook = function(filepath, bufnr, opts)
-				local is_image = function(filepath1)
-					-- local image_extensions = { "png", "jpg", "jpeg" } -- Supported image formats
-					local image_extensions = { "png", "jpg", "jpeg", "webp", "gif" } -- Supported image formats
-					local split_path = vim.split(filepath1:lower(), ".", { plain = true })
-					local extension = split_path[#split_path]
-					return vim.tbl_contains(image_extensions, extension)
-				end
-				if is_image(filepath) then
-					local term = vim.api.nvim_open_term(bufnr, {})
-					local function send_output(_, data, _)
-						for _, d in ipairs(data) do
-							vim.api.nvim_chan_send(term, d .. "\r\n")
-						end
-					end
-					vim.fn.jobstart({
-						-- "viu",
-						"chafa",
-						filepath,
-					}, {
-						on_stdout = send_output,
-						stdout_buffered = true,
-					})
-				else
-					require("telescope.previewers.utils").set_preview_message(
-						bufnr,
-						opts.winid,
-						"Binary cannot be previewed"
-					)
-				end
-			end
+            -- 支持的图片格式
+            local image_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp'}
+            local ext = vim.fn.fnamemodify(filepath, ":e"):lower()
+
+            if vim.tbl_contains(image_extensions, ext) then
+                -- 关键：调用 image_preview 显示图片
+                -- 这会直接在 WezTerm 中渲染图像
+                require("image_preview").PreviewImage(filepath)
+
+                -- 阻止 Telescope 默认预览（避免乱码）
+                return false
+            end
+
+            -- 非图片文件使用默认预览
+            return true
+        end,
+
+        -- 其他预览优化配置
+        filesize_limit = 10,  -- 限制预览文件大小(MB)
+        timeout = 200,        -- 预览超时时间(ms)
     }
 end
 
@@ -479,6 +463,17 @@ lvim.plugins = {
     --     end
     -- },
     { "nvim-telescope/telescope-media-files.nvim" },
+    {
+        'adelarsq/image_preview.nvim',
+        event = 'VeryLazy',
+        config = function()
+            require("image_preview").setup({
+                -- 可选：调整预览窗口大小
+                max_width = 512,
+                max_height = 512,
+            })
+        end
+    },
     -- {
     --     "folke/lsp-colors.nvim",
     --     event = "BufRead",
@@ -495,6 +490,21 @@ lvim.plugins = {
     --         "nvim-telescope/telescope.nvim"
     --     }
     -- },
+    -- {
+    --     "Kurama622/llm.nvim",
+    --     dependencies = { "nvim-lua/plenary.nvim", "MunifTanjim/nui.nvim"},
+    --     cmd = { "LLMSessionToggle", "LLMSelectedTextHandler", "LLMAppHandler" },
+    --     config = function()
+    --         require("llm").setup({
+    --             url = "https://api.moonshot.cn/v1/chat/completions",
+    --             model = "moonshot-v1-auto",
+    --             api_type = "openai"
+    --         })
+    --     end,
+    --     keys = {
+    --         { "<leader>ac", mode = "n", "<cmd>LLMSessionToggle<cr>" },
+    --     },
+    -- }
 }
 
 -- require("symbols-outline").setup()
