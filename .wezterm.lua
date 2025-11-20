@@ -2,7 +2,7 @@
 local wezterm = require 'wezterm'
 
 return {
-  image_cache_ttl = 3600,
+  -- image_cache_ttl = 3600,
   enable_kitty_graphics = true,
   max_fps = 100,
 
