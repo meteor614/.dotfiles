@@ -350,15 +350,14 @@ vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", opt_tt)
 -- vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
 -- vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
--- you can set a custom on_attach function that will be used for all the language servers
--- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
--- lvim.lsp.on_attach_callback = function(client, bufnr)
---   local function buf_set_option(...)
---     vim.api.nvim_buf_set_option(bufnr, ...)
---   end
---   --Enable completion triggered by <c-x><c-o>
---   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
--- end
+
+-- 屏蔽 warning
+vim.notify = function(msg, ...)
+  if msg:match("multiple different client offset_encodings") then
+    return
+  end
+  vim.notify(msg, ...)
+end
 
 -- Additional Plugins
 lvim.plugins = {
