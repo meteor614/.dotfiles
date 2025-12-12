@@ -339,7 +339,7 @@ end
 
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
-lvim.lsp.installer.setup.automatic_installation = true
+lvim.lsp.installer.setup.automatic_installation.enable = true
 vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opt_tt)
 vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opt_tt)
 vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opt_tt)
