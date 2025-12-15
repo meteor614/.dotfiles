@@ -352,11 +352,12 @@ vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", opt_tt)
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 
 -- 屏蔽 warning
+local original_notify = vim.notify
 vim.notify = function(msg, ...)
   if msg:match("multiple different client offset_encodings") then
     return
   end
-  vim.notify(msg, ...)
+  original_notify(msg, ...)
 end
 
 -- Additional Plugins
