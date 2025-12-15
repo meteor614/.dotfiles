@@ -95,6 +95,7 @@ case "$TERM_PROGRAM" in
         export TERM="xterm-256color"
         ;;
 esac
+[ -n "$TMUX" ] && export TERM=screen-256color
 
 # pager
 export PAGER="less"
