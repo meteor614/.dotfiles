@@ -669,3 +669,4 @@ if has('python3') && !has('nvim') && !has('patch-8.1.201')
 endif
 
 au BufRead,BufNewFile *.bcm set filetype=json
+let g:coc_disable_startup_warning = 1
