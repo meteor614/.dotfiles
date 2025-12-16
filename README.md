@@ -2,12 +2,12 @@
 
 All my dotfiles.
 
-* vim/neovim/ideavim
+* neovim/lunarvim/vim/ideavim
 * zsh/bash
 * tmux/tmuxinator
 * git/tig
 * gdb/lldb
-* alacritty
+* wezterm/alacritty
 * karabiner
 * cheats
 * brew/go/npm/gem/pip/conda source mirrors
