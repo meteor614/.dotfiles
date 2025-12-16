@@ -121,15 +121,15 @@ export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bott
 
 [ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
 
-if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
-    #export JAVA_HOME=`/usr/libexec/java_home`
-    export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
-    if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
-        export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
-    fi
-    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
-    export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
-fi
+# if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
+#     #export JAVA_HOME=`/usr/libexec/java_home`
+#     export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+#     if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
+#         export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
+#     fi
+#     export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+#     export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
+# fi
 
 if [ -d /opt/bin ]; then
     export PATH="/opt/bin:$PATH"
@@ -165,7 +165,13 @@ type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-type kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
+if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
+    source ~/.zsh/plugins/kubectl/_kubectl
+elif type kubectl >/dev/null 2>&1; then
+    mkdir -p ~/.zsh/plugins/kubectl/
+    kubectl completion zsh > ~/.zsh/plugins/kubectl/_kubectl
+fi
+# type kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
 
 if [ -d ~/apache-maven-3.6.3 ]; then
     export M2_HOME=~/apache-maven-3.6.3
