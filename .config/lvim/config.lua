@@ -283,8 +283,9 @@ end
 
 if lvim.lazy.opts ~= nil then
     lvim.lazy.opts.git = {
-        timeout = 300,  -- 设置为 5 分钟，默认值可能为 60 秒
+        timeout = 900,  -- 设置为 15 分钟，默认值可能为 60 秒
         retries = 3,    -- 可选：失败重试次数
+        -- url_format = "https://gitclone.com/github.com/%s.git", -- GitHub 国内镜像
     }
 end
 
