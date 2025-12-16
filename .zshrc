@@ -1,3 +1,18 @@
+# 阻止 oh-my-zsh 重复调用 compinit
+skip_global_compinit=1
+export ZSH_DISABLE_COMPFIX="true"
+
+# 强制设置缓存路径
+export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
+export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"
+mkdir -p "$ZSH_CACHE_DIR"
+
+# 2. 禁用 compaudit（节省 53ms）
+zstyle ':omz:initialize' skip-compaudit 'yes'
+
+# 3. 禁用 oh-my-zsh 自动更新（节省 27ms）
+zstyle ':omz:update' mode disabled
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -34,7 +49,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # HYPHEN_INSENSITIVE="true"
 
 # Uncomment one of the following lines to change the auto-update behavior
-zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode disabled  # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
@@ -130,6 +145,4 @@ nvm() {
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     nvm $@
 }
-
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
