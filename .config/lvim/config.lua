@@ -281,6 +281,13 @@ if lvim.builtin.compe ~= nil then
     }
 end
 
+if lvim.lazy.opts ~= nil then
+    lvim.lazy.opts.git = {
+        timeout = 300,  -- 设置为 5 分钟，默认值可能为 60 秒
+        retries = 3,    -- 可选：失败重试次数
+    }
+end
+
 if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.defaults.initial_mode = "insert"
     lvim.builtin.telescope.defaults.path_display = { "smart" }
