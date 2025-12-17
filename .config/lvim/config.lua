@@ -77,7 +77,8 @@ vim.o.mousemodel = "popup_setpos"
 vim.o.undolevels = 1000
 
 --- Fold ---
-vim.o.foldmethod = "indent"
+lvim.builtin.treesitter.foldexpr = "nvim_treesitter#foldexpr()" -- 更智能
+vim.o.foldmethod = "expr"
 vim.o.foldlevel = 100
 
 --- split ---
@@ -270,15 +271,6 @@ end
 if lvim.builtin.compe ~= nil then
     lvim.builtin.compe.autocomplete = true
     lvim.builtin.compe.source.nvim_lua = true
-    lvim.builtin.compe.source.tabnine = {
-        kind = "   (TabNine)",
-        max_line = 1000,
-        max_num_results = 6,
-        priority = 5000,
-        sort = false,
-        show_prediction_strength = true,
-        ignore_pattern = ""
-    }
 end
 
 if lvim.lazy.opts ~= nil then
@@ -310,16 +302,19 @@ if lvim.builtin.telescope ~= nil then
     lvim.builtin.telescope.on_config_done = function(telescope)
         pcall(telescope.load_extension, "media_files")
     end
+
+    local image_preview = require("image_preview")
+    local image_extensions = { "png", "jpg", "jpeg", "gif", "bmp", "svg", "webp" }
     lvim.builtin.telescope.defaults.preview = {
         mime_hook = function(filepath, bufnr, opts)
             -- 支持的图片格式
-            local image_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp'}
+            -- local image_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp'}
             local ext = vim.fn.fnamemodify(filepath, ":e"):lower()
 
             if vim.tbl_contains(image_extensions, ext) then
                 -- 关键：调用 image_preview 显示图片
                 -- 这会直接在 WezTerm 中渲染图像
-                require("image_preview").PreviewImage(filepath)
+                image_preview.PreviewImage(filepath)
 
                 -- 阻止 Telescope 默认预览（避免乱码）
                 return false
@@ -371,12 +366,6 @@ end
 -- Additional Plugins
 lvim.plugins = {
     { "HiPhish/rainbow-delimiters.nvim" },
-    -- {
-    --     "tzachar/cmp-tabnine",
-    --     build = "./install.sh",
-    --     dependencies = "hrsh7th/nvim-cmp",
-    --     event = "InsertEnter",
-    -- },
     {
         'stevearc/aerial.nvim',
         opts = {},
@@ -518,14 +507,16 @@ lvim.plugins = {
 -- require("symbols-outline").setup()
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
--- lvim.autocommands.custom_groups = {
---     { "FileType", "cpp", "set tags+=~/cpp_tags" },
---     { "BufReadPost", "*", "if line(\".\") <= 1 && line(\"'\\\"\") > 1 && line(\"'\\\"\") <= line(\"$\") | exe \"normal! g'\\\"\" | endif" },
--- }
-vim.cmd([[
-    autocmd FileType cpp set tags+=~/cpp_tags
-    autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-]])
+-- vim.cmd([[
+--     autocmd FileType cpp set tags+=~/cpp_tags
+--     autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+-- ]])
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "cpp",
+    callback = function()
+        vim.opt_local.tags:append("~/cpp_tags")
+    end,
+})
 
 function _G.__run_current_file()
     local head, tail = ":!", ""
