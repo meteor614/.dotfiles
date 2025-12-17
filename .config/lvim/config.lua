@@ -122,108 +122,108 @@ vim.o.inccommand = 'split'
 -- vim.api.nvim_set_keymap("i", "<C-Space>", "compe#complete()", { noremap = true, silent = true, expr = true })
 
 -- keymapping
-local opt_tf = { noremap = true, silent = false }
-local opt_tt = { noremap = true, silent = true }
+local opts = { silent = true }
+local opts_ns = { silent = false }
 
-vim.api.nvim_set_keymap("n", ";", ":", opt_tf)
-vim.api.nvim_set_keymap("v", ";", ":", opt_tf)
-vim.api.nvim_set_keymap("n", "：", ":", opt_tf)
-vim.api.nvim_set_keymap("v", "：", ":", opt_tf)
-vim.api.nvim_set_keymap("n", "、", "/", opt_tf)
-vim.api.nvim_set_keymap("n", "？", "?", opt_tf)
-vim.api.nvim_set_keymap("n", "。", ".", opt_tf)
-vim.api.nvim_set_keymap("n", "【【", "[[", opt_tf)
-vim.api.nvim_set_keymap("n", "】】", "]]", opt_tf)
+vim.keymap.set("n", ";", ":", opts_ns)
+vim.keymap.set("v", ";", ":", opts_ns)
+vim.keymap.set("n", "：", ":", opts_ns)
+vim.keymap.set("v", "：", ":", opts_ns)
+vim.keymap.set("n", "、", "/", opts_ns)
+vim.keymap.set("n", "？", "?", opts_ns)
+vim.keymap.set("n", "。", ".", opts_ns)
+vim.keymap.set("n", "【【", "[[", opts_ns)
+vim.keymap.set("n", "】】", "]]", opts_ns)
 
  -- Keep search pattern at the center of the screen.
-vim.api.nvim_set_keymap("n", "n", "nzz", opt_tt)
-vim.api.nvim_set_keymap("n", "N", "Nzz", opt_tt)
-vim.api.nvim_set_keymap("n", "*", "*zz", opt_tt)
-vim.api.nvim_set_keymap("n", "#", "#zz", opt_tt)
-vim.api.nvim_set_keymap("n", "g*", "g*zz", opt_tt)
-vim.api.nvim_set_keymap("n", "g;", "g;zz", opt_tt)
-vim.api.nvim_set_keymap("n", "g,", "g,zz", opt_tt)
+vim.keymap.set("n", "n", "nzz", opts)
+vim.keymap.set("n", "N", "Nzz", opts)
+vim.keymap.set("n", "*", "*zz", opts)
+vim.keymap.set("n", "#", "#zz", opts)
+vim.keymap.set("n", "g*", "g*zz", opts)
+vim.keymap.set("n", "g;", "g;zz", opts)
+vim.keymap.set("n", "g,", "g,zz", opts)
 
 -- 去掉上次搜索高亮
---vim.api.nvim_set_keymap("n", "<leader>/", ":nohls", opt_tt)
+--vim.keymap.set("n", "<leader>/", ":nohls", opts)
 
 -- files
-vim.api.nvim_set_keymap("i", "<C-s>", "<C-O>:update<cr>", opt_tf)
-vim.api.nvim_set_keymap("n", "<C-s>", ":update<cr>", opt_tf)
+vim.keymap.set("i", "<C-s>", "<C-O>:update<cr>", opts_ns)
+vim.keymap.set("n", "<C-s>", ":update<cr>", opts_ns)
 
 -- Navigate buffers
-vim.api.nvim_set_keymap("n", '<Tab>', ':bnext<CR>', opt_tf)
-vim.api.nvim_set_keymap("n", '<S-Tab>', ':bprevious<CR>', opt_tf)
+vim.keymap.set("n", '<Tab>', ':bnext<CR>', opts_ns)
+vim.keymap.set("n", '<S-Tab>', ':bprevious<CR>', opts_ns)
 
 -- Movement in insert mode
-vim.api.nvim_set_keymap("i", "<C-h>", "<C-o>h", opt_tf)
-vim.api.nvim_set_keymap("i", "<C-l>", "<C-o>l", opt_tf)
-vim.api.nvim_set_keymap("i", "<C-^>", "<C-o><C-^>", opt_tf)
+vim.keymap.set("i", "<C-h>", "<C-o>h", opts_ns)
+vim.keymap.set("i", "<C-l>", "<C-o>l", opts_ns)
+vim.keymap.set("i", "<C-^>", "<C-o><C-^>", opts_ns)
 
 -- jump
-vim.api.nvim_set_keymap("n", "<c-j>", "15gj", opt_tf)
-vim.api.nvim_set_keymap("n", "<c-k>", "15gk", opt_tf)
-vim.api.nvim_set_keymap("v", "<c-j>", "15gj", opt_tf)
-vim.api.nvim_set_keymap("v", "<c-k>", "15gk", opt_tf)
+vim.keymap.set("n", "<c-j>", "15gj", opts_ns)
+vim.keymap.set("n", "<c-k>", "15gk", opts_ns)
+vim.keymap.set("v", "<c-j>", "15gj", opts_ns)
+vim.keymap.set("v", "<c-k>", "15gk", opts_ns)
 
 -- Quickfix
-vim.api.nvim_set_keymap("n", "]q", ":cnext<cr>zz", opt_tf)
-vim.api.nvim_set_keymap("n", "[q", ":cprev<cr>zz", opt_tf)
-vim.api.nvim_set_keymap("n", "]l", ":lnext<cr>zz", opt_tf)
-vim.api.nvim_set_keymap("n", "[l", ":lprev<cr>zz", opt_tf)
+vim.keymap.set("n", "]q", ":cnext<cr>zz", opts_ns)
+vim.keymap.set("n", "[q", ":cprev<cr>zz", opts_ns)
+vim.keymap.set("n", "]l", ":lnext<cr>zz", opts_ns)
+vim.keymap.set("n", "[l", ":lprev<cr>zz", opts_ns)
 
 -- Buffers
-vim.api.nvim_set_keymap("n", "]b", ":bnext<cr>", opt_tf)
-vim.api.nvim_set_keymap("n", "[b", ":bprev<cr>", opt_tf)
+vim.keymap.set("n", "]b", ":bnext<cr>", opts_ns)
+vim.keymap.set("n", "[b", ":bprev<cr>", opts_ns)
 
 -- Tabs
-vim.api.nvim_set_keymap("n", "]t", ":tabn<cr>", opt_tf)
-vim.api.nvim_set_keymap("n", "[t", ":tabp<cr>", opt_tf)
+vim.keymap.set("n", "]t", ":tabn<cr>", opts_ns)
+vim.keymap.set("n", "[t", ":tabp<cr>", opts_ns)
 
 -- CTRL+A moves to start of line in command mode
-vim.api.nvim_set_keymap("c", "<c-a>", "<home>", opt_tf)
+vim.keymap.set("c", "<c-a>", "<home>", opts_ns)
 -- CTRL+E moves to end of line in command mode
-vim.api.nvim_set_keymap("c", "<c-e>", "<end>", opt_tf)
+vim.keymap.set("c", "<c-e>", "<end>", opts_ns)
 
 -- move current line down
-vim.api.nvim_set_keymap("", "-", ":m+<cr>", opt_tt)
+vim.keymap.set("", "-", ":m+<cr>", opts)
 -- move current line up
-vim.api.nvim_set_keymap("", "<c-_>", ":m-2<cr>", opt_tt)
+vim.keymap.set("", "<c-_>", ":m-2<cr>", opts)
 -- move visual selection down
-vim.api.nvim_set_keymap("v", "-", ":m '>+1<cr>gv=gv", opt_tt)
+vim.keymap.set("v", "-", ":m '>+1<cr>gv=gv", opts)
 -- move visual selection up
-vim.api.nvim_set_keymap("v", "<c-_>", ":m '>-2<cr>gv=gv", opt_tt)
+vim.keymap.set("v", "<c-_>", ":m '>-2<cr>gv=gv", opts)
 
-vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opt_tt)
-vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opt_tt)
+vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1 }) end, opts)
+vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, opts)
 
-vim.api.nvim_set_keymap('v', 'p', '"0p', opt_tt)
-vim.api.nvim_set_keymap('v', 'P', '"0P', opt_tt)
+vim.keymap.set('v', 'p', '"0p', opts)
+vim.keymap.set('v', 'P', '"0P', opts)
 
 -- fold
-vim.api.nvim_set_keymap('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opt_tt)
-vim.api.nvim_set_keymap('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opt_tt)
-vim.api.nvim_set_keymap('n', 'zr', 'zR', opt_tt)
+vim.keymap.set('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opts)
+vim.keymap.set('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opts)
+vim.keymap.set('n', 'zr', 'zR', opts)
 
 -- terminal
-vim.api.nvim_set_keymap('t', '<esc>', '<c-\\><c-n>', opt_tf)
-vim.api.nvim_set_keymap("t", "<c-w>", "<c-\\><c-n><c-w>", opt_tf)
+vim.keymap.set('t', '<esc>', '<c-\\><c-n>', opts_ns)
+vim.keymap.set("t", "<c-w>", "<c-\\><c-n><c-w>", opts_ns)
 
 -- better indenting
-vim.api.nvim_set_keymap("v", "<", "<gv", opt_tt)
-vim.api.nvim_set_keymap("v", ">", ">gv", opt_tt)
+vim.keymap.set("v", "<", "<gv", opts)
+vim.keymap.set("v", ">", ">gv", opts)
 
-vim.api.nvim_set_keymap("n", "<c-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", opt_tt)
-vim.api.nvim_set_keymap("n", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
-vim.api.nvim_set_keymap("t", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
-vim.api.nvim_set_keymap("n", "<A-i>", "<c-t>", { noremap = false, silent = true })
-vim.api.nvim_set_keymap("t", "<A-i>", "<c-t>", { noremap = false, silent = true })
-vim.api.nvim_set_keymap("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
-vim.api.nvim_set_keymap("t", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opt_tt)
-vim.api.nvim_set_keymap("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opt_tt)
-vim.api.nvim_set_keymap("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opt_tt)
-vim.api.nvim_set_keymap("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
-vim.api.nvim_set_keymap("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opt_tt)
+vim.keymap.set("n", "<c-p>", function() require('telescope.builtin').find_files() end, opts)
+vim.keymap.set("n", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opts)
+vim.keymap.set("t", "<c-t>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opts)
+vim.keymap.set("n", "<A-i>", "<c-t>", { remap = true, silent = true })
+vim.keymap.set("t", "<A-i>", "<c-t>", { remap = true, silent = true })
+vim.keymap.set("n", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opts)
+vim.keymap.set("t", "<A-f>", '<cmd>exe v:count1 . "ToggleTerm direction=float"<cr>', opts)
+vim.keymap.set("n", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opts)
+vim.keymap.set("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=horizontal"<cr>', opts)
+vim.keymap.set("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opts)
+vim.keymap.set("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opts)
 
 -- disable deprecated message
 vim.deprecate = function() end
@@ -348,15 +348,15 @@ end
 -- generic LSP settings
 lvim.lsp.default_keybinds = false
 lvim.lsp.installer.setup.automatic_installation.enable = true
-vim.api.nvim_set_keymap("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opt_tt)
-vim.api.nvim_set_keymap("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opt_tt)
-vim.api.nvim_set_keymap("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opt_tt)
-vim.api.nvim_set_keymap("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opt_tt)
-vim.api.nvim_set_keymap("n", "gl", '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics({ show_header = false, border = "single" })<CR>', opt_tt)
-vim.api.nvim_set_keymap("n", "gp", "<cmd>lua require'lsp'.PeekDefinition()<CR>", opt_tt)
-vim.api.nvim_set_keymap("n", "K", ":lua vim.lsp.buf.hover()<CR>", opt_tt)
--- vim.api.nvim_set_keymap("n", "<a-j>", "<cmd>lua vim.lsp.diagnostic.goto_next({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
--- vim.api.nvim_set_keymap("n", "<a-k>", "<cmd>lua vim.lsp.diagnostic.goto_prev({popup_opts = {border = lvim.lsp.popup_border}})<cr>", opt_tt)
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+vim.keymap.set("n", "gl", function() vim.diagnostic.open_float({ border = "single" }) end, opts)
+vim.keymap.set("n", "gp", function() require('lsp').PeekDefinition() end, opts)
+vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+-- vim.keymap.set("n", "<a-j>", function() vim.diagnostic.goto_next({float = {border = lvim.lsp.popup_border}}) end, opts)
+-- vim.keymap.set("n", "<a-k>", function() vim.diagnostic.goto_prev({float = {border = lvim.lsp.popup_border}}) end, opts)
 vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").toggle()'
 
 -- 屏蔽 warning
