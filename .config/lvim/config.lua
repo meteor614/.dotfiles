@@ -152,9 +152,7 @@ vim.keymap.set("n", "g,", "g,zz", opts)
 vim.keymap.set("i", "<C-s>", "<C-O>:update<cr>", opts_ns)
 vim.keymap.set("n", "<C-s>", ":update<cr>", opts_ns)
 
--- Navigate buffers
-vim.keymap.set("n", '<Tab>', ':bnext<CR>', opts_ns)
-vim.keymap.set("n", '<S-Tab>', ':bprevious<CR>', opts_ns)
+-- Navigate buffers (use ]b/[b for buffer navigation)
 
 -- Movement in insert mode
 vim.keymap.set("i", "<C-h>", "<C-o>h", opts_ns)
@@ -201,9 +199,9 @@ vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, opt
 vim.keymap.set('v', 'p', '"0p', opts)
 vim.keymap.set('v', 'P', '"0P', opts)
 
--- fold
-vim.keymap.set('n', 'zc', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opts)
-vim.keymap.set('n', 'zo', "@=((foldclosed(line('.')) < 0) ? 'zc' :'zo')<CR>", opts)
+-- fold (toggle fold with za)
+vim.keymap.set('n', 'zc', 'za', opts)
+vim.keymap.set('n', 'zo', 'za', opts)
 vim.keymap.set('n', 'zr', 'zR', opts)
 
 -- terminal
@@ -237,7 +235,7 @@ vim.deprecate = function() end
 -- end
 
 
-if lvim.builtin.alpha ~= nil then
+if lvim.builtin.alpha then
     lvim.builtin.alpha.active = false
 end
 lvim.builtin.terminal.active = true
@@ -247,7 +245,7 @@ lvim.builtin.bigfile.config = {
     filesize = 4,
 }
 
--- if lvim.builtin.nvimtree ~= nil then
+-- if lvim.builtin.nvimtree then
 --     lvim.builtin.nvimtree.setup.auto_open = 0
 --     lvim.builtin.nvimtree.setup.side = "left"
 --     lvim.builtin.nvimtree.setup.disable_window_picker = 1
@@ -255,7 +253,7 @@ lvim.builtin.bigfile.config = {
 -- end
 
 -- if you don't want all the parsers change this to a table of the ones you want
-if lvim.builtin.treesitter ~= nil then
+if lvim.builtin.treesitter then
     -- lvim.builtin.treesitter.ensure_installed = "maintained"
     -- lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "html", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
     lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
@@ -268,12 +266,12 @@ if lvim.builtin.treesitter ~= nil then
     lvim.builtin.treesitter.autotag.enable = true
 end
 
-if lvim.builtin.compe ~= nil then
+if lvim.builtin.compe then
     lvim.builtin.compe.autocomplete = true
     lvim.builtin.compe.source.nvim_lua = true
 end
 
-if lvim.lazy.opts ~= nil then
+if lvim.lazy.opts then
     lvim.lazy.opts.git = {
         timeout = 900,  -- 设置为 15 分钟，默认值可能为 60 秒
         retries = 3,    -- 可选：失败重试次数
@@ -281,14 +279,10 @@ if lvim.lazy.opts ~= nil then
     }
 end
 
-if lvim.builtin.telescope ~= nil then
+if lvim.builtin.telescope then
     lvim.builtin.telescope.defaults.initial_mode = "insert"
     lvim.builtin.telescope.defaults.path_display = { "smart" }
-    if lvim.builtin.telescope.defaults.mappings == nil then
-        lvim.builtin.telescope.defaults.mappings = {
-            i = { }
-        }
-    end
+    lvim.builtin.telescope.defaults.mappings = lvim.builtin.telescope.defaults.mappings or { i = {}, n = {} }
     local actions = require "telescope.actions"
     lvim.builtin.telescope.defaults.mappings.i["<esc>"] = actions.close
     lvim.builtin.telescope.defaults.mappings.i["<C-j>"] = actions.move_selection_next
@@ -330,13 +324,13 @@ if lvim.builtin.telescope ~= nil then
     }
 end
 
-if lvim.builtin.project ~= nil then
+if lvim.builtin.project then
     lvim.builtin.project.patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", "package.json", ".venv" }
 end
 
 require('telescope').load_extension('projects')
 
-if lvim.builtin.nvimtree ~= nil then
+if lvim.builtin.nvimtree then
     lvim.builtin.nvimtree.setup.view.width = 40
 end
 
@@ -375,12 +369,6 @@ lvim.plugins = {
             "nvim-tree/nvim-web-devicons"
         },
     },
-    -- {
-    --     "simrat39/symbols-outline.nvim",
-    --     config = function()
-    --         require('symbols-outline').setup()
-    --     end
-    -- },
     -- Diffview
     -- :DiffviewOpen [git rev] [args] [ -- {paths...}]
     -- :DiffviewOpen
@@ -399,12 +387,6 @@ lvim.plugins = {
         end,
         event = "InsertEnter",
     },
-    -- {
-    --     "unblevable/quick-scope",
-    --     config = function()
-    --         vim.cmd [[ let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] ]]
-    --     end,
-    -- },
     {
         "phaazon/hop.nvim",
         event = "BufRead",
@@ -412,14 +394,6 @@ lvim.plugins = {
             require("hop").setup()
         end,
     },
-    -- {
-    --     "andymass/vim-matchup",
-    --     event = "CursorMoved",
-    --     config = function()
-    --         vim.g.loaded_matchit = 1
-    --         vim.g.matchup_matchparen_offscreen = { method = "popup" }
-    --     end,
-    -- },
     {
         "windwp/nvim-ts-autotag",
         event = "InsertEnter",
@@ -438,27 +412,6 @@ lvim.plugins = {
             })
         end,
     },
-    -- {
-    --     "iamcco/markdown-preview.nvim",
-    --     build = "cd app && npm install",
-    --     ft = "markdown",
-    -- },
-    -- { "folke/trouble.nvim", cmd = "TroubleToggle" },
-    -- { "metakirby5/codi.vim", cmd = "Codi", },
-    -- {
-    --     "gelguy/wilder.nvim",
-    --     config = function ()
-    --         -- vim.cmd("source $HOME/.config/lvim/lua/user/wilder.vim")
-    --         vim.cmd([[
-    --         call wilder#enable_cmdline_enter()
-    --         set wildcharm=<Tab>
-    --         cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
-    --         cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
-    --         call wilder#set_option('modes', ['/', '?', ':'])
-    --         call wilder#set_option('renderer', wilder#popupmenu_renderer({ 'highlighter': wilder#basic_highlighter(), }))
-    --         ]])
-    --     end
-    -- },
     { "nvim-telescope/telescope-media-files.nvim" },
     {
         'adelarsq/image_preview.nvim',
@@ -471,46 +424,8 @@ lvim.plugins = {
             })
         end
     },
-    -- {
-    --     "folke/lsp-colors.nvim",
-    --     event = "BufRead",
-    -- },
-    -- {
-    --     dir = "~/qpilot-nvim-v0.3",
-    --     event = "VeryLazy",
-    --     config = function()
-    --         require("qpilot").setup()
-    --     end,
-    --     dependencies = {
-    --         "MunifTanjim/nui.nvim",
-    --         "nvim-lua/plenary.nvim",
-    --         "nvim-telescope/telescope.nvim"
-    --     }
-    -- },
-    -- {
-    --     "Kurama622/llm.nvim",
-    --     dependencies = { "nvim-lua/plenary.nvim", "MunifTanjim/nui.nvim"},
-    --     cmd = { "LLMSessionToggle", "LLMSelectedTextHandler", "LLMAppHandler" },
-    --     config = function()
-    --         require("llm").setup({
-    --             url = "https://api.moonshot.cn/v1/chat/completions",
-    --             model = "moonshot-v1-auto",
-    --             api_type = "openai"
-    --         })
-    --     end,
-    --     keys = {
-    --         { "<leader>ac", mode = "n", "<cmd>LLMSessionToggle<cr>" },
-    --     },
-    -- }
 }
 
--- require("symbols-outline").setup()
-
--- Autocommands (https://neovim.io/doc/user/autocmd.html)
--- vim.cmd([[
---     autocmd FileType cpp set tags+=~/cpp_tags
---     autocmd BufReadPost * if line(".") <= 1 && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
--- ]])
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "cpp",
     callback = function()
@@ -531,8 +446,6 @@ function _G.__run_current_file()
         python = head .. "python3 %" .. tail,
         ruby = head .. "ruby %" .. tail,
         javascript = head .. "node %" .. tail,
-        -- markdown = ":MarkdownPreview",
-        -- java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r", nil, nil), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
         java = head .. "java -cp " .. string.gsub(string.gsub(vim.fn.expand("%:r"), 'src/main/java/', 'target/classes '), 'src/test/java/', 'target/classes ') .. tail,
         html = ":!open %",
     }
@@ -541,7 +454,7 @@ function _G.__run_current_file()
     elseif vim.fn.exists(":Xmark") then
         cs.markdown = ":Xmark"
     end
-    local ft = vim.api.nvim_buf_get_option(0, "filetype")
+    local ft = vim.bo[0].filetype
     if cs[ft] ~= nil then
         vim.cmd(cs[ft])
     else
