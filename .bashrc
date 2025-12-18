@@ -5,12 +5,12 @@ alias fgrep='fgrep --color'
 
 alias 。。=..
 
-if type exa>/dev/null 2>&1; then
-    alias ll='exa -l'
-    alias l='exa -l'
-    alias la='exa -la'
-    alias k='exa -l'
-    alias ls='exa'
+if type eza>/dev/null 2>&1; then
+    alias ll='eza -l'
+    alias l='eza -l'
+    alias la='eza -la'
+    alias k='eza -l'
+    alias ls='eza'
 else
     alias ls='ls -G --color'
     alias ll='ls -lh'
@@ -72,14 +72,14 @@ export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bott
 
 [ -f ~/perl5/perlbrew/etc/bashrc ] && source ~/perl5/perlbrew/etc/bashrc
 
-if [ -f /usr/libexec/java_home ]; then
-    export JAVA_HOME=`/usr/libexec/java_home`
-    if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
-        export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
-    fi
-    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
-    export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
-fi
+# if [ -f /usr/libexec/java_home ]; then
+#     export JAVA_HOME=`/usr/libexec/java_home`
+#     if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
+#         export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
+#     fi
+#     export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+#     export PATH="$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin"
+# fi
 
 if [ -d /opt/bin ]; then
     export PATH="/opt/bin:$PATH"
@@ -93,9 +93,6 @@ fi
 if [ -d /usr/local/opt/node/bin ]; then
     export PATH="/usr/local/opt/node/bin:$PATH"
 fi
-if [ -d /usr/local/opt/python@3.10/bin ]; then
-    export PATH="/usr/local/opt/python@3.10/bin:$PATH"
-fi
 
 if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
     export GOPATH=$HOME/gowork
@@ -106,9 +103,6 @@ if [ -d /usr/local/opt/findutils/libexec/gnubin ]; then
     PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
 fi
 
-if [ -d /volume1/\@optware/bin/ ]; then
-    export PATH="$PATH:/volume1/@optware/bin"
-fi
 if [ -d /opt/homebrew/bin ]; then
     export PATH="/opt/homebrew/bin:$PATH"
 fi
@@ -120,10 +114,6 @@ test -e "~/.iterm2_shell_integration.zsh" && source "~/.iterm2_shell_integration
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 type kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
-
-if [ -f /Applications/WeTERM.app/Contents/Resources/app/external/ssh ]; then
-    alias mnet="/Applications/WeTERM.app/Contents/Resources/app/external/ssh -p 36000 -U `whoami`@csig.mnet2.com"
-fi
 
 type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
