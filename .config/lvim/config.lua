@@ -247,12 +247,12 @@ vim.deprecate = function() end
 --   return vim.lsp.handlers['window/showMessage'](_, result, ctx)
 -- end
 
-
 if lvim.builtin.alpha then
     lvim.builtin.alpha.active = false
 end
 lvim.builtin.terminal.active = true
 lvim.builtin.which_key.active = true
+lvim.builtin.cmp.cmdline.enable = true
 
 lvim.builtin.bigfile.config = {
     filesize = 4,
@@ -292,7 +292,14 @@ if lvim.lazy.opts then
     }
 end
 
+lvim.builtin.gitsigns.opts.current_line_blame = true
+lvim.builtin.gitsigns.opts.current_line_blame_opts.delay = 1000  -- 延迟1秒显示
+
 if lvim.builtin.telescope then
+    lvim.builtin.telescope.defaults.file_ignore_patterns = { "node_modules", ".git" }
+    lvim.builtin.telescope.defaults.hidden = true  -- 搜索隐藏文件[^20^]
+    lvim.builtin.telescope.defaults.theme = "dropdown"  -- 更美观的主题
+
     lvim.builtin.telescope.defaults.initial_mode = "insert"
     lvim.builtin.telescope.defaults.path_display = { "smart" }
     lvim.builtin.telescope.defaults.mappings = lvim.builtin.telescope.defaults.mappings or { i = {}, n = {} }
