@@ -117,24 +117,6 @@ lvim.autocommands = {
   },
 }
 
--- overwrite the key-mappings provided by LunarVim for any mode, or leave it empty to keep them
--- lvim.keys.normal_mode = {
---   Page down/up
---   {'[d', '<PageUp>'},
---   {']d', '<PageDown>'},
---
---   Navigate buffers
---   {'<Tab>', ':bnext<CR>'},
---   {'<S-Tab>', ':bprevious<CR>'},
--- }
--- if you just want to augment the existing ones then use the utility function
--- require("utils").add_keymap_insert_mode({ silent = true }, {
--- { "<C-s>", ":w<cr>" },
--- { "<C-c>", "<ESC>" },
--- })
--- you can also use the native vim way directly
--- vim.api.nvim_set_keymap("i", "<C-Space>", "compe#complete()", { noremap = true, silent = true, expr = true })
-
 -- keymapping
 local opts = { silent = true }
 local opts_ns = { silent = false }
@@ -158,14 +140,9 @@ vim.keymap.set("n", "g*", "g*zz", opts)
 vim.keymap.set("n", "g;", "g;zz", opts)
 vim.keymap.set("n", "g,", "g,zz", opts)
 
--- 去掉上次搜索高亮
---vim.keymap.set("n", "<leader>/", ":nohls", opts)
-
 -- files
 vim.keymap.set("i", "<C-s>", "<C-O>:update<cr>", opts_ns)
 vim.keymap.set("n", "<C-s>", ":update<cr>", opts_ns)
-
--- Navigate buffers (use ]b/[b for buffer navigation)
 
 -- Movement in insert mode
 vim.keymap.set("i", "<C-h>", "<C-o>h", opts_ns)
@@ -293,7 +270,7 @@ if lvim.lazy.opts then
 end
 
 lvim.builtin.gitsigns.opts.current_line_blame = true
-lvim.builtin.gitsigns.opts.current_line_blame_opts.delay = 1000  -- 延迟1秒显示
+lvim.builtin.gitsigns.opts.current_line_blame_opts.delay = 1000
 
 if lvim.builtin.telescope then
     lvim.builtin.telescope.defaults.file_ignore_patterns = { "node_modules", ".git" }
@@ -521,8 +498,6 @@ lvim.builtin.which_key.mappings["P"] = {
     p = { "<cmd>QPCODE<cr>", "complete code" },
 }
 lvim.builtin.which_key.vmappings["<leader>"] = lvim.builtin.which_key.mappings["<leader>"]
--- Bind <leader>y to forward last-yanked text to Clipper
--- lvim.builtin.which_key.mappings["y"] = { ":call system('nc -c localhost 8377', @0)<cr>", "send last-yanked text to clipper" }
 local clip_cmd = vim.fn.executable('socat') == 1 and 'socat - tcp:localhost:8377' or 'nc -c localhost 8377'
 lvim.builtin.which_key.mappings["y"] = { ":call system('" .. clip_cmd .. "', @0)<cr>", "send last-yanked text to clipper" }
 lvim.builtin.which_key.setup.plugins.presets.z = true
