@@ -518,6 +518,7 @@ lvim.builtin.which_key.vmappings["<leader>"] = lvim.builtin.which_key.mappings["
 -- lvim.builtin.which_key.mappings["y"] = { ":call system('nc -c localhost 8377', @0)<cr>", "send last-yanked text to clipper" }
 local clip_cmd = vim.fn.executable('socat') == 1 and 'socat - tcp:localhost:8377' or 'nc -c localhost 8377'
 lvim.builtin.which_key.mappings["y"] = { ":call system('" .. clip_cmd .. "', @0)<cr>", "send last-yanked text to clipper" }
+lvim.builtin.which_key.setup.plugins.presets.z = true
 
 require('lspconfig').lua_ls.setup {
   settings = {
