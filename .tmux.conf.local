@@ -7,9 +7,10 @@
 # -- navigation ----------------------------------------------------------------
 
 # -- terminal & true color support ---------------------------------------------
-# Kitty terminal with true color and passthrough support
-set -g default-terminal "xterm-kitty"
-set -ga terminal-overrides ",xterm-kitty:RGB,*256col*:Tc"
+# Use tmux-256color for better compatibility, with true color support
+# set -g default-terminal "xterm-kitty"
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",xterm-kitty:Tc,*256col*:Tc"
 # iTerm2 Meta + arrow keys support
 set -ga terminal-overrides ",*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
 
@@ -54,11 +55,9 @@ tmux_conf_theme_window_bg='default'
 # highlight focused pane (tmux >= 2.1), possible values are:
 #   - true
 #   - false (default)
-tmux_conf_theme_highlight_focused_pane=false
+tmux_conf_theme_highlight_focused_pane=true
 
 # focused pane colours:
-#tmux_conf_theme_focused_pane_fg='default'
-#tmux_conf_theme_focused_pane_bg='#0087d7'               # light blue
 tmux_conf_theme_focused_pane_fg='default'
 tmux_conf_theme_focused_pane_bg='#000011'               # dark blue
 
@@ -159,7 +158,6 @@ tmux_conf_theme_right_separator_sub='|'
 #     - #{username}
 #     - #{username_ssh}
 tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
-# tmux_conf_theme_status_right='#{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} '
 tmux_conf_theme_status_right="#[fg=#e4e4e4,bg=#d70000]#([ $(tmux show-option -qv key-table) = 'off' ] && echo 'OFF')#[default] #{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
 
 # status left style
@@ -235,6 +233,11 @@ set -g mouse on
 
 set -g status-keys vi
 set -g mode-keys vi
+
+# -- performance optimizations ------------------------------------------------
+set -sg escape-time 0                     # faster escape response (better for vim)
+set -g history-limit 50000                # increase scrollback buffer
+set -g status-interval 30                 # reduce status bar refresh (default 10)
 
 # move status line to top when in SSH session
 if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'
