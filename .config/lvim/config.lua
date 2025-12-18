@@ -77,8 +77,9 @@ vim.o.mousemodel = "popup_setpos"
 vim.o.undolevels = 1000
 
 --- Fold ---
-lvim.builtin.treesitter.foldexpr = "nvim_treesitter#foldexpr()" -- 更智能
-vim.o.foldmethod = "expr"
+-- vim.o.foldmethod = "indent"
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.o.foldlevel = 100
 
 --- split ---
@@ -103,6 +104,18 @@ vim.o.pumheight = 50
 vim.o.timeoutlen = 100
 vim.o.inccommand = 'split'
 
+lvim.autocommands = {
+  {
+    "FileType",
+    {
+      pattern = "python",
+      callback = function()
+        vim.opt_local.foldmethod = "indent"
+        vim.opt_local.foldlevel = 99  -- 打开文件时默认不折叠
+      end,
+    },
+  },
+}
 
 -- overwrite the key-mappings provided by LunarVim for any mode, or leave it empty to keep them
 -- lvim.keys.normal_mode = {
