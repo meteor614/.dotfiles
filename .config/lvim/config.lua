@@ -214,6 +214,10 @@ vim.keymap.set("t", "<A-b>", '<cmd>exe v:count1 . "ToggleTerm size=20 direction=
 vim.keymap.set("n", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opts)
 vim.keymap.set("t", "<A-v>", '<cmd>exe v:count1 . "ToggleTerm size=60 direction=vertical"<cr>', opts)
 
+-- Navigate buffers
+vim.keymap.set("n", '<Tab>', ':bnext<CR>', opts_ns)
+vim.keymap.set("n", '<S-Tab>', ':bprevious<CR>', opts_ns)
+
 -- disable deprecated message
 vim.deprecate = function() end
 
