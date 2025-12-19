@@ -86,17 +86,21 @@ export SVN_EDITOR='vim'
 export EDITOR='vim'
 # export TERM=screen-256color
 # export TERM=xterm-kitty
-case "$TERM_PROGRAM" in
-    "WezTerm")
-        export TERM="wezterm"
-        ;;
-    "iTerm.app")
-        export TERM="xterm-256color"
-        ;;
-    "Apple_Terminal")
-        export TERM="xterm-256color"
-        ;;
-esac
+if (( $+SSH_CLIENT )) || (( $+SSH_TTY )); then
+    export TERM=screen-256color
+else
+    case "$TERM_PROGRAM" in
+        "WezTerm")
+            export TERM="wezterm"
+            ;;
+        "iTerm.app")
+            export TERM="xterm-256color"
+            ;;
+        "Apple_Terminal")
+            export TERM="xterm-256color"
+            ;;
+    esac
+fi
 [ -n "$TMUX" ] && export TERM=screen-256color
 
 # pager
