@@ -298,24 +298,22 @@ if lvim.builtin.telescope then
         pcall(telescope.load_extension, "media_files")
     end
 
-    local image_preview = require("image_preview")
+    -- 安全地尝试加载 image_preview
+    local has_image_preview, image_preview = pcall(require, "image_preview")
     local image_extensions = { "png", "jpg", "jpeg", "gif", "bmp", "svg", "webp" }
+
     lvim.builtin.telescope.defaults.preview = {
         mime_hook = function(filepath, bufnr, opts)
-            -- 支持的图片格式
-            -- local image_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'webp'}
             local ext = vim.fn.fnamemodify(filepath, ":e"):lower()
 
-            if vim.tbl_contains(image_extensions, ext) then
-                -- 关键：调用 image_preview 显示图片
-                -- 这会直接在 WezTerm 中渲染图像
+            if has_image_preview and vim.tbl_contains(image_extensions, ext) then
+                -- 调用 image_preview 显示图片（仅在插件可用时）
                 image_preview.PreviewImage(filepath)
-
-                -- 阻止 Telescope 默认预览（避免乱码）
+                -- 阻止 Telescope 默认预览
                 return false
             end
 
-            -- 非图片文件使用默认预览
+            -- 非图片文件或插件不可用时使用默认预览
             return true
         end,
 
