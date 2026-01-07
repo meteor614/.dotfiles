@@ -34,10 +34,10 @@ alias 。。=..
 
 if type eza>/dev/null 2>&1; then
     alias ls='eza'
-    alias ll='eza -l'
-    alias l='eza -l'
-    alias la='eza -la'
-    alias k='eza -l'
+    alias ll='eza -l --icons'
+    alias l='eza -l --icons'
+    alias la='eza -la --icons'
+    alias k='eza -l --icons'
 else
     alias ll='ls -lh'
     alias l='ls -l'
