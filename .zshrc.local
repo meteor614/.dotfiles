@@ -222,9 +222,10 @@ function vpip() {
         pip3 "$@"
     fi
 }
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # type conda >/dev/null 2>&1 && conda activate py311
 
 export DISABLE_VERSION_CHECK=1
 # export PATH="/Users/meteorchen/miniconda3/bin:$PATH"
-export API_KEY="sk-kimi-WgAI65HmnEInOEuAAUnLRgL3dfkDX0xPecuHIUWDGTZTc4KcATaVUMiwsVXCFg14"
