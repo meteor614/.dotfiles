@@ -398,7 +398,7 @@ lvim.plugins = {
         event = "InsertEnter",
     },
     {
-        "norcalli/nvim-colorizer.lua",
+        "NvChad/nvim-colorizer.lua",
         config = function()
             require("colorizer").setup({ "*" }, {
                 RGB = true, -- #RGB hex codes
