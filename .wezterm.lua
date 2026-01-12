@@ -10,6 +10,8 @@ return {
 
     automatically_reload_config = true,
 
+    scrollback_lines = 5000,
+
     -- set_environment_variables = { TERM_PROGRAM = 'alacritty' },
     -- color_scheme = 'AdventureTime',
 
@@ -23,6 +25,9 @@ return {
     freetype_load_flags = "NO_HINTING",
 
     window_background_opacity = 0.8,
+    macos_window_background_blur = 20,
+    window_decorations = "RESIZE",
+    native_macos_fullscreen_mode = true,
 
     audible_bell = 'Disabled',
 
