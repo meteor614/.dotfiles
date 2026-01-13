@@ -147,9 +147,6 @@ if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
 fi
 [ -d /usr/local/opt/findutils/libexec/gnubin ] && path_prepend /usr/local/opt/findutils/libexec/gnubin
 [ -d /usr/local/opt/gnu-getopt/bin ] && path_prepend /usr/local/opt/gnu-getopt/bin
-# if type npm >/dev/null 2>&1 && [ -d `npm config get prefix`/bin ]; then
-#     export PATH="`npm config get prefix`/bin:$PATH"
-# fi
 [ -d /opt/homebrew/bin ] && path_prepend /opt/homebrew/bin
 
 [ -d "$HOME/bin" ] && path_append "$HOME/bin"
@@ -181,7 +178,8 @@ fi
 _gem_bin_cache="$HOME/.zsh_cache/.gem_bin_path"
 if type gem >/dev/null 2>&1 && ! type tmuxinator >/dev/null 2>&1; then
     if [ -f "$_gem_bin_cache" ]; then
-        export PATH="$PATH:$(cat "$_gem_bin_cache")"
+        # export PATH="$PATH:$(cat "$_gem_bin_cache")"
+        path_append "$(cat "$_gem_bin_cache")"
     else
         _gem_bin="$(gem environment | grep 'EXECUTABLE DIRECTORY' | awk -F': ' '{print $2}')"
         [ -n "$_gem_bin" ] && echo "$_gem_bin" > "$_gem_bin_cache" && path_append "$_gem_bin"
