@@ -253,17 +253,17 @@ if lvim.builtin.treesitter then
     lvim.builtin.treesitter.ensure_installed = { "lua", "vimdoc", "awk", "bash", "cmake", "c", "cpp", "css", "dockerfile", "diff", "gitcommit", "go", "http", "java", "javascript", "jq", "json", "json5", "make", "markdown", "perl", "python", "typescript", "vim", "yaml"}
     lvim.builtin.treesitter.ignore_install = { "haskell", "html" }
     lvim.builtin.treesitter.highlight.enable = true
-    lvim.builtin.treesitter.rainbow.enable = true
-    lvim.builtin.treesitter.rainbow.extended_mode = true
-    lvim.builtin.treesitter.rainbow.max_file_lines = nil
+    -- lvim.builtin.treesitter.rainbow.enable = true
+    -- lvim.builtin.treesitter.rainbow.extended_mode = true
+    -- lvim.builtin.treesitter.rainbow.max_file_lines = nil
     lvim.builtin.treesitter.matchup.enable = true
     lvim.builtin.treesitter.autotag.enable = true
 end
 
-if lvim.builtin.compe then
-    lvim.builtin.compe.autocomplete = true
-    lvim.builtin.compe.source.nvim_lua = true
-end
+-- if lvim.builtin.compe then
+--     lvim.builtin.compe.autocomplete = true
+--     lvim.builtin.compe.source.nvim_lua = true
+-- end
 
 if lvim.lazy.opts then
     lvim.lazy.opts.git = {
@@ -350,7 +350,7 @@ vim.cmd 'command! -nargs=0 LspVirtualTextToggle lua require("lsp/virtual_text").
 -- 屏蔽 warning
 local original_notify = vim.notify
 vim.notify = function(msg, ...)
-  if msg:match("multiple different client offset_encodings") then
+  if type(msg) == "string" and msg:match("multiple different client offset_encodings") then
     return
   end
   original_notify(msg, ...)

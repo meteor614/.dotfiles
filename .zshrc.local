@@ -19,7 +19,7 @@ bindkey '\e[1;3D' backward-word       # ALT+左键：向后跳一个单词
 bindkey '\e[1;3C' forward-word        # ALT+右键：前跳一个单词
 bindkey '\e[1;3A' beginning-of-line   # ALT+上键：跳到行首
 bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
-bindkey '\ev' deer
+type deer >/dev/null 2>&1 && bindkey '\ev' deer
 
 # PATH 去重辅助函数
 path_prepend() { [[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
@@ -67,9 +67,9 @@ fi
 [ -d /usr/local/opt/ruby/bin ] && path_prepend /usr/local/opt/ruby/bin
 
 # fzf
-if [ -z $FZF_DEFAULT_COMMAND ]; then
+if [[ -z ${FZF_DEFAULT_COMMAND-} ]]; then
     if type rg>/dev/null 2>&1; then
-        export FZF_DEFAULT_COMMAND='rg -i -g "" --files'
+        export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git/*'"
     elif type ag>/dev/null 2>&1; then
         export FZF_DEFAULT_COMMAND='ag -g ""'
     elif type fd>/dev/null 2>&1; then
@@ -222,6 +222,18 @@ function vpip() {
 }
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# if type npm >/dev/null 2>&1; then
+#     _npm_bin_cache="$HOME/.zsh_cache/.npm_bin_path"
+#     if [ -f "$_npm_bin_cache" ]; then
+#         path_append $(cat "$_npm_bin_cache")
+#         # export PATH="$PATH:$(cat "$_npm_bin_cache")"
+#     else
+#         _npm_bin=`npm config get prefix`/bin
+#         [ -n "$_npm_bin" ] && echo "$_npm_bin" > "$_npm_bin_cache" && path_append "$_npm_bin"
+#         unset _npm_bin
+#     fi
+#     unset _npm_bin_cache
+# fi
 
 # type conda >/dev/null 2>&1 && conda activate py311
 
