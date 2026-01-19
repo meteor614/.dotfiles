@@ -1,28 +1,36 @@
 #!/bin/bash
 
-begin=`date "+%s"`
+set -o pipefail
 
-type parallel &>/dev/null 2>&1 || alias parallel='xargs -P 16'
+begin=$(date +%s)
+
+have_cmd() {
+    command -v "$1" &>/dev/null
+}
+
+parallel_cmd() {
+    xargs -P 16 "$@"
+}
 
 # os package manager
 {
-    if type brew &>/dev/null; then
+    if have_cmd brew; then
         export HOMEBREW_INSTALL_CLEANUP=1
         brew update
         brew upgrade
         brew cleanup
         echo "brew update finish"
-    elif type apt &>/dev/null; then
+    elif have_cmd apt; then
         sudo apt update
         sudo apt upgrade -y
         sudo apt-get clean
-        sudo apt autoremove
+        sudo apt autoremove -y
         echo "apt update finish"
-    elif type yum &>/dev/null; then
+    elif have_cmd yum; then
         sudo yum -y update
-        sudo yum clean
+        sudo yum clean all
         echo "yum update finish"
-    elif type ipkg &>/dev/null; then
+    elif have_cmd ipkg; then
         sudo ipkg update
         sudo ipkg upgrade
         echo "ipkg update finish"
@@ -62,9 +70,9 @@ type parallel &>/dev/null 2>&1 || alias parallel='xargs -P 16'
 # }&
 
 # ruby modules
-if type gem &>/dev/null; then
+if have_cmd gem; then
     {
-        if type brew &>/dev/null; then
+        if have_cmd brew; then
             gem update -f
             gem cleanup
         else
@@ -76,12 +84,12 @@ if type gem &>/dev/null; then
 fi
 
 # node.js modules
-if type npm &>/dev/null; then
+if have_cmd npm; then
     {
-        if type brew &>/dev/null; then
-            sudo npm install -g npm --force
-            sudo npm update
-            sudo npm --force cache clean
+        if have_cmd brew; then
+            npm install -g npm --force
+            npm update
+            npm --force cache clean
         else
             sudo npm install -g npm
             sudo npm update
@@ -108,14 +116,14 @@ if [ -d ~/voltron ]; then
 fi
 
 # perl modules
-if type cpan &>/dev/null; then
+if have_cmd cpan; then
     {
         sudo cpan -u -T
         echo "cpan upgrade finish"
     }&
 fi
 
-if [ x$1 = xall ]; then
+if [ "${1:-}" = "all" ]; then
     # python modules
     # if type python3 &>/dev/null && type python2 &>/dev/null; then
     #     {
@@ -144,14 +152,7 @@ if [ x$1 = xall ]; then
 fi
 
 # zsh plugins
-if type zsh &>/dev/null; then
-    # oh-my-zsh
-    if [ -f ~/.oh-my-zsh/tools/upgrade.sh ]; then
-        {
-            source ~/.oh-my-zsh/tools/upgrade.sh
-            echo "oh my zsh upgrade finish"
-        }&
-    fi
+if have_cmd zsh; then
     zsh -ic "omz update"
 
     # antigen
@@ -168,7 +169,7 @@ if [ -d ~/.dotfiles ]; then
     }&
 fi
 
-if type lvim &>/dev/null; then
+if have_cmd lvim; then
     {
         cd ~/.local/share/lunarvim/lvim && git pull
         lvim +LvimUpdate +qall
@@ -178,7 +179,7 @@ if type lvim &>/dev/null; then
     }&
 fi
 # vim plugins
-if type vim &>/dev/null; then
+if have_cmd vim; then
     vim -c PlugUpgrade -c qa
     vim -c PlugInstall -c PlugUpdate -c qa
     if [ -d ~/.vim/plugged/coc.nvim ]; then
@@ -188,6 +189,5 @@ if type vim &>/dev/null; then
 fi
 
 wait
-end=`date "+%s"`
-echo "used `expr $end - $begin` seconds"
-
+end=$(date +%s)
+echo "used $((end - begin)) seconds"
