@@ -56,6 +56,10 @@ if [ ! -d ~/.config/lvim ]; then
     lvim +TSUpdateSync +q
     lvim +LvimSyncCorePlugins +qa
 fi
+mkdir -p ~/.config/nvim/lua
+if [ ! -e ~/.config/nvim/lua/config ]; then
+    ln -s ${script_path}/.config/nvim/lua/config ~/.config/nvim/lua/config
+fi
 
 # for tmuxinator
 test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
