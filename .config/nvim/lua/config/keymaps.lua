@@ -62,6 +62,12 @@ map("v", ">", ">gv", with_desc("Indent right", silent))
 
 map("n", "<leader>o", "<leader>cs", with_desc("LSP: Code actions", { remap = true, silent = true }))
 map("v", "<leader>/", "gc", with_desc("Comment selection", { remap = true, silent = true }))
+map("n", "<leader>j", function()
+  vim.diagnostic.goto_next()
+end, with_desc("Next diagnostic", silent))
+map("n", "<leader>k", function()
+  vim.diagnostic.goto_prev()
+end, with_desc("Prev diagnostic", silent))
 
 map("n", "<C-p>", require("lazyvim.util").pick("files"), with_desc("Find files", silent))
 
