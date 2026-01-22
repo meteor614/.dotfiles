@@ -189,11 +189,12 @@ fi
 unset _gem_bin_cache
 type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 type make >/dev/null 2>&1 && alias mak='make -j 16'
-if type lvim >/dev/null 2>&1; then
-    alias vim='lvim'
-else
-    type nvim >/dev/null 2>&1 && alias vim='nvim'
-fi
+# if type lvim >/dev/null 2>&1; then
+#     alias vim='lvim'
+# else
+#     type nvim >/dev/null 2>&1 && alias vim='nvim'
+# fi
+type nvim >/dev/null 2>&1 && alias vim='nvim'
 type watch >/dev/null 2>&1 && alias watch='watch -c'
 type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
 type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
