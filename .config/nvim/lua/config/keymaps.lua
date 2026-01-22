@@ -60,7 +60,7 @@ map("n", "zr", "zR", with_desc("Open all folds", silent))
 map("v", "<", "<gv", with_desc("Indent left", silent))
 map("v", ">", ">gv", with_desc("Indent right", silent))
 
-map("n", "<leader>o", "<leader>cs", with_desc("LSP: Code actions", { remap = true, silent = true }))
+map("n", "<leader>o", "<leader>cs", with_desc("Toggle Outline", { remap = true, silent = true }))
 map("v", "<leader>/", "gc", with_desc("Comment selection", { remap = true, silent = true }))
 map("n", "<leader>j", function()
   vim.diagnostic.goto_next()
