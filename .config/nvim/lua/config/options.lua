@@ -84,3 +84,5 @@ vim.opt.maxmempattern = 2000000
 vim.opt.pumheight = 50
 vim.opt.timeoutlen = 100
 vim.opt.inccommand = "split"
+
+vim.g.autoformat = false
