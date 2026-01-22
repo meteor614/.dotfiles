@@ -59,6 +59,7 @@ fi
 mkdir -p ~/.config/nvim/lua
 if [ ! -e ~/.config/nvim/lua/config ]; then
     ln -s ${script_path}/.config/nvim/lua/config ~/.config/nvim/lua/config
+    ln -s ${script_path}/.config/nvim/lua/plugins ~/.config/nvim/lua/plugins
 fi
 
 # for tmuxinator
