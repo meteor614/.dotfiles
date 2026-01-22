@@ -68,6 +68,12 @@ end, with_desc("Next diagnostic", silent))
 map("n", "<leader>k", function()
   vim.diagnostic.goto_prev()
 end, with_desc("Prev diagnostic", silent))
+map("n", "<leader>gj", function()
+  require("gitsigns").next_hunk()
+end, with_desc("Next git hunk", silent))
+map("n", "<leader>gk", function()
+  require("gitsigns").prev_hunk()
+end, with_desc("Prev git hunk", silent))
 
 map("n", "<C-p>", require("lazyvim.util").pick("files"), with_desc("Find files", silent))
 
