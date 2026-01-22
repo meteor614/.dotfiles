@@ -66,11 +66,11 @@ map("v", "<leader>/", "gc", with_desc("Comment selection", { remap = true, silen
 map("n", "<C-p>", require("lazyvim.util").pick("files"), with_desc("Find files", silent))
 
 map({ "n", "t" }, "<A-b>", function()
-  Snacks.terminal(nil, { cwd = LazyVim.root() })
-end, with_desc("Terminal (Root Dir)", silent))
+  Snacks.terminal(nil, { cwd = LazyVim.root(), count = 1, win = { position = "bottom" } })
+end, with_desc("Terminal (Root Dir, Bottom)", silent))
 
 map({ "n", "t" }, "<A-v>", function()
-  Snacks.terminal(nil, { cwd = LazyVim.root(), win = { position = "right" } })
+  Snacks.terminal(nil, { cwd = LazyVim.root(), count = 2, win = { position = "right" } })
 end, with_desc("Terminal (Root Dir, Right)", silent))
 
 map("n", "<Tab>", ":bnext<CR>", with_desc("Next buffer", nosilent))
