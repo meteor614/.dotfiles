@@ -5,179 +5,172 @@ set -o pipefail
 begin=$(date +%s)
 
 have_cmd() {
-    command -v "$1" &>/dev/null
+    command -v "$1" >/dev/null 2>&1
 }
 
-parallel_cmd() {
-    xargs -P 16 "$@"
+log() {
+    printf '%s\n' "$1"
 }
 
-# os package manager
-{
+update_pkg_manager() {
     if have_cmd brew; then
         export HOMEBREW_INSTALL_CLEANUP=1
         brew update
         brew upgrade
         brew cleanup
-        echo "brew update finish"
+        log "brew update finish"
     elif have_cmd apt; then
         sudo apt update
         sudo apt upgrade -y
         sudo apt-get clean
         sudo apt autoremove -y
-        echo "apt update finish"
+        log "apt update finish"
     elif have_cmd yum; then
         sudo yum -y update
         sudo yum clean all
-        echo "yum update finish"
+        log "yum update finish"
     elif have_cmd ipkg; then
         sudo ipkg update
         sudo ipkg upgrade
-        echo "ipkg update finish"
+        log "ipkg update finish"
     else
-        #sudo dnf upgrade 
+        #sudo dnf upgrade
         #sudo pkg upgrade
-        echo "update command not found"
+        log "update command not found"
     fi
-}&
+}
 
-# python modules
-# {
-#     if type python3 &>/dev/null; then
-#         if type brew &>/dev/null; then
-#             python3 -m pip install --upgrade pip
-#             #python3 -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python3 -m pip install --upgrade
-#             python3 -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python3 -m pip install --upgrade
-#         else
-#             python3 -m pip install --upgrade pip
-#             #sudo python3 -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python3 -m pip install --upgrade
-#             python3 -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python3 -m pip install --upgrade
-#         fi
-#         echo "pip3 upgrade finish"
-#     elif type python &>/dev/null; then
-#         if type brew &>/dev/null; then
-#             python -m pip install --upgrade pip
-#             #python -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python -m pip install --upgrade
-#             python -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python -m pip install --upgrade
-#         else
-#             sudo python -m pip install --upgrade pip
-#             #sudo python -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 sudo python -m pip install --upgrade
-#             sudo python -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 sudo python -m pip install --upgrade
-#         fi
-#         #wait
-#         echo "pip upgrade finish"
-#     fi
-# }&
+update_gem() {
+    if ! have_cmd gem; then
+        return 0
+    fi
 
-# ruby modules
-if have_cmd gem; then
-    {
-        if have_cmd brew; then
-            gem update -f
-            gem cleanup
-        else
-            sudo gem update -f
-            sudo gem cleanup
-        fi
-        echo "gem upgrade finish"
-    }&
-fi
+    if have_cmd brew; then
+        gem update -f
+        gem cleanup
+    else
+        sudo gem update -f
+        sudo gem cleanup
+    fi
+    log "gem upgrade finish"
+}
 
-# node.js modules
-if have_cmd npm; then
-    {
-        if have_cmd brew; then
-            npm install -g npm --force
-            npm update
-            npm --force cache clean
-        else
-            sudo npm install -g npm
-            sudo npm update
-            sudo npm --force cache clean
-        fi
-        echo "npm upgrade finish"
-    }&
-fi
+update_npm() {
+    if ! have_cmd npm; then
+        return 0
+    fi
 
-# update gdb-dashboard from github
-if [ -d ~/gdb-dashboard ]; then
-    {
-        cd ~/gdb-dashboard
-        git pull --no-rebase 
-    }&
-fi
+    if have_cmd brew; then
+        npm install -g npm --force
+        npm update
+        npm --force cache clean
+    else
+        sudo npm install -g npm
+        sudo npm update
+        sudo npm --force cache clean
+    fi
+    log "npm upgrade finish"
+}
 
-# update voltron from github
-if [ -d ~/voltron ]; then
-    {
-        cd ~/voltron
+update_git_repo() {
+    local repo=$1
+    shift
+
+    if [ ! -d "$repo" ]; then
+        return 0
+    fi
+
+    (
+        cd "$repo" && "$@"
+    )
+}
+
+update_dotfiles_repo() {
+    if [ ! -d "$HOME/.dotfiles" ]; then
+        return 0
+    fi
+
+    (
+        cd "$HOME/.dotfiles"
         git pull --no-rebase
-    }&
-fi
+        "$HOME/.dotfiles/setup.sh"
+        log ".dotfiles update finish"
+    )
+}
 
-# perl modules
-if have_cmd cpan; then
-    {
-        sudo cpan -u -T
-        echo "cpan upgrade finish"
-    }&
-fi
-
-if [ "${1:-}" = "all" ]; then
-    # python modules
-    # if type python3 &>/dev/null && type python2 &>/dev/null; then
-    #     {
-    #         if type brew &>/dev/null; then
-    #             python2 -m pip install --upgrade pip
-    #             #python2 -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python2 -m pip install --upgrade
-    #             python2 -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python2 -m pip install --upgrade
-    #         else
-    #             sudo python2 -m pip install --upgrade pip
-    #             #sudo python2 -m pip list --outdated|awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 python2 -m pip install --upgrade
-    #             sudo python2 -m pip list |awk -F ' ' '{if ($2 ~ "[0-9].*") {print $1}}' | parallel -P 16 sudo python2 -m pip install --upgrade
-    #         fi
-    #         echo "pip2 upgrade finish"
-    #     }&
-    # fi
-
-    # update .dotfiles
-    if [ -d ~/.dotfiles ]; then
-        {
-            cd ~/.dotfiles
-            git pull --no-rebase
-            ~/.dotfiles/setup.sh
-            echo ".dotfiles update finish"
-        }&
+update_zsh_plugins() {
+    if ! have_cmd zsh; then
+        return 0
     fi
-fi
 
-# zsh plugins
-if have_cmd zsh; then
     zsh -ic "omz update"
 
-    # antigen
-    if [ -f ~/.antigen/init.zsh ]; then
-        zsh  -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish" }' &
+    if [ -f "$HOME/.antigen/init.zsh" ]; then
+        zsh -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish"; }'
     fi
-fi
+}
 
-if [ -d ~/.dotfiles ]; then
-    {
-        cd ~/.dotfiles
+update_submodules() {
+    if [ ! -d "$HOME/.dotfiles" ]; then
+        return 0
+    fi
+
+    (
+        cd "$HOME/.dotfiles"
         git submodule update --remote
-        echo ".dotfiles submodule update finish"
-    }&
-fi
+        log ".dotfiles submodule update finish"
+    )
+}
 
-if have_cmd lvim; then
-    {
-        cd ~/.local/share/lunarvim/lvim && git pull
+update_lvim() {
+    if ! have_cmd lvim; then
+        return 0
+    fi
+
+    (
+        cd "$HOME/.local/share/lunarvim/lvim" && git pull
         lvim +LvimUpdate +qall
         lvim +TSUpdateSync +qall
         lvim +LvimSyncCorePlugins +qa
-        echo "lvim PlugUpdate finish"
-    }&
+        log "lvim PlugUpdate finish"
+    )
+}
+
+# os package manager
+update_pkg_manager &
+
+# ruby modules
+update_gem &
+
+# node.js modules
+update_npm &
+
+# update gdb-dashboard from github
+update_git_repo "$HOME/gdb-dashboard" git pull --no-rebase &
+
+# update voltron from github
+update_git_repo "$HOME/voltron" git pull --no-rebase &
+
+# perl modules
+if have_cmd cpan; then
+    (
+        sudo cpan -u -T
+        log "cpan upgrade finish"
+    ) &
 fi
+
+if [ "${1:-}" = "all" ]; then
+    # update .dotfiles
+    update_dotfiles_repo &
+fi
+
+# zsh plugins
+update_zsh_plugins
+
+update_submodules &
+
+update_lvim &
+
 # vim plugins
 # if have_cmd vim; then
 #     vim -c PlugUpgrade -c qa
@@ -190,4 +183,4 @@ fi
 
 wait
 end=$(date +%s)
-echo "used $((end - begin)) seconds"
+log "used $((end - begin)) seconds"
