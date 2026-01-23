@@ -17,8 +17,8 @@ script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
 echo -e '\033[31mInit dotfiles...\033[0m'
 cd ~
 files=($(ls -FA ${script_path}|grep '^\..*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
-for i in ${files[@]}; do
-    test -e ${i} || ln -s ${script_path}/${i}
+for i in "${files[@]}"; do
+    test -e "${i}" || ln -s "${script_path}/${i}" "${i}"
 done
 
 # for .aria2
@@ -47,34 +47,41 @@ for i in ${files[@]}; do
 done
 
 # for neovim
-if [ ! -d ~/.config/lvim ]; then
-    bash <(curl -s https://raw.githubusercontent.com/lunarvim/lunarvim/master/utils/installer/install.sh)
-    rm ~/.config/lvim/config.lua
-    ln -s ${script_path}/.config/lvim/config.lua ~/.config/lvim/config.lua
-    lvim +LvimUpdate +q
-    lvim +TSInstallSync +q
-    lvim +TSUpdateSync +q
-    lvim +LvimSyncCorePlugins +qa
-fi
-mkdir -p ~/.config/nvim/lua
+# if [ ! -d ~/.config/lvim ]; then
+#     bash <(curl -s https://raw.githubusercontent.com/lunarvim/lunarvim/master/utils/installer/install.sh)
+#     rm ~/.config/lvim/config.lua
+#     ln -s ${script_path}/.config/lvim/config.lua ~/.config/lvim/config.lua
+#     lvim +LvimUpdate +q
+#     lvim +TSInstallSync +q
+#     lvim +TSUpdateSync +q
+#     lvim +LvimSyncCorePlugins +qa
+# fi
+# install LazyVim
 if [ ! -e ~/.config/nvim/lua/config ]; then
-    ln -s ${script_path}/.config/nvim/lua/config ~/.config/nvim/lua/config
-    ln -s ${script_path}/.config/nvim/lua/plugins ~/.config/nvim/lua/plugins
+    mv ~/.config/nvim ~/.config/nvim.bak
+    mv ~/.local/share/nvim ~/.local/share/nvim.bak
+    mv ~/.cache/nvim ~/.cache/nvim.bak
+    git clone https://github.com/LazyVim/starter ~/.config/nvim
+    rm -rf ~/.config/nvim/.git
+    rm -f ~/.config/nvim/lua/config
+    rm -rf ~/.config/nvim/lua/plugins
+    ln -s "${script_path}/.config/nvim/lua/config ~/.config/nvim/lua/config" configs
+    ln -s "${script_path}/.config/nvim/lua/plugins ~/.config/nvim/lua/plugins" plugins
 fi
 
 # for tmuxinator
-test -e ~/.tmuxinator || ln -s ${script_path}/tmuxinator ~/.tmuxinator  # for linux
+test -e ~/.tmuxinator || ln -s "${script_path}/tmuxinator" ~/.tmuxinator  # for linux
 # for tmux
 cd ~
-ln -s ${script_path}/.tmux/.tmux.conf
+ln -s "${script_path}/.tmux/.tmux.conf" .tmux.conf
 
 # ipython settings
-if type ipython &>/dev/null; then
-    if [ ! -e ~/.ipython/profile_default/ipython_config.py ] || [ x$(grep  'c\.InteractiveShellApp\.matplotlib[ \t]*=' ~/.ipython/profile_default/ipython_config.py -c) != x1 ]; then
-        mkdir -p ~/.ipython/profile_default
-        echo "c.InteractiveShellApp.matplotlib = 'inline'" >> ~/.ipython/profile_default/ipython_config.py
-    fi
-fi
+# if type ipython &>/dev/null; then
+#     if [ ! -e ~/.ipython/profile_default/ipython_config.py ] || [ x$(grep  'c\.InteractiveShellApp\.matplotlib[ \t]*=' ~/.ipython/profile_default/ipython_config.py -c) != x1 ]; then
+#         mkdir -p ~/.ipython/profile_default
+#         echo "c.InteractiveShellApp.matplotlib = 'inline'" >> ~/.ipython/profile_default/ipython_config.py
+#     fi
+# fi
 
 # git mirrors
 # git config --global url."https://hub.fastgit.org".insteadOf https://github.com
@@ -118,7 +125,7 @@ if type gem &>/dev/null; then
 fi
 
 # for coc.nvim
-test -e ~/.vim/coc-settings.json || ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
+# test -e ~/.vim/coc-settings.json || ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
 if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
     brew install cquery
 fi
@@ -163,16 +170,16 @@ if type luarocks &>/dev/null && ! type lua-lsp &>/dev/null; then
     luarocks install --server=http://luarocks.org/dev lua-lsp &
 fi
 # go
-if type go &>/dev/null && ! type go-langserver &>/dev/null; then
-    {
-        go get -u github.com/sourcegraph/go-langserver
-        go get -u -v github.com/mdempsky/gocode
-        go get -u -v github.com/golang/lint/golint
-        go get -u -v golang.org/x/tools/cmd/guru
-        go get -u -v golang.org/x/tools/cmd/goimports
-        go get -u -v golang.org/x/tools/cmd/gorename
-    }&
-fi
+# if type go &>/dev/null && ! type go-langserver &>/dev/null; then
+#     {
+#         go get -u github.com/sourcegraph/go-langserver
+#         go get -u -v github.com/mdempsky/gocode
+#         go get -u -v github.com/golang/lint/golint
+#         go get -u -v golang.org/x/tools/cmd/guru
+#         go get -u -v golang.org/x/tools/cmd/goimports
+#         go get -u -v golang.org/x/tools/cmd/gorename
+#     }&
+# fi
 
 echo -e '\033[33mInit dotfiles finish.\033[0m'
 

@@ -179,14 +179,14 @@ if have_cmd lvim; then
     }&
 fi
 # vim plugins
-if have_cmd vim; then
-    vim -c PlugUpgrade -c qa
-    vim -c PlugInstall -c PlugUpdate -c qa
-    if [ -d ~/.vim/plugged/coc.nvim ]; then
-        vim -c CocUpdateSync -c qa
-    fi
-    echo "vim PlugUpdate finish"
-fi
+# if have_cmd vim; then
+#     vim -c PlugUpgrade -c qa
+#     vim -c PlugInstall -c PlugUpdate -c qa
+#     if [ -d ~/.vim/plugged/coc.nvim ]; then
+#         vim -c CocUpdateSync -c qa
+#     fi
+#     echo "vim PlugUpdate finish"
+# fi
 
 wait
 end=$(date +%s)
