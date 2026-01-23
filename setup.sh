@@ -1,50 +1,72 @@
 #!/bin/bash
 
-begin=`date "+%s"`
-os=$(uname|tr '[:upper:]' '[:lower:]')
-script_path=$(cd $(dirname "${bash_source-$0}") && pwd)
+begin=$(date "+%s")
+os=$(uname | tr '[:upper:]' '[:lower:]')
+script_path="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+red() { printf '\033[31m%s\033[0m\n' "$1"; }
+yellow() { printf '\033[33m%s\033[0m\n' "$1"; }
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
+ensure_link() {
+    local src=$1
+    local dst=$2
+
+    if [ -L "$dst" ]; then
+        local current
+        current=$(readlink "$dst" 2>/dev/null || true)
+        if [ "$current" = "$src" ]; then
+            return 0
+        fi
+    fi
+    if [ -e "$dst" ]; then
+        echo "skip $dst (exists)"
+        return 0
+    fi
+    ln -s "$src" "$dst"
+}
 
 # update submodule
 {
-    echo -e '\033[31mUpdate submodules...\033[0m'
-    cd ${script_path}
-    git submodule update --init --recursive 
+    red 'Update submodules...'
+    cd "${script_path}"
+    git submodule update --init --recursive
     git submodule update --remote
-    echo -e '\033[33mUpdate submodules finish.\033[0m'
+    yellow 'Update submodules finish.'
 }&
 
 # for .* file only
-echo -e '\033[31mInit dotfiles...\033[0m'
+red 'Init dotfiles...'
 cd ~
-files=($(ls -FA ${script_path}|grep '^\..*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
-for i in "${files[@]}"; do
-    test -e "${i}" || ln -s "${script_path}/${i}" "${i}"
-done
+while IFS= read -r -d '' file; do
+    base=$(basename "$file")
+    ensure_link "$file" "$HOME/$base"
+done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
 
 # for .aria2
-test -e .aria2 || ln -s ${script_path}/.aria2
+ensure_link "${script_path}/.aria2" "$HOME/.aria2"
 
 # for .pip
-test -e .pip || ln -s ${script_path}/.pip
+ensure_link "${script_path}/.pip" "$HOME/.pip"
 
 # for .config
-test -e ~/.config || mkdir ~/.config
-files=($(ls -A ${script_path}/.config|grep '.*[^/]$'|grep -v '^\.gitmodules$'|grep -v '\.zwc$'|grep -v '^nvim$'))
-for i in ${files[@]}; do
-    if [ -L ${script_path}/.config/${i} ]; then
-        echo "skip .config/${i}"
-    elif [ -d ${script_path}/.config/${i} ]; then
-        test -e ~/.config/${i} || mkdir ~/.config/${i}
-        cd ~/.config/${i}
-        files2=($(ls -A ${script_path}/.config/${i}|grep -v '^\.gitmodules$'|grep -v '\.zwc$'))
-        for j in ${files2[@]}; do
-            test -e ${j} || ln -s ${script_path}/.config/${i}/${j}
-        done
-    else
-        cd ~/.config
-        test -e ${i} || ln -s ${script_path}/.config/${i}
+ensure_dir "$HOME/.config"
+while IFS= read -r -d '' entry; do
+    name=$(basename "$entry")
+    if [ -L "$entry" ]; then
+        echo "skip .config/$name"
+        continue
     fi
-done
+    if [ -d "$entry" ]; then
+        ensure_dir "$HOME/.config/$name"
+        while IFS= read -r -d '' child; do
+            child_name=$(basename "$child")
+            ensure_link "$child" "$HOME/.config/$name/$child_name"
+        done < <(find "$entry" -maxdepth 1 -mindepth 1 ! -name ".gitmodules" ! -name "*.zwc" -print0)
+    else
+        ensure_link "$entry" "$HOME/.config/$name"
+    fi
+done < <(find "$script_path/.config" -maxdepth 1 -mindepth 1 ! -name ".gitmodules" ! -name "*.zwc" ! -name "nvim" -print0)
 
 # for neovim
 # if [ ! -d ~/.config/lvim ]; then
@@ -57,23 +79,29 @@ done
 #     lvim +LvimSyncCorePlugins +qa
 # fi
 # install LazyVim
-if [ ! -e ~/.config/nvim/lua/config ]; then
-    mv ~/.config/nvim ~/.config/nvim.bak
-    mv ~/.local/share/nvim ~/.local/share/nvim.bak
-    mv ~/.cache/nvim ~/.cache/nvim.bak
-    git clone https://github.com/LazyVim/starter ~/.config/nvim
-    rm -rf ~/.config/nvim/.git
-    rm -f ~/.config/nvim/lua/config
-    rm -rf ~/.config/nvim/lua/plugins
-    ln -s "${script_path}/.config/nvim/lua/config ~/.config/nvim/lua/config" configs
-    ln -s "${script_path}/.config/nvim/lua/plugins ~/.config/nvim/lua/plugins" plugins
+if [ ! -e "$HOME/.config/nvim/lua/config" ]; then
+    if [ -d "$HOME/.config/nvim" ]; then
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.bak"
+    fi
+    if [ -d "$HOME/.local/share/nvim" ]; then
+        mv "$HOME/.local/share/nvim" "$HOME/.local/share/nvim.bak"
+    fi
+    if [ -d "$HOME/.cache/nvim" ]; then
+        mv "$HOME/.cache/nvim" "$HOME/.cache/nvim.bak"
+    fi
+    git clone https://github.com/LazyVim/starter "$HOME/.config/nvim"
+    rm -rf "$HOME/.config/nvim/.git"
+    rm -rf "$HOME/.config/nvim/lua/config"
+    rm -rf "$HOME/.config/nvim/lua/plugins"
+    ensure_link "$script_path/.config/nvim/lua/config" "$HOME/.config/nvim/lua/config"
+    ensure_link "$script_path/.config/nvim/lua/plugins" "$HOME/.config/nvim/lua/plugins"
 fi
 
 # for tmuxinator
-test -e ~/.tmuxinator || ln -s "${script_path}/tmuxinator" ~/.tmuxinator  # for linux
+ensure_link "${script_path}/tmuxinator" "$HOME/.tmuxinator"  # for linux
 # for tmux
 cd ~
-ln -s "${script_path}/.tmux/.tmux.conf" .tmux.conf
+ensure_link "${script_path}/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 
 # ipython settings
 # if type ipython &>/dev/null; then
@@ -87,8 +115,8 @@ ln -s "${script_path}/.tmux/.tmux.conf" .tmux.conf
 # git config --global url."https://hub.fastgit.org".insteadOf https://github.com
 
 # brew
-if ! type brew &>/dev/null && [ "$os" = "darwin" ]; then
-    echo -e '\033[31mInstall brew...\033[0m'
+if ! command_exists brew && [ "$os" = "darwin" ]; then
+    red 'Install brew...'
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     brew tap Homebrew/homebrew-cask
     brew tap Homebrew/homebrew-cask-fonts
@@ -96,7 +124,7 @@ if ! type brew &>/dev/null && [ "$os" = "darwin" ]; then
 fi
 
 # brew mirrors
-if type brew &>/dev/null && type git &>/dev/null; then
+if command_exists brew && command_exists git; then
     #git -C "$(brew --repo)" remote set-url origin https://github.com/homebrew/brew.git
     #git -C "$(brew --repo homebrew/core)" remote set-url origin https://github.com/Homebrew/homebrew-core.git
     #git -C "$(brew --repo homebrew/cask)" remote set-url origin https://github.com/homebrew/homebrew-cask.git
@@ -181,17 +209,17 @@ fi
 #     }&
 # fi
 
-echo -e '\033[33mInit dotfiles finish.\033[0m'
+yellow 'Init dotfiles finish.'
 
 # for bin/*
-echo -e '\033[31mInit scripts...\033[0m'
-test -d ~/bin || mkdir ~/bin
+red 'Init scripts...'
+ensure_dir "$HOME/bin"
 cd ~/bin
-files=($(ls ${script_path}/bin))
-for i in ${files[@]}; do
-    ln -s ${script_path}/bin/${i}
-done
-echo -e '\033[33mInit scripts finish.\033[0m'
+while IFS= read -r -d '' binfile; do
+    base=$(basename "$binfile")
+    ensure_link "$binfile" "$HOME/bin/$base"
+done < <(find "$script_path/bin" -maxdepth 1 -mindepth 1 -print0)
+yellow 'Init scripts finish.'
 
 # install/update gdb-dashboard
 if type gdb &>/dev/null; then
@@ -244,22 +272,21 @@ if type g++ &>/dev/null && type ctags &>/dev/null && [ ! -f ~/cpp_tags ]; then
     }&
 fi
 
-if [ x$1 = xall ]; then
-    echo -e '\033[31mInit ssh authorized_keys...\033[0m'
+if [ "x${1-}" = xall ]; then
+    red 'Init ssh authorized_keys...'
     # init ssh authorized_keys
     test -d ~/.ssh || mkdir ~/.ssh
     cd ~/.ssh
-    if cmp ${script_path}/.ssh/id_rsa.pub id_rsa.pub ; then
+    if cmp "${script_path}/.ssh/id_rsa.pub" id_rsa.pub; then
         echo 'Local file ~/.ssh/id_rsa.pub exist, ignore it'
-    elif [ -f authorized_keys ] && [ x$(grep -F $(awk '{print $2}' ${script_path}/.ssh/id_rsa.pub) authorized_keys -c) == x1 ]; then
+    elif [ -f authorized_keys ] && [ x$(grep -F "$(awk '{print $2}' "${script_path}/.ssh/id_rsa.pub")" authorized_keys -c) == x1 ]; then
         echo 'Authorized_keys exist'
     else
-        cat ${script_path}/.ssh/id_rsa.pub >> authorized_keys
+        cat "${script_path}/.ssh/id_rsa.pub" >> authorized_keys
     fi
-    echo -e '\033[33mInit ssh authorized_keys finish.\033[0m'
+    yellow 'Init ssh authorized_keys finish.'
 fi
 
 wait
-end=`date "+%s"`
-echo -e "\033[33mSetup finish in `expr $end - $begin` seconds.\033[0m"
-
+end=$(date "+%s")
+echo -e "\033[33mSetup finish in $(expr "$end" - "$begin") seconds.\033[0m"
