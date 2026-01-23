@@ -9,6 +9,15 @@ local function with_desc(desc, base)
   return vim.tbl_extend("force", base or {}, { desc = desc })
 end
 
+-- Restore default "s" behavior (remove LazyVim/flash-style mappings).
+vim.keymap.del({ "n", "x", "o" }, "s")
+map({ "n", "x", "o" }, "gs", function()
+  require("flash").jump()
+end, with_desc("Flash", silent))
+map({ "n", "x", "o" }, "gS", function()
+  require("flash").treesitter()
+end, with_desc("Flash Treesitter", silent))
+
 map("n", ";", ":", with_desc("Command-line", nosilent))
 map("v", ";", ":", with_desc("Command-line", nosilent))
 map("n", "：", ":", with_desc("Command-line (CN)", nosilent))
