@@ -10,11 +10,20 @@ return {
 
     local cmp = require("cmp")
 
+    opts.preselect = cmp.PreselectMode.None
+    opts.completion = vim.tbl_extend("force", opts.completion or {}, {
+      completeopt = "menu,menuone,noselect",
+    })
+
     opts.mapping = vim.tbl_extend("force", opts.mapping, {
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
-          -- You could replace select_next_item() with confirm({ select = true }) to get VS Code autocompletion behavior
-          cmp.select_next_item()
+          -- If nothing is selected yet, select the first item instead of skipping it.
+          if cmp.get_selected_entry() == nil then
+            cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+          else
+            cmp.select_next_item()
+          end
         elseif vim.snippet.active({ direction = 1 }) then
           vim.schedule(function()
             vim.snippet.jump(1)
