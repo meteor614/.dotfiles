@@ -18,9 +18,9 @@ return {
     opts.mapping = vim.tbl_extend("force", opts.mapping, {
       ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
-          -- If nothing is selected yet, select the first item instead of skipping it.
+          -- If nothing is selected yet, select+insert the first item (don't confirm).
           if cmp.get_selected_entry() == nil then
-            cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
           else
             cmp.select_next_item()
           end
