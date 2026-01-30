@@ -238,9 +238,18 @@ set -g status-keys vi
 set -g mode-keys vi
 
 # -- performance optimizations ------------------------------------------------
-set -sg escape-time 0                     # faster escape response (better for vim)
-set -g history-limit 50000                # increase scrollback buffer
+set -sg escape-time 10                    # faster escape response (better for vim)
+set -g history-limit 10000                # increase scrollback buffer
 set -g status-interval 30                 # reduce status bar refresh (default 10)
+
+# 减少重绘
+set -g visual-activity off
+set -g visual-bell off
+set -g visual-silence off
+
+# 鼠标滚动优化
+bind -T copy-mode-vi WheelUpPane   send -N3 -X scroll-up
+bind -T copy-mode-vi WheelDownPane send -N3 -X scroll-down
 
 # move status line to top when in SSH session
 if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'

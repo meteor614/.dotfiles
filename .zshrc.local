@@ -66,21 +66,9 @@ fi
 
 [ -d /usr/local/opt/ruby/bin ] && path_prepend /usr/local/opt/ruby/bin
 
-# fzf
-if [[ -z ${FZF_DEFAULT_COMMAND-} ]]; then
-    if type rg>/dev/null 2>&1; then
-        export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!.git/*'"
-    elif type ag>/dev/null 2>&1; then
-        export FZF_DEFAULT_COMMAND='ag -g ""'
-    elif type fd>/dev/null 2>&1; then
-        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-    fi
-    if type bat>/dev/null 2>&1; then
-        export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}'"
-    else
-        export FZF_DEFAULT_OPTS="--preview 'head -60 {}'"
-    fi
-fi
+# fzf - 优化配置
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null || rg --files --hidden --follow --glob '!.git/*' 2>/dev/null || find . -type f"
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || head -60 {}'"
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
@@ -121,6 +109,10 @@ setopt no_beep
 unsetopt share_history
 unsetopt inc_append_history
 
+# 缓存补全数据
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh/cache
+
 # [ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
 
 # if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
@@ -150,12 +142,18 @@ fi
 type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
-    source ~/.zsh/plugins/kubectl/_kubectl
-elif type kubectl >/dev/null 2>&1; then
-    mkdir -p ~/.zsh/plugins/kubectl/
-    kubectl completion zsh > ~/.zsh/plugins/kubectl/_kubectl
-fi
+# 延迟加载 kubectl 补全
+kubectl() {
+    unset -f kubectl
+    if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
+        source ~/.zsh/plugins/kubectl/_kubectl
+    elif type kubectl >/dev/null 2>&1; then
+        mkdir -p ~/.zsh/plugins/kubectl/
+        kubectl completion zsh > ~/.zsh/plugins/kubectl/_kubectl
+        source ~/.zsh/plugins/kubectl/_kubectl
+    fi
+    kubectl "$@"
+}
 
 # if [ -d ~/apache-maven-3.6.3 ]; then
 #     export M2_HOME=~/apache-maven-3.6.3
@@ -202,23 +200,24 @@ fi
 
 type pip3 >/dev/null 2>&1 && alias pip=pip3
 type python3 >/dev/null 2>&1 && alias python=python3
-function vpy() {
-    if [ -f ".venv/bin/python3" ]; then
-        .venv/bin/python3 "$@"
-    else
-        python3 "$@"
-    fi
+# 优化后的 vpy/vpip 函数
+vpy() {
+    local python="${PWD}/.venv/bin/python3"
+    [[ -x "$python" ]] || python="python3"
+    "$python" "$@"
 }
-
-function vpip() {
-    if [ -f ".venv/bin/pip3" ]; then
-        .venv/bin/pip3 "$@"
-    else
-        pip3 "$@"
-    fi
+vpip() {
+    local pip="${PWD}/.venv/bin/pip3"
+    [[ -x "$pip" ]] || pip="pip3"
+    "$pip" "$@"
 }
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# 延迟加载 NVM 以避免启动延迟
+nvm() {
+    unset -f nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm "$@"
+}
 # if type npm >/dev/null 2>&1; then
 #     _npm_bin_cache="$HOME/.zsh_cache/.npm_bin_path"
 #     if [ -f "$_npm_bin_cache" ]; then

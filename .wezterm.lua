@@ -8,6 +8,24 @@ return {
     enable_kitty_graphics = true,
     max_fps = 100,
 
+    -- 性能优化
+    enable_scroll_bar = false,           -- 禁用滚动条减少渲染
+    check_for_updates = false,           -- 禁用自动检查更新
+    animation_fps = 60,                  -- 限制动画帧率
+
+    -- 光标优化
+    -- default_cursor_style = 'Block',
+    cursor_blink_rate = 800,
+
+    -- 减少内存占用
+    line_height = 1.0,
+    cell_width = 1.0,
+
+    -- 更快的启动
+    skip_close_confirmation_for_processes_named = {
+        'bash', 'sh', 'zsh', 'fish', 'tmux', 'nvim', 'vim'
+    },
+
     automatically_reload_config = true,
 
     scrollback_lines = 5000,
