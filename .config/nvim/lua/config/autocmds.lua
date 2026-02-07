@@ -23,14 +23,21 @@ autocmd("BufWritePre", {
   group = augroup("trim_trailing_whitespace", { clear = true }),
   pattern = "*",
   callback = function()
-    -- 排除某些文件类型
+    -- 排除某些文件类型和特殊 buffer
     local exclude_filetypes = { "markdown", "diff" }
+    local exclude_buftypes = { "nofile", "prompt", "terminal", "quickfix", "help" }
     if vim.tbl_contains(exclude_filetypes, vim.bo.filetype) then
       return
     end
-    local save_cursor = vim.fn.getpos(".")
-    vim.cmd([[%s/\s\+$//e]])
-    vim.fn.setpos(".", save_cursor)
+    if vim.tbl_contains(exclude_buftypes, vim.bo.buftype) then
+      return
+    end
+    if vim.bo.binary or not vim.bo.modifiable or vim.bo.readonly then
+      return
+    end
+    local view = vim.fn.winsaveview()
+    vim.cmd([[keepjumps keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(view)
   end,
 })
 

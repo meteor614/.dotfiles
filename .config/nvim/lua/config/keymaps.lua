@@ -10,7 +10,7 @@ local function with_desc(desc, base)
 end
 
 -- Restore default "s" behavior (remove LazyVim/flash-style mappings).
-vim.keymap.del({ "n", "x", "o" }, "s")
+pcall(vim.keymap.del, { "n", "x", "o" }, "s")
 map({ "n", "x", "o" }, "gs", function()
   require("flash").jump()
 end, with_desc("Flash", silent))
@@ -51,8 +51,8 @@ map("i", "<C-^>", "<C-o><C-^>", with_desc("Switch alternate file (insert)", nosi
 map("c", "<c-a>", "<home>", with_desc("Cmdline start", nosilent))
 map("c", "<c-e>", "<end>", with_desc("Cmdline end", nosilent))
 
-map("", "-", ":m+<cr>", with_desc("Move line down", silent))
-map("", "<c-_>", ":m-2<cr>", with_desc("Move line up", silent))
+map("n", "-", ":m+<cr>", with_desc("Move line down", silent))
+map("n", "<c-_>", ":m-2<cr>", with_desc("Move line up", silent))
 map("v", "-", ":m '>+1<cr>gv=gv", with_desc("Move selection down", silent))
 map("v", "<c-_>", ":m '>-2<cr>gv=gv", with_desc("Move selection up", silent))
 

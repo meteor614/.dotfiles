@@ -64,7 +64,11 @@ vim.opt.mousemodel = "popup_setpos"
 vim.opt.undolevels = 1000
 
 vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+if vim.treesitter and vim.treesitter.foldexpr then
+  vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+else
+  vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+end
 vim.opt.foldlevel = 100
 
 vim.opt.splitbelow = true

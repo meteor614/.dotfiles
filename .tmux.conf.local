@@ -10,11 +10,14 @@
 # Use tmux-256color for better compatibility, with true color support
 # set -g default-terminal "xterm-kitty"
 set -g default-terminal "tmux-256color"
-set -ga terminal-overrides ",xterm-kitty:Tc,*256col*:Tc"
-# iTerm2 Meta + arrow keys support
-set -ga terminal-overrides ",*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
+# reset before append to avoid duplicate entries after reloading config
+set -gu terminal-overrides
+# iTerm2 Meta + arrow keys support + true color hints
+set -ga terminal-overrides ",xterm-kitty:Tc,*256col*:Tc,*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
 
 set -g allow-passthrough on
+# reset before append to avoid duplicate entries after reloading config
+set -gu update-environment
 set -ga update-environment TERM
 set -ga update-environment TERM_PROGRAM
 
@@ -161,7 +164,7 @@ tmux_conf_theme_right_separator_sub='|'
 #     - #{username}
 #     - #{username_ssh}
 tmux_conf_theme_status_left=' ❐ #S | ↑#{?uptime_d, #{uptime_d}d,}#{?uptime_h, #{uptime_h}h,}#{?uptime_m, #{uptime_m}m,} '
-tmux_conf_theme_status_right="#[fg=#e4e4e4,bg=#d70000]#([ $(tmux show-option -qv key-table) = 'off' ] && echo 'OFF')#[default] #{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
+tmux_conf_theme_status_right="#[fg=#e4e4e4,bg=#d70000]#{?#{==:#{client_key_table},off},OFF ,}#[default] #{prefix}#{pairing} #{?battery_status, #{battery_status},}#{?battery_bar, #{battery_bar},}#{?battery_percentage, #{battery_percentage},} , %R , %d %b | #{username}#{root} | #{hostname} "
 
 # status left style
 tmux_conf_theme_status_left_fg='#000000,#e4e4e4,#e4e4e4'  # black, white , white
@@ -252,13 +255,15 @@ bind -T copy-mode-vi WheelUpPane   send -N3 -X scroll-up
 bind -T copy-mode-vi WheelDownPane send -N3 -X scroll-down
 
 # move status line to top when in SSH session
-if-shell 'test -n "$SSH_CLIENT"' 'set -g status-position top'
+if-shell 'test -n "$SSH_CONNECTION"' 'set -g status-position top'
 
 # nested tmux sessions toggle (C-M-a to disable/enable outer tmux)
 bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; refresh-client -S
 bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
-# Clipper support for remote clipboard
-unbind y
-if -b 'command -v nc > /dev/null 2>&1' 'bind y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | nc -c localhost 8377"'
-if -b 'command -v socat > /dev/null 2>&1' 'bind y run -b "\"\$TMUX_PROGRAM\" \${TMUX_SOCKET:+-S \"\$TMUX_SOCKET\"} save-buffer - | socat - tcp:localhost:8377"'
+# Clipper support for remote clipboard:
+# keep default `y` for tmux/OS clipboard integration; use `Y` for explicit remote forward.
+unbind -q Y
+if-shell 'command -v socat > /dev/null 2>&1' \
+  'bind Y run-shell -b "tmux save-buffer - | socat - tcp:localhost:8377"' \
+  'if-shell "command -v nc > /dev/null 2>&1" "bind Y run-shell -b \"tmux save-buffer - | nc localhost 8377\""'
