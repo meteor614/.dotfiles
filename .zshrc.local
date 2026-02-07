@@ -19,7 +19,7 @@ bindkey '\e[1;3D' backward-word       # ALT+左键：向后跳一个单词
 bindkey '\e[1;3C' forward-word        # ALT+右键：前跳一个单词
 bindkey '\e[1;3A' beginning-of-line   # ALT+上键：跳到行首
 bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
-type deer >/dev/null 2>&1 && bindkey '\ev' deer
+(( $+commands[deer] )) && bindkey '\ev' deer
 
 # PATH 去重辅助函数
 path_prepend() { [[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
@@ -32,7 +32,7 @@ alias fgrep='fgrep --color'
 
 alias 。。=..
 
-if type eza>/dev/null 2>&1; then
+if (( $+commands[eza] )); then
     alias ls='eza'
     alias ll='eza -l --icons'
     alias l='eza -l --icons'
@@ -50,21 +50,19 @@ alias scp="scp -O"
 
 
 # git icdiff
-if type icdiff>/dev/null 2>&1; then
+if (( $+commands[icdiff] )); then
     alias gd='git icdiff'
     alias gdca='git icdiff --cached'
     alias gdcw='git icdiff --cached --word-diff'
     alias gdw='git icdiff --word-diff'
 fi
 # parallel
-if type parallel>/dev/null 2>&1; then
+if (( $+commands[parallel] )); then
     alias p='parallel'
     alias pp='parallel --pipe -k'
 else
     alias p='xargs -P 16'
 fi
-
-[ -d /usr/local/opt/ruby/bin ] && path_prepend /usr/local/opt/ruby/bin
 
 # fzf - 优化配置
 export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null || rg --files --hidden --follow --glob '!.git/*' 2>/dev/null || find . -type f"
@@ -94,7 +92,7 @@ fi
 # pager
 export PAGER="less"
 export LESS="-R -i -g -c -W"
-type lesspipe.sh>/dev/null 2>&1 && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'
+(( $+commands[lesspipe.sh] )) && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'
 # color man
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
@@ -111,7 +109,8 @@ unsetopt inc_append_history
 
 # 缓存补全数据
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zsh/cache
+zstyle ':completion:*' cache-path ~/.zsh_cache/completions
+mkdir -p ~/.zsh_cache/completions
 
 # [ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
 
@@ -125,21 +124,29 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 #     export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
 # fi
 
-[ -d /opt/bin ] && path_prepend /opt/bin
+# PATH: 先系统/包管理器，再用户目录
+[ -d /opt/homebrew/bin ] && path_prepend /opt/homebrew/bin
 [ -d /usr/local/bin ] && path_prepend /usr/local/bin
-if type go >/dev/null 2>&1 && [ -z $GOPATH ]; then
+[ -d /opt/bin ] && path_prepend /opt/bin
+[ -d /usr/local/opt/findutils/libexec/gnubin ] && path_prepend /usr/local/opt/findutils/libexec/gnubin
+[ -d /usr/local/opt/gnu-getopt/bin ] && path_prepend /usr/local/opt/gnu-getopt/bin
+[ -d /usr/local/opt/ruby/bin ] && path_prepend /usr/local/opt/ruby/bin
+[ -d "$HOME/bin" ] && path_append "$HOME/bin"
+[ -d "$HOME/.local/bin" ] && path_append "$HOME/.local/bin"
+
+if (( $+commands[go] )) && [ -z "$GOPATH" ]; then
     export GOPATH=$HOME/gowork
     path_append "$GOPATH/bin"
     path_append /usr/local/opt/go/libexec/bin
     export GOPROXY=https://mirrors.tencent.com/go/
 fi
-[ -d /usr/local/opt/findutils/libexec/gnubin ] && path_prepend /usr/local/opt/findutils/libexec/gnubin
-[ -d /usr/local/opt/gnu-getopt/bin ] && path_prepend /usr/local/opt/gnu-getopt/bin
-[ -d /opt/homebrew/bin ] && path_prepend /opt/homebrew/bin
-
-[ -d "$HOME/bin" ] && path_append "$HOME/bin"
-[ -d "$HOME/.local/bin" ] && path_append "$HOME/.local/bin"
-type thefuck >/dev/null 2>&1 && eval $(thefuck --alias)
+if (( $+commands[thefuck] )); then
+    fuck() {
+        unset -f fuck
+        eval "$(thefuck --alias)"
+        fuck "$@"
+    }
+fi
 # test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # 延迟加载 kubectl 补全
@@ -147,7 +154,7 @@ kubectl() {
     unset -f kubectl
     if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
         source ~/.zsh/plugins/kubectl/_kubectl
-    elif type kubectl >/dev/null 2>&1; then
+    elif (( $+commands[kubectl] )); then
         mkdir -p ~/.zsh/plugins/kubectl/
         kubectl completion zsh > ~/.zsh/plugins/kubectl/_kubectl
         source ~/.zsh/plugins/kubectl/_kubectl
@@ -164,42 +171,43 @@ kubectl() {
 # [ -d "/volume1/@optware/bin" ] && path_append "/volume1/@optware/bin"
 
 # start tmux if ssh
-if type tmux >/dev/null 2>&1 && [[ -z "$TMUX" && -n "$SSH_CLIENT" && -t 0 ]] && [ "$SSH_CONNECTION" != "" ]; then
+if (( $+commands[tmux] )) && [[ -n "$SSH_CONNECTION" && -z "$TMUX" && -t 0 ]]; then
     tmux attach -t default || tmux new -t default
 fi
 
 # gem 路径：使用缓存避免每次启动都执行 gem environment
 _gem_bin_cache="$HOME/.zsh_cache/.gem_bin_path"
-if type gem >/dev/null 2>&1 && ! type tmuxinator >/dev/null 2>&1; then
+if (( $+commands[gem] )) && ! (( $+commands[tmuxinator] )); then
+    mkdir -p "$HOME/.zsh_cache"
     if [ -f "$_gem_bin_cache" ]; then
-        # export PATH="$PATH:$(cat "$_gem_bin_cache")"
-        path_append "$(cat "$_gem_bin_cache")"
+        read -r _gem_bin < "$_gem_bin_cache"
+        [ -n "$_gem_bin" ] && path_append "$_gem_bin"
     else
         _gem_bin="$(gem environment | grep 'EXECUTABLE DIRECTORY' | awk -F': ' '{print $2}')"
-        [ -n "$_gem_bin" ] && echo "$_gem_bin" > "$_gem_bin_cache" && path_append "$_gem_bin"
-        unset _gem_bin
+        [ -n "$_gem_bin" ] && print -r -- "$_gem_bin" >| "$_gem_bin_cache" && path_append "$_gem_bin"
     fi
+    unset _gem_bin
 fi
 unset _gem_bin_cache
-type tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
-type make >/dev/null 2>&1 && alias mak='make -j 16'
+(( $+commands[tmuxinator] )) && alias mux=tmuxinator
+(( $+commands[make] )) && alias mak='make -j 16'
 # if type lvim >/dev/null 2>&1; then
 #     alias vim='lvim'
 # else
 #     type nvim >/dev/null 2>&1 && alias vim='nvim'
 # fi
-type nvim >/dev/null 2>&1 && alias vim='nvim'
-type watch >/dev/null 2>&1 && alias watch='watch -c'
-type docker >/dev/null 2>&1 && alias docker='sudo -E docker'
-type dtruss >/dev/null 2>&1 && ! type strace >/dev/null 2>&1 && alias strace='dtruss'
-if type socat>/dev/null 2>&1; then
+(( $+commands[nvim] )) && alias vim='nvim'
+(( $+commands[watch] )) && alias watch='watch -c'
+(( $+commands[docker] )) && alias docker='sudo -E docker'
+(( $+commands[dtruss] )) && ! (( $+commands[strace] )) && alias strace='dtruss'
+if (( $+commands[socat] )); then
     alias clip="socat - tcp:localhost:8377"
-elif type nc >/dev/null 2>&1; then
-    alias clip="nc -c localhost 8377"
+elif (( $+commands[nc] )); then
+    alias clip="nc localhost 8377"
 fi
 
-type pip3 >/dev/null 2>&1 && alias pip=pip3
-type python3 >/dev/null 2>&1 && alias python=python3
+(( $+commands[pip3] )) && alias pip=pip3
+(( $+commands[python3] )) && alias python=python3
 # 优化后的 vpy/vpip 函数
 vpy() {
     local python="${PWD}/.venv/bin/python3"
@@ -210,13 +218,6 @@ vpip() {
     local pip="${PWD}/.venv/bin/pip3"
     [[ -x "$pip" ]] || pip="pip3"
     "$pip" "$@"
-}
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-# 延迟加载 NVM 以避免启动延迟
-nvm() {
-    unset -f nvm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm "$@"
 }
 # if type npm >/dev/null 2>&1; then
 #     _npm_bin_cache="$HOME/.zsh_cache/.npm_bin_path"
@@ -236,9 +237,12 @@ nvm() {
 export DISABLE_VERSION_CHECK=1
 # export PATH="/Users/meteorchen/miniconda3/bin:$PATH"
 
-# Homebrew Tsinghua Mirror
-export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+# NVM 已在 ~/.zshrc 中做延迟加载，这里不重复定义。
 
+# Homebrew Tsinghua Mirror（USE_CN_MIRROR=0 可关闭）
+if [ "${USE_CN_MIRROR:-1}" = "1" ]; then
+    export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+fi
