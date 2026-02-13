@@ -172,7 +172,8 @@ kubectl() {
 
 # start tmux if ssh
 if (( $+commands[tmux] )) && [[ -n "$SSH_CONNECTION" && -z "$TMUX" && -t 0 ]]; then
-    tmux attach -t default || tmux new -t default
+    tmux new -As default-0
+    # tmux attach -t default || tmux new -t default
 fi
 
 # gem 路径：使用缓存避免每次启动都执行 gem environment
@@ -246,3 +247,7 @@ if [ "${USE_CN_MIRROR:-1}" = "1" ]; then
     export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
     export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
 fi
+
+# OpenClaw Completion
+if [ -f "$HOME/.openclaw/completions/openclaw.zsh" ]; then
+    source "$HOME/.openclaw/completions/openclaw.zsh"
