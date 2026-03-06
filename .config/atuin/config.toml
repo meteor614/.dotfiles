@@ -9,8 +9,8 @@ auto_sync = true
 sync_frequency = "5m"
 
 search_mode = "fuzzy"
-filter_mode = "workspace"
-workspaces = true
+# filter_mode = "workspace"
+# workspaces = true
 
 style = "compact"
 show_preview = true
