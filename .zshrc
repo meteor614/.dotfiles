@@ -138,6 +138,71 @@ export NVM_DIR="$HOME/.nvm"
 # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# 轻量注入默认 Node 版本的 bin，让全局 npm 命令在新 shell 中直接可用。
+_nvm_is_newer_version() {
+    local lhs="${1#v}" rhs="${2#v}"
+    local -a lhs_parts rhs_parts
+    lhs_parts=(${(s:.:)lhs})
+    rhs_parts=(${(s:.:)rhs})
+
+    local i max_parts=$(( ${#lhs_parts} > ${#rhs_parts} ? ${#lhs_parts} : ${#rhs_parts} ))
+    for (( i = 1; i <= max_parts; i++ )); do
+        local l="${lhs_parts[i]:-0}"
+        local r="${rhs_parts[i]:-0}"
+        (( l > r )) && return 0
+        (( l < r )) && return 1
+    done
+    return 1
+}
+
+_resolve_nvm_alias_target() {
+    local target="$1"
+    local alias_file depth=0
+
+    while (( depth < 8 )); do
+        case "$target" in
+            ""|"N/A"|"system")
+                return 1
+                ;;
+        esac
+
+        alias_file="$NVM_DIR/alias/$target"
+        [[ -f "$alias_file" ]] || break
+        IFS= read -r target < "$alias_file" || return 1
+        (( depth++ ))
+    done
+
+    [[ -n "$target" ]] && print -r -- "$target"
+}
+
+_nvm_default_bin() {
+    local target prefix dir best=""
+
+    [[ -r "$NVM_DIR/alias/default" ]] || return 1
+    IFS= read -r target < "$NVM_DIR/alias/default" || return 1
+    target="$(_resolve_nvm_alias_target "$target")" || return 1
+
+    prefix="$target"
+    [[ "$prefix" == v* ]] || prefix="v$prefix"
+
+    for dir in "$NVM_DIR"/versions/node/${prefix}*(N/); do
+        dir="${dir%/}"
+        [[ -x "$dir/bin/node" ]] || continue
+        if [[ -z "$best" ]] || _nvm_is_newer_version "${dir:t}" "${best:t}"; then
+            best="$dir"
+        fi
+    done
+
+    [[ -n "$best" ]] && print -r -- "$best/bin"
+}
+
+_nvm_bootstrap_bin="$(_nvm_default_bin 2>/dev/null)"
+if [[ -n "$_nvm_bootstrap_bin" && ":$PATH:" != *":$_nvm_bootstrap_bin:"* ]]; then
+    export PATH="$_nvm_bootstrap_bin:$PATH"
+    export NVM_BIN="$_nvm_bootstrap_bin"
+fi
+unset _nvm_bootstrap_bin
+
 # 延迟加载 NVM (支持 nvm/node/npm/npx 命令)
 _lazy_load_nvm() {
     unset -f nvm node npm npx 2>/dev/null
