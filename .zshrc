@@ -97,7 +97,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Add wisely, as too many plugins slow down shell startup.
 #plugins=(git)
 # plugins=(git zsh-autosuggestions zsh-syntax-highlighting z extract web-search)
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting z extract)
+plugins=(git z extract zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -149,3 +149,35 @@ node() { _lazy_load_nvm; node "$@" }
 npm() { _lazy_load_nvm; npm "$@" }
 npx() { _lazy_load_nvm; npx "$@" }
 
+# 延迟加载 conda，兼容本地 macOS 和远程 Linux 的常见安装路径。
+_find_conda_exe() {
+    local candidate
+    for candidate in \
+        "${CONDA_EXE:-}" \
+        "/opt/homebrew/Caskroom/miniforge/base/bin/conda" \
+        "$HOME/miniforge3/bin/conda" \
+        "$HOME/miniconda3/bin/conda" \
+        "$HOME/anaconda3/bin/conda"
+    do
+        [[ -n "$candidate" && -x "$candidate" ]] && print -r -- "$candidate" && return 0
+    done
+
+    (( $+commands[conda] )) && command -v conda
+}
+
+_lazy_load_conda() {
+    unset -f conda mamba 2>/dev/null
+
+    local conda_exe conda_root conda_sh
+    conda_exe="$(_find_conda_exe)" || return 1
+    conda_root="${conda_exe:h:h}"
+    conda_sh="$conda_root/etc/profile.d/conda.sh"
+
+    if [[ -f "$conda_sh" ]]; then
+        . "$conda_sh"
+    else
+        eval "$("$conda_exe" shell.zsh hook 2>/dev/null)"
+    fi
+}
+conda() { _lazy_load_conda && conda "$@" }
+mamba() { _lazy_load_conda && mamba "$@" }

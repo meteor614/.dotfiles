@@ -7,19 +7,16 @@
 # -- navigation ----------------------------------------------------------------
 
 # -- terminal & true color support ---------------------------------------------
-# Use tmux-256color for better compatibility, with true color support
-# set -g default-terminal "xterm-kitty"
-set -g default-terminal "tmux-256color"
+# Prefer screen-256color so local and remote tmux sessions advertise the same
+# TERM value without depending on extra terminfo installs.
+set -g default-terminal "screen-256color"
 # reset before append to avoid duplicate entries after reloading config
 set -gu terminal-overrides
 # iTerm2 Meta + arrow keys support + true color hints
 set -ga terminal-overrides ",xterm-kitty:Tc,*256col*:Tc,*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
 
 set -g allow-passthrough on
-# reset before append to avoid duplicate entries after reloading config
-set -gu update-environment
-set -ga update-environment TERM
-set -ga update-environment TERM_PROGRAM
+set -g update-environment "DISPLAY KRB5CCNAME SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY TERM TERM_PROGRAM COLORTERM"
 
 set -g focus-events on
 setw -g aggressive-resize on
@@ -29,7 +26,7 @@ setw -g aggressive-resize on
 # new window retains current path, possible values are:
 #   - true
 #   - false (default)
-tmux_conf_new_window_retain_current_path=false
+tmux_conf_new_window_retain_current_path=true
 
 # new pane retains current path, possible values are:
 #   - true (default)

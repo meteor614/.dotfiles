@@ -70,24 +70,14 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat -
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
-# export TERM=screen-256color
-# export TERM=xterm-kitty
-if (( $+SSH_CLIENT )) || (( $+SSH_TTY )); then
+# 保留本地 WezTerm 特性；SSH 到远程且 terminfo 缺失时再回退。
+if [ -n "$TMUX" ]; then
     export TERM=screen-256color
-else
-    case "$TERM_PROGRAM" in
-        "WezTerm")
-            export TERM="wezterm"
-            ;;
-        "iTerm.app")
-            export TERM="xterm-256color"
-            ;;
-        "Apple_Terminal")
-            export TERM="xterm-256color"
-            ;;
-    esac
+elif [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
+    infocmp -x "${TERM:-xterm-256color}" >/dev/null 2>&1 || export TERM=xterm-256color
+elif [ "${TERM_PROGRAM:-}" = "WezTerm" ]; then
+    export TERM=wezterm
 fi
-[ -n "$TMUX" ] && export TERM=screen-256color
 
 # pager
 export PAGER="less"
