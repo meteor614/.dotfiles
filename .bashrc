@@ -132,3 +132,10 @@ if type socat>/dev/null 2>&1; then
 elif type nc >/dev/null 2>&1; then
     alias clip="nc -c localhost 8377"
 fi
+
+[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
+
+if type atuin >/dev/null 2>&1; then
+    [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+    eval "$(atuin init bash)"
+fi

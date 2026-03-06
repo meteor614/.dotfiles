@@ -246,3 +246,9 @@ _lazy_load_conda() {
 }
 conda() { _lazy_load_conda && conda "$@" }
 mamba() { _lazy_load_conda && mamba "$@" }
+
+[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
+
+if (( $+commands[atuin] )); then
+    eval "$(atuin init zsh)"
+fi
