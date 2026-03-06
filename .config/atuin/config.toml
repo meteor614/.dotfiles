@@ -1,0 +1,50 @@
+# Tuned for this dotfiles setup:
+# - fast local-first history search
+# - low visual noise
+# - keep sync optional until explicitly enabled
+# - prefer git-workspace context when available
+
+auto_sync = true
+#update_check = false
+sync_frequency = "5m"
+
+search_mode = "fuzzy"
+filter_mode = "workspace"
+workspaces = true
+
+style = "compact"
+show_preview = true
+max_preview_height = 6
+show_help = false
+show_tabs = false
+
+secrets_filter = true
+enter_accept = true
+command_chaining = true
+prefers_reduced_motion = true
+
+# Drop low-value noise so search results stay useful.
+history_filter = [
+  "^ls( .*)?$",
+  "^ll( .*)?$",
+  "^l( .*)?$",
+  "^la( .*)?$",
+  "^k( .*)?$",
+  "^pwd$",
+  "^clear$",
+  "^history$",
+  "^cd( .*)?$",
+  "^z( .*)?$",
+  "^zi$",
+  "^fg$",
+  "^bg$",
+  "^exit$",
+  "^quit$"
+]
+
+[preview]
+strategy = "auto"
+
+[sync]
+records = true
+
