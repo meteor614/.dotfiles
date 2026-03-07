@@ -348,19 +348,19 @@ return {
         enabled = not in_zellij(),
       })
 
-      if not in_zellij() then
+      if in_zellij() then
+        opts.picker = opts.picker or {}
+        local on_close = opts.picker.on_close
+        opts.picker.on_close = function(picker)
+          close_wezterm_preview()
+          if on_close then
+            on_close(picker)
+          end
+        end
+        opts.picker.preview = zellij_image_preview
+
         return opts
       end
-
-      opts.picker = opts.picker or {}
-      local on_close = opts.picker.on_close
-      opts.picker.on_close = function(picker)
-        close_wezterm_preview()
-        if on_close then
-          on_close(picker)
-        end
-      end
-      opts.picker.preview = zellij_image_preview
 
       return opts
     end,
