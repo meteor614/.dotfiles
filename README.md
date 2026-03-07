@@ -4,7 +4,7 @@ All my dotfiles.
 
 * neovim/lunarvim/vim/ideavim
 * zsh/bash
-* tmux/tmuxinator
+* zellij/tmux/tmuxinator
 * git/tig
 * gdb/lldb
 * wezterm/alacritty
