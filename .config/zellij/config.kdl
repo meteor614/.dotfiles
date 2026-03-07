@@ -1,3 +1,5 @@
+support_kitty_keyboard_protocol true
+
 keybinds clear-defaults=true {
     normal {
         // uncomment this and adjust key if using copy_on_select=false
@@ -178,12 +180,33 @@ keybinds clear-defaults=true {
         bind "Alt q" { Quit; }
         bind "Alt f" { ToggleFloatingPanes; }
         bind "Alt n" { NewPane; }
+        bind "Ctrl Alt t" { NewTab; SwitchToMode "Normal"; }
+        bind "Ctrl Alt w" { CloseTab; SwitchToMode "Normal"; }
+        bind "Ctrl Alt d" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "Ctrl Alt Shift d" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "Ctrl Alt y" { FocusPreviousPane; }
+        bind "Ctrl Alt u" { FocusNextPane; }
+        bind "Ctrl Alt Shift y" { GoToPreviousTab; SwitchToMode "Normal"; }
+        bind "Ctrl Alt Shift u" { GoToNextTab; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F1" { GoToTab 1; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F2" { GoToTab 2; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F3" { GoToTab 3; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F4" { GoToTab 4; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F5" { GoToTab 5; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F6" { GoToTab 6; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F7" { GoToTab 7; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F8" { GoToTab 8; SwitchToMode "Normal"; }
+        bind "Ctrl Alt F9" { GoToTab 9; SwitchToMode "Normal"; }
         bind "Ctrl Alt i" { MoveTab "Left"; }
         bind "Ctrl Alt o" { MoveTab "Right"; }
         bind "Ctrl Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
         bind "Ctrl Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
         bind "Ctrl Alt j" "Alt Down" { MoveFocus "Down"; }
         bind "Ctrl Alt k" "Alt Up" { MoveFocus "Up"; }
+        bind "Ctrl Alt Shift Left" { Resize "Increase Left"; SwitchToMode "Normal"; }
+        bind "Ctrl Alt Shift Down" { Resize "Increase Down"; SwitchToMode "Normal"; }
+        bind "Ctrl Alt Shift Up" { Resize "Increase Up"; SwitchToMode "Normal"; }
+        bind "Ctrl Alt Shift Right" { Resize "Increase Right"; SwitchToMode "Normal"; }
         bind "Alt =" "Alt +" { Resize "Increase"; }
         bind "Alt -" { Resize "Decrease"; }
         bind "Ctrl Alt [" { PreviousSwapLayout; }
