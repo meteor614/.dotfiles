@@ -8,6 +8,10 @@ local function in_zellij()
   return vim.env.ZELLIJ ~= nil or vim.env.ZELLIJ_SESSION_NAME ~= nil
 end
 
+local function in_tmux()
+  return vim.env.TMUX ~= nil
+end
+
 local function ensure_dir(path)
   if vim.fn.isdirectory(path) == 0 then
     vim.fn.mkdir(path, "p")
@@ -185,6 +189,10 @@ local function renderer()
   end
 end
 
+local function has_image_converter()
+  return vim.fn.executable("magick") == 1 or vim.fn.executable("convert") == 1
+end
+
 local function render_png(path, out, width, height)
   if vim.fn.executable("magick") == 0 then
     return nil
@@ -248,50 +256,12 @@ local function preview_source(path, width, height)
   return path
 end
 
-local function zellij_image_preview(ctx)
-  local path = Snacks.picker.util.path(ctx.item)
-  if not path or not Snacks.image.supports_file(path) then
-    if can_use_wezterm_preview() then
-      close_wezterm_preview()
-    end
-    return require("snacks.picker.preview").file(ctx)
-  end
-
+local function render_terminal_image_preview(ctx, path, source)
   local buf = ctx.preview:scratch()
   ctx.preview:set_title(ctx.item.title or vim.fn.fnamemodify(path, ":t"))
   ctx.preview:minimal()
-
   local width = math.max(10, vim.api.nvim_win_get_width(ctx.win) - 2)
   local height = math.max(5, vim.api.nvim_win_get_height(ctx.win) - 2)
-  local source = preview_source(path, width, height)
-  if not source then
-    if can_use_wezterm_preview() then
-      close_wezterm_preview()
-    end
-    return require("snacks.picker.preview").file(ctx)
-  end
-
-  if can_use_wezterm_preview() then
-    local pane_id = ensure_wezterm_preview_pane(ctx.item.cwd or ctx.picker.opts.cwd)
-    if pane_id then
-      local quoted = vim.fn.shellescape(source)
-      if preview_state.source ~= source then
-        wezterm_send(pane_id, "\003clear\nwezterm imgcat --width 100% --height 100% " .. quoted .. "\n")
-        preview_state.source = source
-      end
-      vim.bo[buf].modifiable = true
-      vim.bo[buf].filetype = "markdown"
-      vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-        "# WezTerm Preview",
-        "",
-        "- high-quality preview is shown in the right-side WezTerm pane",
-        "- current file: `" .. path .. "`",
-      })
-      vim.bo[buf].modifiable = false
-      vim.bo[buf].modified = false
-      return
-    end
-  end
 
   local render = renderer()
   if not render then
@@ -336,6 +306,72 @@ local function zellij_image_preview(ctx)
   })
 end
 
+local function zellij_image_preview(ctx)
+  local path = Snacks.picker.util.path(ctx.item)
+  if not path or not Snacks.image.supports_file(path) then
+    if can_use_wezterm_preview() then
+      close_wezterm_preview()
+    end
+    return require("snacks.picker.preview").file(ctx)
+  end
+
+  local width = math.max(10, vim.api.nvim_win_get_width(ctx.win) - 2)
+  local height = math.max(5, vim.api.nvim_win_get_height(ctx.win) - 2)
+  local source = preview_source(path, width, height)
+  if not source then
+    if can_use_wezterm_preview() then
+      close_wezterm_preview()
+    end
+    return require("snacks.picker.preview").file(ctx)
+  end
+
+  if can_use_wezterm_preview() then
+    local pane_id = ensure_wezterm_preview_pane(ctx.item.cwd or ctx.picker.opts.cwd)
+    if pane_id then
+      local buf = ctx.preview:scratch()
+      local quoted = vim.fn.shellescape(source)
+      if preview_state.source ~= source then
+        wezterm_send(pane_id, "\003clear\nwezterm imgcat --width 100% --height 100% " .. quoted .. "\n")
+        preview_state.source = source
+      end
+      vim.bo[buf].modifiable = true
+      vim.bo[buf].filetype = "markdown"
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+        "# WezTerm Preview",
+        "",
+        "- high-quality preview is shown in the right-side WezTerm pane",
+        "- current file: `" .. path .. "`",
+      })
+      vim.bo[buf].modifiable = false
+      vim.bo[buf].modified = false
+      return
+    end
+  end
+
+  return render_terminal_image_preview(ctx, path, source)
+end
+
+local function tmux_image_preview(ctx)
+  local path = Snacks.picker.util.path(ctx.item)
+  if not path or not Snacks.image.supports_file(path) then
+    return require("snacks.picker.preview").file(ctx)
+  end
+
+  local ext = vim.fn.fnamemodify(path, ":e"):lower()
+  if ext == "png" or has_image_converter() then
+    return require("snacks.picker.preview").image(ctx)
+  end
+
+  local width = math.max(10, vim.api.nvim_win_get_width(ctx.win) - 2)
+  local height = math.max(5, vim.api.nvim_win_get_height(ctx.win) - 2)
+  local source = preview_source(path, width, height)
+  if not source then
+    return require("snacks.picker.preview").file(ctx)
+  end
+
+  return render_terminal_image_preview(ctx, path, source)
+end
+
 return {
   {
     "folke/snacks.nvim",
@@ -360,6 +396,11 @@ return {
         opts.picker.preview = zellij_image_preview
 
         return opts
+      end
+
+      if in_tmux() then
+        opts.picker = opts.picker or {}
+        opts.picker.preview = tmux_image_preview
       end
 
       return opts
