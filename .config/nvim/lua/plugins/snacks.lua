@@ -309,6 +309,9 @@ end
 return {
   {
     "folke/snacks.nvim",
+    keys = {
+      { "<leader>/", false },
+    },
     opts = function(_, opts)
       opts = opts or {}
       opts.image = vim.tbl_deep_extend("force", opts.image or {}, {
