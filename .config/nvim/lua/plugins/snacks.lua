@@ -86,16 +86,44 @@ local function can_use_wezterm_preview()
   return in_zellij() and vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
 end
 
+local function current_wezterm_pane_id()
+  return tonumber(vim.env.WEZTERM_PANE)
+end
+
+local function focus_wezterm_pane(pane_id)
+  if not pane_id then
+    return false
+  end
+
+  vim.fn.system({
+    "wezterm",
+    "cli",
+    "activate-pane",
+    "--pane-id",
+    tostring(pane_id),
+  })
+  return vim.v.shell_error == 0
+end
+
 local function ensure_wezterm_preview_pane(cwd)
   local pane_id = read_pane_id()
   if pane_exists(pane_id) then
     return pane_id
   end
 
-  local out = vim.fn.system({
+  local source_pane_id = current_wezterm_pane_id()
+  local cmd = {
     "wezterm",
     "cli",
     "split-pane",
+  }
+  if source_pane_id then
+    vim.list_extend(cmd, {
+      "--pane-id",
+      tostring(source_pane_id),
+    })
+  end
+  vim.list_extend(cmd, {
     "--right",
     "--percent",
     "35",
@@ -104,6 +132,7 @@ local function ensure_wezterm_preview_pane(cwd)
     "zsh",
     "-i",
   })
+  local out = vim.fn.system(cmd)
   if vim.v.shell_error ~= 0 then
     return nil
   end
@@ -111,6 +140,7 @@ local function ensure_wezterm_preview_pane(cwd)
   pane_id = tonumber(vim.trim(out))
   if pane_id then
     write_pane_id(pane_id)
+    focus_wezterm_pane(source_pane_id)
     vim.wait(150)
   end
   return pane_id
