@@ -49,8 +49,13 @@ alias -s zip='unzip'
 alias scp="scp -O"
 
 
-# git icdiff
-if (( $+commands[icdiff] )); then
+# git diff viewers
+if (( $+commands[delta] )); then
+    alias gd='git -c core.pager=delta diff'
+    alias gdca='git -c core.pager=delta diff --cached'
+    alias gdcw='git -c core.pager=delta diff --cached --word-diff=color'
+    alias gdw='git -c core.pager=delta diff --word-diff=color'
+elif (( $+commands[icdiff] )); then
     alias gd='git icdiff'
     alias gdca='git icdiff --cached'
     alias gdcw='git icdiff --cached --word-diff'

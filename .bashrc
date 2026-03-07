@@ -19,8 +19,13 @@ fi
 
 export PS1='[\u@\h \w]$ '
 
-# git icdiff
-if type icdiff>/dev/null 2>&1; then
+# git diff viewers
+if type delta>/dev/null 2>&1; then
+    alias gd='git -c core.pager=delta diff'
+    alias gdca='git -c core.pager=delta diff --cached'
+    alias gdcw='git -c core.pager=delta diff --cached --word-diff=color'
+    alias gdw='git -c core.pager=delta diff --word-diff=color'
+elif type icdiff>/dev/null 2>&1; then
     alias gd='git icdiff'
     alias gdca='git icdiff --cached'
     alias gdcw='git icdiff --cached --word-diff'
@@ -139,3 +144,5 @@ if type atuin >/dev/null 2>&1; then
     [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
     eval "$(atuin init bash)"
 fi
+
+source /Users/meteorchen/.config/broot/launcher/bash/br

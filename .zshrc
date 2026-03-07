@@ -252,3 +252,5 @@ mamba() { _lazy_load_conda && mamba "$@" }
 if (( $+commands[atuin] )); then
     eval "$(atuin init zsh)"
 fi
+
+source /Users/meteorchen/.config/broot/launcher/bash/br
