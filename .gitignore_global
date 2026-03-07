@@ -10,3 +10,4 @@ CMakeFiles/
 *.un~
 tags
 package-lock.json
+.nvimlog
