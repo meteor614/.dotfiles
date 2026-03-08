@@ -56,6 +56,7 @@ fi
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export TERM=xterm-256color
 
 # pager

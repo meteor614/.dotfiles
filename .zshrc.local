@@ -75,6 +75,7 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat -
 
 export SVN_EDITOR='vim'
 export EDITOR='vim'
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 # 保留本地 WezTerm 特性；只在 terminfo 可用时启用 wezterm TERM。
 if [ -n "$TMUX" ]; then
     export TERM=screen-256color
