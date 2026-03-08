@@ -239,7 +239,12 @@ keybinds clear-defaults=true {
         bind "Alt b" { SwitchToMode "Tmux"; }
     }
 }
-// theme "gruvbox-dark"
+theme "gruvbox-dark"
+// theme "catppuccin-mocha"
+// theme "tokyo-night-dark"
+// theme "catppuccin-macchiato"
+// theme "catppuccin-frappe"
+// theme "catppuccin-latte"
 // pane_frames false
 // session_serialization false
 scroll_buffer_size 100000
