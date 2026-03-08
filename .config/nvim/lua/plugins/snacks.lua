@@ -372,6 +372,37 @@ local function tmux_image_preview(ctx)
   return render_terminal_image_preview(ctx, path, source)
 end
 
+local function git_diff_preview_size(ctx)
+  local width = math.max(40, vim.api.nvim_win_get_width(ctx.win) - 2)
+  local height = math.max(10, vim.api.nvim_win_get_height(ctx.win) - 2)
+  return width, height
+end
+
+local function delta_diff_cmd(width)
+  return {
+    "delta",
+    "--" .. vim.o.background,
+    "--paging=never",
+    "--side-by-side",
+    "--line-numbers",
+    "--navigate",
+    "--line-fill-method=spaces",
+    "--width=" .. tostring(width),
+  }
+end
+
+local function git_diff_preview(ctx)
+  local width, height = git_diff_preview_size(ctx)
+  local preview = require("snacks.picker.preview")
+  return preview.cmd(delta_diff_cmd(width), ctx, {
+    input = ctx.item.diff or "",
+    env = {
+      COLUMNS = tostring(width),
+      LINES = tostring(height),
+    },
+  })
+end
+
 return {
   {
     "folke/snacks.nvim",
@@ -383,9 +414,58 @@ return {
       opts.image = vim.tbl_deep_extend("force", opts.image or {}, {
         enabled = not in_zellij(),
       })
+      opts.picker = opts.picker or {}
+      opts.picker.layouts = vim.tbl_deep_extend("force", opts.picker.layouts or {}, {
+        git_diff_wide = {
+          layout = {
+            box = "horizontal",
+            width = 0.92,
+            min_width = 160,
+            height = 0.9,
+            {
+              box = "vertical",
+              border = true,
+              title = "{title} {live} {flags}",
+              { win = "input", height = 1, border = "bottom" },
+              { win = "list", border = "none" },
+            },
+            { win = "preview", title = "{preview}", border = true, width = 0.70 },
+          },
+        },
+      })
+      opts.picker.sources = vim.tbl_deep_extend("force", opts.picker.sources or {}, {
+        git_diff = {
+          layout = { preset = "git_diff_wide" },
+          preview = git_diff_preview,
+          win = {
+            preview = {
+              minimal = true,
+            },
+          },
+        },
+      })
+      opts.picker.previewers = vim.tbl_deep_extend("force", opts.picker.previewers or {}, {
+        diff = {
+          style = "terminal",
+          cmd = delta_diff_cmd(120),
+        },
+        git = {
+          args = {
+            "-c",
+            "core.pager=delta",
+            "-c",
+            "delta.side-by-side=true",
+            "-c",
+            "delta.line-numbers=true",
+            "-c",
+            "delta.navigate=true",
+            "-c",
+            "delta.line-fill-method=spaces",
+          },
+        },
+      })
 
       if in_zellij() then
-        opts.picker = opts.picker or {}
         local on_close = opts.picker.on_close
         opts.picker.on_close = function(picker)
           close_wezterm_preview()
@@ -399,7 +479,6 @@ return {
       end
 
       if in_tmux() then
-        opts.picker = opts.picker or {}
         opts.picker.preview = tmux_image_preview
       end
 
