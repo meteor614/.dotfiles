@@ -21,10 +21,10 @@ export PS1='[\u@\h \w]$ '
 
 # git diff viewers
 if type delta>/dev/null 2>&1; then
-    alias gd='git -c core.pager=delta diff'
-    alias gdca='git -c core.pager=delta diff --cached'
-    alias gdcw='git -c core.pager=delta diff --cached --word-diff=color'
-    alias gdw='git -c core.pager=delta diff --word-diff=color'
+    alias gd='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff'
+    alias gdca='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff --cached'
+    alias gdcw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --cached --word-diff=color'
+    alias gdw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --word-diff=color'
 elif type icdiff>/dev/null 2>&1; then
     alias gd='git icdiff'
     alias gdca='git icdiff --cached'
