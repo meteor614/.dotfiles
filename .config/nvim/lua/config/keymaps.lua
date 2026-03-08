@@ -9,6 +9,36 @@ local function with_desc(desc, base)
   return vim.tbl_extend("force", base or {}, { desc = desc })
 end
 
+local function git_worktree_has_changes()
+  local root = LazyVim.root.git()
+  if not root or root == "" then
+    return false
+  end
+  local out = vim.fn.system({ "git", "-C", root, "status", "--porcelain" })
+  return vim.v.shell_error == 0 and out ~= ""
+end
+
+local function open_git_diff()
+  local ok_gs, gs = pcall(require, "gitsigns")
+  if ok_gs then
+    local hunks = gs.get_hunks(0)
+    if hunks and #hunks > 0 then
+      gs.diffthis()
+      return
+    end
+  end
+
+  if git_worktree_has_changes() then
+    local ok_snacks, snacks = pcall(require, "snacks")
+    if ok_snacks and snacks.picker and snacks.picker.git_diff then
+      snacks.picker.git_diff()
+      return
+    end
+  end
+
+  vim.notify("Git working tree is clean", vim.log.levels.INFO, { title = "Git Diff" })
+end
+
 -- Restore default "s" behavior (remove LazyVim/flash-style mappings).
 pcall(vim.keymap.del, { "n", "x", "o" }, "s")
 map({ "n", "x", "o" }, "gs", function()
@@ -83,6 +113,10 @@ end, with_desc("Next git hunk", silent))
 map("n", "<leader>gk", function()
   require("gitsigns").prev_hunk()
 end, with_desc("Prev git hunk", silent))
+map("n", "<leader>gd", open_git_diff, with_desc("Git diff", silent))
+map("n", "<leader>gH", function()
+  Snacks.picker.git_diff()
+end, with_desc("Git diff hunks", silent))
 
 map("n", "<C-p>", require("lazyvim.util").pick("files"), with_desc("Find files", silent))
 
