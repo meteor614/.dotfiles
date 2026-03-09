@@ -97,9 +97,13 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Add wisely, as too many plugins slow down shell startup.
 #plugins=(git)
 # plugins=(git zsh-autosuggestions zsh-syntax-highlighting z extract web-search)
-plugins=(git z extract zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git extract zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
+
+if (( $+commands[zoxide] )); then
+    eval "$(zoxide init zsh)"
+fi
 
 # User configuration
 
