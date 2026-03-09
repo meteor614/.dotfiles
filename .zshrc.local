@@ -47,6 +47,9 @@ alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
 alias -s zip='unzip'
 alias scp="scp -O"
+alias zj="zellij attach -c"
+alias zjl="zellij list-sessions"
+alias zjk="zellij kill-session"
 
 
 # git diff viewers

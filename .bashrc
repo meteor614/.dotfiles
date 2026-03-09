@@ -39,6 +39,9 @@ else
     alias p='xargs -P 16'
 fi
 alias scp="scp -O"
+alias zj="zellij attach -c"
+alias zjl="zellij list-sessions"
+alias zjk="zellij kill-session"
 
 # fzf
 if type rg>/dev/null 2>&1; then
