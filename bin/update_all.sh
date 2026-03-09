@@ -55,22 +55,22 @@ update_gem() {
     log "gem upgrade finish"
 }
 
-update_npm() {
-    if ! have_cmd npm; then
-        return 0
-    fi
-
-    if have_cmd brew; then
-        npm install -g npm --force
-        npm update
-        npm --force cache clean
-    else
-        sudo npm install -g npm
-        sudo npm update
-        sudo npm --force cache clean
-    fi
-    log "npm upgrade finish"
-}
+# update_npm() {
+#     if ! have_cmd npm; then
+#         return 0
+#     fi
+#
+#     if have_cmd brew; then
+#         npm install -g npm --force
+#         npm update
+#         npm --force cache clean
+#     else
+#         sudo npm install -g npm
+#         sudo npm update
+#         sudo npm --force cache clean
+#     fi
+#     log "npm upgrade finish"
+# }
 
 update_git_repo() {
     local repo=$1
@@ -143,7 +143,7 @@ update_pkg_manager &
 update_gem &
 
 # node.js modules
-update_npm &
+# update_npm &
 
 # update gdb-dashboard from github
 update_git_repo "$HOME/gdb-dashboard" git pull --no-rebase &

@@ -8,6 +8,16 @@ red() { printf '\033[31m%s\033[0m\n' "$1"; }
 yellow() { printf '\033[33m%s\033[0m\n' "$1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
+load_nvm_default_node() {
+    local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+
+    [ -s "$nvm_dir/nvm.sh" ] || return 0
+
+    export NVM_DIR="$nvm_dir"
+    # shellcheck disable=SC1090
+    . "$NVM_DIR/nvm.sh"
+    nvm use default >/dev/null 2>&1 || true
+}
 ensure_link() {
     local src=$1
     local dst=$2
@@ -114,6 +124,9 @@ ensure_link "${script_path}/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 # git mirrors
 # git config --global url."https://hub.fastgit.org".insteadOf https://github.com
 
+# prefer nvm-managed Node when it is available
+load_nvm_default_node
+
 # brew
 if ! command_exists brew && [ "$os" = "darwin" ]; then
     red 'Install brew...'
@@ -139,7 +152,7 @@ if command_exists brew && command_exists git; then
 fi
 # install package
 if type brew &>/dev/null && ! type nvim &>/dev/null; then
-    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja node numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zellij zsh cppman bat reattach-to-user-namespace exa lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
+    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zellij zsh cppman bat reattach-to-user-namespace exa lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
     brew install font-hack-nerd-font font-fira-code font-sarasa-gothic
     # brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
