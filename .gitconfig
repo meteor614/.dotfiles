@@ -1,8 +1,19 @@
 [user]
 	email = meteorchen@qq.com
 	name = meteorchen
+	useConfigOnly = true
 [core]
+	hooksPath = ~/.git-hooks
+	quotepath = false
+	longpaths = true
+	autocrlf = input
+	trustctime = false
 	excludesfile = ~/.gitignore_global
+	attributesfile = ~/.attributes_global
+	ignorecase = true
+	untrackedcache = true
+	filemode = false
+	pager = delta
 [filter "media"]
 	required = true
 	clean = git media clean %f
@@ -16,6 +27,19 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[init]
+	defaultBranch = master
+[http]
+	postBuffer = 655360000
+[lfs]
+	concurrenttransfers = 32
+	fetchrecentrefsdays = 0
+	pruneoffsetdays = 0
+	dialtimeout = 3
+	tlstimeout = 3
+[lfs "transfer"]
+	maxretries = 1
+	maxretrydelay = 2
 [push]
     #default = matching
 	default = simple
@@ -34,3 +58,7 @@
 [alias]
     prune = fetch --prune
     stash-all = stash save --include-untracked
+[delta]
+    side-by-side = true
+    line-numbers = true
+    syntax-theme = Dracula
