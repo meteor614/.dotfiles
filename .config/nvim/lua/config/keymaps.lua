@@ -38,6 +38,13 @@ map("n", "g,", "g,zz", with_desc("Prev change centered", silent))
 
 map("i", "<C-s>", "<C-O>:update<cr>", with_desc("Save file", nosilent))
 map("n", "<C-s>", ":update<cr>", with_desc("Save file", nosilent))
+pcall(vim.keymap.del, "n", "<leader>qq")
+pcall(vim.keymap.del, "n", "<leader>wd")
+pcall(vim.keymap.del, "n", "<leader>wm")
+map("n", "<leader>q", "<cmd>qa<cr>", with_desc("Quit All", silent))
+-- map("n", "<leader>Qq", "<cmd>qa<cr>", with_desc("Quit All", silent))
+map("n", "<leader>w", "<cmd>update<cr>", with_desc("Save file", silent))
+map("n", "<leader>Wd", "<C-W>c", with_desc("Delete Window", { remap = true, silent = true }))
 
 map("i", "<C-h>", "<C-o>h", with_desc("Move left (insert)", nosilent))
 map("i", "<C-l>", "<C-o>l", with_desc("Move right (insert)", nosilent))
@@ -85,6 +92,7 @@ map("n", "<leader>gk", function()
 end, with_desc("Prev git hunk", silent))
 
 map("n", "<C-p>", require("lazyvim.util").pick("files"), with_desc("Find files", silent))
+Snacks.toggle.zoom():map("<leader>Wm")
 
 map({ "n", "t" }, "<A-b>", function()
   Snacks.terminal(nil, { cwd = LazyVim.root(), count = 1, win = { position = "bottom" } })
