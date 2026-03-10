@@ -3,14 +3,13 @@
 All my dotfiles.
 
 * neovim/lunarvim/vim/ideavim
+* wezterm/alacritty
 * zsh/bash
 * zellij/tmux/tmuxinator
-* git/tig
+* git/lazygit
 * gdb/lldb
-* wezterm/alacritty
 * karabiner
 * cheats
 * brew/go/npm/gem/pip/conda source mirrors
 * scripts
 * …
-
