@@ -8,6 +8,19 @@ red() { printf '\033[31m%s\033[0m\n' "$1"; }
 yellow() { printf '\033[33m%s\033[0m\n' "$1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
+ensure_git_clone() {
+    local repo=$1
+    local dst=$2
+    shift 2
+
+    if [ -e "$dst" ]; then
+        echo "skip $dst (exists)"
+        return 0
+    fi
+
+    ensure_dir "$(dirname "$dst")"
+    git clone "$@" "$repo" "$dst"
+}
 load_nvm_default_node() {
     local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
 
@@ -181,10 +194,18 @@ fi
 
 # install oh-my-zsh
 if type zsh &>/dev/null; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    omz_dir="$HOME/.oh-my-zsh"
+    zsh_custom_dir="${ZSH_CUSTOM:-$omz_dir/custom}"
+
+    if [ ! -d "$omz_dir" ]; then
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    else
+        echo "skip $omz_dir (exists)"
+    fi
+
+    ensure_git_clone https://github.com/romkatv/powerlevel10k.git "$zsh_custom_dir/themes/powerlevel10k" --depth=1
+    ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom_dir/plugins/zsh-autosuggestions"
+    ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom_dir/plugins/zsh-syntax-highlighting"
 fi
 
 # if type python2 &>/dev/null; then
