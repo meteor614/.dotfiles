@@ -257,4 +257,6 @@ if (( $+commands[atuin] )); then
     eval "$(atuin init zsh)"
 fi
 
-source /Users/meteorchen/.config/broot/launcher/bash/br
+BROOT_LAUNCHER="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/bash/br"
+[ -f "$BROOT_LAUNCHER" ] && source "$BROOT_LAUNCHER"
+unset BROOT_LAUNCHER
