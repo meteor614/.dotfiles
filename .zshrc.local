@@ -22,8 +22,8 @@ bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 (( $+commands[deer] )) && bindkey '\ev' deer
 
 # PATH 去重辅助函数
-path_prepend() { [[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
-path_append() { [[ ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
+path_prepend() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
+path_append() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
 
 #alias ls='ls -G --color'
 alias grep='grep --color'
@@ -128,15 +128,15 @@ mkdir -p ~/.zsh_cache/completions
 # fi
 
 # PATH: 先系统/包管理器，再用户目录
-[ -d /opt/homebrew/bin ] && path_prepend /opt/homebrew/bin
-[ -d /usr/local/bin ] && path_prepend /usr/local/bin
-[ -d /opt/bin ] && path_prepend /opt/bin
-[ -d /opt/usr/bin ] && path_prepend /opt/usr/bin
-[ -d /usr/local/opt/findutils/libexec/gnubin ] && path_prepend /usr/local/opt/findutils/libexec/gnubin
-[ -d /usr/local/opt/gnu-getopt/bin ] && path_prepend /usr/local/opt/gnu-getopt/bin
-[ -d /usr/local/opt/ruby/bin ] && path_prepend /usr/local/opt/ruby/bin
-[ -d "$HOME/bin" ] && path_append "$HOME/bin"
-[ -d "$HOME/.local/bin" ] && path_append "$HOME/.local/bin"
+path_prepend /opt/homebrew/bin
+path_prepend /usr/local/bin
+path_prepend /opt/bin
+path_prepend /opt/usr/bin
+path_prepend /usr/local/opt/findutils/libexec/gnubin
+path_prepend /usr/local/opt/gnu-getopt/bin
+path_prepend /usr/local/opt/ruby/bin
+path_append "$HOME/bin"
+path_append "$HOME/.local/bin"
 
 if (( $+commands[go] )) && [ -z "$GOPATH" ]; then
     export GOPATH=$HOME/gowork
@@ -186,7 +186,7 @@ if (( $+commands[gem] )) && ! (( $+commands[tmuxinator] )); then
     mkdir -p "$HOME/.zsh_cache"
     if [ -f "$_gem_bin_cache" ]; then
         read -r _gem_bin < "$_gem_bin_cache"
-        [ -n "$_gem_bin" ] && path_append "$_gem_bin"
+        path_append "$_gem_bin"
     else
         _gem_bin="$(gem environment | grep 'EXECUTABLE DIRECTORY' | awk -F': ' '{print $2}')"
         [ -n "$_gem_bin" ] && print -r -- "$_gem_bin" >| "$_gem_bin_cache" && path_append "$_gem_bin"
