@@ -165,7 +165,7 @@ if command_exists brew && command_exists git; then
 fi
 # install package
 if type brew &>/dev/null && ! type nvim &>/dev/null; then
-    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cquery cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion zellij zsh cppman bat reattach-to-user-namespace exa lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
+    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman bat reattach-to-user-namespace eza lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
     brew install font-hack-nerd-font font-fira-code font-sarasa-gothic
     # brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
@@ -180,9 +180,6 @@ fi
 
 # for coc.nvim
 # test -e ~/.vim/coc-settings.json || ln -s ${script_path}/.vim/coc-settings.json ~/.vim/coc-settings.json
-if type g++ &>/dev/null && type brew &>/dev/null && ! type cquery &>/dev/null; then
-    brew install cquery
-fi
 # python
 if type python3 &>/dev/null && ! type pip &>/dev/null; then
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py

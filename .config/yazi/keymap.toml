@@ -1,0 +1,16 @@
+[manager]
+prepend_keymap = [
+  # smart-enter: 文件打开编辑，目录进入
+  { on = ["l"], run = "plugin smart-enter", desc = "Enter or open" },
+  { on = ["<Enter>"], run = "plugin smart-enter", desc = "Enter or open" },
+  # 用 e 直接用 nvim 编辑
+  { on = ["e"], run = 'shell "nvim $@" --block --confirm', desc = "Edit with nvim" },
+  # diff: 对比选中文件
+  { on = ["<C-d>"], run = "plugin diff", desc = "Diff selected file" },
+  # 快速进入 shell
+  { on = ["!"], run = 'shell zsh --block --confirm', desc = "Open shell here" },
+  # 创建文件/目录的快捷键
+  { on = ["a"], run = "create", desc = "Create file or directory" },
+  # 用 . 切换隐藏文件
+  { on = ["."], run = "hidden toggle", desc = "Toggle hidden files" },
+]

@@ -1,0 +1,17 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "1962818"
+hash = "26db011a778f261d730d4f5f8bf24b3f"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:diff"
+rev = "1962818"
+hash = "8b1af6b5a69797ee951f2a80ce570818"
+
+[[plugin.deps]]
+use = "yazi-rs/plugins:smart-enter"
+rev = "1962818"
+hash = "187cc58ba7ac3befd49c342129e6f1b6"
+
+[flavor]
+deps = []
