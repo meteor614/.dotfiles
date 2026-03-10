@@ -255,3 +255,24 @@ fi
 if [ -f "$HOME/.openclaw/completions/openclaw.zsh" ]; then
     source "$HOME/.openclaw/completions/openclaw.zsh"
 fi
+
+# 告诉 WezTerm 当前 multiplexer；ssh 到远端再进 tmux 时也能识别。
+_wezterm_emit_mux_user_var() {
+    local encoded=""
+
+    if [[ -n "$TMUX" ]]; then
+        encoded="dG11eA=="
+        printf '\033Ptmux;\033\033]1337;SetUserVar=MUX=%s\007\033\\' "$encoded"
+        return 0
+    fi
+
+    if [[ -n "$ZELLIJ" || -n "$ZELLIJ_SESSION_NAME" ]]; then
+        encoded="emVsbGlq"
+    fi
+
+    printf '\033]1337;SetUserVar=MUX=%s\007' "$encoded"
+}
+
+if [[ -o interactive ]] && (( ${precmd_functions[(Ie)_wezterm_emit_mux_user_var]} == 0 )); then
+    precmd_functions+=(_wezterm_emit_mux_user_var)
+fi

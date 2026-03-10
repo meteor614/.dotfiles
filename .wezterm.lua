@@ -10,18 +10,29 @@ local function basename(path)
     return normalized:match('([^/]+)$') or normalized
 end
 
-local function current_mux(pane)
-    local process_name = basename(pane:get_foreground_process_name())
-    if not process_name then
+local function normalize_mux(value)
+    if not value or value == '' then
         return nil
     end
 
-    process_name = process_name:lower()
-    if process_name == 'tmux' or process_name == 'zellij' then
-        return process_name
+    value = value:lower()
+    if value == 'tmux' or value == 'zellij' then
+        return value
     end
 
     return nil
+end
+
+local function current_mux(pane)
+    -- Prefer an explicit mux hint from the shell prompt. This survives
+    -- ssh hops where the local foreground process is just `ssh`.
+    local user_vars = pane:get_user_vars() or {}
+    local mux = normalize_mux(user_vars.MUX or user_vars.mux)
+    if mux then
+        return mux
+    end
+
+    return normalize_mux(basename(pane:get_foreground_process_name()))
 end
 
 local function zellij_key_action(key, mods)

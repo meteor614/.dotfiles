@@ -250,6 +250,34 @@ if type atuin >/dev/null 2>&1; then
     eval "$(atuin init bash)"
 fi
 
+# 告诉 WezTerm 当前 multiplexer；ssh 到远端再进 tmux 时也能识别。
+_wezterm_emit_mux_user_var() {
+    local encoded=""
+
+    if [ -n "$TMUX" ]; then
+        encoded="dG11eA=="
+        printf '\033Ptmux;\033\033]1337;SetUserVar=MUX=%s\007\033\\' "$encoded"
+        return 0
+    fi
+
+    if [ -n "$ZELLIJ" ] || [ -n "$ZELLIJ_SESSION_NAME" ]; then
+        encoded="emVsbGlq"
+    fi
+
+    printf '\033]1337;SetUserVar=MUX=%s\007' "$encoded"
+}
+
+case ";$PROMPT_COMMAND;" in
+    *";_wezterm_emit_mux_user_var;"*) ;;
+    *)
+        if [ -n "$PROMPT_COMMAND" ]; then
+            PROMPT_COMMAND="_wezterm_emit_mux_user_var;$PROMPT_COMMAND"
+        else
+            PROMPT_COMMAND="_wezterm_emit_mux_user_var"
+        fi
+        ;;
+esac
+
 BROOT_LAUNCHER="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/bash/br"
 [ -f "$BROOT_LAUNCHER" ] && source "$BROOT_LAUNCHER"
 unset BROOT_LAUNCHER
