@@ -434,6 +434,9 @@ return {
         },
       })
       opts.picker.sources = vim.tbl_deep_extend("force", opts.picker.sources or {}, {
+        files = {
+          hidden = true,
+        },
         git_diff = {
           layout = { preset = "git_diff_wide" },
           preview = git_diff_preview,
