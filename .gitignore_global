@@ -11,3 +11,4 @@ CMakeFiles/
 tags
 package-lock.json
 .nvimlog
+.claude/
