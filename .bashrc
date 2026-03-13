@@ -6,11 +6,11 @@ alias fgrep='fgrep --color'
 alias 。。=..
 
 if type eza>/dev/null 2>&1; then
-    alias ll='eza -l'
-    alias l='eza -l'
-    alias la='eza -la'
-    alias k='eza -l'
     alias ls='eza'
+    alias ll='eza -l --icons'
+    alias l='eza -l --icons'
+    alias la='eza -la --icons'
+    alias k='eza -l --icons'
 else
     alias ls='ls -G --color'
     alias ll='ls -lh'
@@ -44,7 +44,7 @@ alias zjl="zellij list-sessions"
 alias zjk="zellij kill-session"
 
 # fzf - 与 zsh 保持一致
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null || rg --files --hidden --follow --glob '!.git/*' 2>/dev/null || find . -type f"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git || find . -type f"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || head -60 {}'"
 
 export SVN_EDITOR='nvim'

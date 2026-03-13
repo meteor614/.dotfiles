@@ -83,7 +83,7 @@ else
 fi
 
 # fzf - 优化配置
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git 2>/dev/null || rg --files --hidden --follow --glob '!.git/*' 2>/dev/null || find . -type f"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git || find . -type f"
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || head -60 {}'"
 
 export SVN_EDITOR='nvim'
