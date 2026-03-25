@@ -108,6 +108,10 @@ _init_starship() {
         starship_bin="/usr/local/bin/starship"
     elif [[ -x /opt/homebrew/bin/starship ]]; then
         starship_bin="/opt/homebrew/bin/starship"
+    elif [[ -x "$HOME/.local/bin/starship" ]]; then
+        starship_bin="$HOME/.local/bin/starship"
+    elif [[ -x "$HOME/bin/starship" ]]; then
+        starship_bin="$HOME/bin/starship"
     fi
 
     [[ -n "$starship_bin" ]] || return 0
