@@ -1,0 +1,157 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+palette = "dotfiles"
+add_newline = true
+command_timeout = 1000
+
+format = """
+$os\
+$directory\
+$git_branch\
+$git_status\
+$line_break\
+$character\
+"""
+
+right_format = """
+$status\
+$cmd_duration\
+$jobs\
+$direnv\
+$nodejs\
+$python\
+$golang\
+$rust\
+$lua\
+$package\
+$docker_context\
+$kubernetes\
+$aws\
+$gcloud\
+$username\
+$hostname\
+"""
+
+[palettes.dotfiles]
+blue = "#7aa2f7"
+cyan = "#7dcfff"
+green = "#9ece6a"
+orange = "#ff9e64"
+red = "#f7768e"
+surface = "#24283b"
+text = "#c0caf5"
+yellow = "#e0af68"
+
+[os]
+disabled = false
+format = "[$symbol ]($style)"
+style = "bold blue"
+
+[os.symbols]
+Macos = ""
+
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style) "
+home_symbol = "~"
+read_only = " 󰌾"
+read_only_style = "bold red"
+style = "bold cyan"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+format = "[$symbol$branch]($style) "
+style = "bold orange"
+symbol = " "
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "bold yellow"
+
+[status]
+disabled = false
+format = "[$symbol$status]($style) "
+map_symbol = true
+style = "bold red"
+
+[cmd_duration]
+format = "[󱎫 $duration]($style) "
+min_time = 800
+style = "bold yellow"
+
+[jobs]
+format = "[$symbol$number]($style) "
+number_threshold = 1
+style = "bold blue"
+symbol = " "
+
+[direnv]
+disabled = false
+style = "bold green"
+
+[nodejs]
+format = "[$symbol$version]($style) "
+style = "bold green"
+symbol = " "
+
+[python]
+format = "[$symbol$version]($style) "
+style = "bold green"
+symbol = " "
+
+[golang]
+format = "[$symbol$version]($style) "
+style = "bold cyan"
+symbol = " "
+
+[rust]
+format = "[$symbol$version]($style) "
+style = "bold orange"
+symbol = " "
+
+[lua]
+format = "[$symbol$version]($style) "
+style = "bold blue"
+symbol = " "
+
+[package]
+format = "[$symbol$version]($style) "
+style = "bold text"
+symbol = "󰏗 "
+
+[docker_context]
+style = "bold blue"
+symbol = " "
+
+[kubernetes]
+disabled = false
+style = "bold cyan"
+symbol = "☸ "
+
+[aws]
+style = "bold orange"
+symbol = " "
+
+[gcloud]
+style = "bold blue"
+symbol = "󱇶 "
+
+[username]
+format = "[$user]($style)@"
+show_always = false
+style_root = "bold red"
+style_user = "bold green"
+
+[hostname]
+disabled = false
+format = "[$hostname]($style) "
+ssh_only = true
+style = "bold green"
+
+[character]
+error_symbol = "[❯](bold red)"
+success_symbol = "[❯](bold green)"
+vimcmd_symbol = "[❮](bold yellow)"
+vimcmd_replace_one_symbol = "[❮](bold yellow)"
+vimcmd_replace_symbol = "[❮](bold yellow)"
+vimcmd_visual_symbol = "[❮](bold yellow)"

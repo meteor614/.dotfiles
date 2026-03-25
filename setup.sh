@@ -165,7 +165,7 @@ if command_exists brew && command_exists git; then
 fi
 # install package
 if type brew &>/dev/null && ! type nvim &>/dev/null; then
-    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman bat reattach-to-user-namespace eza lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
+    brew install ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cscope ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion tree vim vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman bat reattach-to-user-namespace eza lazygit procs dust cargo atuin imagemagick bottom sd broot choose glow
     brew install font-hack-nerd-font font-fira-code font-sarasa-gothic
     # brew install qlcolorcode qlstephen qlmarkdown quicklook-json qlimagesize suspicious-package quicklookase qlvideo
 fi
@@ -200,7 +200,6 @@ if type zsh &>/dev/null; then
         echo "skip $omz_dir (exists)"
     fi
 
-    ensure_git_clone https://github.com/romkatv/powerlevel10k.git "$zsh_custom_dir/themes/powerlevel10k" --depth=1
     ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom_dir/plugins/zsh-autosuggestions"
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom_dir/plugins/zsh-syntax-highlighting"
 fi

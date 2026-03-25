@@ -6,19 +6,14 @@ export ZSH_DISABLE_COMPFIX="true"
 export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"
 mkdir -p "$ZSH_CACHE_DIR"
+export STARSHIP_CACHE="${ZSH_CACHE_DIR}/starship"
+mkdir -p "$STARSHIP_CACHE"
 
 # 2. 禁用 compaudit（节省 53ms）
 zstyle ':omz:initialize' skip-compaudit 'yes'
 
 # 3. 禁用 oh-my-zsh 自动更新（节省 27ms）
 zstyle ':omz:update' mode disabled
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
@@ -31,9 +26,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 # ZSH_THEME="robbyrussell"
-# typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-# typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME=""
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -105,6 +98,10 @@ if (( $+commands[zoxide] )); then
     eval "$(zoxide init zsh)"
 fi
 
+if (( $+commands[starship] )); then
+    eval "$(starship init zsh)"
+fi
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -130,9 +127,6 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
