@@ -98,9 +98,24 @@ if (( $+commands[zoxide] )); then
     eval "$(zoxide init zsh)"
 fi
 
-if (( $+commands[starship] )); then
-    eval "$(starship init zsh)"
-fi
+_init_starship() {
+    (( ${+_starship_initialized} )) && return 0
+
+    local starship_bin=""
+    if (( $+commands[starship] )); then
+        starship_bin="$(command -v starship)"
+    elif [[ -x /usr/local/bin/starship ]]; then
+        starship_bin="/usr/local/bin/starship"
+    elif [[ -x /opt/homebrew/bin/starship ]]; then
+        starship_bin="/opt/homebrew/bin/starship"
+    fi
+
+    [[ -n "$starship_bin" ]] || return 0
+    eval "$("$starship_bin" init zsh)"
+    typeset -g _starship_initialized=1
+}
+
+_init_starship
 
 # User configuration
 
@@ -129,6 +144,7 @@ fi
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
+_init_starship
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
