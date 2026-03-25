@@ -50,6 +50,26 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat -
 export SVN_EDITOR='nvim'
 export EDITOR='nvim'
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+_init_starship() {
+    local starship_bin=""
+
+    if type starship >/dev/null 2>&1; then
+        starship_bin="$(command -v starship)"
+    elif [ -x /usr/local/bin/starship ]; then
+        starship_bin="/usr/local/bin/starship"
+    elif [ -x /opt/homebrew/bin/starship ]; then
+        starship_bin="/opt/homebrew/bin/starship"
+    elif [ -x "$HOME/.local/bin/starship" ]; then
+        starship_bin="$HOME/.local/bin/starship"
+    elif [ -x "$HOME/bin/starship" ]; then
+        starship_bin="$HOME/bin/starship"
+    fi
+
+    [ -n "$starship_bin" ] || return 0
+    eval "$("$starship_bin" init bash)"
+}
+
 # 保留本地 WezTerm 特性；只在 terminfo 可用时启用 wezterm TERM。
 if [ -n "$TMUX" ]; then
     export TERM=screen-256color
@@ -249,6 +269,8 @@ if type atuin >/dev/null 2>&1; then
     [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
     eval "$(atuin init bash)"
 fi
+
+_init_starship
 
 # 告诉 WezTerm 当前 multiplexer；ssh 到远端再进 tmux 时也能识别。
 _wezterm_emit_mux_user_var() {
