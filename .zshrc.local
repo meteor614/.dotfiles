@@ -185,7 +185,7 @@ kubectl() {
 # [ -d "/volume1/@optware/bin" ] && path_append "/volume1/@optware/bin"
 
 # start tmux if ssh
-if (( $+commands[tmux] )) && [[ -n "$SSH_CONNECTION" && -z "$TMUX" && -t 0 ]]; then
+if (( $+commands[tmux] )) && [[ -z "${DOTFILES_NONINTERACTIVE:-}" && -n "$SSH_CONNECTION" && -z "$TMUX" && -t 0 ]]; then
     tmux new -As default-0
     # tmux attach -t default || tmux new -t default
 fi

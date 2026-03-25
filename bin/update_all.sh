@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o pipefail
+set -euo pipefail
 
 begin=$(date +%s)
 
@@ -10,6 +10,15 @@ have_cmd() {
 
 log() {
     printf '%s\n' "$1"
+}
+
+usage() {
+    cat <<'EOF'
+Usage: update_all.sh [all]
+
+Commands:
+  all   Also update ~/.dotfiles and its submodules
+EOF
 }
 
 update_pkg_manager() {
@@ -34,8 +43,6 @@ update_pkg_manager() {
         sudo ipkg upgrade
         log "ipkg update finish"
     else
-        #sudo dnf upgrade
-        #sudo pkg upgrade
         log "update command not found"
     fi
 }
@@ -55,23 +62,6 @@ update_gem() {
     log "gem upgrade finish"
 }
 
-# update_npm() {
-#     if ! have_cmd npm; then
-#         return 0
-#     fi
-#
-#     if have_cmd brew; then
-#         npm install -g npm --force
-#         npm update
-#         npm --force cache clean
-#     else
-#         sudo npm install -g npm
-#         sudo npm update
-#         sudo npm --force cache clean
-#     fi
-#     log "npm upgrade finish"
-# }
-
 update_git_repo() {
     local repo=$1
     shift
@@ -81,7 +71,8 @@ update_git_repo() {
     fi
 
     (
-        cd "$repo" && "$@"
+        cd "$repo"
+        "$@"
     )
 }
 
@@ -93,8 +84,10 @@ update_dotfiles_repo() {
     (
         cd "$HOME/.dotfiles"
         git pull --no-rebase
-        "$HOME/.dotfiles/setup.sh"
-        log ".dotfiles update finish"
+        git submodule update --init --recursive
+        git submodule update --remote
+        log ".dotfiles repo update finish"
+        log "re-run ~/.dotfiles/setup.sh repair manually if links need reconciliation"
     )
 }
 
@@ -103,23 +96,11 @@ update_zsh_plugins() {
         return 0
     fi
 
-    zsh -ic "omz update"
+    DOTFILES_NONINTERACTIVE=1 zsh -ic "omz update"
 
     if [ -f "$HOME/.antigen/init.zsh" ]; then
-        zsh -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish"; }'
+        DOTFILES_NONINTERACTIVE=1 zsh -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish"; }'
     fi
-}
-
-update_submodules() {
-    if [ ! -d "$HOME/.dotfiles" ]; then
-        return 0
-    fi
-
-    (
-        cd "$HOME/.dotfiles"
-        git submodule update --remote
-        log ".dotfiles submodule update finish"
-    )
 }
 
 update_lvim() {
@@ -128,7 +109,8 @@ update_lvim() {
     fi
 
     (
-        cd "$HOME/.local/share/lunarvim/lvim" && git pull
+        cd "$HOME/.local/share/lunarvim/lvim"
+        git pull --no-rebase
         lvim +LvimUpdate +qall
         lvim +TSUpdateSync +qall
         lvim +LvimSyncCorePlugins +qa
@@ -136,51 +118,36 @@ update_lvim() {
     )
 }
 
-# os package manager
-update_pkg_manager &
+case "${1:-}" in
+    ""|all)
+        ;;
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    *)
+        log "Unknown argument: ${1}"
+        usage
+        exit 1
+        ;;
+esac
 
-# ruby modules
-update_gem &
+update_pkg_manager
+update_gem
+update_git_repo "$HOME/gdb-dashboard" git pull --no-rebase
+update_git_repo "$HOME/voltron" git pull --no-rebase
 
-# node.js modules
-# update_npm &
-
-# update gdb-dashboard from github
-update_git_repo "$HOME/gdb-dashboard" git pull --no-rebase &
-
-# update voltron from github
-update_git_repo "$HOME/voltron" git pull --no-rebase &
-
-# perl modules
 if have_cmd cpan; then
-    (
-        sudo cpan -u -T
-        log "cpan upgrade finish"
-    ) &
+    sudo cpan -u -T
+    log "cpan upgrade finish"
 fi
 
 if [ "${1:-}" = "all" ]; then
-    # update .dotfiles
-    update_dotfiles_repo &
+    update_dotfiles_repo
 fi
 
-# zsh plugins
 update_zsh_plugins
+update_lvim
 
-update_submodules &
-
-update_lvim &
-
-# vim plugins
-# if have_cmd vim; then
-#     vim -c PlugUpgrade -c qa
-#     vim -c PlugInstall -c PlugUpdate -c qa
-#     if [ -d ~/.vim/plugged/coc.nvim ]; then
-#         vim -c CocUpdateSync -c qa
-#     fi
-#     echo "vim PlugUpdate finish"
-# fi
-
-wait
 end=$(date +%s)
 log "used $((end - begin)) seconds"
