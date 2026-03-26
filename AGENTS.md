@@ -8,6 +8,7 @@
 - Top-level dotfiles such as `.zshrc`, `.vimrc`, `.wezterm.lua`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
 - `.config/*` is generally linked into `~/.config/*` automatically.
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
+- `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
 - Node is managed via `nvm` in this environment. Prefer the `nvm` default Node and do not reintroduce Homebrew `node` as a required dependency.
 - `bin/*` is linked into `~/bin/*`.
 - `tmuxinator/` is linked into `~/.tmuxinator`.
@@ -19,6 +20,7 @@
 - Prefer small targeted edits. Do not reformat unrelated personal config just to normalize style.
 - Preserve commented-out blocks unless the user asks to remove them. Many of them document optional tools, alternate setup paths, or historical decisions.
 - Match the existing interpreter and style of each script. This repo uses a mix of `bash`, `sh`, Lua, TOML, YAML, JSON, and tool-specific config formats.
+- Prefer capability checks and existing fallback patterns over assuming a single machine layout. This repo is used across heterogeneous local and remote environments.
 - Prefer local overlay files over vendored content when both exist. Example: change `.tmux.conf.local` instead of editing the `.tmux` submodule directly.
 - Do not add secrets, tokens, private keys, or machine-specific absolute paths unless the user explicitly requests that.
 - The package and git mirror choices in `setup.sh` are intentional. Do not switch them to other mirrors or default upstreams unless asked.
@@ -29,6 +31,7 @@
 - Do not run `bin/update_all.sh` without explicit user approval. It updates system packages, language package managers, plugins, submodules, and may run privileged commands.
 - `setup.sh` can move existing Neovim directories out of the way, bootstrap LazyVim, rewrite Homebrew remotes, install packages, and update external repositories.
 - `setup.sh all` also appends this repo's `.ssh/id_rsa.pub` into `~/.ssh/authorized_keys`. Treat that path as sensitive.
+- Do not perform remote `ssh` provisioning or host changes without explicit user approval. Installing packages, changing login shells, touching remote dotfiles, or modifying local/remote `~/.ssh` state are all high-impact operations.
 - Avoid GUI tools, interactive installers, and login-shell side effects unless the user explicitly wants them.
 
 ## Validation
@@ -39,5 +42,5 @@
 - If validation would require network access, package installation, or writing outside the repo, stop and ask before proceeding.
 
 ## Delivery Notes
-- In summaries, call out any expected side effects on `$HOME`, submodules, package managers, or external services.
+- In summaries, call out any expected side effects on `$HOME`, remote hosts, shell startup behavior, submodules, package managers, or external services.
 - If a request would require editing submodule content, clarify whether the user wants an upstream submodule change or a local override in this repo.
