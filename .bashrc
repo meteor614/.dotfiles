@@ -272,6 +272,26 @@ fi
 
 _init_starship
 
+AUTO_VENV_HELPER="${XDG_CONFIG_HOME:-$HOME/.config}/shell/auto-venv.sh"
+if [ ! -f "$AUTO_VENV_HELPER" ] && [ -f "$HOME/.dotfiles/.config/shell/auto-venv.sh" ]; then
+    AUTO_VENV_HELPER="$HOME/.dotfiles/.config/shell/auto-venv.sh"
+fi
+if [ -f "$AUTO_VENV_HELPER" ]; then
+    . "$AUTO_VENV_HELPER"
+    _auto_venv_refresh
+    case ";$PROMPT_COMMAND;" in
+        *";_auto_venv_refresh;"*) ;;
+        *)
+            if [ -n "$PROMPT_COMMAND" ]; then
+                PROMPT_COMMAND="_auto_venv_refresh;$PROMPT_COMMAND"
+            else
+                PROMPT_COMMAND="_auto_venv_refresh"
+            fi
+            ;;
+    esac
+fi
+unset AUTO_VENV_HELPER
+
 # 告诉 WezTerm 当前 multiplexer；ssh 到远端再进 tmux 时也能识别。
 _wezterm_emit_mux_user_var() {
     local encoded=""

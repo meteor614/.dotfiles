@@ -271,6 +271,20 @@ if (( $+commands[atuin] )); then
     eval "$(atuin init zsh)"
 fi
 
+AUTO_VENV_HELPER="${XDG_CONFIG_HOME:-$HOME/.config}/shell/auto-venv.sh"
+if [[ ! -f "$AUTO_VENV_HELPER" && -f "$HOME/.dotfiles/.config/shell/auto-venv.sh" ]]; then
+    AUTO_VENV_HELPER="$HOME/.dotfiles/.config/shell/auto-venv.sh"
+fi
+if [[ -f "$AUTO_VENV_HELPER" ]]; then
+    . "$AUTO_VENV_HELPER"
+    autoload -Uz add-zsh-hook
+    if (( ! ${chpwd_functions[(I)_auto_venv_refresh]} )); then
+        add-zsh-hook chpwd _auto_venv_refresh
+    fi
+    _auto_venv_refresh
+fi
+unset AUTO_VENV_HELPER
+
 BROOT_LAUNCHER="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/bash/br"
 [ -f "$BROOT_LAUNCHER" ] && source "$BROOT_LAUNCHER"
 unset BROOT_LAUNCHER
