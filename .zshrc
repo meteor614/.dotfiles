@@ -16,7 +16,12 @@ zstyle ':omz:initialize' skip-compaudit 'yes'
 zstyle ':omz:update' mode disabled
 
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+# Synology Entware & common extra paths
+for _p in /opt/usr/bin /opt/bin /opt/sbin $HOME/bin $HOME/.local/bin /usr/local/bin; do
+    [[ -d "$_p" && ":$PATH:" != *":$_p:"* ]] && PATH="$_p:$PATH"
+done
+unset _p
+export PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
