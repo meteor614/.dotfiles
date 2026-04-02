@@ -278,7 +278,7 @@ fi
 if [[ -f "$AUTO_VENV_HELPER" ]]; then
     . "$AUTO_VENV_HELPER"
     autoload -Uz add-zsh-hook
-    if (( ! ${chpwd_functions[(I)_auto_venv_refresh]} )); then
+    if (( ! ${chpwd_functions[(I)_auto_venv_refresh]:-0} )); then
         add-zsh-hook chpwd _auto_venv_refresh
     fi
     _auto_venv_refresh
