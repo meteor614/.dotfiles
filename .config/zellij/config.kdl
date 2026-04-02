@@ -250,3 +250,8 @@ theme "gruvbox-dark"
 scroll_buffer_size 200000
 show_startup_tips false
 mouse_mode true
+
+web_server true
+web_sharing "on"
+web_server_port 8082
+
