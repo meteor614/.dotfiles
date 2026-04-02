@@ -251,6 +251,13 @@ scroll_buffer_size 200000
 show_startup_tips false
 mouse_mode true
 
+web_client {
+  font "Hack Nerd Font"  // 或其他已安装的 Nerd Font，如 "JetBrainsMono Nerd Font"
+  cursor_blink false
+  cursor_style "block"
+  cursor_inactive_style "outline"
+}
+
 web_server true
 web_sharing "on"
 web_server_port 8082
