@@ -12,6 +12,10 @@ local function in_tmux()
   return vim.env.TMUX ~= nil
 end
 
+local function in_ghostty()
+  return vim.env.TERM_PROGRAM == "ghostty" or vim.env.GHOSTTY_RESOURCES_DIR ~= nil
+end
+
 local function ensure_dir(path)
   if vim.fn.isdirectory(path) == 0 then
     vim.fn.mkdir(path, "p")
@@ -66,6 +70,29 @@ local function clear_pane_id()
   end
 end
 
+-- WezTerm 启动时注入的 WEZTERM_UNIX_SOCKET 可能指向旧 socket（pid 复用）。
+-- 自动检测最新的 gui-sock 文件，确保 wezterm cli 不超时。
+local function fix_wezterm_socket()
+  local sock = vim.env.WEZTERM_UNIX_SOCKET
+  if sock and vim.fn.filereadable(sock) == 1 then
+    return
+  end
+  local dir = vim.fn.expand("~/.local/share/wezterm")
+  local socks = vim.fn.glob(dir .. "/gui-sock-*", false, true)
+  if #socks == 0 then
+    return
+  end
+  -- 取 mtime 最新的
+  table.sort(socks, function(a, b)
+    local sa = (uv.fs_stat(a) or {}).mtime
+    local sb = (uv.fs_stat(b) or {}).mtime
+    local ta = sa and (sa.sec or sa) or 0
+    local tb = sb and (sb.sec or sb) or 0
+    return ta > tb
+  end)
+  vim.env.WEZTERM_UNIX_SOCKET = socks[1]
+end
+
 local function pane_exists(pane_id)
   if not pane_id then
     return false
@@ -87,7 +114,11 @@ local function pane_exists(pane_id)
 end
 
 local function can_use_wezterm_preview()
-  return in_zellij() and vim.env.WEZTERM_PANE ~= nil and vim.fn.executable("wezterm") == 1
+  if vim.env.WEZTERM_PANE == nil or vim.fn.executable("wezterm") ~= 1 then
+    return false
+  end
+  fix_wezterm_socket()
+  return true
 end
 
 local function current_wezterm_pane_id()
@@ -412,6 +443,7 @@ return {
     opts = function(_, opts)
       opts = opts or {}
       opts.image = vim.tbl_deep_extend("force", opts.image or {}, {
+        -- zellij 不支持 kitty 图形协议透传，必须禁用原生 image
         enabled = not in_zellij(),
       })
       opts.picker = opts.picker or {}
@@ -471,7 +503,9 @@ return {
       if in_zellij() then
         local on_close = opts.picker.on_close
         opts.picker.on_close = function(picker)
-          close_wezterm_preview()
+          if can_use_wezterm_preview() then
+            close_wezterm_preview()
+          end
           if on_close then
             on_close(picker)
           end

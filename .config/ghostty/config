@@ -1,0 +1,73 @@
+# Ghostty config — mirrors WezTerm habits
+
+# ----- Font -----
+font-family = Hack Nerd Font
+font-family = Sarasa Mono SC
+font-size = 18
+font-feature = -calt
+freetype-load-flags = no-hinting
+
+# ----- Window -----
+macos-titlebar-style = tabs
+macos-option-as-alt = true
+window-padding-x = 2
+window-padding-y = 2
+
+# ----- Performance -----
+scrollback-limit = 5000
+cursor-style = block
+cursor-style-blink = false
+mouse-hide-while-typing = true
+
+# ----- Bell -----
+bell-features = no-system,no-audio,no-attention,no-title,no-border
+
+# ----- Clipboard -----
+clipboard-read = allow
+clipboard-write = allow
+copy-on-select = clipboard
+
+# ----- Confirm -----
+confirm-close-surface = false
+
+# ----- Keybindings -----
+
+# Tab 操作
+keybind = super+t=new_tab
+keybind = super+w=close_surface
+keybind = super+n=new_window
+
+# Tab 前后切换
+keybind = super+shift+right_bracket=next_tab
+keybind = super+shift+left_bracket=previous_tab
+keybind = alt+right_bracket=next_tab
+keybind = alt+left_bracket=previous_tab
+
+# 分屏
+keybind = super+d=new_split:right
+keybind = super+shift+d=new_split:down
+
+# 分屏导航 (Cmd+hjkl)
+keybind = super+h=goto_split:left
+keybind = super+j=goto_split:bottom
+keybind = super+k=goto_split:top
+keybind = super+l=goto_split:right
+
+# 分屏大小调整 (Cmd+方向键)
+keybind = super+left=resize_split:left,20
+keybind = super+down=resize_split:down,20
+keybind = super+up=resize_split:up,20
+keybind = super+right=resize_split:right,20
+
+# 分屏循环切换
+keybind = super+right_bracket=goto_split:next
+keybind = super+left_bracket=goto_split:previous
+
+# 全屏
+keybind = alt+enter=toggle_fullscreen
+
+# Alt 组合 — 保留给 readline/shell
+keybind = alt+f=text:\x1bf
+keybind = alt+b=text:\x1bb
+keybind = alt+v=text:\x1bv
+keybind = alt+i=text:\x1bi
