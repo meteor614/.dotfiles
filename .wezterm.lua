@@ -42,11 +42,6 @@ local function zellij_key_action(key, mods)
     }
 end
 
-local function zellij_tab_number_action(index)
-    local function_keys = { 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9' }
-    return zellij_key_action(function_keys[index])
-end
-
 local function mux_action(actions)
     return wezterm.action_callback(function(window, pane)
         local action = actions[current_mux(pane)] or actions.other
@@ -57,12 +52,6 @@ local function mux_action(actions)
 end
 
 local keys = {
-    -- Alt 组合
-    { key = 'f', mods = 'ALT', action = act.SendString '\x1bf' },
-    { key = 'b', mods = 'ALT', action = act.SendString '\x1bb' },
-    { key = 'v', mods = 'ALT', action = act.SendString '\x1bv' },
-    { key = 'i', mods = 'ALT', action = act.SendString '\x1bi' },
-
     -- Alt-Return 全屏
     { key = 'Return', mods = 'ALT', action = act.ToggleFullScreen },
 
@@ -88,16 +77,6 @@ local keys = {
     -- Cmd+[/]: WezTerm tab 前后切换
     { key = ']', mods = 'CMD', action = act.ActivateTabRelative(1) },
     { key = '[', mods = 'CMD', action = act.ActivateTabRelative(-1) },
-    { key = ']', mods = 'ALT', action = mux_action {
-        tmux = act.SendString '\x02\x0c',
-        zellij = zellij_key_action('u', 'CTRL|ALT|SHIFT'),
-        other = act.ActivateTabRelative(1),
-    } },
-    { key = '[', mods = 'ALT', action = mux_action {
-        tmux = act.SendString '\x02\x08',
-        zellij = zellij_key_action('y', 'CTRL|ALT|SHIFT'),
-        other = act.ActivateTabRelative(-1),
-    } },
 
     -- Vi 模式
     { key = 'c', mods = 'CMD|SHIFT', action = act.ActivateCopyMode },
@@ -158,16 +137,6 @@ for i = 1, 9 do
         mods = 'CMD',
         action = act.ActivateTab(i - 1),
     })
-    -- Alt+数字：mux 自适应（tmux/zellij tab 切换，无 mux 时也切 WezTerm tab）
-    table.insert(keys, {
-        key = tostring(i),
-        mods = 'ALT',
-        action = mux_action {
-            tmux = act.SendString('\x02' .. tostring(i)),
-            zellij = zellij_tab_number_action(i),
-            other = act.ActivateTab(i - 1),
-        },
-    })
     table.insert(keys, {
         key = tostring(i),
         mods = 'CMD|CTRL',
@@ -223,6 +192,10 @@ return {
     native_macos_fullscreen_mode = true,
 
     audible_bell = 'Disabled',
+
+    -- macOS Option 键作为 Alt（发送 ESC 序列而非 compose 字符）
+    send_composed_key_when_left_alt_is_pressed = false,
+    send_composed_key_when_right_alt_is_pressed = false,
 
     -- tab_bar_at_bottom = true,
     use_fancy_tab_bar = false,    -- 禁用动画减少开销

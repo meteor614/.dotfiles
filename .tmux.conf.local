@@ -258,6 +258,21 @@ if-shell 'test -n "$SSH_CONNECTION"' 'set -g status-position top'
 bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; refresh-client -S
 bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
+# Alt+[/]: 切换 pane（与 zellij 保持一致，让 Ghostty 等无 mux_action 的终端也能用）
+bind -n M-] select-pane -t +
+bind -n M-[ select-pane -t -
+
+# Alt+数字: 切换窗口（与 zellij 保持一致）
+bind -n M-1 select-window -t 1
+bind -n M-2 select-window -t 2
+bind -n M-3 select-window -t 3
+bind -n M-4 select-window -t 4
+bind -n M-5 select-window -t 5
+bind -n M-6 select-window -t 6
+bind -n M-7 select-window -t 7
+bind -n M-8 select-window -t 8
+bind -n M-9 select-window -t 9
+
 # Clipper support for remote clipboard:
 # keep default `y` for tmux/OS clipboard integration; use `Y` for explicit remote forward.
 unbind -q Y
