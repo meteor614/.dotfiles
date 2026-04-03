@@ -272,7 +272,4 @@ web_client {
 web_server true
 web_sharing "on"
 web_server_port 8082
-web_server_ip "127.0.0.1"
-web_server_cert "/Users/meteorchen/.certs/fullchain.pem"
-web_server_key "/Users/meteorchen/.certs/privkey.pem"
 
