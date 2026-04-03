@@ -13,7 +13,15 @@ local function in_tmux()
 end
 
 local function in_ghostty()
-  return vim.env.TERM_PROGRAM == "ghostty" or vim.env.GHOSTTY_RESOURCES_DIR ~= nil
+  -- 环境变量可能因 zellij session 复用而过时，
+  -- 额外检查 TERM 是否包含 ghostty
+  if vim.env.TERM_PROGRAM == "ghostty" or vim.env.GHOSTTY_RESOURCES_DIR ~= nil then
+    return true
+  end
+  if vim.env.TERM and vim.env.TERM:find("ghostty") then
+    return true
+  end
+  return false
 end
 
 local function ensure_dir(path)
@@ -113,12 +121,23 @@ local function pane_exists(pane_id)
   return false
 end
 
+-- 缓存 wezterm cli 连通性（每次 nvim 只检测一次）
+local _wezterm_reachable = nil
+
 local function can_use_wezterm_preview()
+  if in_ghostty() then
+    return false
+  end
   if vim.env.WEZTERM_PANE == nil or vim.fn.executable("wezterm") ~= 1 then
     return false
   end
   fix_wezterm_socket()
-  return true
+  -- 首次调用时检测 wezterm cli 是否能连上（避免 zellij session 跨终端复用时误判）
+  if _wezterm_reachable == nil then
+    local out = vim.fn.system({ "wezterm", "cli", "list", "--format", "json" })
+    _wezterm_reachable = (vim.v.shell_error == 0 and out ~= "")
+  end
+  return _wezterm_reachable
 end
 
 local function current_wezterm_pane_id()
@@ -377,6 +396,34 @@ local function zellij_image_preview(ctx)
       vim.bo[buf].modified = false
       return
     end
+  end
+
+  -- Ghostty + Zellij: zellij 不支持图形协议透传，chafa 太慢且模糊
+  -- 显示文件信息，按 gx 可用 Quick Look 预览
+  if in_ghostty() then
+    local buf = ctx.preview:scratch()
+    ctx.preview:set_title(vim.fn.fnamemodify(path, ":t"))
+    vim.bo[buf].modifiable = true
+    vim.bo[buf].filetype = "markdown"
+    local stat = (vim.uv or vim.loop).fs_stat(path)
+    local size = stat and string.format("%.1f KB", stat.size / 1024) or "unknown"
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+      "# " .. vim.fn.fnamemodify(path, ":t"),
+      "",
+      "- **path**: `" .. path .. "`",
+      "- **size**: " .. size,
+      "",
+      "_zellij does not support image passthrough_",
+      "",
+      "Press `gx` to open with Quick Look",
+    })
+    vim.bo[buf].modifiable = false
+    vim.bo[buf].modified = false
+    -- gx 绑定用系统打开
+    vim.keymap.set("n", "gx", function()
+      vim.fn.jobstart({ "open", path }, { detach = true })
+    end, { buffer = buf, desc = "Open image with Quick Look" })
+    return
   end
 
   return render_terminal_image_preview(ctx, path, source)
