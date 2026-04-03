@@ -93,13 +93,20 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 if [ -n "$TMUX" ]; then
     export TERM=screen-256color
 elif [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
-    infocmp -x "${TERM:-xterm-256color}" >/dev/null 2>&1 || export TERM=xterm-256color
+    export TERM="${TERM:-xterm-256color}"
 elif [ "${TERM_PROGRAM:-}" = "WezTerm" ]; then
-    if (( $+commands[infocmp] )) && infocmp -x wezterm >/dev/null 2>&1; then
-        export TERM=wezterm
-    else
-        export TERM=xterm-256color
+    # 缓存 infocmp 结果，避免每次启动都 fork
+    local _wez_cache="$HOME/.zsh_cache/.wezterm_terminfo"
+    if [[ ! -f "$_wez_cache" ]]; then
+        mkdir -p "$HOME/.zsh_cache"
+        if (( $+commands[infocmp] )) && infocmp -x wezterm >/dev/null 2>&1; then
+            echo "wezterm" >| "$_wez_cache"
+        else
+            echo "xterm-256color" >| "$_wez_cache"
+        fi
     fi
+    read -r TERM < "$_wez_cache"
+    export TERM
 fi
 
 # pager

@@ -192,32 +192,31 @@ end
 
 return {
     -- image_cache_ttl = 3600,
-    front_end = "WebGpu",
+    front_end = "OpenGL",
     webgpu_power_preference = "HighPerformance",
     enable_kitty_graphics = true,
     max_fps = 100,
 
     -- 性能优化
-    enable_scroll_bar = false,           -- 禁用滚动条减少渲染
-    check_for_updates = false,           -- 禁用自动检查更新
-    animation_fps = 60,                  -- 限制动画帧率
+    enable_scroll_bar = false,
+    check_for_updates = false,
+    animation_fps = 1,                   -- 最小化动画（tab 切换/关闭的淡入淡出）
 
     -- 光标优化
-    -- default_cursor_style = 'Block',
-    cursor_blink_rate = 800,
+    cursor_blink_rate = 0,               -- 关闭光标闪烁，省去定时重绘
 
-    -- 减少内存占用
-    line_height = 1.0,
-    cell_width = 1.0,
-
-    -- 更快的启动
+    -- 更快的启动和关闭
     skip_close_confirmation_for_processes_named = {
-        'bash', 'sh', 'zsh', 'fish', 'tmux', 'zellij', 'nvim', 'vim'
+        'bash', 'sh', 'zsh', 'fish', 'tmux', 'zellij', 'nvim', 'vim',
+        'nu', 'ssh', 'ssh-agent',
     },
+    clean_exit_codes = { 130 },          -- Ctrl-C 退出也视为正常，不弹确认
+
+    -- 关闭窗口时不等待子进程
+    exit_behavior = 'Close',
+    window_close_confirmation = 'NeverPrompt',
 
     automatically_reload_config = true,
-
-    scrollback_lines = 5000,
 
     -- set_environment_variables = { TERM_PROGRAM = 'alacritty' },
     -- color_scheme = 'AdventureTime',
@@ -231,8 +230,8 @@ return {
     font_size = 18,
     freetype_load_flags = "NO_HINTING",
 
-    window_background_opacity = 0.8,
-    macos_window_background_blur = 20,
+    window_background_opacity = 1.0,
+    -- macos_window_background_blur = 20,
     window_decorations = "RESIZE",
     native_macos_fullscreen_mode = true,
 

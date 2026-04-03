@@ -99,8 +99,18 @@ plugins=(git extract zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
+# 缓存式初始化：首次或二进制更新时重新生成，之后直接 source 静态文件
+_cached_eval() {
+    local name="$1" bin="$2"; shift 2
+    local cache="$ZSH_CACHE_DIR/${name}.zsh"
+    if [[ ! -f "$cache" || "$bin" -nt "$cache" ]]; then
+        "$bin" "$@" >| "$cache" 2>/dev/null
+    fi
+    source "$cache"
+}
+
 if (( $+commands[zoxide] )); then
-    eval "$(zoxide init zsh)"
+    _cached_eval zoxide zoxide init zsh
 fi
 
 _init_starship() {
@@ -120,7 +130,7 @@ _init_starship() {
     fi
 
     [[ -n "$starship_bin" ]] || return 0
-    eval "$("$starship_bin" init zsh)"
+    _cached_eval starship "$starship_bin" init zsh
     typeset -g _starship_initialized=1
 }
 
@@ -153,7 +163,6 @@ _init_starship
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
-_init_starship
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -273,7 +282,7 @@ mamba() { _lazy_load_conda && mamba "$@" }
 [[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
 
 if (( $+commands[atuin] )); then
-    eval "$(atuin init zsh)"
+    _cached_eval atuin atuin init zsh
 fi
 
 AUTO_VENV_HELPER="${XDG_CONFIG_HOME:-$HOME/.config}/shell/auto-venv.sh"
