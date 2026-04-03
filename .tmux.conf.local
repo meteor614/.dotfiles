@@ -258,6 +258,9 @@ if-shell 'test -n "$SSH_CONNECTION"' 'set -g status-position top'
 bind -T root C-M-a  set prefix None \; set prefix2 None \; set key-table off \; refresh-client -S
 bind -T off C-M-a set -u prefix \; set -u prefix2 \; set -u key-table \; refresh-client -S
 
+# Alt+n: 新建 pane（与 zellij 保持一致）
+bind -n M-n split-window -h
+
 # Alt+[/]: 切换 pane（与 zellij 保持一致，让 Ghostty 等无 mux_action 的终端也能用）
 bind -n M-] select-pane -t +
 bind -n M-[ select-pane -t -
