@@ -192,7 +192,7 @@ end
 
 return {
     -- image_cache_ttl = 3600,
-    front_end = "OpenGL",
+    front_end = "WebGpu",
     webgpu_power_preference = "HighPerformance",
     enable_kitty_graphics = true,
     max_fps = 100,
@@ -200,10 +200,10 @@ return {
     -- 性能优化
     enable_scroll_bar = false,
     check_for_updates = false,
-    animation_fps = 1,                   -- 最小化动画（tab 切换/关闭的淡入淡出）
+    animation_fps = 60,                   -- 最小化动画（tab 切换/关闭的淡入淡出）
 
     -- 光标优化
-    cursor_blink_rate = 0,               -- 关闭光标闪烁，省去定时重绘
+    cursor_blink_rate = 800,               -- 关闭光标闪烁，省去定时重绘
 
     -- 更快的启动和关闭
     skip_close_confirmation_for_processes_named = {
@@ -217,6 +217,8 @@ return {
     window_close_confirmation = 'NeverPrompt',
 
     automatically_reload_config = true,
+
+    scrollback_lines = 5000,
 
     -- set_environment_variables = { TERM_PROGRAM = 'alacritty' },
     -- color_scheme = 'AdventureTime',
