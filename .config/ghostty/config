@@ -1,4 +1,4 @@
-# Ghostty config — mirrors WezTerm habits
+# Ghostty config
 
 # ----- Font -----
 font-family = Hack Nerd Font
@@ -6,18 +6,26 @@ font-family = Sarasa Mono SC
 font-size = 18
 font-feature = -calt
 freetype-load-flags = no-hinting
+font-thicken = true
 
 # ----- Window -----
 macos-titlebar-style = tabs
 macos-option-as-alt = true
+macos-non-native-fullscreen = true
 window-padding-x = 2
 window-padding-y = 2
+window-theme = ghostty
+window-save-state = always
+quit-after-last-window-closed = true
 
 # ----- Performance -----
 scrollback-limit = 5000
-cursor-style = block
 cursor-style-blink = false
 mouse-hide-while-typing = true
+
+# ----- Shell Integration -----
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
 
 # ----- Bell -----
 bell-features = no-system,no-audio,no-attention,no-title,no-border
@@ -26,6 +34,7 @@ bell-features = no-system,no-audio,no-attention,no-title,no-border
 clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
+clipboard-trim-trailing-spaces = true
 
 # ----- Confirm -----
 confirm-close-surface = false
@@ -40,21 +49,6 @@ keybind = super+n=new_window
 # Cmd+[/]: Ghostty tab 前后切换
 keybind = super+right_bracket=next_tab
 keybind = super+left_bracket=previous_tab
-
-# Alt+[/]: 透传给 zellij/tmux（Ghostty 不拦截）
-keybind = alt+right_bracket=unbind
-keybind = alt+left_bracket=unbind
-
-# Alt+数字: 透传给 zellij/tmux（Ghostty 不拦截）
-keybind = alt+one=unbind
-keybind = alt+two=unbind
-keybind = alt+three=unbind
-keybind = alt+four=unbind
-keybind = alt+five=unbind
-keybind = alt+six=unbind
-keybind = alt+seven=unbind
-keybind = alt+eight=unbind
-keybind = alt+nine=unbind
 
 # 分屏
 keybind = super+d=new_split:right
@@ -78,9 +72,3 @@ keybind = super+shift+left_bracket=goto_split:previous
 
 # 全屏
 keybind = alt+enter=toggle_fullscreen
-
-# Alt 组合 — 保留给 readline/shell
-keybind = alt+f=text:\x1bf
-keybind = alt+b=text:\x1bb
-keybind = alt+v=text:\x1bv
-keybind = alt+i=text:\x1bi
