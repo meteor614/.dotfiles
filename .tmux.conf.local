@@ -276,6 +276,11 @@ bind -n M-9 select-window -t 9
 # Ctrl+Alt+t: 新建窗口（与 zellij 保持一致）
 bind -n C-M-t new-window
 
+# Ctrl+Alt+w/d/D: 关闭窗口 / 水平分屏 / 垂直分屏（与 zellij 保持一致）
+bind -n C-M-w confirm-before -p "kill window #W? (y/n)" kill-window
+bind -n C-M-d split-window -h
+bind -n C-M-D split-window -v
+
 # Clipper support for remote clipboard:
 # keep default `y` for tmux/OS clipboard integration; use `Y` for explicit remote forward.
 unbind -q Y
