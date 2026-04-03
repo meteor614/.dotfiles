@@ -273,6 +273,9 @@ bind -n M-7 select-window -t 7
 bind -n M-8 select-window -t 8
 bind -n M-9 select-window -t 9
 
+# Ctrl+Alt+t: 新建窗口（与 zellij 保持一致）
+bind -n C-M-t new-window
+
 # Clipper support for remote clipboard:
 # keep default `y` for tmux/OS clipboard integration; use `Y` for explicit remote forward.
 unbind -q Y
