@@ -84,42 +84,20 @@ local keys = {
         zellij = zellij_key_action('d', 'CTRL|ALT|SHIFT'),
         other = act.SplitVertical { domain = 'CurrentPaneDomain' },
     } },
-    { key = 't', mods = 'CMD', action = mux_action {
-        tmux = act.SendString '\x02c',
-        zellij = zellij_key_action('t'),
-        other = act.SpawnTab 'CurrentPaneDomain',
-    } },
-    { key = ']', mods = 'CMD', action = mux_action {
-        tmux = act.SendString '\x02o',
-        zellij = zellij_key_action('u'),
-    } },
-    { key = '[', mods = 'CMD', action = mux_action {
-        tmux = act.SendString '\x02;',
-        zellij = zellij_key_action('y'),
-    } },
-    { key = ']', mods = 'CMD|SHIFT', action = mux_action {
+    { key = 't', mods = 'CMD', action = act.SpawnTab 'CurrentPaneDomain' },
+    -- Cmd+[/]: WezTerm tab 前后切换
+    { key = ']', mods = 'CMD', action = act.ActivateTabRelative(1) },
+    { key = '[', mods = 'CMD', action = act.ActivateTabRelative(-1) },
+    { key = ']', mods = 'ALT', action = mux_action {
         tmux = act.SendString '\x02\x0c',
         zellij = zellij_key_action('u', 'CTRL|ALT|SHIFT'),
         other = act.ActivateTabRelative(1),
     } },
-    { key = '[', mods = 'CMD|SHIFT', action = mux_action {
+    { key = '[', mods = 'ALT', action = mux_action {
         tmux = act.SendString '\x02\x08',
         zellij = zellij_key_action('y', 'CTRL|ALT|SHIFT'),
         other = act.ActivateTabRelative(-1),
     } },
-
-    -- ALT
-    { key = ']', mods = 'ALT', action = act.ActivateTabRelative(1) },
-    { key = '[', mods = 'ALT', action = act.ActivateTabRelative(-1) },
-    { key = '1', mods = 'ALT', action = act.ActivateTab(0) },
-    { key = '2', mods = 'ALT', action = act.ActivateTab(1) },
-    { key = '3', mods = 'ALT', action = act.ActivateTab(2) },
-    { key = '4', mods = 'ALT', action = act.ActivateTab(3) },
-    { key = '5', mods = 'ALT', action = act.ActivateTab(4) },
-    { key = '6', mods = 'ALT', action = act.ActivateTab(5) },
-    { key = '7', mods = 'ALT', action = act.ActivateTab(6) },
-    { key = '8', mods = 'ALT', action = act.ActivateTab(7) },
-    { key = '9', mods = 'ALT', action = act.ActivateTab(8) },
 
     -- Vi 模式
     { key = 'c', mods = 'CMD|SHIFT', action = act.ActivateCopyMode },
@@ -174,9 +152,16 @@ for _, mapping in ipairs({
 end
 
 for i = 1, 9 do
+    -- Cmd+数字：WezTerm 原生 tab 切换
     table.insert(keys, {
         key = tostring(i),
         mods = 'CMD',
+        action = act.ActivateTab(i - 1),
+    })
+    -- Alt+数字：mux 自适应（tmux/zellij tab 切换，无 mux 时也切 WezTerm tab）
+    table.insert(keys, {
+        key = tostring(i),
+        mods = 'ALT',
         action = mux_action {
             tmux = act.SendString('\x02' .. tostring(i)),
             zellij = zellij_tab_number_action(i),

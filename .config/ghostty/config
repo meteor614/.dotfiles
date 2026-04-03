@@ -32,16 +32,29 @@ confirm-close-surface = false
 
 # ----- Keybindings -----
 
-# Tab 操作
+# Tab 操作 (Cmd — Ghostty 原生 tab)
 keybind = super+t=new_tab
 keybind = super+w=close_surface
 keybind = super+n=new_window
 
-# Tab 前后切换
-keybind = super+shift+right_bracket=next_tab
-keybind = super+shift+left_bracket=previous_tab
-keybind = alt+right_bracket=next_tab
-keybind = alt+left_bracket=previous_tab
+# Cmd+[/]: Ghostty tab 前后切换
+keybind = super+right_bracket=next_tab
+keybind = super+left_bracket=previous_tab
+
+# Alt+[/]: 透传给 zellij/tmux（Ghostty 不拦截）
+keybind = alt+right_bracket=unbind
+keybind = alt+left_bracket=unbind
+
+# Alt+数字: 透传给 zellij/tmux（Ghostty 不拦截）
+keybind = alt+one=unbind
+keybind = alt+two=unbind
+keybind = alt+three=unbind
+keybind = alt+four=unbind
+keybind = alt+five=unbind
+keybind = alt+six=unbind
+keybind = alt+seven=unbind
+keybind = alt+eight=unbind
+keybind = alt+nine=unbind
 
 # 分屏
 keybind = super+d=new_split:right
@@ -60,8 +73,8 @@ keybind = super+up=resize_split:up,20
 keybind = super+right=resize_split:right,20
 
 # 分屏循环切换
-keybind = super+right_bracket=goto_split:next
-keybind = super+left_bracket=goto_split:previous
+keybind = super+shift+right_bracket=goto_split:next
+keybind = super+shift+left_bracket=goto_split:previous
 
 # 全屏
 keybind = alt+enter=toggle_fullscreen
