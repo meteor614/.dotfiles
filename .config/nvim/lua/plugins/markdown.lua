@@ -4,9 +4,12 @@ local function markdownlint_parser_without_line_length(output, bufnr)
     severity = vim.diagnostic.severity.WARN,
   })(output, bufnr) or {}
 
-  -- Keep markdownlint enabled for Markdown, but ignore MD013 line-length warnings.
+  -- Keep markdownlint enabled for Markdown, but ignore MD013 and MD060 warnings.
   return vim.tbl_filter(function(diag)
-    return not (type(diag.message) == "string" and diag.message:match("MD013/line%-length"))
+    if type(diag.message) ~= "string" then
+      return true
+    end
+    return not diag.message:match("MD013/line%-length") and not diag.message:match("MD060")
   end, diagnostics)
 end
 
