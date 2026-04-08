@@ -183,10 +183,10 @@ _lazy_load_nvm() {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 }
-nvm() { _lazy_load_nvm; nvm "$@" }
-node() { _lazy_load_nvm; node "$@" }
-npm() { _lazy_load_nvm; npm "$@" }
-npx() { _lazy_load_nvm; npx "$@" }
+nvm()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; nvm  "$@" }
+node() { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; node "$@" }
+npm()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; npm  "$@" }
+npx()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; npx  "$@" }
 
 # 延迟加载 conda，兼容本地 macOS 和远程 Linux 的常见安装路径。
 _find_conda_exe() {
