@@ -52,7 +52,10 @@ update_gem() {
         return 0
     fi
 
-    if have_cmd brew; then
+    local gem_dir
+    gem_dir="$(gem environment gemdir)"
+
+    if [ -w "$gem_dir" ]; then
         gem update -f
         gem cleanup
     else
