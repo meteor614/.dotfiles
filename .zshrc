@@ -244,3 +244,12 @@ unset AUTO_VENV_HELPER
 BROOT_LAUNCHER="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/bash/br"
 [ -f "$BROOT_LAUNCHER" ] && source "$BROOT_LAUNCHER"
 unset BROOT_LAUNCHER
+
+# Homebrew Ruby
+if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
+    export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+    local _gemdir
+    _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
+    [[ -d "$_gemdir" ]] && export PATH="$_gemdir:$PATH"
+    unset _gemdir
+fi
