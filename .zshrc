@@ -10,7 +10,7 @@ autoload -Uz compinit
 if [[ -f "$ZSH_COMPDUMP" && "$ZSH_COMPDUMP"(N.mh+24) == "" ]]; then
     compinit -C -d "$ZSH_COMPDUMP"
 else
-    compinit -d "$ZSH_COMPDUMP"
+    compinit -i -d "$ZSH_COMPDUMP"
 fi
 
 # ── Completion styles (from oh-my-zsh lib/completion.zsh) ────────────────────
@@ -61,18 +61,26 @@ export ZSH="$HOME/.oh-my-zsh"
 [[ -f "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
     source "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# zsh-syntax-highlighting (must be sourced last among plugins)
-[[ -f "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
+# fast-syntax-highlighting (faster alternative; fallback to zsh-syntax-highlighting)
+if [[ -f "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]]; then
+    source "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+elif [[ -f "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
 
 # ── Cached eval helper ───────────────────────────────────────────────────────
 _cached_eval() {
     local name="$1" bin="$2"; shift 2
     local cache="$ZSH_CACHE_DIR/${name}.zsh"
     if [[ ! -f "$cache" || "$bin" -nt "$cache" ]]; then
-        "$bin" "$@" >| "$cache" 2>/dev/null
+        local tmp="${cache}.tmp.$$"
+        if "$bin" "$@" >| "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+            mv -f "$tmp" "$cache"
+        else
+            rm -f "$tmp"
+        fi
     fi
-    source "$cache"
+    [[ -s "$cache" ]] && source "$cache"
 }
 
 if (( $+commands[zoxide] )); then
@@ -248,8 +256,10 @@ unset BROOT_LAUNCHER
 # Homebrew Ruby
 if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
     export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-    local _gemdir
-    _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
-    [[ -d "$_gemdir" ]] && export PATH="$_gemdir:$PATH"
-    unset _gemdir
+    if (( $+commands[gem] )); then
+        local _gemdir
+        _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
+        [[ -d "$_gemdir" ]] && export PATH="$_gemdir:$PATH"
+        unset _gemdir
+    fi
 fi

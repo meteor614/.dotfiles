@@ -52,6 +52,11 @@ update_gem() {
         return 0
     fi
 
+    # Skip if Ruby version is managed by rbenv or asdf
+    if have_cmd rbenv || have_cmd asdf; then
+        return 0
+    fi
+
     local gem_dir
     gem_dir="$(gem environment gemdir)"
 
