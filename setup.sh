@@ -215,6 +215,17 @@ load_nvm_default_node() {
 }
 
 init_submodules() {
+    # Skip when every registered submodule already has a matching checkout
+    # (status lines starting with "-" or "+" mean uninitialized/out-of-sync).
+    if [ -f "${script_path}/.gitmodules" ]; then
+        local status
+        status=$(git -C "${script_path}" submodule status 2>/dev/null || true)
+        if [ -n "$status" ] && ! printf '%s\n' "$status" | grep -qE '^[-+]'; then
+            echo 'skip submodules (already initialized)'
+            return 0
+        fi
+    fi
+
     red 'Init submodules...'
     (
         cd "${script_path}"
@@ -558,13 +569,39 @@ init_authorized_keys_if_requested() {
 
     red 'Init ssh authorized_keys...'
     ensure_dir "$HOME/.ssh"
-    cd "$HOME/.ssh"
-    if cmp "${script_path}/.ssh/id_rsa.pub" id_rsa.pub >/dev/null 2>&1; then
-        echo 'Local file ~/.ssh/id_rsa.pub exist, ignore it'
-    elif [ -f authorized_keys ] && [ "$(grep -F "$(awk '{print $2}' "${script_path}/.ssh/id_rsa.pub")" authorized_keys -c)" = "1" ]; then
-        echo 'Authorized_keys exist'
+    chmod 700 "$HOME/.ssh"
+
+    local src_pub="${script_path}/.ssh/id_rsa.pub"
+    local auth_file="$HOME/.ssh/authorized_keys"
+
+    if [ ! -f "$src_pub" ]; then
+        yellow "skip authorized_keys (missing $src_pub)"
+        return 0
+    fi
+
+    if cmp -s "$src_pub" "$HOME/.ssh/id_rsa.pub" 2>/dev/null; then
+        echo 'Local ~/.ssh/id_rsa.pub matches repo key; leaving authorized_keys alone'
+        return 0
+    fi
+
+    # Read the repo's public key (first line only, stripped of trailing newline).
+    local pubkey
+    pubkey=$(awk 'NR==1' "$src_pub")
+    if [ -z "$pubkey" ]; then
+        yellow "skip authorized_keys (empty $src_pub)"
+        return 0
+    fi
+
+    # Append only if this exact line is not already present.
+    if [ -f "$auth_file" ] && grep -Fxq -- "$pubkey" "$auth_file"; then
+        echo 'Authorized_keys already contains this key'
     else
-        cat "${script_path}/.ssh/id_rsa.pub" >> authorized_keys
+        # Ensure trailing newline before appending so entries never collide.
+        if [ -s "$auth_file" ] && [ "$(tail -c 1 "$auth_file" 2>/dev/null)" != "" ]; then
+            printf '\n' >> "$auth_file"
+        fi
+        printf '%s\n' "$pubkey" >> "$auth_file"
+        chmod 600 "$auth_file"
     fi
     yellow 'Init ssh authorized_keys finish.'
 }
