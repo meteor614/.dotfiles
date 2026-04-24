@@ -5,7 +5,7 @@
 - Assume changes will be deployed by symlink, not copied. Renames and path moves are operational changes, not cosmetic ones.
 
 ## Repository Layout
-- Top-level dotfiles such as `.zshrc`, `.vimrc`, `.wezterm.lua`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
+- Top-level dotfiles such as `.zshrc`, `.wezterm.lua`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
 - `.config/*` is generally linked into `~/.config/*` automatically.
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
 - `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `nvm` loading should remain conditional so shells still start cleanly when a tool is absent.

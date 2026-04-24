@@ -1,3 +1,6 @@
+# ~/.zshrc — zsh-specific bits; shared logic in
+# $XDG_CONFIG_HOME/shell/common.sh (sourced below).
+
 # ── Completion system (replaces oh-my-zsh compinit) ──────────────────────────
 export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"
@@ -42,8 +45,7 @@ setopt hist_ignore_space
 setopt hist_verify
 setopt share_history
 
-# ── PATH ─────────────────────────────────────────────────────────────────────
-# Synology Entware & common extra paths
+# ── PATH (prepend common locations; de-duplicated) ───────────────────────────
 for _p in /opt/usr/bin /opt/bin /opt/sbin $HOME/bin $HOME/.local/bin /usr/local/bin; do
     [[ -d "$_p" && ":$PATH:" != *":$_p:"* ]] && PATH="$_p:$PATH"
 done
@@ -54,21 +56,16 @@ export PATH
 export ZSH="$HOME/.oh-my-zsh"
 
 # ── Plugins (direct source, no oh-my-zsh framework) ─────────────────────────
-# extract
 [[ -f "$ZSH/plugins/extract/extract.plugin.zsh" ]] && source "$ZSH/plugins/extract/extract.plugin.zsh"
-
-# zsh-autosuggestions
 [[ -f "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
     source "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
-
-# fast-syntax-highlighting (faster alternative; fallback to zsh-syntax-highlighting)
 if [[ -f "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]]; then
     source "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
 elif [[ -f "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     source "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
-# ── Cached eval helper ───────────────────────────────────────────────────────
+# ── Cached eval helper (zsh-only, used for starship/zoxide/atuin init) ───────
 _cached_eval() {
     local name="$1" bin="$2"; shift 2
     local cache="$ZSH_CACHE_DIR/${name}.zsh"
@@ -83,120 +80,33 @@ _cached_eval() {
     [[ -s "$cache" ]] && source "$cache"
 }
 
-if (( $+commands[zoxide] )); then
-    _cached_eval zoxide zoxide init zsh
+(( $+commands[zoxide] )) && _cached_eval zoxide zoxide init zsh
+
+# ── Starship (cached init; single command probe) ─────────────────────────────
+if (( $+commands[starship] )); then
+    _cached_eval starship "${commands[starship]}" init zsh
+else
+    _starship_bin=""
+    for _c in /opt/homebrew/bin/starship /usr/local/bin/starship \
+              "$HOME/.local/bin/starship" "$HOME/bin/starship"; do
+        [[ -x "$_c" ]] && _starship_bin="$_c" && break
+    done
+    [[ -n "$_starship_bin" ]] && _cached_eval starship "$_starship_bin" init zsh
+    unset _c _starship_bin
 fi
 
-_init_starship() {
-    (( ${+_starship_initialized} )) && return 0
+# ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
+_common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
+[[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
+    && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
+[[ -f "$_common_sh" ]] && source "$_common_sh"
+unset _common_sh
 
-    local starship_bin=""
-    if (( $+commands[starship] )); then
-        starship_bin="$(command -v starship)"
-    elif [[ -x /usr/local/bin/starship ]]; then
-        starship_bin="/usr/local/bin/starship"
-    elif [[ -x /opt/homebrew/bin/starship ]]; then
-        starship_bin="/opt/homebrew/bin/starship"
-    elif [[ -x "$HOME/.local/bin/starship" ]]; then
-        starship_bin="$HOME/.local/bin/starship"
-    elif [[ -x "$HOME/bin/starship" ]]; then
-        starship_bin="$HOME/bin/starship"
-    fi
+# ── User configuration (local overrides) ─────────────────────────────────────
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
-    [[ -n "$starship_bin" ]] || return 0
-    _cached_eval starship "$starship_bin" init zsh
-    typeset -g _starship_initialized=1
-}
-
-_init_starship
-
-# ── User configuration ────────────────────────────────────────────────────────
-
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# 轻量注入默认 Node 版本的 bin，让全局 npm 命令在新 shell 中直接可用。
-_nvm_is_newer_version() {
-    local lhs="${1#v}" rhs="${2#v}"
-    local -a lhs_parts rhs_parts
-    lhs_parts=(${(s:.:)lhs})
-    rhs_parts=(${(s:.:)rhs})
-
-    local i max_parts=$(( ${#lhs_parts} > ${#rhs_parts} ? ${#lhs_parts} : ${#rhs_parts} ))
-    for (( i = 1; i <= max_parts; i++ )); do
-        local l="${lhs_parts[i]:-0}"
-        local r="${rhs_parts[i]:-0}"
-        (( l > r )) && return 0
-        (( l < r )) && return 1
-    done
-    return 1
-}
-
-_resolve_nvm_alias_target() {
-    local target="$1"
-    local alias_file depth=0
-
-    while (( depth < 8 )); do
-        case "$target" in
-            ""|"N/A"|"system")
-                return 1
-                ;;
-        esac
-
-        alias_file="$NVM_DIR/alias/$target"
-        [[ -f "$alias_file" ]] || break
-        IFS= read -r target < "$alias_file" || return 1
-        (( depth++ ))
-    done
-
-    [[ -n "$target" ]] && print -r -- "$target"
-}
-
-_nvm_default_bin() {
-    local target prefix dir best=""
-
-    [[ -r "$NVM_DIR/alias/default" ]] || return 1
-    IFS= read -r target < "$NVM_DIR/alias/default" || return 1
-    target="$(_resolve_nvm_alias_target "$target")" || return 1
-
-    prefix="$target"
-    [[ "$prefix" == v* ]] || prefix="v$prefix"
-
-    for dir in "$NVM_DIR"/versions/node/${prefix}*(N/); do
-        dir="${dir%/}"
-        [[ -x "$dir/bin/node" ]] || continue
-        if [[ -z "$best" ]] || _nvm_is_newer_version "${dir:t}" "${best:t}"; then
-            best="$dir"
-        fi
-    done
-
-    [[ -n "$best" ]] && print -r -- "$best/bin"
-}
-
-_nvm_bootstrap_bin="$(_nvm_default_bin 2>/dev/null)"
-if [[ -n "$_nvm_bootstrap_bin" && ":$PATH:" != *":$_nvm_bootstrap_bin:"* ]]; then
-    export PATH="$_nvm_bootstrap_bin:$PATH"
-    export NVM_BIN="$_nvm_bootstrap_bin"
-fi
-unset _nvm_bootstrap_bin
-
-# 延迟加载 NVM (支持 nvm/node/npm/npx 命令)
-_lazy_load_nvm() {
-    unset -f nvm node npm npx 2>/dev/null
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-}
-nvm()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; nvm  "$@" }
-node() { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; node "$@" }
-npm()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; npm  "$@" }
-npx()  { unset -f nvm node npm npx 2>/dev/null; _lazy_load_nvm; npx  "$@" }
-
-# 延迟加载 conda，兼容本地 macOS 和远程 Linux 的常见安装路径。
+# ── Conda lazy loader (zsh-specific hook) ────────────────────────────────────
 _find_conda_exe() {
     local candidate
     for candidate in \
@@ -208,18 +118,14 @@ _find_conda_exe() {
     do
         [[ -n "$candidate" && -x "$candidate" ]] && print -r -- "$candidate" && return 0
     done
-
     (( $+commands[conda] )) && command -v conda
 }
-
 _lazy_load_conda() {
     unset -f conda mamba 2>/dev/null
-
     local conda_exe conda_root conda_sh
     conda_exe="$(_find_conda_exe)" || return 1
     conda_root="${conda_exe:h:h}"
     conda_sh="$conda_root/etc/profile.d/conda.sh"
-
     if [[ -f "$conda_sh" ]]; then
         . "$conda_sh"
     else
@@ -229,18 +135,11 @@ _lazy_load_conda() {
 conda() { _lazy_load_conda && conda "$@" }
 mamba() { _lazy_load_conda && mamba "$@" }
 
-[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
+# ── Atuin (zsh has native preexec; no bash-preexec needed) ───────────────────
+(( $+commands[atuin] )) && _cached_eval atuin atuin init zsh
 
-if (( $+commands[atuin] )); then
-    _cached_eval atuin atuin init zsh
-fi
-
-AUTO_VENV_HELPER="${XDG_CONFIG_HOME:-$HOME/.config}/shell/auto-venv.sh"
-if [[ ! -f "$AUTO_VENV_HELPER" && -f "$HOME/.dotfiles/.config/shell/auto-venv.sh" ]]; then
-    AUTO_VENV_HELPER="$HOME/.dotfiles/.config/shell/auto-venv.sh"
-fi
-if [[ -f "$AUTO_VENV_HELPER" ]]; then
-    . "$AUTO_VENV_HELPER"
+# ── auto-venv: wire chpwd hook (common.sh sourced the helper file) ───────────
+if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
     autoload -Uz add-zsh-hook
     if (( ! ${chpwd_functions[(I)_auto_venv_refresh]:-0} )); then
         add-zsh-hook chpwd _auto_venv_refresh
@@ -249,11 +148,7 @@ if [[ -f "$AUTO_VENV_HELPER" ]]; then
 fi
 unset AUTO_VENV_HELPER
 
-BROOT_LAUNCHER="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/bash/br"
-[ -f "$BROOT_LAUNCHER" ] && source "$BROOT_LAUNCHER"
-unset BROOT_LAUNCHER
-
-# Homebrew Ruby
+# ── Homebrew Ruby gem bin ────────────────────────────────────────────────────
 if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
     export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
     if (( $+commands[gem] )); then
@@ -262,4 +157,10 @@ if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
         [[ -d "$_gemdir" ]] && export PATH="$_gemdir:$PATH"
         unset _gemdir
     fi
+fi
+
+# ── Multiplexer user-var emitter (tells WezTerm/Ghostty inner mux) ───────────
+if [[ -o interactive ]] \
+    && (( ${precmd_functions[(Ie)_emit_mux_user_var]:-0} == 0 )); then
+    precmd_functions+=(_emit_mux_user_var)
 fi

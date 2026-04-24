@@ -1,6 +1,8 @@
-# default local settings
+# ~/.zshrc.local — local overrides on top of ~/.zshrc + common.sh.
+# Shared logic (aliases, TERM, NVM, Homebrew mirror, WezTerm/Ghostty mux var)
+# now lives in ~/.config/shell/common.sh and is sourced from ~/.zshrc.
 
-# default keymap
+# ── Keymaps (zsh-only) ───────────────────────────────────────────────────────
 bindkey -s '\ee' 'vim\n'
 bindkey '\eh' backward-char
 bindkey '\el' forward-char
@@ -21,32 +23,17 @@ bindkey '\e[1;3A' beginning-of-line   # ALT+上键：跳到行首
 bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 (( $+commands[deer] )) && bindkey '\ev' deer
 
-# PATH 去重辅助函数
+# ── PATH helpers ─────────────────────────────────────────────────────────────
 path_prepend() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
-path_append() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
+path_append()  { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
 
-#alias ls='ls -G --color'
-alias grep='grep --color'
-alias egrep='egrep --color'
-alias fgrep='fgrep --color'
-
-alias 。。=..
-
-if (( $+commands[eza] )); then
-    alias ls='eza'
-    alias ll='eza -l --icons'
-    alias l='eza -l --icons'
-    alias la='eza -la --icons'
-    alias k='eza -l --icons'
-else
-    alias ll='ls -lh'
-    alias l='ls -l'
-fi
+# ── Suffix aliases (zsh-only) ────────────────────────────────────────────────
 alias -s gz='tar -xzvf'
 alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
 alias -s zip='unzip'
 
+# ── Git shorthand (kept here; not shared with bash) ──────────────────────────
 alias ga='git add'
 alias gst='git status'
 alias gl='git pull'
@@ -55,12 +42,7 @@ alias grh='git reset'
 alias grhh='git reset --hard'
 alias gsu='git submodule update'
 
-alias scp="scp -O"
-alias zj="zellij attach -c"
-alias zjl="zellij list-sessions"
-alias zjk="zellij kill-session"
-
-# yazi: 退出时 cd 到最后浏览的目录
+# ── yazi: 退出时 cd 到最后浏览的目录 ────────────────────────────────────────
 y() {
     local tmp
     tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
@@ -71,89 +53,17 @@ y() {
     rm -f -- "$tmp"
 }
 
-# git diff viewers
-if (( $+commands[delta] )); then
-    alias gd='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff'
-    alias gdca='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff --cached'
-    alias gdcw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --cached --word-diff=color'
-    alias gdw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --word-diff=color'
-elif (( $+commands[icdiff] )); then
-    alias gd='git icdiff'
-    alias gdca='git icdiff --cached'
-    alias gdcw='git icdiff --cached --word-diff'
-    alias gdw='git icdiff --word-diff'
-fi
-# parallel
-if (( $+commands[parallel] )); then
-    alias p='parallel'
-    alias pp='parallel --pipe -k'
-else
-    alias p='xargs -P 16'
-fi
-
-# fzf - 优化配置
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git || find . -type f"
-export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --preview 'bat --style=numbers --color=always --line-range :500 {} 2>/dev/null || head -60 {}'"
-
-export SVN_EDITOR='nvim'
-export EDITOR='nvim'
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-# 保留本地 WezTerm 特性；只在 terminfo 可用时启用 wezterm TERM。
-if [ -n "$TMUX" ]; then
-    export TERM=screen-256color
-elif [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
-    export TERM="${TERM:-xterm-256color}"
-elif [ "${TERM_PROGRAM:-}" = "WezTerm" ]; then
-    # 缓存 infocmp 结果，避免每次启动都 fork
-    local _wez_cache="$HOME/.zsh_cache/.wezterm_terminfo"
-    if [[ ! -f "$_wez_cache" ]]; then
-        mkdir -p "$HOME/.zsh_cache"
-        if (( $+commands[infocmp] )) && infocmp -x wezterm >/dev/null 2>&1; then
-            echo "wezterm" >| "$_wez_cache"
-        else
-            echo "xterm-256color" >| "$_wez_cache"
-        fi
-    fi
-    read -r TERM < "$_wez_cache"
-    export TERM
-fi
-
-# pager
-export PAGER="less"
-export LESS="-R -i -g -c -W"
-(( $+commands[lesspipe.sh] )) && export LESSOPEN='|lesspipe.sh %s' && export LESSCLOSE='lesspipe.sh %s %s'
-# color man
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
-
+# ── zsh options ──────────────────────────────────────────────────────────────
 setopt no_nomatch
 setopt no_beep
 unsetopt share_history
 unsetopt inc_append_history
 
-# 缓存补全数据
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh_cache/completions
 mkdir -p ~/.zsh_cache/completions
 
-# [ -f $HOME/perl5/perlbrew/etc/bashrc ] && source $HOME/perl5/perlbrew/etc/bashrc
-
-# if [ -f /usr/libexec/java_home ] && [ -z $JAVA_HOME ]; then
-#     #export JAVA_HOME=`/usr/libexec/java_home`
-#     export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
-#     if [ "$JAVA_HOME" =~ '.*JavaApplet.*' ]; then
-#         export JAVA_HOME=`/usr/libexec/java_home -V 2>&1|grep 'SE'|head -1|awk -F'\" ' '{print $3}'`
-#     fi
-#     export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
-#     export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
-# fi
-
-# PATH: 先系统/包管理器，再用户目录
+# ── PATH ordering (prepend system/package dirs; append user dirs) ────────────
 path_prepend /opt/homebrew/bin
 path_prepend /usr/local/bin
 path_prepend /opt/bin
@@ -161,15 +71,18 @@ path_prepend /opt/usr/bin
 path_prepend /usr/local/opt/findutils/libexec/gnubin
 path_prepend /usr/local/opt/gnu-getopt/bin
 path_prepend /usr/local/opt/ruby/bin
-path_append "$HOME/bin"
-path_append "$HOME/.local/bin"
+path_append  "$HOME/bin"
+path_append  "$HOME/.local/bin"
 
+# ── Go ───────────────────────────────────────────────────────────────────────
 if (( $+commands[go] )) && [ -z "$GOPATH" ]; then
     export GOPATH=$HOME/gowork
     path_append "$GOPATH/bin"
     path_append /usr/local/opt/go/libexec/bin
     export GOPROXY=https://mirrors.tencent.com/go/
 fi
+
+# ── thefuck (lazy) ───────────────────────────────────────────────────────────
 if (( $+commands[thefuck] )); then
     fuck() {
         unset -f fuck
@@ -177,9 +90,8 @@ if (( $+commands[thefuck] )); then
         fuck "$@"
     }
 fi
-# test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-# 延迟加载 kubectl 补全
+# ── kubectl completion (lazy) ────────────────────────────────────────────────
 kubectl() {
     unset -f kubectl
     if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
@@ -192,21 +104,18 @@ kubectl() {
     kubectl "$@"
 }
 
-# if [ -d ~/apache-maven-3.6.3 ]; then
-#     export M2_HOME=~/apache-maven-3.6.3
-#     export MAVEN_HOME="$M2_HOME"
-#     path_append "$M2_HOME/bin"
-# fi
-
-# [ -d "/volume1/@optware/bin" ] && path_append "/volume1/@optware/bin"
-
-# start tmux if ssh
-if (( $+commands[tmux] )) && [[ -z "${DOTFILES_NONINTERACTIVE:-}" && -n "$SSH_CONNECTION" && -z "$TMUX" && -t 0 && $# -eq 0 && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
+# ── Autostart tmux on incoming SSH ───────────────────────────────────────────
+if (( $+commands[tmux] )) \
+    && [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
+          && -n "$SSH_CONNECTION" \
+          && -z "$TMUX" \
+          && -t 0 \
+          && $# -eq 0 \
+          && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
     tmux new -As default-0
-    # tmux attach -t default || tmux new -t default
 fi
 
-# gem 路径：使用缓存避免每次启动都执行 gem environment
+# ── gem bin (cached) ─────────────────────────────────────────────────────────
 _gem_bin_cache="$HOME/.zsh_cache/.gem_bin_path"
 if (( $+commands[gem] )) && ! (( $+commands[tmuxinator] )); then
     mkdir -p "$HOME/.zsh_cache"
@@ -220,26 +129,8 @@ if (( $+commands[gem] )) && ! (( $+commands[tmuxinator] )); then
     unset _gem_bin
 fi
 unset _gem_bin_cache
-(( $+commands[tmuxinator] )) && alias mux=tmuxinator
-(( $+commands[make] )) && alias mak='make -j 16'
-# if type lvim >/dev/null 2>&1; then
-#     alias vim='lvim'
-# else
-#     type nvim >/dev/null 2>&1 && alias vim='nvim'
-# fi
-(( $+commands[nvim] )) && alias vim='nvim'
-(( $+commands[watch] )) && alias watch='watch -c'
-(( $+commands[docker] )) && alias docker='sudo -E docker'
-(( $+commands[dtruss] )) && ! (( $+commands[strace] )) && alias strace='dtruss'
-if (( $+commands[socat] )); then
-    alias clip="socat - tcp:localhost:8377"
-elif (( $+commands[nc] )); then
-    alias clip="nc localhost 8377"
-fi
 
-(( $+commands[pip3] )) && alias pip=pip3
-(( $+commands[python3] )) && alias python=python3
-# 优化后的 vpy/vpip 函数
+# ── venv helpers ─────────────────────────────────────────────────────────────
 vpy() {
     local python="${PWD}/.venv/bin/python3"
     [[ -x "$python" ]] || python="python3"
@@ -250,56 +141,6 @@ vpip() {
     [[ -x "$pip" ]] || pip="pip3"
     "$pip" "$@"
 }
-# if type npm >/dev/null 2>&1; then
-#     _npm_bin_cache="$HOME/.zsh_cache/.npm_bin_path"
-#     if [ -f "$_npm_bin_cache" ]; then
-#         path_append $(cat "$_npm_bin_cache")
-#         # export PATH="$PATH:$(cat "$_npm_bin_cache")"
-#     else
-#         _npm_bin=`npm config get prefix`/bin
-#         [ -n "$_npm_bin" ] && echo "$_npm_bin" > "$_npm_bin_cache" && path_append "$_npm_bin"
-#         unset _npm_bin
-#     fi
-#     unset _npm_bin_cache
-# fi
 
-# type conda >/dev/null 2>&1 && conda activate py311
-
-export DISABLE_VERSION_CHECK=1
-# export PATH="/Users/meteorchen/miniconda3/bin:$PATH"
-
-# NVM 已在 ~/.zshrc 中做延迟加载，这里不重复定义。
-
-# Homebrew Tsinghua Mirror（USE_CN_MIRROR=0 可关闭）
-if [ "${USE_CN_MIRROR:-1}" = "1" ]; then
-    export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
-    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
-    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
-    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
-fi
-
-# OpenClaw Completion
-if [ -f "$HOME/.openclaw/completions/openclaw.zsh" ]; then
-    source "$HOME/.openclaw/completions/openclaw.zsh"
-fi
-
-# 告诉 WezTerm 当前 multiplexer；ssh 到远端再进 tmux 时也能识别。
-_wezterm_emit_mux_user_var() {
-    local encoded=""
-
-    if [[ -n "$TMUX" ]]; then
-        encoded="dG11eA=="
-        printf '\033Ptmux;\033\033]1337;SetUserVar=MUX=%s\007\033\\' "$encoded"
-        return 0
-    fi
-
-    if [[ -n "$ZELLIJ" || -n "$ZELLIJ_SESSION_NAME" ]]; then
-        encoded="emVsbGlq"
-    fi
-
-    printf '\033]1337;SetUserVar=MUX=%s\007' "$encoded"
-}
-
-if [[ -o interactive ]] && (( ${precmd_functions[(Ie)_wezterm_emit_mux_user_var]} == 0 )); then
-    precmd_functions+=(_wezterm_emit_mux_user_var)
-fi
+# ── OpenClaw Completion ──────────────────────────────────────────────────────
+[ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
