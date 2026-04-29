@@ -33,15 +33,6 @@ alias -s tgz='tar -xzvf'
 alias -s bz2='tar -xjvf'
 alias -s zip='unzip'
 
-# ── Git shorthand (kept here; not shared with bash) ──────────────────────────
-alias ga='git add'
-alias gst='git status'
-alias gl='git pull'
-alias gp='git push'
-alias grh='git reset'
-alias grhh='git reset --hard'
-alias gsu='git submodule update'
-
 # ── yazi: 退出时 cd 到最后浏览的目录 ────────────────────────────────────────
 y() {
     local tmp

@@ -149,6 +149,16 @@ else
     alias l='ls -l'
 fi
 
+# ── Git shorthand (kept here; not shared with bash) ──────────────────────────
+alias gc='git commit'
+alias ga='git add'
+alias gst='git status'
+alias gl='git pull'
+alias gp='git push'
+alias grh='git reset'
+alias grhh='git reset --hard'
+alias gsu='git submodule update'
+
 # git diff viewers
 if command -v delta >/dev/null 2>&1; then
     alias gd='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff'
