@@ -252,13 +252,10 @@ fi
 unset _nvm_bootstrap_bin
 
 _lazy_load_nvm() {
-    unset -f nvm node npm npx 2>/dev/null
+    unset -f nvm 2>/dev/null
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 }
-nvm()  { _lazy_load_nvm; nvm  "$@"; }
-node() { _lazy_load_nvm; node "$@"; }
-npm()  { _lazy_load_nvm; npm  "$@"; }
-npx()  { _lazy_load_nvm; npx  "$@"; }
+nvm() { _lazy_load_nvm && nvm "$@"; }
 
 # -----------------------------------------------------------------------------
 # Atuin bin path (actual `atuin init` is wired in each shell rc because
