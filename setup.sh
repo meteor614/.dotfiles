@@ -13,15 +13,15 @@ CHECK_FAILED=0
 BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
 brew_formulae=(
-    ack antigen autossh cheat clang-format cloc cmake coreutils cpulimit cscope
+    cheat clang-format cloc cmake coreutils cpulimit cscope
     ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global
     gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli
     neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf
     pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
-    tree vim vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
+    tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
     bat reattach-to-user-namespace eza lazygit procs dust cargo atuin
-    imagemagick bottom sd broot choose glow
+    imagemagick bottom sd broot choose glow zoxide
 )
 brew_casks=(
     font-hack-nerd-font
