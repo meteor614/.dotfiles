@@ -132,3 +132,5 @@ vpip() {
 
 # ── OpenClaw Completion ──────────────────────────────────────────────────────
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
+
+[ -f "$HOME/.api_key_env" ] && source "$HOME/.api_key_env"

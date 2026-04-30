@@ -242,7 +242,7 @@ link_top_level_dotfiles() {
         ensure_link "$file" "$HOME/$base"
     done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
 
-    ensure_link "${script_path}/.aria2" "$HOME/.aria2"
+    # ensure_link "${script_path}/.aria2" "$HOME/.aria2"
     ensure_link "${script_path}/.pip" "$HOME/.pip"
     yellow 'Init dotfiles finish.'
 }
