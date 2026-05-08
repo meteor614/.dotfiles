@@ -184,8 +184,24 @@ command -v make >/dev/null 2>&1 && alias mak='make -j 16'
 command -v nvim >/dev/null 2>&1 && alias vim='nvim'
 command -v watch >/dev/null 2>&1 && alias watch='watch -c'
 command -v docker >/dev/null 2>&1 && alias docker='sudo -E docker'
-command -v pip3 >/dev/null 2>&1 && alias pip=pip3
-command -v python3 >/dev/null 2>&1 && alias python=python3
+if command -v pip3 >/dev/null 2>&1; then
+    pip() {
+        if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/pip" ]; then
+            "${VIRTUAL_ENV}/bin/pip" "$@"
+        else
+            command pip3 "$@"
+        fi
+    }
+fi
+if command -v python3 >/dev/null 2>&1; then
+    python() {
+        if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/python" ]; then
+            "${VIRTUAL_ENV}/bin/python" "$@"
+        else
+            command python3 "$@"
+        fi
+    }
+fi
 if command -v dtruss >/dev/null 2>&1 && ! command -v strace >/dev/null 2>&1; then
     alias strace='dtruss'
 fi
