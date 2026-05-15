@@ -80,7 +80,7 @@ _cached_eval() {
     [[ -s "$cache" ]] && source "$cache"
 }
 
-(( $+commands[zoxide] )) && _cached_eval zoxide zoxide init zsh
+(( $+commands[zoxide] )) && _cached_eval zoxide "${commands[zoxide]}" init zsh
 
 # ── Starship (cached init; single command probe) ─────────────────────────────
 if (( $+commands[starship] )); then
