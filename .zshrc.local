@@ -130,6 +130,7 @@ vpip() {
     "$pip" "$@"
 }
 
+path_append "/Applications/Obsidian.app/Contents/MacOS/"
 # ── OpenClaw Completion ──────────────────────────────────────────────────────
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
 
