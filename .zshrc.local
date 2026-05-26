@@ -101,9 +101,9 @@ if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
       && $# -eq 0 \
       && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
     if (( $+commands[zellij] )); then
-        zellij a -c work
+        exec zellij a -c work
     elif (( $+commands[tmux] )); then
-        tmux new -As default-0
+        exec tmux new -As default-0
     fi
 fi
 
