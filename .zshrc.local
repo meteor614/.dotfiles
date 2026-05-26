@@ -92,15 +92,19 @@ kubectl() {
     kubectl "$@"
 }
 
-# ── Autostart tmux on incoming SSH ───────────────────────────────────────────
-if (( $+commands[tmux] )) \
-    && [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
-          && -n "$SSH_CONNECTION" \
-          && -z "$TMUX" \
-          && -t 0 \
-          && $# -eq 0 \
-          && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
-    tmux new -As default-0
+# ── Autostart multiplexer on incoming SSH (prefer zellij, fallback tmux) ─────
+if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
+      && -n "$SSH_CONNECTION" \
+      && -z "$TMUX" \
+      && -z "$ZELLIJ" \
+      && -t 0 \
+      && $# -eq 0 \
+      && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
+    if (( $+commands[zellij] )); then
+        zellij a -c work
+    elif (( $+commands[tmux] )); then
+        tmux new -As default-0
+    fi
 fi
 
 # ── gem bin (cached) ─────────────────────────────────────────────────────────
