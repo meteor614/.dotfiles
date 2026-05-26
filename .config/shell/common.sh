@@ -211,8 +211,12 @@ elif command -v nc >/dev/null 2>&1; then
     alias clip='nc localhost 8377'
 fi
 if command -v claude-internal >/dev/null 2>&1; then
-    alias claude-internal='claude-internal --allow-dangerously-skip-permissions'
-    alias cci='claude-internal --allow-dangerously-skip-permissions'
+    if [ "$(id -u)" -ne 0 ]; then
+        alias claude-internal='claude-internal --allow-dangerously-skip-permissions'
+        alias cci='claude-internal --allow-dangerously-skip-permissions'
+    else
+        alias cci='claude-internal'
+    fi
 fi
 
 # -----------------------------------------------------------------------------
