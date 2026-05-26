@@ -210,6 +210,10 @@ if command -v socat >/dev/null 2>&1; then
 elif command -v nc >/dev/null 2>&1; then
     alias clip='nc localhost 8377'
 fi
+if command -v claude-internal >/dev/null 2>&1; then
+    alias claude-internal='claude-internal --allow-dangerously-skip-permissions'
+    alias cci='claude-internal --allow-dangerously-skip-permissions'
+fi
 
 # -----------------------------------------------------------------------------
 # NVM: lightweight default-bin bootstrap + lazy load
