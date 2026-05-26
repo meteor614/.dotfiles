@@ -64,8 +64,8 @@ command -v kubectl >/dev/null 2>&1 && . <(kubectl completion bash)
 # perlbrew
 [ -f ~/perl5/perlbrew/etc/bashrc ] && . ~/perl5/perlbrew/etc/bashrc
 
-# atuin (needs bash-preexec in bash)
-if command -v atuin >/dev/null 2>&1; then
+# atuin (needs bash-preexec in bash; skip in non-interactive shells)
+if [[ $- == *i* ]] && command -v atuin >/dev/null 2>&1; then
     [ -f ~/.bash-preexec.sh ] && . ~/.bash-preexec.sh
     eval "$(atuin init bash)"
 fi
