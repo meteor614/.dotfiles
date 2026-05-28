@@ -1,4 +1,4 @@
-[manager]
+[mgr]
 ratio = [1, 4, 3]
 sort_by = "natural"
 sort_sensitive = false
@@ -19,7 +19,7 @@ edit = [
 
 [open]
 rules = [
-  { name = "*/", use = ["edit", "open", "reveal"] },
+  { url = "*/", use = ["edit", "open", "reveal"] },
 
   { mime = "text/*", use = ["edit", "reveal"] },
   { mime = "image/*", use = ["open", "reveal"] },
@@ -36,13 +36,4 @@ rules = [
   { mime = "*", use = ["open", "reveal"] },
 ]
 
-# 插件：git 状态显示
-[[plugin.prepend_fetchers]]
-id = "git"
-name = "*"
-run = "git"
-
-[[plugin.prepend_fetchers]]
-id = "git"
-name = "*/"
-run = "git"
+# 插件：git 状态显示（yazi >= v26.1.22 由 git.yazi 插件自动注册，无需在此手动配置）
