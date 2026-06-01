@@ -606,6 +606,30 @@ init_authorized_keys_if_requested() {
     yellow 'Init ssh authorized_keys finish.'
 }
 
+# Install herdr's per-agent hook scripts into each Claude config dir we manage.
+# herdr's installer overwrites the hook file in place; symlinking is unsafe
+# because uninstalling one config dir would remove the shared file.
+install_herdr_integrations() {
+    if ! command_exists herdr; then
+        return 0
+    fi
+    if ! command_exists claude; then
+        return 0
+    fi
+
+    red 'Init herdr integrations...'
+
+    local dir
+    for dir in "$HOME/.claude" "$HOME/.claude-internal"; do
+        if [ -d "$dir" ]; then
+            CLAUDE_CONFIG_DIR="$dir" herdr integration install claude \
+                || yellow "herdr integration install claude failed for $dir"
+        fi
+    done
+
+    yellow 'Init herdr integrations finish.'
+}
+
 run_setup() {
     if [ "$MODE" != "check" ]; then
         init_submodules
@@ -632,6 +656,7 @@ run_setup() {
     setup_voltron
     generate_cpp_tags_if_missing
     init_authorized_keys_if_requested
+    install_herdr_integrations
 }
 
 parse_args "$@"
