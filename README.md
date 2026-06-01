@@ -3,9 +3,10 @@
 All my dotfiles.
 
 * neovim/lunarvim/vim
-* wezterm/alacritty
+* ghostty/wezterm/alacritty
+* zellij/herdr/tmux/tmuxinator
 * zsh/bash
-* zellij/tmux/tmuxinator
+* starship/yazi
 * git/lazygit
 * gdb/lldb
 * karabiner
