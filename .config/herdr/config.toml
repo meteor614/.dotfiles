@@ -1,0 +1,65 @@
+onboarding = false
+
+# ─── Keys ──────────────────────────────────────────────────────────────────
+# Prefix 保持 ctrl+b（herdr 默认），避免占用 zsh 的 Ctrl+A 行首。
+# 也跟 tmux 默认 prefix 一致；嵌套 tmux 时按两次 Ctrl+B 透传到内层。
+[keys]
+prefix = "ctrl+b"
+
+# 与 dotfiles 的 Cmd+d / Cmd+Shift+d、tmux Ctrl+Alt+d 对齐
+split_vertical   = "prefix+d"          # 向右切（竖直分隔线）
+split_horizontal = "prefix+shift+d"    # 向下切
+
+# tab 切换：prefix+1..9，与 Alt+1..9 (tmux/zellij) 同手感
+switch_tab       = "prefix+1..9"
+
+# agent 聚焦：prefix+alt+1..9，避免占用 1..9 直达
+focus_agent      = "prefix+alt+1..9"
+
+# workspace 翻页（herdr 默认未启用）
+previous_workspace = "prefix+["
+next_workspace     = "prefix+]"
+
+# 双击 prefix 跳到上一个 pane（类 tmux last-pane: prefix prefix）
+last_pane = "prefix+b"
+
+# 常用应用直达；避开 herdr 默认的 prefix+g (goto)
+[[keys.command]]
+key  = "prefix+alt+g"
+type = "pane"
+command = "lazygit"
+
+[[keys.command]]
+key  = "prefix+alt+d"
+type = "pane"
+command = "lazydocker"
+
+[[keys.command]]
+key  = "prefix+alt+y"
+type = "pane"
+command = "yazi"
+
+# ─── UI ────────────────────────────────────────────────────────────────────
+[ui]
+agent_panel_scope = "all"
+prompt_new_tab_name = false        # 新 tab 即出现，跟 Cmd+t 风格一致
+accent = "cyan"
+show_agent_labels_on_pane_borders = true
+
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = true
+
+[session]
+resume_agents_on_restore = true
+
+# ─── Experimental ──────────────────────────────────────────────────────────
+[experimental]
+# server 重启后恢复 pane 屏幕历史（长跑 agent / nvim session 友好）
+pane_history = true
+# 中文输入法候选窗跟随焦点 pane 的光标（Claude Code / codex 等 TUI）
+reveal_hidden_cursor_for_cjk_ime = true
+# 本地 Kitty graphics 渲染（ghostty 兼容 Kitty graphics 协议）
+kitty_graphics = true
