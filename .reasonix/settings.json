@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
+        "description": "Report working state to herdr",
+        "timeout": 2000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
+        "description": "Report working state to herdr",
+        "timeout": 2000
+      }
+    ],
+    "Stop": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh idle",
+        "description": "Report idle state to herdr",
+        "timeout": 2000
+      }
+    ]
+  }
+}
