@@ -219,18 +219,23 @@ if command -v claude-internal >/dev/null 2>&1; then
     fi
 fi
 
-# Reasonix 0.53 doesn't fire SessionStart/UserPromptSubmit hooks, so a freshly
-# launched reasonix pane shows agent_status=unknown in herdr until it makes
-# its first tool call. We pre-announce idle on startup so the pane is
-# immediately recognized as a reasonix agent, then exec into the real binary.
+# Reasonix 0.53 doesn't fire SessionStart/SessionEnd/UserPromptSubmit hooks,
+# so a fresh reasonix pane shows agent_status=unknown until first tool call,
+# and herdr keeps the agent label after reasonix exits. The wrapper:
+#   1. pre-announces idle on startup → herdr recognizes pane immediately
+#   2. releases the agent on exit → herdr clears the stale label
 if command -v reasonix >/dev/null 2>&1; then
     reasonix() {
-        if [ "${HERDR_ENV:-}" = "1" ] \
-           && [ -x "$HOME/.reasonix/hooks/herdr-agent-state.sh" ]; then
-            bash "$HOME/.reasonix/hooks/herdr-agent-state.sh" idle </dev/null \
-                >/dev/null 2>&1 || true
+        local hook="$HOME/.reasonix/hooks/herdr-agent-state.sh"
+        if [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
+            bash "$hook" idle </dev/null >/dev/null 2>&1 || true
         fi
         command reasonix "$@"
+        local rc=$?
+        if [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
+            bash "$hook" release </dev/null >/dev/null 2>&1 || true
+        fi
+        return $rc
     }
 fi
 
