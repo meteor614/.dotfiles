@@ -5,9 +5,8 @@
 #   1. Reports agent="codebuddy" (not "claude") so herdr's sidebar shows
 #      the right label. CodeBuddy is a Claude fork but it's a distinct
 #      product to surface separately.
-#   2. Stop maps to "blocked" (waiting for user input), not "idle". The
-#      user prefers a visible attention cue while the agent is parked at
-#      the prompt waiting for them to type the next message.
+#   2. Reports agent="codebuddy" (not "claude") so herdr's sidebar shows
+#      the right label. Stop maps to "idle" (consistent with other agents).
 #
 # Lifecycle map:
 #   SessionStart       → idle     (fresh session, no work yet)
@@ -15,7 +14,7 @@
 #   PreToolUse         → working  (about to call a tool)
 #   PostToolUse        → working  (tool returned, more may follow)
 #   PermissionRequest  → blocked  (asking user to allow a tool)
-#   Stop               → blocked  (turn ended, waiting for next prompt)
+#   Stop               → idle     (turn ended, waiting for next prompt)
 #   SubagentStop       → ignore   (subagent done; parent may still be working)
 #   SessionEnd         → release  (clear agent label from herdr)
 #

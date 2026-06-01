@@ -45,7 +45,7 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh blocked", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 }
         ]
       }
     ],
