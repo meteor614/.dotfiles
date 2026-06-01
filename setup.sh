@@ -606,11 +606,10 @@ init_authorized_keys_if_requested() {
     yellow 'Init ssh authorized_keys finish.'
 }
 
-# Install herdr's per-agent hook scripts into each Claude config dir we
-# manage (~/.claude is herdr's stock target; ~/.claude-internal is the
-# enterprise variant). For codebuddy we instead use a hand-written hook
-# (link_codebuddy_herdr_integration below) that labels the agent as
-# "codebuddy" rather than "claude" and maps Stop → blocked.
+# Install herdr's stock claude hook script into ~/.claude. The other
+# Claude-Code-compatible config dirs (~/.claude-internal, ~/.codebuddy)
+# go through link_custom_herdr_hook below so we can label them
+# distinctly in herdr's sidebar.
 # Symlinking is unsafe — herdr's installer overwrites the hook file in
 # place, so a shared symlink would let one uninstall remove all of them.
 install_herdr_integrations() {
@@ -621,7 +620,7 @@ install_herdr_integrations() {
     red 'Init herdr integrations...'
 
     local dir
-    for dir in "$HOME/.claude" "$HOME/.claude-internal"; do
+    for dir in "$HOME/.claude"; do
         if [ -d "$dir" ]; then
             CLAUDE_CONFIG_DIR="$dir" herdr integration install claude \
                 || yellow "herdr integration install claude failed for $dir"
@@ -645,19 +644,25 @@ link_reasonix_herdr_integration() {
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
 }
 
-# CodeBuddy uses Claude Code's hook schema, but ~/.codebuddy/settings.json
-# also stores gateway/model/trustedDirectories that codebuddy itself owns.
-# We can't fully symlink the file, so we symlink the hook script and merge
-# our `hooks` block into settings.json with jq. We deliberately skip the
-# stock `herdr integration install claude` path (which would overwrite our
-# hook file) so we keep agent="codebuddy" labelling and Stop→blocked.
-link_codebuddy_herdr_integration() {
-    local src_dir="$script_path/.codebuddy"
-    local target_dir="$HOME/.codebuddy"
+# Symlink a hand-written herdr hook script into a Claude-Code-compatible
+# agent's config dir, then merge the dotfiles `hooks` block into the
+# agent's settings.json (which also holds gateway/model/etc. owned by the
+# agent itself). Used for both claude-internal and codebuddy so each pane
+# carries the right agent label in herdr's sidebar (rather than all being
+# tagged "claude" by herdr's stock installer).
+#
+# args: <dotfiles-subdir-name> <target-dir>
+#   dotfiles-subdir-name: directory under $script_path that holds
+#     hooks/herdr-agent-state.sh + hooks-settings.json
+#   target-dir: the agent's actual config dir, e.g. $HOME/.codebuddy
+link_custom_herdr_hook() {
+    local subdir="$1"
+    local target_dir="$2"
+    local src_dir="$script_path/$subdir"
     [ -d "$src_dir" ] || return 0
     [ -d "$target_dir" ] || return 0
     if ! command_exists jq; then
-        yellow "skip codebuddy herdr hook merge: jq not installed"
+        yellow "skip $subdir herdr hook merge: jq not installed"
         return 0
     fi
 
@@ -672,14 +677,13 @@ link_codebuddy_herdr_integration() {
         printf '{}\n' > "$settings"
     fi
 
-    # Merge: replace settings.hooks with the dotfiles version, keep all other keys.
     local tmp
-    tmp="$(mktemp "${TMPDIR:-/tmp}/codebuddy-settings.XXXXXX.json")"
+    tmp="$(mktemp "${TMPDIR:-/tmp}/herdr-hook-merge.XXXXXX.json")"
     if jq -s '.[0] * {hooks: .[1].hooks}' "$settings" "$hooks_src" > "$tmp" 2>/dev/null; then
         mv "$tmp" "$settings"
     else
         rm -f "$tmp"
-        yellow "codebuddy settings.json merge failed; left untouched"
+        yellow "$subdir settings.json merge failed; left untouched"
     fi
 }
 
@@ -711,7 +715,8 @@ run_setup() {
     init_authorized_keys_if_requested
     install_herdr_integrations
     link_reasonix_herdr_integration
-    link_codebuddy_herdr_integration
+    link_custom_herdr_hook ".claude-internal" "$HOME/.claude-internal"
+    link_custom_herdr_hook ".codebuddy"       "$HOME/.codebuddy"
 }
 
 parse_args "$@"
