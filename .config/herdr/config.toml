@@ -23,6 +23,12 @@ next_workspace     = "prefix+]"
 # 双击 prefix 跳到上一个 pane（类 tmux last-pane: prefix prefix）
 last_pane = "prefix+b"
 
+# 释放/迁移会跟我们冲突的默认绑定
+copy_mode        = ""                 # 默认占 prefix+[，让给 previous_workspace
+toggle_sidebar   = ""                 # 默认占 prefix+b，让给 last_pane（如需用 sidebar 走鼠标/菜单）
+close_workspace  = ""                 # 默认占 prefix+shift+d，让给 split_horizontal（关 workspace 走菜单/CLI）
+close_tab        = ""                 # 默认占 prefix+shift+x，避免后续冲突；用 prefix+x 关单 pane 即可
+
 # 常用应用直达；避开 herdr 默认的 prefix+g (goto)
 [[keys.command]]
 key  = "prefix+alt+g"
@@ -51,6 +57,12 @@ delivery = "herdr"
 
 [ui.sound]
 enabled = true
+
+# Reasonix 0.53 没有真正的 Stop hook，我们把 PostToolUse 映射为 idle，
+# 一个 turn 内多次工具调用会反复报 idle，触发多次 done 通知声。
+# 静音直到上游补上真正的 turn-end 信号。
+[ui.sound.agents]
+reasonix = "off"
 
 [session]
 resume_agents_on_restore = true

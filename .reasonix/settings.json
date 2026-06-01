@@ -1,23 +1,17 @@
 {
+  "_comment": "Reasonix 0.53.x's bundled runtime only fires PreToolUse and PostToolUse despite docs listing UserPromptSubmit/Stop. We map PostToolUse->idle as the closest available 'turn-ish ended' signal — it fires once per tool call, so a multi-tool turn flickers working->idle several times. Herdr's done-notification dedup smooths the UX in background workspaces.",
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
-        "description": "Report working state to herdr",
-        "timeout": 2000
-      }
-    ],
     "PreToolUse": [
       {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
-        "description": "Report working state to herdr",
+        "description": "herdr: report working before each tool call",
         "timeout": 2000
       }
     ],
-    "Stop": [
+    "PostToolUse": [
       {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh idle",
-        "description": "Report idle state to herdr",
+        "description": "herdr: report idle after each tool call (best approximation: reasonix 0.53 doesn't fire Stop)",
         "timeout": 2000
       }
     ]

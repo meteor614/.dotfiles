@@ -13,6 +13,17 @@
 set -eu
 
 action="${1:-}"
+
+# Optional debug trace: set HERDR_REASONIX_HOOK_DEBUG=1 to log every fire to /tmp.
+if [ "${HERDR_REASONIX_HOOK_DEBUG:-}" = "1" ]; then
+    {
+        printf '[%s] action=%s pid=%s pane=%s sock=%s env=%s\n' \
+            "$(date '+%H:%M:%S')" "$action" "$$" \
+            "${HERDR_PANE_ID:-<unset>}" "${HERDR_SOCKET_PATH:-<unset>}" \
+            "${HERDR_ENV:-<unset>}"
+    } >>"${TMPDIR:-/tmp}/herdr-reasonix-hook.log" 2>/dev/null || true
+fi
+
 hook_input_file="$(mktemp "${TMPDIR:-/tmp}/herdr-reasonix-hook.XXXXXX")" || exit 0
 trap 'rm -f "$hook_input_file"' EXIT HUP INT TERM
 cat >"$hook_input_file" 2>/dev/null || true
