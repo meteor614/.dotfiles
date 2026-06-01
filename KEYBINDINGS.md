@@ -88,7 +88,6 @@ Ghostty 则将 Cmd 绑定到自身的原生分屏。
 | 快捷键 | 功能 |
 | -------- | ------ |
 | `Ctrl+Alt+a` | 切换嵌套 tmux（禁用/启用外层会话） |
-| `prefix` + `Y` | 通过 clipper 发送到远程剪贴板（socat/nc） |
 | 鼠标滚轮 | copy-mode-vi 中每次滚动 3 行 |
 
 ---

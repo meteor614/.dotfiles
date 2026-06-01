@@ -205,11 +205,6 @@ fi
 if command -v dtruss >/dev/null 2>&1 && ! command -v strace >/dev/null 2>&1; then
     alias strace='dtruss'
 fi
-if command -v socat >/dev/null 2>&1; then
-    alias clip='socat - tcp:localhost:8377'
-elif command -v nc >/dev/null 2>&1; then
-    alias clip='nc localhost 8377'
-fi
 if command -v claude-internal >/dev/null 2>&1; then
     if [ "$(id -u)" -ne 0 ]; then
         alias claude-internal='claude-internal --allow-dangerously-skip-permissions'

@@ -283,10 +283,3 @@ bind -n C-M-t new-window
 bind -n C-M-w confirm-before -p "kill window #W? (y/n)" kill-window
 bind -n C-M-d split-window -h
 bind -n C-M-D split-window -v
-
-# Clipper support for remote clipboard:
-# keep default `y` for tmux/OS clipboard integration; use `Y` for explicit remote forward.
-unbind -q Y
-if-shell 'command -v socat > /dev/null 2>&1' \
-  'bind Y run-shell -b "tmux save-buffer - | socat - tcp:localhost:8377"' \
-  'if-shell "command -v nc > /dev/null 2>&1" "bind Y run-shell -b \"tmux save-buffer - | nc localhost 8377\""'
