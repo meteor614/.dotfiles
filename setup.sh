@@ -607,10 +607,12 @@ init_authorized_keys_if_requested() {
 }
 
 # Install herdr's per-agent hook scripts into each Claude-compatible config
-# dir we manage. Both ~/.claude-internal and ~/.codebuddy-code use the same
+# dir we manage. Both ~/.claude-internal and ~/.codebuddy use the same
 # Claude Code hook schema (PreToolUse/Stop/SessionStart/etc.), so we point
 # CLAUDE_CONFIG_DIR at each in turn — herdr's installer merges its `hooks`
 # block into the existing settings.json without disturbing other keys.
+# Note: codebuddy's actual config dir is ~/.codebuddy (NOT ~/.codebuddy-code,
+# which is the npm module's installed-plugins area).
 # Caveat: herdr labels these panes as "claude" since its hook reports
 # `agent: claude` regardless of binary; that's accurate for codebuddy
 # (it's a Claude fork) and harmless for tagging purposes.
@@ -624,7 +626,7 @@ install_herdr_integrations() {
     red 'Init herdr integrations...'
 
     local dir
-    for dir in "$HOME/.claude" "$HOME/.claude-internal" "$HOME/.codebuddy-code"; do
+    for dir in "$HOME/.claude" "$HOME/.claude-internal" "$HOME/.codebuddy"; do
         if [ -d "$dir" ]; then
             CLAUDE_CONFIG_DIR="$dir" herdr integration install claude \
                 || yellow "herdr integration install claude failed for $dir"
