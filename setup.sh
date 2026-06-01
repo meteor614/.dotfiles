@@ -606,21 +606,25 @@ init_authorized_keys_if_requested() {
     yellow 'Init ssh authorized_keys finish.'
 }
 
-# Install herdr's per-agent hook scripts into each Claude config dir we manage.
-# herdr's installer overwrites the hook file in place; symlinking is unsafe
-# because uninstalling one config dir would remove the shared file.
+# Install herdr's per-agent hook scripts into each Claude-compatible config
+# dir we manage. Both ~/.claude-internal and ~/.codebuddy-code use the same
+# Claude Code hook schema (PreToolUse/Stop/SessionStart/etc.), so we point
+# CLAUDE_CONFIG_DIR at each in turn — herdr's installer merges its `hooks`
+# block into the existing settings.json without disturbing other keys.
+# Caveat: herdr labels these panes as "claude" since its hook reports
+# `agent: claude` regardless of binary; that's accurate for codebuddy
+# (it's a Claude fork) and harmless for tagging purposes.
+# Symlinking is unsafe — herdr's installer overwrites the hook file in
+# place, so a shared symlink would let one uninstall remove all of them.
 install_herdr_integrations() {
     if ! command_exists herdr; then
-        return 0
-    fi
-    if ! command_exists claude; then
         return 0
     fi
 
     red 'Init herdr integrations...'
 
     local dir
-    for dir in "$HOME/.claude" "$HOME/.claude-internal"; do
+    for dir in "$HOME/.claude" "$HOME/.claude-internal" "$HOME/.codebuddy-code"; do
         if [ -d "$dir" ]; then
             CLAUDE_CONFIG_DIR="$dir" herdr integration install claude \
                 || yellow "herdr integration install claude failed for $dir"
