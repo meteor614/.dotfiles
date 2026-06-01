@@ -1,5 +1,5 @@
 {
-  "_comment": "Reasonix 0.53.x's bundled runtime only fires PreToolUse and PostToolUse despite docs listing UserPromptSubmit/Stop. We map PostToolUse->idle as the closest available 'turn-ish ended' signal — it fires once per tool call, so a multi-tool turn flickers working->idle several times. Herdr's done-notification dedup smooths the UX in background workspaces.",
+  "_comment": "Reasonix 0.53.x only fires PreToolUse and PostToolUse (no UserPromptSubmit/Stop). PreToolUse → blocked for edit_file/write_file (detected from stdin), otherwise working. PostToolUse → deferred idle: sleeps 3s then sends idle to herdr (cancelled by next PreToolUse). Shell wrapper sends release on exit.",
   "hooks": {
     "PreToolUse": [
       {

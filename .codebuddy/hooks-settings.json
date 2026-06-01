@@ -1,0 +1,61 @@
+{
+  "_comment": "CodeBuddy → herdr agent state hooks. Custom (not herdr's official claude integration) so we can label panes 'codebuddy' instead of 'claude' and map Stop to 'blocked' (waiting for user input) instead of 'idle'. Other lifecycle map: SessionStart→idle, PreToolUse/UserPromptSubmit/PostToolUse→working, PermissionRequest→blocked, SessionEnd→release.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh blocked", "timeout": 10 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh blocked", "timeout": 10 }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh release", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}

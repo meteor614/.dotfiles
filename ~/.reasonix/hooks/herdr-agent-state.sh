@@ -1,0 +1,1 @@
+/Users/meteorchen/.dotfiles/.reasonix/hooks/herdr-agent-state.sh
