@@ -661,10 +661,6 @@ link_custom_herdr_hook() {
     local src_dir="$script_path/$subdir"
     [ -d "$src_dir" ] || return 0
     [ -d "$target_dir" ] || return 0
-    if ! command_exists jq; then
-        yellow "skip $subdir herdr hook merge: jq not installed"
-        return 0
-    fi
 
     ensure_dir "$target_dir/hooks"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$target_dir/hooks/herdr-agent-state.sh"
@@ -672,6 +668,11 @@ link_custom_herdr_hook() {
     local settings="$target_dir/settings.json"
     local hooks_src="$src_dir/hooks-settings.json"
     [ -f "$hooks_src" ] || return 0
+
+    if ! command_exists jq; then
+        yellow "skip $subdir settings.json hooks merge: jq not installed"
+        return 0
+    fi
 
     if [ ! -f "$settings" ]; then
         printf '{}\n' > "$settings"

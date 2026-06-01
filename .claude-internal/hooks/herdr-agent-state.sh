@@ -66,7 +66,7 @@ if is_subagent and action in ("idle", "release"):
     raise SystemExit(0)
 
 request_id = f"{source}:{int(time.time() * 1000)}:{random.randrange(1_000_000):06d}"
-report_seq = time.time_ns()
+report_seq = int(time.time() * 1_000_000_000)  # time_ns() requires Python 3.7+
 session_id = hook_input.get("session_id")
 agent_session_id = session_id if isinstance(session_id, str) and session_id else None
 
