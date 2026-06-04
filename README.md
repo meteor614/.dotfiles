@@ -3,7 +3,7 @@
 All my dotfiles.
 
 * neovim/lunarvim/vim
-* ghostty/wezterm/alacritty
+* ghostty
 * zellij/herdr/tmux/tmuxinator
 * zsh/bash
 * starship/yazi

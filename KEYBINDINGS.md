@@ -1,6 +1,6 @@
 # 统一快捷键方案
 
-三层修饰键体系，在 WezTerm、Ghostty、tmux、zellij 之间保持一致的肌肉记忆。
+三层修饰键体系，在 Ghostty、tmux、zellij 之间保持一致的肌肉记忆。
 
 | 层级 | 修饰键 | 作用域 | 示例 |
 | ------ | -------- | -------- | ------ |
@@ -10,25 +10,23 @@
 
 ---
 
-## Cmd — 终端原生操作（WezTerm / Ghostty）
+## Cmd — 终端原生操作（Ghostty）
 
 这些键由终端模拟器在到达 tmux/zellij 之前截获。
-WezTerm 通过 `mux_action` 自动检测前台复用器，将 Cmd 键翻译为对应的复用器序列；
-Ghostty 则将 Cmd 绑定到自身的原生分屏。
+Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 
-| 快捷键 | WezTerm（自适应复用器） | Ghostty（原生） |
-| -------- | ------------------------ | ----------------- |
-| `Cmd+t` | 新建标签页 | `new_tab` |
-| `Cmd+n` | 新建 WezTerm 标签页 | `new_window` |
-| `Cmd+w` | 关闭标签页/复用器窗口 | `close_surface` |
-| `Cmd+d` | 向右分屏（水平） | `new_split:right` |
-| `Cmd+Shift+d` | 向下分屏（垂直） | `new_split:down` |
-| `Cmd+h/j/k/l` | 导航面板 | `goto_split:left/bottom/top/right` |
-| `Cmd+方向键` | 调整面板大小 | `resize_split:方向,20` |
-| `Cmd+[/]` | 上/下一个标签页 | `previous_tab`/`next_tab` |
-| `Cmd+1..9` | 跳转到第 N 个标签页 | *（系统默认）* |
-| `Cmd+Shift+c` | 复制模式（vi） | |
-| `Alt+Enter` | 切换全屏 | `toggle_fullscreen` |
+| 快捷键 | Ghostty |
+| -------- | -------- |
+| `Cmd+t` | `new_tab` |
+| `Cmd+n` | `new_window` |
+| `Cmd+w` | `close_surface` |
+| `Cmd+d` | `new_split:right` |
+| `Cmd+Shift+d` | `new_split:down` |
+| `Cmd+h/j/k/l` | `goto_split:left/bottom/top/right` |
+| `Cmd+方向键` | `resize_split:方向,20` |
+| `Cmd+[/]` | `previous_tab`/`next_tab` |
+| `Cmd+Shift+[/]` | `goto_split:previous`/`goto_split:next` |
+| `Alt+Enter` | `toggle_fullscreen` |
 
 > **Ghostty + tmux/zellij**：Cmd 键操作的是 Ghostty 自身的标签页/分屏，
 > 而非复用器。请使用下方的 `Alt` / `Ctrl+Alt` 键来驱动复用器。
@@ -99,26 +97,10 @@ Ghostty 则将 Cmd 绑定到自身的原生分屏。
 
 ---
 
-## WezTerm Cmd+Ctrl — 内层 tmux 透传
-
-当 tmux 嵌套使用时（本地外层 + 远程内层），`Cmd+Ctrl` 通过双前缀
-（`Ctrl-b Ctrl-b`）将按键发送到**内层** tmux。
-
-| 快捷键 | 内层 tmux 操作 |
-| -------- | --------------- |
-| `Cmd+Ctrl+t` | 新建窗口 |
-| `Cmd+Ctrl+h/j/k/l` | 导航面板 |
-| `Cmd+Ctrl+方向键` | 调整面板大小 |
-| `Cmd+Ctrl+[/]` | 上/下一个面板 |
-| `Cmd+Ctrl+1..9` | 跳转到第 N 个窗口 |
-
----
-
 ## 配置文件
 
 | 文件 | 配置内容 |
 | ------ | ---------- |
-| `.wezterm.lua` | Cmd 键、mux_action 自动检测 |
 | `.config/ghostty/config` | Cmd 键（Ghostty 原生分屏） |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |

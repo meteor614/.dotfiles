@@ -5,7 +5,7 @@
 - Assume changes will be deployed by symlink, not copied. Renames and path moves are operational changes, not cosmetic ones.
 
 ## Repository Layout
-- Top-level dotfiles such as `.zshrc`, `.wezterm.lua`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
+- Top-level dotfiles such as `.zshrc`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
 - `.config/*` is generally linked into `~/.config/*` automatically.
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
 - `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
@@ -37,7 +37,7 @@
 ## Validation
 - After editing shell scripts, prefer syntax-only checks such as `bash -n setup.sh`, `bash -n bin/update_all.sh`, or `sh -n <script>`.
 - After editing shell dotfiles, use non-executing syntax checks when available, for example `zsh -n .zshrc`.
-- For app configs such as Neovim, tmux, WezTerm, Karabiner, and zellij, only run low-risk non-interactive validation that is already available locally.
+- For app configs such as Neovim, tmux, Ghostty, Karabiner, and zellij, only run low-risk non-interactive validation that is already available locally.
 - If a change affects symlink behavior or install flow, read the relevant `setup.sh` branch and verify the target path logic directly.
 - If validation would require network access, package installation, or writing outside the repo, stop and ask before proceeding.
 
