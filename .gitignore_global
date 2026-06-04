@@ -12,3 +12,4 @@ tags
 package-lock.json
 .nvimlog
 .claude/
+.reasonix/
