@@ -1,18 +1,16 @@
 #!/bin/sh
 # claude-internal → herdr agent state reporter (dotfiles-managed).
 #
-# Modeled on herdr's official claude integration v4. Differences:
+# Modeled on herdr's official claude integration v5. Differences:
 #   - Reports agent="claude-internal" so herdr's sidebar distinguishes
-#     this from the public claude.
+#     this from the public claude integration.
+#   - Uses source="custom:claude-internal" to mark this as not herdr-managed.
 #
-# Lifecycle map (matches official claude integration):
-#   SessionStart       → idle
-#   UserPromptSubmit   → working
-#   PreToolUse         → working
-#   PermissionRequest  → blocked
-#   Stop               → idle
-#   SubagentStop       → ignore
-#   SessionEnd         → release
+# v5 model: a single SessionStart hook reports the session_id to herdr;
+# the server derives working/idle/release from terminal activity. No more
+# per-event hooks for UserPromptSubmit/PreToolUse/PermissionRequest/Stop/SessionEnd.
+# HERDR_INTEGRATION_ID=claude-internal
+# HERDR_INTEGRATION_VERSION=5
 
 set -eu
 
@@ -22,7 +20,7 @@ trap 'rm -f "$hook_input_file"' EXIT HUP INT TERM
 cat >"$hook_input_file" 2>/dev/null || true
 
 case "$action" in
-  working|idle|blocked|release) ;;
+  session) ;;
   *) exit 0 ;;
 esac
 
@@ -61,48 +59,39 @@ if hook_input_file:
 hook_event_name = str(hook_input.get("hook_event_name") or "")
 is_subagent = bool(hook_input.get("agent_id"))
 if hook_event_name == "SubagentStop":
+    # SubagentStop is a completion event. Older Herdr integrations mapped it
+    # to durable working, but Claude recap/away-summary can emit it after the
+    # main turn has already stopped. Never let it revive an idle pane.
     raise SystemExit(0)
-if is_subagent and action in ("idle", "release"):
-    raise SystemExit(0)
-
 request_id = f"{source}:{int(time.time() * 1000)}:{random.randrange(1_000_000):06d}"
-report_seq = int(time.time() * 1_000_000_000)  # time_ns() requires Python 3.7+
+report_seq = time.time_ns()
 session_id = hook_input.get("session_id")
 agent_session_id = session_id if isinstance(session_id, str) and session_id else None
-
-if action == "release":
+if agent_session_id:
     request = {
         "id": request_id,
-        "method": "pane.release_agent",
+        "method": "pane.report_agent_session",
         "params": {
             "pane_id": pane_id,
             "source": source,
             "agent": agent_name,
             "seq": report_seq,
+            "agent_session_id": agent_session_id,
         },
     }
 else:
-    params = {
-        "pane_id": pane_id,
-        "source": source,
-        "agent": agent_name,
-        "state": action,
-        "seq": report_seq,
-    }
-    if agent_session_id:
-        params["agent_session_id"] = agent_session_id
-    request = {"id": request_id, "method": "pane.report_agent", "params": params}
+    raise SystemExit(0)
 
 try:
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.settimeout(2.0)
-    sock.connect(socket_path)
-    sock.sendall((json.dumps(request) + "\n").encode("utf-8"))
+    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    client.settimeout(0.5)
+    client.connect(socket_path)
+    client.sendall((json.dumps(request) + "\n").encode())
     try:
-        sock.recv(4096)
+        client.recv(4096)
     except Exception:
         pass
-    sock.close()
+    client.close()
 except Exception:
-    raise SystemExit(0)
+    pass
 PY

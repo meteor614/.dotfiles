@@ -1,6 +1,15 @@
 # ~/.zshrc — zsh-specific bits; shared logic in
 # $XDG_CONFIG_HOME/shell/common.sh (sourced below).
 
+# ── Fix fpath after brew zsh upgrades ────────────────────────────────────────
+# Homebrew's zsh binary bakes in a Cellar-versioned functions path that breaks
+# whenever zsh is upgraded (e.g. 5.9 -> 5.9.1). Prepend the stable symlinked
+# locations so compinit/add-zsh-hook/is-at-least/compdef are always findable.
+for _zfn in /opt/homebrew/share/zsh/functions /opt/homebrew/share/zsh/site-functions; do
+    [[ -d $_zfn ]] && fpath=($_zfn $fpath)
+done
+unset _zfn
+
 # ── Completion system (replaces oh-my-zsh compinit) ──────────────────────────
 export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"

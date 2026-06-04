@@ -75,3 +75,4 @@ pane_history = true
 reveal_hidden_cursor_for_cjk_ime = true
 # 本地 Kitty graphics 渲染（ghostty 兼容 Kitty graphics 协议）
 kitty_graphics = true
+switch_ascii_input_source_in_prefix = true
