@@ -630,8 +630,8 @@ install_herdr_integrations() {
     yellow 'Init herdr integrations finish.'
 }
 
-# ~/.reasonix mixes runtime data (sessions/, config.json, version-cache.json)
-# with user-managed config (settings.json, hooks/), so we symlink only the
+# ~/.reasonix mixes runtime data (sessions/, version-cache.json)
+# with user-managed config (config.json, settings.json, hooks/), so we symlink only the
 # files we own. Reasonix has no built-in herdr integration — these hooks
 # report agent state to herdr's socket API, modeled on the official
 # claude integration hook.
@@ -640,6 +640,7 @@ link_reasonix_herdr_integration() {
     [ -d "$src_dir" ] || return 0
 
     ensure_dir "$HOME/.reasonix/hooks"
+    ensure_link "$src_dir/config.json"              "$HOME/.reasonix/config.json"
     ensure_link "$src_dir/settings.json"            "$HOME/.reasonix/settings.json"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
 }
