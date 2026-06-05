@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cs="31:33:35:32"
 if [ x$1 != x ]; then

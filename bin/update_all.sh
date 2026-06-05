@@ -104,27 +104,15 @@ update_zsh_plugins() {
         return 0
     fi
 
-    DOTFILES_NONINTERACTIVE=1 zsh -ic "omz update"
+    if [ -n "${ZSH:-}" ] && [ -f "$ZSH/tools/upgrade.sh" ]; then
+        ZSH="$ZSH" zsh -c '"$ZSH/tools/upgrade.sh"'
+    fi
 
     if [ -f "$HOME/.antigen/init.zsh" ]; then
         DOTFILES_NONINTERACTIVE=1 zsh -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish"; }'
     fi
 }
 
-update_lvim() {
-    if ! have_cmd lvim; then
-        return 0
-    fi
-
-    (
-        cd "$HOME/.local/share/lunarvim/lvim"
-        git pull --no-rebase
-        lvim +LvimUpdate +qall
-        lvim +TSUpdateSync +qall
-        lvim +LvimSyncCorePlugins +qa
-        log "lvim PlugUpdate finish"
-    )
-}
 
 case "${1:-}" in
     ""|all)
@@ -142,8 +130,6 @@ esac
 
 update_pkg_manager
 update_gem
-update_git_repo "$HOME/gdb-dashboard" git pull --no-rebase
-update_git_repo "$HOME/voltron" git pull --no-rebase
 
 if have_cmd cpan; then
     sudo cpan -u -T
@@ -155,7 +141,6 @@ if [ "${1:-}" = "all" ]; then
 fi
 
 update_zsh_plugins
-update_lvim
 
 end=$(date +%s)
 log "used $((end - begin)) seconds"

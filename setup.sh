@@ -16,7 +16,7 @@ brew_formulae=(
     cheat clang-format cloc cmake coreutils cpulimit cscope
     ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global
     gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli
-    neovim ninja numpy oniguruma openssl osxutils pandoc parallel perl protobuf
+    neovim ninja numpy oniguruma openssl pandoc parallel perl protobuf
     pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
@@ -242,8 +242,6 @@ link_top_level_dotfiles() {
         ensure_link "$file" "$HOME/$base"
     done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
 
-    # ensure_link "${script_path}/.aria2" "$HOME/.aria2"
-    ensure_link "${script_path}/.pip" "$HOME/.pip"
     yellow 'Init dotfiles finish.'
 }
 
@@ -493,9 +491,7 @@ install_user_language_packages() {
         fi
     fi
 
-    if command_exists luarocks && ! command_exists lua-lsp; then
-        track_background luarocks install --server=http://luarocks.org/dev lua-lsp
-    fi
+
 }
 
 install_oh_my_zsh_plugins() {
@@ -517,43 +513,6 @@ install_oh_my_zsh_plugins() {
 
     ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom_dir/plugins/zsh-autosuggestions"
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom_dir/plugins/zsh-syntax-highlighting"
-}
-
-setup_gdb_dashboard() {
-    if ! command_exists gdb; then
-        return 0
-    fi
-
-    if [ -d "$HOME/gdb-dashboard" ]; then
-        echo "skip $HOME/gdb-dashboard (exists)"
-        return 0
-    fi
-
-    track_background git clone https://github.com/cyrus-and/gdb-dashboard "$HOME/gdb-dashboard"
-}
-
-setup_voltron() {
-    if ! command_exists lldb; then
-        return 0
-    fi
-
-    if [ ! -d "$HOME/voltron" ]; then
-        ensure_git_clone https://github.com/snare/voltron "$HOME/voltron"
-    fi
-
-    if command_exists voltron; then
-        return 0
-    fi
-
-    (
-        cd "$HOME/voltron"
-        ./install.sh -b lldb
-        voltron_script=$(grep '^command script import .*/voltron/entry.py$' "$HOME/.lldbinit" | awk '{print $4}' | awk -F'/lib/' '{print $1"/bin/voltron"}')
-        if [ -n "${voltron_script:-}" ] && [ -f "$voltron_script" ]; then
-            ensure_link "$voltron_script" "$HOME/bin/voltron"
-        fi
-    ) &
-    background_pids+=("$!")
 }
 
 generate_cpp_tags_if_missing() {
@@ -711,8 +670,6 @@ run_setup() {
     install_user_language_packages
     install_oh_my_zsh_plugins
 
-    setup_gdb_dashboard
-    setup_voltron
     generate_cpp_tags_if_missing
     init_authorized_keys_if_requested
     install_herdr_integrations

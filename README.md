@@ -2,7 +2,7 @@
 
 All my dotfiles.
 
-* neovim/lunarvim/vim
+* neovim/lazyvim
 * ghostty
 * zellij/herdr/tmux/tmuxinator
 * zsh/bash

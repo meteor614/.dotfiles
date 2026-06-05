@@ -59,7 +59,6 @@ fi
 command -v thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
 [ -f ~/.fzf.bash ] && . ~/.fzf.bash
 command -v kubectl >/dev/null 2>&1 && . <(kubectl completion bash)
-[ -e "$HOME/.iterm2_shell_integration.zsh" ] && . "$HOME/.iterm2_shell_integration.zsh"
 
 # perlbrew
 [ -f ~/perl5/perlbrew/etc/bashrc ] && . ~/perl5/perlbrew/etc/bashrc

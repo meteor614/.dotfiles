@@ -1,8 +1,4 @@
 local uv = vim.uv or vim.loop
-local preview_state = {
-  pane_id = nil,
-  source = nil,
-}
 
 local function in_zellij()
   return vim.env.ZELLIJ ~= nil or vim.env.ZELLIJ_SESSION_NAME ~= nil
@@ -44,191 +40,6 @@ end
 local function run(cmd)
   vim.fn.system(cmd)
   return vim.v.shell_error == 0
-end
-
-local function cache_file()
-  return vim.fn.stdpath("cache") .. "/snacks-wezterm-preview-pane"
-end
-
-local function read_pane_id()
-  if preview_state.pane_id then
-    return preview_state.pane_id
-  end
-  local path = cache_file()
-  if vim.fn.filereadable(path) == 0 then
-    return nil
-  end
-  local lines = vim.fn.readfile(path)
-  local pane_id = tonumber(lines[1])
-  preview_state.pane_id = pane_id
-  return pane_id
-end
-
-local function write_pane_id(pane_id)
-  preview_state.pane_id = pane_id
-  vim.fn.writefile({ tostring(pane_id) }, cache_file())
-end
-
-local function clear_pane_id()
-  preview_state.pane_id = nil
-  preview_state.source = nil
-  local path = cache_file()
-  if vim.fn.filereadable(path) == 1 then
-    vim.fn.delete(path)
-  end
-end
-
--- WezTerm 启动时注入的 WEZTERM_UNIX_SOCKET 可能指向旧 socket（pid 复用）。
--- 自动检测最新的 gui-sock 文件，确保 wezterm cli 不超时。
-local function fix_wezterm_socket()
-  local sock = vim.env.WEZTERM_UNIX_SOCKET
-  if sock and vim.fn.filereadable(sock) == 1 then
-    return
-  end
-  local dir = vim.fn.expand("~/.local/share/wezterm")
-  local socks = vim.fn.glob(dir .. "/gui-sock-*", false, true)
-  if #socks == 0 then
-    return
-  end
-  -- 取 mtime 最新的
-  table.sort(socks, function(a, b)
-    local sa = (uv.fs_stat(a) or {}).mtime
-    local sb = (uv.fs_stat(b) or {}).mtime
-    local ta = sa and (sa.sec or sa) or 0
-    local tb = sb and (sb.sec or sb) or 0
-    return ta > tb
-  end)
-  vim.env.WEZTERM_UNIX_SOCKET = socks[1]
-end
-
-local function pane_exists(pane_id)
-  if not pane_id then
-    return false
-  end
-  local out = vim.fn.system({ "wezterm", "cli", "list", "--format", "json" })
-  if vim.v.shell_error ~= 0 then
-    return false
-  end
-  local ok, panes = pcall(vim.json.decode, out)
-  if not ok or type(panes) ~= "table" then
-    return false
-  end
-  for _, pane in ipairs(panes) do
-    if tonumber(pane.pane_id) == tonumber(pane_id) then
-      return true
-    end
-  end
-  return false
-end
-
--- 缓存 wezterm cli 连通性（每次 nvim 只检测一次）
-local _wezterm_reachable = nil
-
-local function can_use_wezterm_preview()
-  if in_ghostty() then
-    return false
-  end
-  if vim.env.WEZTERM_PANE == nil or vim.fn.executable("wezterm") ~= 1 then
-    return false
-  end
-  fix_wezterm_socket()
-  -- 首次调用时检测 wezterm cli 是否能连上（避免 zellij session 跨终端复用时误判）
-  if _wezterm_reachable == nil then
-    local out = vim.fn.system({ "wezterm", "cli", "list", "--format", "json" })
-    _wezterm_reachable = (vim.v.shell_error == 0 and out ~= "")
-  end
-  return _wezterm_reachable
-end
-
-local function current_wezterm_pane_id()
-  return tonumber(vim.env.WEZTERM_PANE)
-end
-
-local function focus_wezterm_pane(pane_id)
-  if not pane_id then
-    return false
-  end
-
-  vim.fn.system({
-    "wezterm",
-    "cli",
-    "activate-pane",
-    "--pane-id",
-    tostring(pane_id),
-  })
-  return vim.v.shell_error == 0
-end
-
-local function ensure_wezterm_preview_pane(cwd)
-  local pane_id = read_pane_id()
-  if pane_exists(pane_id) then
-    return pane_id
-  end
-
-  local source_pane_id = current_wezterm_pane_id()
-  local cmd = {
-    "wezterm",
-    "cli",
-    "split-pane",
-  }
-  if source_pane_id then
-    vim.list_extend(cmd, {
-      "--pane-id",
-      tostring(source_pane_id),
-    })
-  end
-  vim.list_extend(cmd, {
-    "--right",
-    "--percent",
-    "35",
-    "--cwd",
-    cwd or vim.fn.getcwd(),
-    "zsh",
-    "-i",
-  })
-  local out = vim.fn.system(cmd)
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  pane_id = tonumber(vim.trim(out))
-  if pane_id then
-    write_pane_id(pane_id)
-    focus_wezterm_pane(source_pane_id)
-    vim.wait(150)
-  end
-  return pane_id
-end
-
-local function wezterm_send(pane_id, text)
-  vim.fn.system({
-    "wezterm",
-    "cli",
-    "send-text",
-    "--pane-id",
-    tostring(pane_id),
-    "--no-paste",
-    text,
-  })
-  return vim.v.shell_error == 0
-end
-
-local function clear_wezterm_preview()
-  local pane_id = read_pane_id()
-  if not pane_exists(pane_id) then
-    clear_pane_id()
-    return
-  end
-  wezterm_send(pane_id, "\003clear\n")
-  preview_state.source = nil
-end
-
-local function close_wezterm_preview()
-  local pane_id = read_pane_id()
-  if pane_exists(pane_id) then
-    vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(pane_id) })
-  end
-  clear_pane_id()
 end
 
 local function renderer()
@@ -359,9 +170,6 @@ end
 local function zellij_image_preview(ctx)
   local path = Snacks.picker.util.path(ctx.item)
   if not path or not Snacks.image.supports_file(path) then
-    if can_use_wezterm_preview() then
-      close_wezterm_preview()
-    end
     return require("snacks.picker.preview").file(ctx)
   end
 
@@ -369,33 +177,7 @@ local function zellij_image_preview(ctx)
   local height = math.max(5, vim.api.nvim_win_get_height(ctx.win) - 2)
   local source = preview_source(path, width, height)
   if not source then
-    if can_use_wezterm_preview() then
-      close_wezterm_preview()
-    end
     return require("snacks.picker.preview").file(ctx)
-  end
-
-  if can_use_wezterm_preview() then
-    local pane_id = ensure_wezterm_preview_pane(ctx.item.cwd or ctx.picker.opts.cwd)
-    if pane_id then
-      local buf = ctx.preview:scratch()
-      local quoted = vim.fn.shellescape(source)
-      if preview_state.source ~= source then
-        wezterm_send(pane_id, "\003clear\nwezterm imgcat --width 100% --height 100% " .. quoted .. "\n")
-        preview_state.source = source
-      end
-      vim.bo[buf].modifiable = true
-      vim.bo[buf].filetype = "markdown"
-      vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-        "# WezTerm Preview",
-        "",
-        "- high-quality preview is shown in the right-side WezTerm pane",
-        "- current file: `" .. path .. "`",
-      })
-      vim.bo[buf].modifiable = false
-      vim.bo[buf].modified = false
-      return
-    end
   end
 
   -- Ghostty + Zellij: zellij 不支持图形协议透传，chafa 太慢且模糊
@@ -419,7 +201,6 @@ local function zellij_image_preview(ctx)
     })
     vim.bo[buf].modifiable = false
     vim.bo[buf].modified = false
-    -- gx 绑定用系统打开
     vim.keymap.set("n", "gx", function()
       vim.fn.jobstart({ "open", path }, { detach = true })
     end, { buffer = buf, desc = "Open image with Quick Look" })
@@ -548,17 +329,7 @@ return {
       })
 
       if in_zellij() then
-        local on_close = opts.picker.on_close
-        opts.picker.on_close = function(picker)
-          if can_use_wezterm_preview() then
-            close_wezterm_preview()
-          end
-          if on_close then
-            on_close(picker)
-          end
-        end
         opts.picker.preview = zellij_image_preview
-
         return opts
       end
 
@@ -567,18 +338,6 @@ return {
       end
 
       return opts
-    end,
-    init = function()
-      vim.api.nvim_create_autocmd("VimLeavePre", {
-        group = vim.api.nvim_create_augroup("snacks_wezterm_preview_cleanup", { clear = true }),
-        callback = function()
-          local pane_id = read_pane_id()
-          if pane_exists(pane_id) then
-            vim.fn.system({ "wezterm", "cli", "kill-pane", "--pane-id", tostring(pane_id) })
-          end
-          clear_pane_id()
-        end,
-      })
     end,
   },
 }
