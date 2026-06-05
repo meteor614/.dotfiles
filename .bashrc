@@ -29,7 +29,6 @@ _bash_path_prepend /usr/local/bin
 _bash_path_prepend /usr/local/opt/findutils/libexec/gnubin
 _bash_path_prepend /usr/local/opt/gnu-getopt/bin
 _bash_path_prepend /usr/local/opt/ruby/bin
-_bash_path_append  "$HOME/bin"
 _bash_path_append  "$HOME/.local/bin"
 
 # -----------------------------------------------------------------------------
@@ -42,6 +41,9 @@ _common_sh="$XDG_CONFIG_HOME/shell/common.sh"
 # shellcheck source=/dev/null
 [ -f "$_common_sh" ] && . "$_common_sh"
 unset _common_sh
+
+# Prepend $HOME/bin AFTER common.sh so it takes priority over atuin/nvm
+_bash_path_prepend "$HOME/bin"
 
 # -----------------------------------------------------------------------------
 # Go

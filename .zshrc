@@ -55,7 +55,7 @@ setopt hist_verify
 setopt share_history
 
 # ── PATH (prepend common locations; de-duplicated) ───────────────────────────
-for _p in /opt/usr/bin /opt/bin /opt/sbin $HOME/bin $HOME/.local/bin /usr/local/bin; do
+for _p in /opt/usr/bin /opt/bin /opt/sbin $HOME/.local/bin /usr/local/bin; do
     [[ -d "$_p" && ":$PATH:" != *":$_p:"* ]] && PATH="$_p:$PATH"
 done
 unset _p
@@ -115,6 +115,9 @@ unset _common_sh
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
+# Prepend $HOME/bin AFTER all other sources so it has highest priority
+[[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
+
 # ── Conda lazy loader (zsh-specific hook) ────────────────────────────────────
 _find_conda_exe() {
     local candidate
@@ -159,11 +162,11 @@ unset AUTO_VENV_HELPER
 
 # ── Homebrew Ruby gem bin ────────────────────────────────────────────────────
 if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
-    export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+    [[ ":$PATH:" != *":/opt/homebrew/opt/ruby/bin:"* ]] && PATH="$PATH:/opt/homebrew/opt/ruby/bin"
     if (( $+commands[gem] )); then
         local _gemdir
         _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
-        [[ -d "$_gemdir" ]] && export PATH="$_gemdir:$PATH"
+        [[ -d "$_gemdir" && ":$PATH:" != *":$_gemdir:"* ]] && PATH="$PATH:$_gemdir"
         unset _gemdir
     fi
 fi
