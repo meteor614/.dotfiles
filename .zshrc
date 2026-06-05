@@ -115,9 +115,6 @@ unset _common_sh
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
-# Prepend $HOME/bin AFTER all other sources so it has highest priority
-[[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
-
 # ── Conda lazy loader (zsh-specific hook) ────────────────────────────────────
 _find_conda_exe() {
     local candidate
@@ -162,13 +159,26 @@ unset AUTO_VENV_HELPER
 
 # ── Homebrew Ruby gem bin ────────────────────────────────────────────────────
 if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
-    [[ ":$PATH:" != *":/opt/homebrew/opt/ruby/bin:"* ]] && PATH="$PATH:/opt/homebrew/opt/ruby/bin"
+    [[ ":$PATH:" != *":/opt/homebrew/opt/ruby/bin:"* ]] && PATH="/opt/homebrew/opt/ruby/bin:$PATH"
     if (( $+commands[gem] )); then
         local _gemdir
         _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
-        [[ -d "$_gemdir" && ":$PATH:" != *":$_gemdir:"* ]] && PATH="$PATH:$_gemdir"
+        [[ -d "$_gemdir" && ":$PATH:" != *":$_gemdir:"* ]] && PATH="$_gemdir:$PATH"
         unset _gemdir
     fi
+fi
+
+# ── Ensure $HOME/bin stays at the front of PATH ──────────────────────────────
+# Placed last so any later prepends (Ruby, gem bindir, etc.) can't shadow it.
+if [[ -d "$HOME/bin" ]]; then
+    # Strip any existing occurrences, then prepend once.
+    local _p _new=""
+    for _p in ${(s.:.)PATH}; do
+        [[ "$_p" == "$HOME/bin" ]] && continue
+        _new="${_new:+$_new:}$_p"
+    done
+    PATH="$HOME/bin:$_new"
+    unset _p _new
 fi
 
 # ── Multiplexer user-var emitter (tells WezTerm/Ghostty inner mux) ───────────
