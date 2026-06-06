@@ -1,0 +1,132 @@
+# Reasonix configuration.
+# Resolution order: flag > ./reasonix.toml > ~/.config/reasonix/config.toml > built-in defaults.
+# Secrets come from the environment via api_key_env; never put keys here.
+
+config_version = 2   # schema marker for diagnostics; old versions may ignore it
+default_model = "deepseek-flash"
+# language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
+
+[ui]
+theme = "auto"   # auto|dark|light; CLI colors only; REASONIX_THEME can override per run
+# theme_style = "graphite"   # graphite|ember|aurora|midnight|sandstone|porcelain|linen|glacier
+
+[desktop]
+# language = "zh"   # desktop UI language; empty/auto = browser/OS auto-detect
+theme = "dark"   # desktop only: auto|dark|light
+# theme_style = "graphite"   # graphite|ember|aurora|midnight|sandstone|porcelain|linen|glacier
+close_behavior = "background"   # desktop: quit|background when the window close button is clicked
+
+[network]
+proxy_mode = "auto"   # auto|env|custom|off; auto currently uses env proxy
+# proxy_url  = "socks5://127.0.0.1:7890"   # optional custom override
+# no_proxy   = "localhost,127.0.0.1,.local"   # honored for proxy_mode = "custom"
+
+[network.proxy]
+type = "socks5"   # http|https|socks5|socks5h
+# server = "127.0.0.1"
+# port = 7890
+# username = ""
+# password = "${REASONIX_PROXY_PASSWORD}"   # optional; supports ${VAR} expansion
+
+[agent]
+# system_prompt = """..."""   # omit to use the built-in prompt for this version
+# system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
+max_steps   = 0
+temperature = 0.0
+auto_plan   = "on"   # off|on; on enables automatic plan mode for complex tasks
+# auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
+soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
+compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
+compact_force_ratio = 0.9   # force compacting at this high-water mark
+planner_model = "deepseek-pro"   # use Pro for planning complex tasks
+# subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
+# subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
+# output_style = "explanatory"   # explanatory | learning | concise | custom; empty = default
+
+[[providers]]
+name        = "deepseek-flash"
+kind        = "openai"
+base_url    = "https://api.deepseek.com"
+model       = "deepseek-v4-flash"
+api_key_env = "DEEPSEEK_API_KEY"
+balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
+context_window = 1000000   # tokens; compaction triggers near this limit
+price       = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }   # per 1M tokens
+
+[[providers]]
+name        = "deepseek-pro"
+kind        = "openai"
+base_url    = "https://api.deepseek.com"
+model       = "deepseek-v4-pro"
+api_key_env = "DEEPSEEK_API_KEY"
+balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
+context_window = 1000000   # tokens; compaction triggers near this limit
+price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # per 1M tokens
+
+# [[providers]]
+# name        = "mimo-pro"
+# kind        = "openai"
+# base_url    = "https://token-plan-cn.xiaomimimo.com/v1"
+# model       = "mimo-v2.5-pro"
+# api_key_env = "MIMO_API_KEY"
+# context_window = 1000000   # tokens; compaction triggers near this limit
+# price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # per 1M tokens
+# no_proxy    = true   # reach this base_url directly, never via the proxy
+#
+# [[providers]]
+# name        = "mimo-flash"
+# kind        = "openai"
+# base_url    = "https://token-plan-cn.xiaomimimo.com/v1"
+# model       = "mimo-v2.5"
+# api_key_env = "MIMO_API_KEY"
+# context_window = 1000000   # tokens; compaction triggers near this limit
+# price       = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }   # per 1M tokens
+# no_proxy    = true   # reach this base_url directly, never via the proxy
+
+[tools]
+enabled = []   # empty = all built-in tools
+
+[codegraph]
+enabled      = true   # built-in MCP server; off by default for first-run sessions
+auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
+# path       = ""   # empty = cache, then PATH, then a bundle beside reasonix
+# tier       = "lazy"   # lazy|background|eager
+
+[skills]
+# paths = ["~/my-skills", "../shared/skills"]   # extra custom skill roots
+# disabled_skills = ["review"]   # hide noisy or unwanted skills
+
+[permissions]
+# Per-call gating. mode = writer fallback when no rule matches: ask|allow|deny.
+# Readers always default to allow. Precedence: deny > ask > allow > fallback.
+# Rules are "ToolName" or "ToolName(glob)"; '*' matches any run, '?' one char.
+mode  = "ask"
+# deny = ["bash(rm -rf*)", "bash(git push*)"]   # hard-blocked in every mode
+# allow = ["bash(go test*)", "bash(git status*)"]   # never prompted
+# ask = ["write_file"]   # force a prompt even if otherwise allowed
+
+[sandbox]
+# Confine tool blast radius. File-writers (write_file/edit_file/multi_edit)
+# may only write under workspace_root (empty = current dir) + allow_write.
+# bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
+# graceful fallback elsewhere); "off" disables it. network allows egress.
+# workspace_root = ""            # default: current working directory
+# allow_write = ["/tmp"]          # extra dirs writers may also modify
+bash    = "enforce"
+network = true
+
+[statusline]
+# A custom status line: a command whose first stdout line replaces the built-in
+# data row. It receives {"model","contextUsed","contextWindow","cwd"} as JSON on stdin.
+# command = "my-statusline.sh"
+
+# External MCP servers. type: "stdio" (default, a subprocess) | "http" | "sse".
+# ${VAR} / ${VAR:-default} are expanded from the environment in command/args/env/url/headers.
+# [[plugins]]
+# name    = "example"
+# command = "reasonix-plugin-example"
+# [[plugins]]                                  # a remote server over Streamable HTTP
+# name    = "stripe"
+# type    = "http"
+# url     = "https://mcp.stripe.com"
+# headers = { Authorization = "Bearer ${STRIPE_KEY}" }
