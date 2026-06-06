@@ -214,10 +214,10 @@ if command -v claude-internal >/dev/null 2>&1; then
     fi
 fi
 
-# Reasonix 0.53 doesn't fire SessionStart/SessionEnd/UserPromptSubmit hooks,
-# so a fresh reasonix pane shows agent_status=unknown until first tool call,
-# and herdr keeps the agent label after reasonix exits. The wrapper:
+# Reasonix 1.2.0+ fires UserPromptSubmit and Stop hooks (via settings.json),
+# so the turn lifecycle is precise. The wrapper still handles two edge cases:
 #   1. pre-announces idle on startup → herdr recognizes pane immediately
+#      (before the first UserPromptSubmit fires)
 #   2. releases the agent on exit → herdr clears the stale label
 if command -v reasonix >/dev/null 2>&1; then
     reasonix() {

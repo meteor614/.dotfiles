@@ -598,8 +598,10 @@ link_reasonix_herdr_integration() {
     local src_dir="$script_path/.reasonix"
     [ -d "$src_dir" ] || return 0
 
+    # Reasonix 1.2.0+ uses ~/Library/Application Support/reasonix/config.toml
+    # for model/provider config (config.json is no longer read). Hooks still
+    # live in ~/.reasonix/settings.json.
     ensure_dir "$HOME/.reasonix/hooks"
-    ensure_link "$src_dir/config.json"              "$HOME/.reasonix/config.json"
     ensure_link "$src_dir/settings.json"            "$HOME/.reasonix/settings.json"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
 }

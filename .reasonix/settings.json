@@ -1,18 +1,29 @@
 {
-  "_comment": "Reasonix 0.53.x only fires PreToolUse and PostToolUse (no UserPromptSubmit/Stop). PreToolUse → blocked for edit_file/write_file (detected from stdin), otherwise working. PostToolUse → deferred idle: sleeps 3s then sends idle to herdr (cancelled by next PreToolUse). Shell wrapper sends release on exit.",
+  "_comment": "Reasonix 1.2.0+ fires UserPromptSubmit, PreToolUse, PostToolUse, and Stop. UserPromptSubmit → working (turn starts). PreToolUse match:write-tools → blocked. PostToolUse (always) → working (unsticks blocked→working after tool runs). Stop → idle (turn over). Shell wrapper sends release on exit.",
   "hooks": {
-    "PreToolUse": [
+    "UserPromptSubmit": [
       {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
-        "description": "herdr: report working before each tool call",
-        "timeout": 2000
+        "description": "herdr: report working when user submits a prompt"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "match": "edit_file|write_file|multi_edit",
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh blocked",
+        "description": "herdr: report blocked when file-writer tool is called"
       }
     ],
     "PostToolUse": [
       {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
+        "description": "herdr: restore working after each tool call (transitions blocked→working)"
+      }
+    ],
+    "Stop": [
+      {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh idle",
-        "description": "herdr: report idle after each tool call (best approximation: reasonix 0.53 doesn't fire Stop)",
-        "timeout": 2000
+        "description": "herdr: report idle when turn ends"
       }
     ]
   }
