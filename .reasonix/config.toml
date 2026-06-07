@@ -33,12 +33,12 @@ type = "socks5"   # http|https|socks5|socks5h
 # system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
 max_steps   = 0
 temperature = 0.0
-auto_plan   = "on"   # off|on; on enables automatic plan mode for complex tasks
+auto_plan   = "on"   # off|on; off keeps plan mode manual
 # auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
 soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
 compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
 compact_force_ratio = 0.9   # force compacting at this high-water mark
-planner_model = "deepseek-pro"   # use Pro for planning complex tasks
+planner_model = "deepseek-pro"   # low-frequency planner (two-model collaboration)
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # output_style = "explanatory"   # explanatory | learning | concise | custom; empty = default
@@ -63,26 +63,6 @@ balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balan
 context_window = 1000000   # tokens; compaction triggers near this limit
 price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # per 1M tokens
 
-# [[providers]]
-# name        = "mimo-pro"
-# kind        = "openai"
-# base_url    = "https://token-plan-cn.xiaomimimo.com/v1"
-# model       = "mimo-v2.5-pro"
-# api_key_env = "MIMO_API_KEY"
-# context_window = 1000000   # tokens; compaction triggers near this limit
-# price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # per 1M tokens
-# no_proxy    = true   # reach this base_url directly, never via the proxy
-#
-# [[providers]]
-# name        = "mimo-flash"
-# kind        = "openai"
-# base_url    = "https://token-plan-cn.xiaomimimo.com/v1"
-# model       = "mimo-v2.5"
-# api_key_env = "MIMO_API_KEY"
-# context_window = 1000000   # tokens; compaction triggers near this limit
-# price       = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }   # per 1M tokens
-# no_proxy    = true   # reach this base_url directly, never via the proxy
-
 [tools]
 enabled = []   # empty = all built-in tools
 
@@ -102,7 +82,7 @@ auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
 # Rules are "ToolName" or "ToolName(glob)"; '*' matches any run, '?' one char.
 mode  = "ask"
 # deny = ["bash(rm -rf*)", "bash(git push*)"]   # hard-blocked in every mode
-# allow = ["bash(go test*)", "bash(git status*)"]   # never prompted
+allow = ["bash(rg *)", "bash(find *)", "bash(git status *)", "bash(git log *)", "bash(git diff *)", "bash(git show *)", "bash(git branch *)", "bash(ls *)", "bash(cat *)", "bash(head *)", "bash(tail *)", "bash(fd *)", "bash(wc *)", "bash(which *)", "bash(type *)", "bash(du *)", "bash(df *)", "bash(env *)", "bash(pwd *)"]
 # ask = ["write_file"]   # force a prompt even if otherwise allowed
 
 [sandbox]
@@ -111,7 +91,7 @@ mode  = "ask"
 # bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
 # graceful fallback elsewhere); "off" disables it. network allows egress.
 # workspace_root = ""            # default: current working directory
-allow_write = ["/tmp", "~"]      # extra dirs writers may also modify; ~ = home dir for troubleshooting
+allow_write = ["/tmp", "~"]
 bash    = "enforce"
 network = true
 
