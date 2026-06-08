@@ -206,11 +206,12 @@ ensure_git_clone() {
 load_nvm_default_node() {
     local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
 
-    # Mise manages runtimes — if it's available, trust its activation.
+    # Mise manages runtimes — if it's available, sync its env into this shell.
+    # Use hook-env (one-shot env sync) rather than activate, which installs
+    # precmd/chpwd hooks intended for interactive rc files and is a no-op
+    # in a non-sourced setup script.
     if command -v mise >/dev/null 2>&1; then
-        eval "$(mise activate -s bash 2>/dev/null)" || true
-        # Ensure configured runtimes are installed
-        mise install --yes 2>/dev/null || true
+        eval "$(mise hook-env -s bash 2>/dev/null)" || true
         return 0
     fi
 
@@ -499,20 +500,15 @@ install_user_language_packages() {
         fi
     fi
 
-    # Mise: install configured runtimes (node/python/go from config.toml)
+    # Mise: install configured runtimes (versions from .config/mise/config.toml).
+    # `mise install` is idempotent and exits quickly when versions are present,
+    # so just always invoke it rather than trying to detect-and-skip (which is
+    # tricky — `mise ls` lists configured-but-uninstalled tools too). Errors are
+    # reported instead of swallowed, since python builds in particular often
+    # fail on missing system headers (openssl/xz/libffi).
     if command_exists mise; then
-        if ! mise ls 2>/dev/null | grep -q '^node'; then
-            track_background mise install --yes node 2>/dev/null || true
-        fi
-        if ! mise ls 2>/dev/null | grep -q '^python'; then
-            track_background mise install --yes python 2>/dev/null || true
-        fi
-        if ! mise ls 2>/dev/null | grep -q '^go'; then
-            track_background mise install --yes go 2>/dev/null || true
-        fi
+        track_background mise install --yes || yellow "mise install failed (see above)"
     fi
-
-
 }
 
 install_oh_my_zsh_plugins() {
