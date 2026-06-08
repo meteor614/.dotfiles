@@ -1,0 +1,12 @@
+[settings]
+# Parallel install jobs, cache directory, and auto-install behavior
+jobs = 4
+verbose = false
+status.show_tools = false
+not_found_auto_install = false
+
+[tools]
+# Versions mirror what was active on this machine at config time
+node = "26"
+python = "3.14"
+go = "1.26"

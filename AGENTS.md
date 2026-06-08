@@ -10,6 +10,7 @@
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
 - `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `mise`/`nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
 - Node is managed via `mise` in this environment (fallback: `nvm`). Prefer `mise` for runtime versions and do not reintroduce Homebrew `node` as a required dependency.
+- `.config/mise/config.toml` declares default runtime versions (node/python/go). `setup.sh` runs `mise install --yes` to ensure they're present.
 - `bin/*` is linked into `~/bin/*`.
 - `tmuxinator/` is linked into `~/.tmuxinator`.
 - `.aria2` and `.pip` are linked explicitly by `setup.sh`.

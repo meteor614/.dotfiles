@@ -208,7 +208,9 @@ load_nvm_default_node() {
 
     # Mise manages runtimes — if it's available, trust its activation.
     if command -v mise >/dev/null 2>&1; then
-        eval "$(mise hook-env -s bash 2>/dev/null)" || true
+        eval "$(mise activate -s bash 2>/dev/null)" || true
+        # Ensure configured runtimes are installed
+        mise install --yes 2>/dev/null || true
         return 0
     fi
 
@@ -494,6 +496,19 @@ install_user_language_packages() {
     if command_exists gem; then
         if ! gem_package_installed neovim; then
             track_background gem install --user-install neovim
+        fi
+    fi
+
+    # Mise: install configured runtimes (node/python/go from config.toml)
+    if command_exists mise; then
+        if ! mise ls 2>/dev/null | grep -q '^node'; then
+            track_background mise install --yes node 2>/dev/null || true
+        fi
+        if ! mise ls 2>/dev/null | grep -q '^python'; then
+            track_background mise install --yes python 2>/dev/null || true
+        fi
+        if ! mise ls 2>/dev/null | grep -q '^go'; then
+            track_background mise install --yes go 2>/dev/null || true
         fi
     fi
 
