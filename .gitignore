@@ -1,2 +1,3 @@
 # Reasonix CodeGraph runtime — auto-generated per-machine, not portable
 .codegraph/
+.reasonix/attachments/

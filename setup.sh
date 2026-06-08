@@ -21,7 +21,7 @@ brew_formulae=(
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
     bat reattach-to-user-namespace eza lazygit procs dust cargo atuin
-    imagemagick bottom sd broot choose glow zoxide
+    imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj
 )
 brew_casks=(
     font-hack-nerd-font
@@ -205,6 +205,12 @@ ensure_git_clone() {
 
 load_nvm_default_node() {
     local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
+
+    # Mise manages runtimes — if it's available, trust its activation.
+    if command -v mise >/dev/null 2>&1; then
+        eval "$(mise hook-env -s bash 2>/dev/null)" || true
+        return 0
+    fi
 
     [ -s "$nvm_dir/nvm.sh" ] || return 0
 

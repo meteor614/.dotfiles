@@ -8,12 +8,13 @@
 - Top-level dotfiles such as `.zshrc`, `.gitconfig`, and `.bashrc` are linked into `~/` by `setup.sh`.
 - `.config/*` is generally linked into `~/.config/*` automatically.
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
-- `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
-- Node is managed via `nvm` in this environment. Prefer the `nvm` default Node and do not reintroduce Homebrew `node` as a required dependency.
+- `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `mise`/`nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
+- Node is managed via `mise` in this environment (fallback: `nvm`). Prefer `mise` for runtime versions and do not reintroduce Homebrew `node` as a required dependency.
 - `bin/*` is linked into `~/bin/*`.
 - `tmuxinator/` is linked into `~/.tmuxinator`.
 - `.aria2` and `.pip` are linked explicitly by `setup.sh`.
 - `.tmux` and `cheat/cheatsheets` are git submodules. Treat them as upstream-managed content unless the user explicitly asks for a submodule change.
+- This repo itself may be used as a `jj` workspace. `jj` commits are git-compatible; treat `jj git push` as the deploy gate. Prefer `jj` for local branch management but keep conventional git semantics for interoperability.
 
 ## Editing Guidelines
 - Keep filenames and directory structure stable unless the user explicitly asks for a relocation.
@@ -22,9 +23,10 @@
 - Match the existing interpreter and style of each script. This repo uses a mix of `bash`, `sh`, Lua, TOML, YAML, JSON, and tool-specific config formats.
 - Prefer capability checks and existing fallback patterns over assuming a single machine layout. This repo is used across heterogeneous local and remote environments.
 - Prefer local overlay files over vendored content when both exist. Example: change `.tmux.conf.local` instead of editing the `.tmux` submodule directly.
+- Multiplexer stance: zellij + herdr 是日常主力，tmux 保留作为远程 SSH 兼容场景。编辑 tmux 配置时优先通过 `.tmux.conf.local` 覆盖，避免直接修改 submodule。
 - Do not add secrets, tokens, private keys, or machine-specific absolute paths unless the user explicitly requests that.
 - The package and git mirror choices in `setup.sh` are intentional. Do not switch them to other mirrors or default upstreams unless asked.
-- For Node-related setup, prefer `nvm` activation or `npm`/`corepack` usage over adding Homebrew `node`.
+- For Node-related setup, prefer `mise` activation (fallback `nvm`) or `npm`/`corepack` usage over adding Homebrew `node`.
 
 ## High-Risk Operations
 - Do not run `setup.sh` without explicit user approval. It writes into `$HOME`, creates symlinks, updates submodules, clones repositories, touches package manager configuration, and uses the network.

@@ -23,15 +23,17 @@ bindkey '\e[1;3A' beginning-of-line   # ALT+上键：跳到行首
 bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 (( $+commands[deer] )) && bindkey '\ev' deer
 
+# fzsession: switch multiplexer sessions via fzf (Alt+Z)
+(( $+commands[fzf] )) && bindkey -s '\ez' 'fzsession\n'
+
 # ── PATH helpers ─────────────────────────────────────────────────────────────
 path_prepend() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
 path_append()  { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
 
-# ── Suffix aliases (zsh-only) ────────────────────────────────────────────────
-alias -s gz='tar -xzvf'
-alias -s tgz='tar -xzvf'
-alias -s bz2='tar -xjvf'
-alias -s zip='unzip'
+# ── ouch: 统一解压（自动检测格式） ──────────────────────────────────────────
+# NOTE: 替换了旧的后缀别名 (alias -s gz='tar -xzvf')。现在用 `x <file>` 而非直接
+# 敲文件名解压。安装 ouch 前 oh-my-zsh 的 extract 插件 (Ctrl+X e) 仍可用作 fallback。
+(( $+commands[ouch] )) && alias x='ouch decompress'
 
 # ── yazi: 退出时 cd 到最后浏览的目录 ────────────────────────────────────────
 y() {

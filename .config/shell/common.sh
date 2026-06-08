@@ -235,78 +235,55 @@ if command -v reasonix >/dev/null 2>&1; then
 fi
 
 # -----------------------------------------------------------------------------
-# NVM: lightweight default-bin bootstrap + lazy load
-# Avoids paying the full nvm.sh cost at startup while still exposing `node`.
+# Mise: unified runtime version manager (node/python/go/ruby)
+# Falls back to nvm when mise is not installed (remote hosts).
 # -----------------------------------------------------------------------------
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
-_nvm_is_newer_version() {
-    # Returns 0 if $1 is strictly newer than $2 (by `sort -V`), else 1.
-    local lhs="${1#v}" rhs="${2#v}"
-    [ "$lhs" = "$rhs" ] && return 1
-    [ "$(printf '%s\n%s\n' "$lhs" "$rhs" | sort -V | tail -n1)" = "$lhs" ]
-}
-
-_resolve_nvm_alias_target() {
-    local target="$1"
-    local alias_file depth=0
-
-    while [ "$depth" -lt 8 ]; do
-        case "$target" in
-            ""|"N/A"|"system") return 1 ;;
-        esac
-        alias_file="$NVM_DIR/alias/$target"
-        [ -f "$alias_file" ] || break
-        IFS= read -r target < "$alias_file" || return 1
-        depth=$((depth + 1))
-    done
-
-    [ -n "$target" ] && printf '%s\n' "$target"
-}
-
-_nvm_default_bin() {
-    local target prefix dir best=""
-    [ -r "$NVM_DIR/alias/default" ] || return 1
-    IFS= read -r target < "$NVM_DIR/alias/default" || return 1
-    target="$(_resolve_nvm_alias_target "$target")" || return 1
-    prefix="$target"
-    case "$prefix" in v*) ;; *) prefix="v$prefix" ;; esac
-
-    [ -d "$NVM_DIR/versions/node" ] || return 1
-    # Use `find` so we don't rely on shell-specific glob semantics.
-    while IFS= read -r dir; do
-        [ -n "$dir" ] || continue
-        [ -x "$dir/bin/node" ] || continue
-        if [ -z "$best" ] \
-            || _nvm_is_newer_version "${dir##*/}" "${best##*/}"; then
-            best="$dir"
+if command -v mise >/dev/null 2>&1; then
+    # mise activate: installs chpwd/precmd hooks so .tool-versions in
+    # subdirectories automatically switch runtime versions on cd.
+    # Output is cached so mise is only forked once per binary update.
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        # _cached_eval is defined in .zshrc before common.sh is sourced
+        _cached_eval mise "${commands[mise]}" activate -s zsh
+    else
+        # Bash inline cache (no _cached_eval helper available)
+        _mise_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/mise.bash"
+        if [ ! -f "$_mise_cache" ] || [ "$(command -v mise)" -nt "$_mise_cache" ]; then
+            mkdir -p "$(dirname "$_mise_cache")"
+            mise activate -s bash >| "$_mise_cache" 2>/dev/null || rm -f "$_mise_cache"
         fi
-    done <<EOF
-$(find "$NVM_DIR/versions/node" -mindepth 1 -maxdepth 1 -type d -name "${prefix}*" 2>/dev/null)
-EOF
-
-    [ -n "$best" ] && printf '%s\n' "$best/bin"
-}
-
-_nvm_bootstrap_bin="$(_nvm_default_bin 2>/dev/null)"
-if [ -n "$_nvm_bootstrap_bin" ] && [ -d "$_nvm_bootstrap_bin" ]; then
-    case ":$PATH:" in
-        *":$_nvm_bootstrap_bin:"*) ;;
-        *)
+        [ -s "$_mise_cache" ] && source "$_mise_cache"
+        unset _mise_cache
+    fi
+else
+    # Fallback: nvm lazy load (preserved for environments without mise)
+    _nvm_bootstrap_bin=""
+    if [ -r "$NVM_DIR/alias/default" ]; then
+        _nvm_target="$(head -1 "$NVM_DIR/alias/default" 2>/dev/null || true)"
+        if [ -n "$_nvm_target" ]; then
+            _nvm_prefix="${_nvm_target#v}"
+            _nvm_dir="$(find "$NVM_DIR/versions/node" -maxdepth 1 -type d -name "v${_nvm_prefix}*" 2>/dev/null | sort -V | tail -1 || true)"
+            if [ -n "$_nvm_dir" ] && [ -x "$_nvm_dir/bin/node" ]; then
+                _nvm_bootstrap_bin="$_nvm_dir/bin"
+            fi
+        fi
+    fi
+    if [ -n "$_nvm_bootstrap_bin" ] && [ -d "$_nvm_bootstrap_bin" ]; then
+        case ":$PATH:" in *":$_nvm_bootstrap_bin:"*) ;; *)
             export PATH="$_nvm_bootstrap_bin:$PATH"
             export NVM_BIN="$_nvm_bootstrap_bin"
-            ;;
-    esac
+        ;; esac
+    fi
+    unset _nvm_target _nvm_prefix _nvm_dir _nvm_bootstrap_bin
+
+    _lazy_load_nvm() {
+        unset -f nvm 2>/dev/null
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    }
+    nvm() { _lazy_load_nvm && nvm "$@"; }
 fi
-unset _nvm_bootstrap_bin
-
-_lazy_load_nvm() {
-    unset -f nvm 2>/dev/null
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-}
-nvm() { _lazy_load_nvm && nvm "$@"; }
-
-# -----------------------------------------------------------------------------
 # Atuin bin path (actual `atuin init` is wired in each shell rc because
 # bash needs bash-preexec, zsh uses the cached init)
 # -----------------------------------------------------------------------------
@@ -318,6 +295,24 @@ nvm() { _lazy_load_nvm && nvm "$@"; }
 _broot_launcher="${XDG_CONFIG_HOME}/broot/launcher/bash/br"
 [ -f "$_broot_launcher" ] && . "$_broot_launcher"
 unset _broot_launcher
+
+# -----------------------------------------------------------------------------
+# jj (Jujutsu) — git-compatible VCS; completion wired per shell
+# -----------------------------------------------------------------------------
+if command -v jj >/dev/null 2>&1; then
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        # Lazy-load zsh completion (generate once, cache it)
+        _jj_cache="${ZSH_CACHE_DIR:-$HOME/.zsh_cache}/_jj"
+        if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
+            mkdir -p "$(dirname "$_jj_cache")"
+            jj util completion zsh >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
+        fi
+        [ -s "$_jj_cache" ] && source "$_jj_cache"
+        unset _jj_cache
+    elif [ -n "${BASH_VERSION:-}" ]; then
+        source <(jj util completion bash 2>/dev/null) 2>/dev/null || true
+    fi
+fi
 
 # -----------------------------------------------------------------------------
 # Starship prompt (shell-aware; zsh gets cached init via _cached_eval in .zshrc)

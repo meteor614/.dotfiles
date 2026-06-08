@@ -1,16 +1,12 @@
 #!/bin/bash
-
+# update_all.sh — update packages, language runtimes, plugins, and dotfiles.
+# Uses topgrade as the core engine; falls back to manual steps when absent.
 set -euo pipefail
 
 begin=$(date +%s)
 
-have_cmd() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-log() {
-    printf '%s\n' "$1"
-}
+have_cmd() { command -v "$1" >/dev/null 2>&1; }
+log() { printf '%s\n' "$1"; }
 
 usage() {
     cat <<'EOF'
@@ -21,6 +17,21 @@ Commands:
 EOF
 }
 
+# ── Core: topgrade (auto-detects brew/gem/npm/pip/cargo/…)
+run_topgrade() {
+    if have_cmd topgrade; then
+        log "=== topgrade ==="
+        if topgrade; then
+            log "topgrade finish"
+            return 0
+        fi
+        log "topgrade failed"
+        return 1
+    fi
+    return 1
+}
+
+# ── Fallback: manual updates (when topgrade is not installed)
 update_pkg_manager() {
     if have_cmd brew; then
         export HOMEBREW_INSTALL_CLEANUP=1
@@ -52,7 +63,6 @@ update_gem() {
         return 0
     fi
 
-    # Skip if Ruby version is managed by rbenv or asdf
     if have_cmd rbenv || have_cmd asdf; then
         return 0
     fi
@@ -70,20 +80,7 @@ update_gem() {
     log "gem upgrade finish"
 }
 
-update_git_repo() {
-    local repo=$1
-    shift
-
-    if [ ! -d "$repo" ]; then
-        return 0
-    fi
-
-    (
-        cd "$repo"
-        "$@"
-    )
-}
-
+# ── Dotfiles repo (topgrade does not cover this)
 update_dotfiles_repo() {
     if [ ! -d "$HOME/.dotfiles" ]; then
         return 0
@@ -99,6 +96,7 @@ update_dotfiles_repo() {
     )
 }
 
+# ── Zsh plugins (topgrade does not cover oh-my-zsh)
 update_zsh_plugins() {
     if ! have_cmd zsh; then
         return 0
@@ -113,23 +111,18 @@ update_zsh_plugins() {
     fi
 }
 
-
+# ── Main ──────────────────────────────────────────────────────────────────────
 case "${1:-}" in
-    ""|all)
-        ;;
-    -h|--help)
-        usage
-        exit 0
-        ;;
-    *)
-        log "Unknown argument: ${1}"
-        usage
-        exit 1
-        ;;
+    ""|all) ;;
+    -h|--help) usage; exit 0 ;;
+    *) log "Unknown argument: ${1}"; usage; exit 1 ;;
 esac
 
-update_pkg_manager
-update_gem
+if ! run_topgrade; then
+    log "=== topgrade not found — falling back to manual steps ==="
+    update_pkg_manager
+    update_gem
+fi
 
 if have_cmd cpan; then
     sudo cpan -u -T
