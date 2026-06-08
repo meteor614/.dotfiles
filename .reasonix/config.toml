@@ -117,7 +117,7 @@ allow = [
 # bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
 # graceful fallback elsewhere); "off" disables it. network allows egress.
 # workspace_root = ""            # default: current working directory
-allow_write = ["/tmp", "~"]
+allow_write = ["/tmp", "~", "/Users/meteorchen/.config/jj"]
 bash    = "enforce"
 network = true
 
