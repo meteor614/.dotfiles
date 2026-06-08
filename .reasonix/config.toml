@@ -94,7 +94,21 @@ auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
 # Rules are "ToolName" or "ToolName(glob)"; '*' matches any run, '?' one char.
 mode  = "ask"
 # deny = ["bash(rm -rf*)", "bash(git push*)"]   # hard-blocked in every mode
-allow = ["bash(rg *)", "bash(find *)", "bash(git status *)", "bash(git log *)", "bash(git diff *)", "bash(git show *)", "bash(git branch *)", "bash(ls *)", "bash(cat *)", "bash(head *)", "bash(tail *)", "bash(fd *)", "bash(wc *)", "bash(which *)", "bash(type *)", "bash(du *)", "bash(df *)", "bash(env *)", "bash(pwd *)"]
+allow = [
+    # File writers — sandboxed by [sandbox].allow_write + workspace_root
+    "write_file",
+    "edit_file",
+    # Bash read-only commands
+    "bash(rg *)", "bash(find *)", "bash(ls *)", "bash(cat *)", "bash(head *)",
+    "bash(tail *)", "bash(fd *)", "bash(wc *)", "bash(which *)", "bash(type *)",
+    "bash(du *)", "bash(df *)", "bash(env *)", "bash(pwd *)",
+    # Git read-only
+    "bash(git status *)", "bash(git log *)", "bash(git diff *)",
+    "bash(git show *)", "bash(git branch *)",
+    # jj read-only
+    "bash(jj status *)", "bash(jj st *)", "bash(jj log *)", "bash(jj diff *)",
+    "bash(jj show *)", "bash(jj workspace *)",
+]
 # ask = ["write_file"]   # force a prompt even if otherwise allowed
 
 [sandbox]
