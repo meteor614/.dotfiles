@@ -15,7 +15,7 @@
 - `tmuxinator/` is linked into `~/.tmuxinator`.
 - `.aria2` and `.pip` are linked explicitly by `setup.sh`.
 - `.tmux` and `cheat/cheatsheets` are git submodules. Treat them as upstream-managed content unless the user explicitly asks for a submodule change.
-- This repo itself may be used as a `jj` workspace. `jj` commits are git-compatible; treat `jj git push` as the deploy gate. Prefer `jj` for local branch management but keep conventional git semantics for interoperability.
+- This repo is a `jj` workspace. Use `jj` for all commits, branch moves, and pushes — e.g. `jj commit -m …`, `jj bookmark set master -r @-`, `jj git push`. Do **not** run `git commit` / `git push` directly: `jj` will reset the working copy parent on its next invocation, and stray git operations land you in detached-HEAD with commits that aren't on any jj-tracked branch. Reading via `git log` / `git diff` is fine — `jj` commits stay git-compatible.
 
 ## Editing Guidelines
 - Keep filenames and directory structure stable unless the user explicitly asks for a relocation.
