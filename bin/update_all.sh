@@ -112,28 +112,37 @@ update_zsh_plugins() {
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-case "${1:-}" in
-    ""|all) ;;
-    -h|--help) usage; exit 0 ;;
-    *) log "Unknown argument: ${1}"; usage; exit 1 ;;
-esac
+# Wrap the entire main block in `{ ... }` so bash reads it all into memory
+# before executing. Without this, topgrade's "Git Repositories" step can
+# rewrite this very file mid-run (via `git pull` on ~/.dotfiles), which
+# shifts byte offsets and triggers spurious "syntax error near `then`"
+# style errors as bash continues reading from the modified file.
+main() {
+    case "${1:-}" in
+        ""|all) ;;
+        -h|--help) usage; exit 0 ;;
+        *) log "Unknown argument: ${1}"; usage; exit 1 ;;
+    esac
 
-if ! run_topgrade; then
-    log "=== topgrade not found — falling back to manual steps ==="
-    update_pkg_manager
-    update_gem
-fi
+    if ! run_topgrade; then
+        log "=== topgrade not found — falling back to manual steps ==="
+        update_pkg_manager
+        update_gem
+    fi
 
-if have_cmd cpan; then
-    sudo cpan -u -T
-    log "cpan upgrade finish"
-fi
+    if have_cmd cpan; then
+        sudo cpan -u -T
+        log "cpan upgrade finish"
+    fi
 
-if [ "${1:-}" = "all" ]; then
-    update_dotfiles_repo
-fi
+    if [ "${1:-}" = "all" ]; then
+        update_dotfiles_repo
+    fi
 
-update_zsh_plugins
+    update_zsh_plugins
 
-end=$(date +%s)
-log "used $((end - begin)) seconds"
+    end=$(date +%s)
+    log "used $((end - begin)) seconds"
+}
+
+main "$@"

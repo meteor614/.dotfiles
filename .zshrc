@@ -186,3 +186,5 @@ if [[ -o interactive ]] \
     && (( ${precmd_functions[(Ie)_emit_mux_user_var]:-0} == 0 )); then
     precmd_functions+=(_emit_mux_user_var)
 fi
+
+# pnpm — moved to ~/.zshenv so non-interactive shells (topgrade etc.) see it
