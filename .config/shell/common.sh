@@ -361,3 +361,20 @@ if [ ! -f "$AUTO_VENV_HELPER" ] && [ -f "$HOME/.dotfiles/.config/shell/auto-venv
 fi
 [ -f "$AUTO_VENV_HELPER" ] && . "$AUTO_VENV_HELPER"
 # AUTO_VENV_HELPER is consumed by the rc file (to set up chpwd/PROMPT_COMMAND hook)
+
+# -----------------------------------------------------------------------------
+# direnv: per-directory environment (hook cached to avoid fork on every shell)
+# -----------------------------------------------------------------------------
+if command -v direnv >/dev/null 2>&1; then
+    if [ -n "${ZSH_VERSION:-}" ]; then
+        _cached_eval direnv "${commands[direnv]}" hook zsh
+    else
+        _direnv_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/direnv.bash"
+        if [ ! -f "$_direnv_cache" ] || [ "$(command -v direnv)" -nt "$_direnv_cache" ]; then
+            mkdir -p "$(dirname "$_direnv_cache")"
+            direnv hook bash >| "$_direnv_cache" 2>/dev/null || rm -f "$_direnv_cache"
+        fi
+        [ -s "$_direnv_cache" ] && source "$_direnv_cache"
+        unset _direnv_cache
+    fi
+fi
