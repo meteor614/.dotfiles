@@ -180,6 +180,13 @@ keybinds clear-defaults=true {
     shared_except "locked" {
         bind "Alt g" { SwitchToMode "Locked"; }
         bind "Alt q" { Quit; }
+        bind "Alt z" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            };
+            SwitchToMode "Normal"
+        }
         bind "Alt f" { ToggleFloatingPanes; }
         bind "Alt n" { NewPane; }
         bind "Ctrl Alt t" { NewTab; SwitchToMode "Normal"; }
