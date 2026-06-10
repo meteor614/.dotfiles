@@ -29,6 +29,37 @@ brew_casks=(
     font-sarasa-gothic
 )
 
+# Linux/Synology: tools we install from GitHub release tarballs into ~/bin/.
+# Synology DSM has no brew and no sudo; Entware (/opt/bin) and synocli already
+# provide eza, fzf, zoxide, bat, rg, fd, btop, procs, sd — those are skipped.
+# Format: <name>|<api_repo>|<download_url>|<bin_path_inside_archive>
+# Use {VER} to interpolate the latest tag stripped of the leading 'v'; {TAG} keeps the leading 'v'.
+linux_release_tools=(
+    "topgrade|topgrade-rs/topgrade|https://github.com/topgrade-rs/topgrade/releases/download/{TAG}/topgrade-{TAG}-x86_64-unknown-linux-musl.tar.gz|topgrade"
+    "starship|starship/starship|https://github.com/starship/starship/releases/download/{TAG}/starship-x86_64-unknown-linux-musl.tar.gz|starship"
+    "zoxide|ajeetdsouza/zoxide|https://github.com/ajeetdsouza/zoxide/releases/download/{TAG}/zoxide-{VER}-x86_64-unknown-linux-musl.tar.gz|zoxide"
+    "atuin|atuinsh/atuin|https://github.com/atuinsh/atuin/releases/download/{TAG}/atuin-x86_64-unknown-linux-musl.tar.gz|atuin-x86_64-unknown-linux-musl/atuin"
+    "lazygit|jesseduffield/lazygit|https://github.com/jesseduffield/lazygit/releases/download/{TAG}/lazygit_{VER}_Linux_x86_64.tar.gz|lazygit"
+    "delta|dandavison/delta|https://github.com/dandavison/delta/releases/download/{TAG}/delta-{TAG}-x86_64-unknown-linux-musl.tar.gz|delta-{TAG}-x86_64-unknown-linux-musl/delta"
+    "dust|bootandy/dust|https://github.com/bootandy/dust/releases/download/{TAG}/dust-{TAG}-x86_64-unknown-linux-musl.tar.gz|dust-{TAG}-x86_64-unknown-linux-musl/dust"
+    "hyperfine|sharkdp/hyperfine|https://github.com/sharkdp/hyperfine/releases/download/{TAG}/hyperfine-{TAG}-x86_64-unknown-linux-musl.tar.gz|hyperfine-{TAG}-x86_64-unknown-linux-musl/hyperfine"
+    "gitui|extrawurst/gitui|https://github.com/extrawurst/gitui/releases/download/{TAG}/gitui-linux-x86_64.tar.gz|gitui"
+    "fastfetch|fastfetch-cli/fastfetch|https://github.com/fastfetch-cli/fastfetch/releases/download/{TAG}/fastfetch-linux-amd64.tar.gz|fastfetch-linux-amd64/usr/bin/fastfetch"
+    "zellij|zellij-org/zellij|https://github.com/zellij-org/zellij/releases/download/{TAG}/zellij-x86_64-unknown-linux-musl.tar.gz|zellij"
+    "yazi|sxyazi/yazi|https://github.com/sxyazi/yazi/releases/download/{TAG}/yazi-x86_64-unknown-linux-musl.zip|yazi-x86_64-unknown-linux-musl/yazi"
+)
+
+# Entware packages available on Synology DSM via /opt/bin/opkg.
+# These are kept small — anything tricky comes from linux_release_tools above.
+entware_packages=(
+    eza fzf fd zoxide
+)
+
+# GitHub release downloads from this NAS occasionally hit SSL timeouts; first
+# try a mirror, then fall back to direct. Override via DOTFILES_GH_MIRROR=...
+# (set to empty string to disable the mirror entirely).
+GH_MIRROR_DEFAULT="https://gh-proxy.com/"
+
 background_pids=()
 
 red() { printf '\033[31m%s\033[0m\n' "$1"; }
@@ -409,6 +440,155 @@ install_brew_if_needed() {
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 }
 
+# ---------------------------------------------------------------------------
+# Linux package installers (Entware + GitHub release tarballs)
+# ---------------------------------------------------------------------------
+
+# Detect a Synology DSM box. We do NOT gate Linux installs on this — the
+# release-tarball path works on any glibc/musl x86_64 Linux — but the Entware
+# step is Synology/router-specific and only runs when /opt/bin/opkg is present.
+is_synology() {
+    [ -f /etc.defaults/VERSION ] || [ -d /var/packages ]
+}
+
+# Fetch a URL via the GitHub mirror, then fall back to direct.
+gh_dl() {
+    local url=$1
+    local out=$2
+    local mirror=${DOTFILES_GH_MIRROR-$GH_MIRROR_DEFAULT}
+    if [ -n "$mirror" ]; then
+        if curl -fsSL --connect-timeout 15 --max-time 240 "${mirror}${url}" -o "$out"; then
+            return 0
+        fi
+    fi
+    curl -fsSL --connect-timeout 15 --max-time 240 "$url" -o "$out"
+}
+
+# Resolve the latest release tag for a repo. api.github.com is queried
+# directly (the gh-proxy mirror returns 403 for the API) and the response is
+# parsed without jq so this works on barebones Synology shells.
+gh_latest_tag() {
+    local repo=$1
+    curl -fsSL --connect-timeout 10 --max-time 30 \
+        "https://api.github.com/repos/${repo}/releases/latest" 2>/dev/null \
+        | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' \
+        | head -1
+}
+
+# Install one tool entry from linux_release_tools.
+# Args: name, repo, url_template, bin_path_template
+install_linux_release_tool() {
+    local name=$1
+    local repo=$2
+    local url_tpl=$3
+    local bin_tpl=$4
+    local target="$HOME/bin/$name"
+
+    if [ -x "$target" ]; then
+        return 0
+    fi
+
+    local tag ver url bin_path
+    tag=$(gh_latest_tag "$repo")
+    if [ -z "$tag" ]; then
+        yellow "skip $name (could not resolve latest tag for $repo)"
+        return 0
+    fi
+    ver="${tag#v}"
+
+    url=${url_tpl//\{TAG\}/$tag}
+    url=${url//\{VER\}/$ver}
+    bin_path=${bin_tpl//\{TAG\}/$tag}
+    bin_path=${bin_path//\{VER\}/$ver}
+
+    local workdir
+    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX")
+    # shellcheck disable=SC2064
+    trap "rm -rf '$workdir'" RETURN
+
+    local archive="$workdir/pkg"
+    if ! gh_dl "$url" "$archive"; then
+        yellow "skip $name (download failed: $url)"
+        return 0
+    fi
+
+    case "$url" in
+        *.zip)
+            if command_exists unzip; then
+                (cd "$workdir" && unzip -o -q pkg)
+            elif [ -x /opt/bin/unzip ]; then
+                (cd "$workdir" && /opt/bin/unzip -o -q pkg)
+            else
+                yellow "skip $name (need unzip for $url)"
+                return 0
+            fi
+            ;;
+        *.tar.gz|*.tgz)
+            (cd "$workdir" && tar -xzf pkg)
+            ;;
+        *)
+            yellow "skip $name (unknown archive type: $url)"
+            return 0
+            ;;
+    esac
+
+    if [ ! -f "$workdir/$bin_path" ]; then
+        yellow "skip $name (binary not found at $bin_path inside archive)"
+        return 0
+    fi
+
+    ensure_dir "$HOME/bin"
+    mv "$workdir/$bin_path" "$target"
+    chmod +x "$target"
+    echo "installed $name -> $target"
+}
+
+install_linux_release_tools() {
+    if [ "$os" != "linux" ]; then
+        return 0
+    fi
+    if ! command_exists curl || ! command_exists tar; then
+        yellow "skip linux release tools (curl or tar missing)"
+        return 0
+    fi
+
+    red 'Install linux release tools...'
+    local entry name repo url bin_path
+    for entry in "${linux_release_tools[@]}"; do
+        IFS='|' read -r name repo url bin_path <<<"$entry"
+        install_linux_release_tool "$name" "$repo" "$url" "$bin_path"
+    done
+    yellow 'Install linux release tools finish.'
+}
+
+install_entware_packages() {
+    if [ "$os" != "linux" ] || [ ! -x /opt/bin/opkg ]; then
+        return 0
+    fi
+
+    local pkg installed missing=()
+    installed=$(/opt/bin/opkg list-installed 2>/dev/null | awk '{print $1}')
+    for pkg in "${entware_packages[@]}"; do
+        if ! printf '%s\n' "$installed" | grep -qx "$pkg"; then
+            missing+=("$pkg")
+        fi
+    done
+
+    [ "${#missing[@]}" -eq 0 ] && return 0
+
+    red "Install entware packages: ${missing[*]}"
+    # opkg writes to /opt — needs root. Try without sudo first (some Synology
+    # boxes let the user write /opt directly), then sudo -n if available.
+    if /opt/bin/opkg install "${missing[@]}" 2>/dev/null; then
+        return 0
+    fi
+    if command_exists sudo && sudo -n true 2>/dev/null; then
+        sudo /opt/bin/opkg install "${missing[@]}" || yellow "opkg install failed"
+    else
+        yellow "skip opkg install (need root); run manually: sudo /opt/bin/opkg install ${missing[*]}"
+    fi
+}
+
 configure_brew_mirrors() {
     if ! command_exists brew || ! command_exists git; then
         return 0
@@ -682,9 +862,14 @@ run_setup() {
     fi
 
     load_nvm_default_node
-    install_brew_if_needed
-    configure_brew_mirrors
-    install_missing_brew_packages
+    if [ "$os" = "darwin" ]; then
+        install_brew_if_needed
+        configure_brew_mirrors
+        install_missing_brew_packages
+    else
+        install_entware_packages
+        install_linux_release_tools
+    fi
     configure_package_mirrors
     install_user_language_packages
     install_oh_my_zsh_plugins

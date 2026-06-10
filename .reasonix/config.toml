@@ -46,6 +46,7 @@ soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
 compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
 compact_force_ratio = 0.9   # force compacting at this high-water mark
 planner_model = "deepseek-pro"   # low-frequency planner (two-model collaboration)
+planner_max_steps = 0
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # subagent_effort = "high"   # optional default effort for subagents
