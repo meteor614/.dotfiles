@@ -18,6 +18,7 @@ close_behavior = "background"   # desktop: quit|background when the window close
 
 [notifications]
 enabled = false   # system notifications for CLI chat/run; default off
+sound = false      # disable sound notifications
 turn_done = true   # notify when a turn finishes
 approval_request = true   # notify when a tool approval is waiting
 ask_request = true   # notify when a question is waiting
