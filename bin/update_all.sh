@@ -8,6 +8,28 @@ begin=$(date +%s)
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 log() { printf '%s\n' "$1"; }
 
+# Some hosts (e.g. Synology DSM) mount /tmp with `noexec`, which breaks any
+# updater that downloads an installer to $TMPDIR and tries to chmod+x it
+# (atuin-update, rustup-init, etc.). Redirect TMPDIR to an exec-allowed dir
+# in $HOME when /tmp is noexec.
+ensure_exec_tmpdir() {
+    local probe
+    probe=$(mktemp /tmp/.update_all_exec_probe.XXXXXX 2>/dev/null) || return 0
+    printf '#!/bin/sh\nexit 0\n' >"$probe"
+    chmod +x "$probe" 2>/dev/null
+    if "$probe" >/dev/null 2>&1; then
+        rm -f "$probe"
+        return 0
+    fi
+    rm -f "$probe"
+    local exec_tmp="$HOME/.cache/tmp"
+    mkdir -p "$exec_tmp"
+    chmod 700 "$exec_tmp"
+    export TMPDIR="$exec_tmp"
+    log "/tmp is noexec; using TMPDIR=$TMPDIR"
+}
+ensure_exec_tmpdir
+
 usage() {
     cat <<'EOF'
 Usage: update_all.sh [all]
