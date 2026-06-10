@@ -1,6 +1,6 @@
 #!/bin/bash
 # fzsession — fuzzy-switch between multiplexer sessions
-# Priority: zellij > tmux
+# Shows zellij + tmux sessions in a combined fzf picker.
 set -euo pipefail
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -8,27 +8,68 @@ have_cmd() { command -v "$1" >/dev/null 2>&1; }
 # Strip ANSI escape codes (color, style) from multiplexer session listings
 strip_ansi() { sed $'s/\e\[[0-9;]*[a-zA-Z]//g'; }
 
+sessions=""
+
 if have_cmd zellij; then
-    sessions=$(zellij list-sessions 2>/dev/null | strip_ansi || true)
-    if [ -n "$sessions" ]; then
-        chosen=$(printf '%s\n' "$sessions" | fzf --header="Zellij sessions" --prompt="attach > " 2>/dev/null || true)
-        if [ -n "$chosen" ]; then
-            name=$(printf '%s\n' "$chosen" | awk '{print $1}')
-            exec zellij attach "$name"
-        fi
+    zlist=$(zellij list-sessions 2>/dev/null | strip_ansi || true)
+    if [ -n "$zlist" ]; then
+        sessions="${sessions}$(printf '%s\n' "$zlist" | sed 's/^/zellij: /')"$'\n'
     fi
 fi
 
 if have_cmd tmux; then
-    sessions=$(tmux list-sessions 2>/dev/null | strip_ansi || true)
-    if [ -n "$sessions" ]; then
-        chosen=$(printf '%s\n' "$sessions" | fzf --header="tmux sessions" --prompt="attach > " 2>/dev/null || true)
-        if [ -n "$chosen" ]; then
-            name=$(printf '%s\n' "$chosen" | awk -F: '{print $1}')
-            exec tmux attach-session -t "$name"
-        fi
+    tlist=$(tmux list-sessions 2>/dev/null | strip_ansi || true)
+    if [ -n "$tlist" ]; then
+        sessions="${sessions}$(printf '%s\n' "$tlist" | sed 's/^/tmux: /')"$'\n'
     fi
 fi
 
-echo "fzsession: no multiplexer sessions found" >&2
-exit 1
+# Trim trailing newline
+sessions=${sessions%$'\n'}
+
+if [ -z "$sessions" ]; then
+    echo "fzsession: no multiplexer sessions found" >&2
+    exit 1
+fi
+
+chosen=$(printf '%s\n' "$sessions" | fzf \
+    --header="Sessions (zellij + tmux)" \
+    --prompt="attach > " \
+    --preview='
+        ln={}
+        prefix="${ln%%:*}"
+        rest="${ln#*: }"
+        if [ "$prefix" = "tmux" ]; then
+            name="${rest%%:*}"
+            tmux list-windows -t "$name" 2>/dev/null
+        elif [ "$prefix" = "zellij" ]; then
+            zellij list-sessions 2>/dev/null | grep -F "$rest" || echo "$rest"
+        else
+            echo "$ln"
+        fi
+    ' \
+    --preview-window='right:50%' \
+    2>/dev/null || true)
+if [ -z "$chosen" ]; then
+    # User cancelled fzf
+    exit 0
+fi
+
+# Parse the prefix (zellij: / tmux:) and the remainder
+prefix="${chosen%%:*}"
+remainder="${chosen#*: }"
+
+case "$prefix" in
+    zellij)
+        name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        exec zellij attach "$name"
+        ;;
+    tmux)
+        name=$(printf '%s\n' "$remainder" | awk -F: '{print $1}')
+        exec tmux attach-session -t "$name"
+        ;;
+    *)
+        echo "fzsession: unknown session type '$prefix'" >&2
+        exit 1
+        ;;
+esac
