@@ -56,7 +56,7 @@ show_agent_labels_on_pane_borders = true
 delivery = "herdr"
 
 [ui.sound]
-enabled = true
+enabled = false
 
 # Reasonix 0.53 没有真正的 Stop hook，我们把 PostToolUse 映射为 idle，
 # 一个 turn 内多次工具调用会反复报 idle，触发多次 done 通知声。
