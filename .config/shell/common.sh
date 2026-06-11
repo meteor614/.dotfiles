@@ -124,9 +124,9 @@ fi
 # -----------------------------------------------------------------------------
 # Common aliases (work in bash + zsh)
 # -----------------------------------------------------------------------------
-alias grep='grep --color'
-alias egrep='egrep --color'
-alias fgrep='fgrep --color'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 alias 。。=..
 alias scp='scp -O'
 alias zj='zellij attach -c'
@@ -183,7 +183,15 @@ command -v tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 command -v make >/dev/null 2>&1 && alias mak='make -j 16'
 command -v nvim >/dev/null 2>&1 && alias vim='nvim'
 command -v watch >/dev/null 2>&1 && alias watch='watch -c'
-command -v docker >/dev/null 2>&1 && alias docker='sudo -E docker'
+# docker: only escalate via sudo on Linux when the user lacks docker access.
+# On macOS (Docker Desktop), rootless docker, or when already in the docker
+# group / running as root, plain `docker` works and sudo would be wrong.
+if command -v docker >/dev/null 2>&1; then
+    if [ "$(uname -s)" = "Linux" ] && [ "$(id -u)" -ne 0 ] \
+        && ! id -nG 2>/dev/null | tr ' ' '\n' | grep -qx docker; then
+        alias docker='sudo -E docker'
+    fi
+fi
 if command -v pip3 >/dev/null 2>&1; then
     pip() {
         if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/pip" ]; then

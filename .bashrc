@@ -60,7 +60,18 @@ fi
 # -----------------------------------------------------------------------------
 command -v thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
 [ -f ~/.fzf.bash ] && . ~/.fzf.bash
-command -v kubectl >/dev/null 2>&1 && . <(kubectl completion bash)
+
+# kubectl completion: generate once and cache, regenerate when the binary
+# changes. Avoids forking kubectl on every interactive shell startup.
+if command -v kubectl >/dev/null 2>&1; then
+    _kubectl_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/kubectl.bash"
+    if [ ! -f "$_kubectl_cache" ] || [ "$(command -v kubectl)" -nt "$_kubectl_cache" ]; then
+        mkdir -p "$(dirname "$_kubectl_cache")"
+        kubectl completion bash >| "$_kubectl_cache" 2>/dev/null || rm -f "$_kubectl_cache"
+    fi
+    [ -s "$_kubectl_cache" ] && . "$_kubectl_cache"
+    unset _kubectl_cache
+fi
 
 # perlbrew
 [ -f ~/perl5/perlbrew/etc/bashrc ] && . ~/perl5/perlbrew/etc/bashrc
