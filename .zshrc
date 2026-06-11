@@ -188,3 +188,8 @@ if [[ -o interactive ]] \
 fi
 
 # pnpm — moved to ~/.zshenv so non-interactive shells (topgrade etc.) see it
+
+# kimi-code
+if [[ -d "$HOME/.kimi-code/bin" ]]; then
+    path=("$HOME/.kimi-code/bin" $path)
+fi

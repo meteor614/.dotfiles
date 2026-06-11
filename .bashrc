@@ -103,3 +103,6 @@ esac
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 
 unset -f _bash_path_prepend _bash_path_append
+
+# Local machine-specific overrides
+[ -f "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

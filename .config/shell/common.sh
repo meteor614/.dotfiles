@@ -149,7 +149,7 @@ else
     alias l='ls -l'
 fi
 
-# ── Git shorthand (kept here; not shared with bash) ──────────────────────────
+# ── Git shorthand (shared by bash and zsh) ───────────────────────────────────
 alias gc='git commit'
 alias ga='git add'
 alias gst='git status'
