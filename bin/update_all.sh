@@ -43,7 +43,7 @@ EOF
 run_topgrade() {
     if have_cmd topgrade; then
         log "=== topgrade ==="
-        if topgrade; then
+        if topgrade -y; then
             log "topgrade finish"
             return 0
         fi
