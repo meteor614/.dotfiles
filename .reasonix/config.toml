@@ -123,21 +123,6 @@ allow_write = ["/tmp", "~", "~/.config/jj"]
 bash    = "enforce"
 network = true
 
-[bot]
-enabled = true
-max_steps = 25
-debounce_ms = 1500
-
-[bot.allowlist]
-enabled = true
-allow_all = true
-# qq_users = ["1904130453"", "773335"]
-
-[bot.qq]
-enabled = true
-app_id = "1904130453"
-app_secret_env = "QQ_BOT_APP_SECRET"
-
 [statusline]
 # A custom status line: a command whose first stdout line replaces the built-in
 # data row. It receives {"model","contextUsed","contextWindow","cwd"} as JSON on stdin.
