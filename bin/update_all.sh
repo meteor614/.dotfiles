@@ -80,26 +80,33 @@ update_pkg_manager() {
     fi
 }
 
+# Ruby < 3.2.0 is macOS system Ruby — its gems are Apple-bundled system deps.
+# Updating them via sudo is low-value and risky; gem self-upgrade fails anyway.
+# Only run gem operations on a user-installed modern Ruby (≥ 3.2.0).
+readonly GEM_RUBY_MINVER="3.2.0"
+
 update_gem() {
     if ! have_cmd gem; then
         return 0
     fi
 
-    if have_cmd rbenv || have_cmd asdf; then
+    # Version managers (rbenv/asdf/mise) each handle their own gem lifecycle.
+    if have_cmd rbenv || have_cmd asdf || have_cmd mise; then
         return 0
     fi
 
-    local gem_dir
-    gem_dir="$(gem environment gemdir)"
+    local ruby_ver
+    ruby_ver="$(ruby -e 'puts RUBY_VERSION' 2>/dev/null)" || ruby_ver=""
 
-    if [ -w "$gem_dir" ]; then
+    if [ -z "$ruby_ver" ] || [ "$ruby_ver" = "$(printf '%s\n' "$GEM_RUBY_MINVER" "$ruby_ver" | sort -V | tail -1)" ]; then
+        # Ruby ≥ 3.2.0 (user-installed) — safe to update gems normally
         gem update -f
         gem cleanup
+        gem update --system
+        log "gem upgrade finish"
     else
-        sudo gem update -f
-        sudo gem cleanup
+        log "ruby ${ruby_ver} is macOS system Ruby (< ${GEM_RUBY_MINVER}) — skipping gem update"
     fi
-    log "gem upgrade finish"
 }
 
 # ── Dotfiles repo (topgrade does not cover this)
@@ -149,8 +156,12 @@ main() {
     if ! run_topgrade; then
         log "=== topgrade not found — falling back to manual steps ==="
         update_pkg_manager
-        update_gem
     fi
+
+    # Run gem update separately from topgrade (topgrade disables gem to avoid
+    # `gem update --system` on old system Ruby). Our update_gem handles the
+    # version check gracefully.
+    update_gem
 
     if have_cmd cpan; then
         sudo cpan -u -T

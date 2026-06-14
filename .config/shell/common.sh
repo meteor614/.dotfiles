@@ -115,10 +115,32 @@ _dotfiles_set_term
 # Homebrew China mirror (USE_CN_MIRROR=0 disables)
 # -----------------------------------------------------------------------------
 if [ "${USE_CN_MIRROR:-1}" = "1" ]; then
+    # Primary: TUNA — best overall coverage, stable CDN in China
     export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
     export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
     export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
     export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+fi
+
+# -----------------------------------------------------------------------------
+# brew wrapper with mirror fallback — swap provider on failure
+# -----------------------------------------------------------------------------
+if [ "${USE_CN_MIRROR:-1}" = "1" ] && command -v brew >/dev/null 2>&1; then
+    _DOTFILES_BREW="$(command -v brew)"
+    brew() {
+        local _dotfiles_brew_exit=0
+        "$_DOTFILES_BREW" "$@" || {
+            _dotfiles_brew_exit=$?
+            echo "dotfiles: primary mirror failed, retrying with Tencent Cloud..." >&2
+            HOMEBREW_API_DOMAIN="https://mirrors.cloud.tencent.com/homebrew-bottles/api" \
+            HOMEBREW_BOTTLE_DOMAIN="https://mirrors.cloud.tencent.com/homebrew-bottles" \
+            HOMEBREW_BREW_GIT_REMOTE="https://mirrors.cloud.tencent.com/homebrew/brew.git" \
+            HOMEBREW_CORE_GIT_REMOTE="https://mirrors.cloud.tencent.com/homebrew/homebrew-core.git" \
+            "$_DOTFILES_BREW" "$@"
+            _dotfiles_brew_exit=$?
+        }
+        return $_dotfiles_brew_exit
+    }
 fi
 
 # -----------------------------------------------------------------------------

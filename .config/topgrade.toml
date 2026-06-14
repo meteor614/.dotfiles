@@ -29,7 +29,9 @@
 
 # Disable specific steps - same options as the command line flag
 # disable = ["system", "emacs"]
-disable = ["node", "containers", "git_repos"]
+# rubygems: system Ruby (2.6.10) is too old for gem update --system.
+# `gem` and `ruby_gems` are separate topgrade steps — disable both.
+disable = ["node", "gem", "ruby_gems", "containers", "git_repos"]
 
 # Run these steps before all others
 # first = ["chezmoi"]
@@ -59,7 +61,7 @@ disable = ["node", "containers", "git_repos"]
 # display_time = true
 
 # Don't ask for confirmations (no default value)
-# assume_yes = true
+assume_yes = true
 
 # Whether to ask what to do after a step fails (default: true)
 # ask_retry = true
