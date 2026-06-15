@@ -20,7 +20,7 @@ brew_formulae=(
     pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
-    bat reattach-to-user-namespace eza lazygit procs dust direnv cargo atuin
+    bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin
     imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj
 )
 brew_casks=(
@@ -280,7 +280,7 @@ link_top_level_dotfiles() {
         local base
         base=$(basename "$file")
         ensure_link "$file" "$HOME/$base"
-    done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
+    done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name ".gitignore" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
 
     yellow 'Init dotfiles finish.'
 }
