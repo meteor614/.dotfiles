@@ -39,11 +39,33 @@ Commands:
 EOF
 }
 
+# ── Conda — pre-run conda so that topgrade's mamba step is a no-op.
+#    mamba 2.8.x has a bug: `pip inspect --local` on a large env produces
+#    "Broken pipe" + exit 1, which makes topgrade prompt "Retry?" and block.
+#    conda handles this gracefully (exit 0), and running it first means
+#    topgrade's mamba step will find nothing to update and skip.
+update_conda() {
+    if ! have_cmd conda; then
+        return 0
+    fi
+    log "=== conda ==="
+    if conda update --all -n base --yes 2>/dev/null; then
+        log "conda finish"
+    else
+        log "conda update failed"
+    fi
+}
+
 # ── Core: topgrade (auto-detects brew/gem/npm/pip/cargo/…)
 run_topgrade() {
     if have_cmd topgrade; then
         log "=== topgrade ==="
-        if topgrade -y; then
+        # Pre-run conda so topgrade's mamba step is a no-op (avoids
+        # mamba 2.8.x Broken pipe bug with large pip package lists).
+        # Also disable topgrade's built-in mamba step — we handle it
+        # ourselves via update_conda.
+        update_conda
+        if topgrade -y --disable mamba; then
             log "topgrade finish"
             return 0
         fi
