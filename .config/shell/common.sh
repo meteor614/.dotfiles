@@ -244,6 +244,40 @@ if command -v claude-internal >/dev/null 2>&1; then
     fi
 fi
 
+# -----------------------------------------------------------------------------
+# Node.js PATH shim for npm global packages (e.g. reasonix)
+# npm -g packages have shebang "#!/usr/bin/env node" and fail when node
+# is not in PATH. This covers hosts where mise/nvm manage node but the
+# shim path isn't active yet (non-interactive SSH, early rc ordering).
+# It runs before the reasonix wrapper so `command reasonix` always works.
+# -----------------------------------------------------------------------------
+_dotfiles_ensure_node_path() {
+    # Already available — nothing to do
+    command -v node >/dev/null 2>&1 && return 0
+    # Mise: find the first installed node version and prepend its bin
+    local _mise_node_bin=""
+    if command -v mise >/dev/null 2>&1; then
+        _mise_node_bin="$(ls -d "$HOME/.local/share/mise/installs/node"/*/bin 2>/dev/null | sort -Vr | head -1)"
+    fi
+    if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
+        case ":$PATH:" in *":$_mise_node_bin:"*) ;; *) export PATH="$_mise_node_bin:$PATH" ;; esac
+        return 0
+    fi
+    # NVM fallback: check the default alias
+    local _nvm_dir=""
+    if [ -r "${NVM_DIR:-$HOME/.nvm}/alias/default" ]; then
+        _nvm_target="$(head -1 "${NVM_DIR:-$HOME/.nvm}/alias/default" 2>/dev/null || true)"
+        if [ -n "$_nvm_target" ]; then
+            _nvm_dir="$(find "${NVM_DIR:-$HOME/.nvm}/versions/node" -maxdepth 1 -type d -name "${_nvm_target}*" 2>/dev/null | sort -Vr | head -1)"
+        fi
+    fi
+    if [ -n "$_nvm_dir" ] && [ -x "$_nvm_dir/bin/node" ]; then
+        case ":$PATH:" in *":$_nvm_dir/bin:"*) ;; *) export PATH="$_nvm_dir/bin:$PATH" ;; esac
+    fi
+}
+_dotfiles_ensure_node_path
+unset -f _dotfiles_ensure_node_path
+
 # Reasonix 1.2.0+ fires UserPromptSubmit and Stop hooks (via settings.json),
 # so the turn lifecycle is precise. The wrapper still handles two edge cases:
 #   1. pre-announces idle on startup → herdr recognizes pane immediately
