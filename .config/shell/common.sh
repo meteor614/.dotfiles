@@ -254,9 +254,12 @@ fi
 _dotfiles_ensure_node_path() {
     # Already available — nothing to do
     command -v node >/dev/null 2>&1 && return 0
-    # Mise: find the first installed node version and prepend its bin
+    # Mise: find the first installed node version and prepend its bin.
+    # Don't rely on `command -v mise` — mise may live in ~/.local/bin
+    # which isn't in PATH yet at this point (non-interactive shells).
     local _mise_node_bin=""
-    if command -v mise >/dev/null 2>&1; then
+    local _mise_bin="${HOME}/.local/bin/mise"
+    if [ -x "$_mise_bin" ]; then
         _mise_node_bin="$(ls -d "$HOME/.local/share/mise/installs/node"/*/bin 2>/dev/null | sort -Vr | head -1)"
     fi
     if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
