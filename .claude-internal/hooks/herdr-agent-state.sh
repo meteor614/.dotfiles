@@ -6,11 +6,12 @@
 #     this from the public claude integration.
 #   - Uses source="custom:claude-internal" to mark this as not herdr-managed.
 #
-# v5 model: a single SessionStart hook reports the session_id to herdr;
+# v6 model: a single SessionStart hook reports the session_id to herdr;
 # the server derives working/idle/release from terminal activity. No more
 # per-event hooks for UserPromptSubmit/PreToolUse/PermissionRequest/Stop/SessionEnd.
+# Also reports transcript_path and session_start_source to herdr (new in v6).
 # HERDR_INTEGRATION_ID=claude-internal
-# HERDR_INTEGRATION_VERSION=5
+# HERDR_INTEGRATION_VERSION=6
 
 set -eu
 
@@ -67,17 +68,27 @@ request_id = f"{source}:{int(time.time() * 1000)}:{random.randrange(1_000_000):0
 report_seq = time.time_ns()
 session_id = hook_input.get("session_id")
 agent_session_id = session_id if isinstance(session_id, str) and session_id else None
+transcript_path = hook_input.get("transcript_path")
+agent_session_path = transcript_path if isinstance(transcript_path, str) and transcript_path else None
+session_start_source = hook_input.get("source") if hook_event_name == "SessionStart" else None
+if not isinstance(session_start_source, str) or not session_start_source:
+    session_start_source = None
 if agent_session_id:
+    params = {
+        "pane_id": pane_id,
+        "source": source,
+        "agent": agent_name,
+        "seq": report_seq,
+        "agent_session_id": agent_session_id,
+    }
+    if agent_session_path:
+        params["agent_session_path"] = agent_session_path
+    if session_start_source:
+        params["session_start_source"] = session_start_source
     request = {
         "id": request_id,
         "method": "pane.report_agent_session",
-        "params": {
-            "pane_id": pane_id,
-            "source": source,
-            "agent": agent_name,
-            "seq": report_seq,
-            "agent_session_id": agent_session_id,
-        },
+        "params": params,
     }
 else:
     raise SystemExit(0)
