@@ -38,8 +38,23 @@ if [[ -z "$COMMAND_TO_RUN" ]]; then
 fi
 
 if [[ -z "$PROCESS_NAME" && -z "$PROCESS_ID" ]]; then
-    echo "错误：必须指定进程名或进程ID！"
-    show_help
+    if command -v fzf >/dev/null 2>&1; then
+        chosen=$(ps ax -o pid,comm | sed 1d | fzf \
+            --header="选择要监控的进程" \
+            --prompt="process > " \
+            --preview="ps -p {1} -o pid,ppid,user,rss,%cpu,%mem,start,time,comm" \
+            --preview-window='down:30%' \
+            2>/dev/null || true)
+        if [[ -z "$chosen" ]]; then
+            echo "未选择进程，退出。"
+            exit 0
+        fi
+        PROCESS_ID=$(echo "$chosen" | awk '{print $1}')
+        echo "已选择进程 PID: $PROCESS_ID"
+    else
+        echo "错误：必须指定进程名或进程ID！"
+        show_help
+    fi
 fi
 
 # 检查进程状态
