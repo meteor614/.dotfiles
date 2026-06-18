@@ -795,15 +795,15 @@ link_reasonix_herdr_integration() {
     local src_dir="$script_path/.reasonix"
     [ -d "$src_dir" ] || return 0
 
-    # Reasonix reads config.toml from ~/.config/reasonix/config.toml
+    # Reasonix reads config.toml from ~/.reasonix/config.toml
     # (model/provider config, project overrides via ./reasonix.toml).
     # Hooks config lives in ~/.reasonix/settings.json.
     ensure_dir "$HOME/.reasonix/hooks"
     ensure_link "$src_dir/settings.json"            "$HOME/.reasonix/settings.json"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
 
-    # Deploy model/provider config to the standard XDG path reasonix reads.
-    local config_dst="$HOME/.config/reasonix/config.toml"
+    # Deploy model/provider config to ~/.reasonix/ so it stays alongside hooks/settings.
+    local config_dst="$HOME/.reasonix/config.toml"
     ensure_dir "$(dirname "$config_dst")"
     ensure_link "$src_dir/config.toml" "$config_dst"
 }

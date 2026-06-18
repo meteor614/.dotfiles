@@ -1,5 +1,5 @@
 # Reasonix configuration.
-# Resolution order: flag > ./reasonix.toml > ~/.config/reasonix/config.toml > built-in defaults.
+# Resolution order: flag > ./reasonix.toml > ~/.reasonix/config.toml > built-in defaults.
 # Secrets come from the environment via api_key_env; never put keys here.
 
 config_version = 2   # schema marker for diagnostics; old versions may ignore it
@@ -120,7 +120,8 @@ allow = [
 # graceful fallback elsewhere); "off" disables it. network allows egress.
 # workspace_root = ""            # default: current working directory
 allow_write = ["/tmp", "~", "~/.config/jj"]
-bash    = "enforce"
+bash    = "off"
+# bash    = "enforce"
 network = true
 
 [statusline]
