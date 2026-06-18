@@ -45,6 +45,22 @@ command -v lesspipe.sh >/dev/null 2>&1 && {
 }
 
 # -----------------------------------------------------------------------------
+# herdr OSC52 透传 workaround（SSH over zellij）
+#
+# herdr 的 should_prefer_osc52() 只检查 SSH_TTY/SSH_CONNECTION/WSL，
+# 不检查 ZELLIJ。在远程 zellij session 中（SSH 环境变量不存在），
+# herdr 会尝试 xclip/wl-copy 写入远端剪贴板而非透传 OSC52，
+# 导致 nvim yank 的内容到不了本地 mac 剪贴板。
+#
+# 这里补一个环境标记：当在 zellij 中且 SSH_TTY 未设置时，伪造 SSH_TTY
+# 让 herdr 优先走 OSC52 透传。去掉 pbcopy 判断是因为 SSH 到远程 Mac
+# 时 pbcopy 存在但写入的是远端剪贴板，回不到本地。
+# -----------------------------------------------------------------------------
+if [ -n "${ZELLIJ:-}" ] && [ -z "${SSH_TTY:-}" ]; then
+    export SSH_TTY="zellij"
+fi
+
+# -----------------------------------------------------------------------------
 # TERM detection (Ghostty primary; WezTerm/Kitty fallbacks; tmux/ssh aware)
 # Priority: tmux > ghostty > wezterm > kitty > default
 # -----------------------------------------------------------------------------
