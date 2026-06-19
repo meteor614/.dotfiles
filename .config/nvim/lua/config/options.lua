@@ -79,6 +79,27 @@ vim.opt.matchtime = 2
 vim.opt.title = true
 vim.opt.autoread = true
 vim.opt.clipboard = { "unnamedplus", "unnamed" }
+
+-- OSC52 clipboard: when running over SSH there is no local pbcopy/wl-copy, so
+-- route the system clipboard through the terminal's OSC52 escape. This is
+-- forwarded out through tmux (set-clipboard on) / herdr → ghostty, giving us a
+-- working "yank reaches the macOS clipboard" path even on remote hosts.
+-- Locally we leave the default provider (pbcopy) alone: it is faster and gives
+-- reliable two-way paste, whereas OSC52 read is widely blocked by terminals.
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION or vim.env.ZELLIJ ~= nil then
+  local osc52 = require("vim.ui.clipboard.osc52")
+  vim.g.clipboard = {
+    name = "OSC52",
+    copy = {
+      ["+"] = osc52.copy("+"),
+      ["*"] = osc52.copy("*"),
+    },
+    paste = {
+      ["+"] = osc52.paste("+"),
+      ["*"] = osc52.paste("*"),
+    },
+  }
+end
 vim.opt.history = 1000
 vim.opt.maxmempattern = 2000000
 vim.opt.pumheight = 50

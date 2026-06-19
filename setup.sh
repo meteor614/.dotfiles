@@ -280,7 +280,7 @@ link_top_level_dotfiles() {
         local base
         base=$(basename "$file")
         ensure_link "$file" "$HOME/$base"
-    done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name ".gitignore" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
+    done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name ".gitignore" ! -name ".ripgreprc" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
 
     yellow 'Init dotfiles finish.'
 }

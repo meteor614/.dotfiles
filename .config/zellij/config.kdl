@@ -1,5 +1,13 @@
 support_kitty_keyboard_protocol true
 
+// ─── Clipboard (OSC52) ───────────────────────────────────────────────────────
+// Leave copy_command UNSET: when no external copy command is configured, zellij
+// writes the OS clipboard via the terminal's OSC52 escape, which is forwarded
+// out through herdr → ghostty and works identically over SSH. Setting
+// copy_command to pbcopy/wl-copy would break remote sessions, so we don't.
+copy_clipboard "system"
+copy_on_select true
+
 keybinds clear-defaults=true {
     normal {
         // uncomment this and adjust key if using copy_on_select=false

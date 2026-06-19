@@ -14,6 +14,18 @@ set -g default-terminal "screen-256color"
 set -gu terminal-overrides
 # iTerm2 Meta + arrow keys support + true color hints
 set -ga terminal-overrides ",xterm-kitty:Tc,*256col*:Tc,*:kUP3=\e[1;9A,*:kDN3=\e[1;9B,*:kRIT3=\e[1;9C,*:kLFT3=\e[1;9D"
+# OSC52 clipboard: screen-256color lacks the Ms capability, so advertise it for
+# all terminals. This lets tmux emit OSC52 on yank and forward it outward
+# (→ herdr → ghostty), which is the only clipboard path that survives SSH.
+set -ga terminal-overrides ",*:Ms=\\E]52;%p1%s;%p2%s\\007"
+
+# OSC52 clipboard support:
+#   - on:       tmux sends its own clipboard out via OSC52 AND honours OSC52
+#               escapes from programs running inside it (nvim, etc.)
+#   - external: only forward inner programs' OSC52, don't emit tmux's own
+# We want full bidirectional behaviour so copy-mode yanks reach the system
+# clipboard through ghostty even on remote hosts.
+set -g set-clipboard on
 
 set -g allow-passthrough on
 set -g update-environment "DISPLAY KRB5CCNAME SSH_ASKPASS SSH_AUTH_SOCK SSH_AGENT_PID SSH_CONNECTION WINDOWID XAUTHORITY TERM TERM_PROGRAM COLORTERM"
@@ -226,7 +238,13 @@ tmux_conf_theme_clock_style='24'
 #   - false (default)
 # on macOS, this requires installing reattach-to-user-namespace, see README.md
 # on Linux, this requires xsel or xclip
-tmux_conf_copy_to_os_clipboard=true
+#
+# Kept false ON PURPOSE: true rewrites yanks to pipe through pbcopy, which only
+# works on the local machine and breaks over SSH. We instead route the OS
+# clipboard through OSC52 (`set-clipboard on` + the Ms override above), so a
+# plain copy-selection reaches ghostty's clipboard whether tmux is local or
+# remote. Leave this false to avoid double-handling / clobbering OSC52.
+tmux_conf_copy_to_os_clipboard=false
 
 
 # -- user customizations -------------------------------------------------------
