@@ -18,35 +18,29 @@ close_behavior = "background"   # desktop: quit|background when the window close
 
 [notifications]
 enabled = false   # system notifications for CLI chat/run; default off
-sound = false      # disable sound notifications
-turn_done = true   # notify when a turn finishes
-approval_request = true   # notify when a tool approval is waiting
-ask_request = true   # notify when a question is waiting
+# Sub-items are shadowed by enabled=false — kept as documentation only.
+# sound = false      # disable sound notifications
+# turn_done = true   # notify when a turn finishes
+# approval_request = true   # notify when a tool approval is waiting
+# ask_request = true   # notify when a question is waiting
 
 [network]
 proxy_mode = "auto"   # auto|env|custom|off; auto currently uses env proxy
 # proxy_url  = "socks5://127.0.0.1:7890"   # optional custom override
 # no_proxy   = "localhost,127.0.0.1,.local"   # honored for proxy_mode = "custom"
 
-[network.proxy]
-type = "socks5"   # http|https|socks5|socks5h
-# server = "127.0.0.1"
-# port = 7890
-# username = ""
-# password = "${REASONIX_PROXY_PASSWORD}"   # optional; supports ${VAR} expansion
-
 [agent]
 # system_prompt = """..."""   # omit to use the built-in prompt for this version
 # system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
-max_steps   = 0
+max_steps   = 80
 temperature = 0.0
 auto_plan   = "off"   # off|on; off keeps plan mode manual
-# auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
-soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
+auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
+soft_compact_ratio  = 0.7   # notice only; keeps cache-first prefix intact
 compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
 compact_force_ratio = 0.9   # force compacting at this high-water mark
 planner_model = "deepseek-pro"   # low-frequency planner (two-model collaboration)
-planner_max_steps = 0
+planner_max_steps = 20
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # subagent_effort = "high"   # optional default effort for subagents
@@ -77,7 +71,7 @@ price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # 
 
 [tools]
 enabled = []   # empty = all built-in tools
-bash_timeout_seconds = 120   # foreground safety cap; set 0 for no tool-local cap
+bash_timeout_seconds = 180   # foreground safety cap; set 0 for no tool-local cap
 
 [codegraph]
 enabled      = true   # built-in MCP server; off by default for first-run sessions
@@ -95,11 +89,15 @@ auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
 # Readers always default to allow. Precedence: deny > ask > allow > fallback.
 # Rules are "ToolName" or "ToolName(glob)"; '*' matches any run, '?' one char.
 mode  = "ask"
-# deny = ["bash(rm -rf*)", "bash(git push*)"]   # hard-blocked in every mode
+deny = [
+    "bash(rm -rf *)", "bash(sudo *)", "bash(chmod 777 *)",
+    "bash(curl * | sh *)", "bash(wget * -O - | sh *)",
+]
 allow = [
     # File writers — sandboxed by [sandbox].allow_write + workspace_root
     "write_file",
     "edit_file",
+    "multi_edit",
     # Bash read-only commands
     "bash(rg *)", "bash(find *)", "bash(ls *)", "bash(cat *)", "bash(head *)",
     "bash(tail *)", "bash(fd *)", "bash(wc *)", "bash(which *)", "bash(type *)",
