@@ -9,6 +9,12 @@
 - `.config/*` is generally linked into `~/.config/*` automatically.
 - `.config/nvim` is a special case. `setup.sh` bootstraps a LazyVim starter tree in `~/.config/nvim` and only links `.config/nvim/lua/config` and `.config/nvim/lua/plugins` from this repo.
 - `.zshrc` and `.bashrc` are shared shell entrypoints for both local and remote hosts. Optional tool init such as `starship`, `atuin`, and lazy `mise`/`nvm` loading should remain conditional so shells still start cleanly when a tool is absent.
+- Shell startup flow:
+  - `.zshenv` is intentionally tiny and is sourced by every zsh invocation; keep only pure environment/PATH exports there.
+  - `.zshrc` owns zsh framework-level setup: fpath, compinit, zsh plugins, zsh init caching, and final `$HOME/bin` priority.
+  - `.config/shell/common.sh` holds bash+zsh shared environment, aliases, runtime manager activation, tool init caches, and cross-shell helpers. Keep it POSIX-ish.
+  - `.zshrc.local` is for zsh-only interactive UX: keymaps, local aliases/functions, SSH multiplexer autostart, and machine/user conveniences.
+  - `.bashrc` is for bash-only prompt, PATH helpers, completions, and bash-specific hooks such as bash-preexec/Atuin.
 - Node is managed via `mise` in this environment (fallback: `nvm`). Prefer `mise` for runtime versions and do not reintroduce Homebrew `node` as a required dependency.
 - `.config/mise/config.toml` declares default runtime versions (node/python/go). `setup.sh` runs `mise install --yes` to ensure they're present. `not_found_auto_install = false` means missing shims do **not** trigger silent installs — runtimes are only installed via explicit `mise install`.
 - `bin/*` is linked into `~/bin/*`.

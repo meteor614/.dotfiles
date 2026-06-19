@@ -270,11 +270,11 @@ fi
 _dotfiles_ensure_node_path() {
     # Already available — nothing to do
     command -v node >/dev/null 2>&1 && return 0
-    # Mise: find the first installed node version and prepend its bin.
+    # Mise: find the highest installed node version and prepend its bin.
     # Don't rely on `command -v mise` — mise may live in ~/.local/bin
     # which isn't in PATH yet at this point (non-interactive shells).
     #
-    # Cache the resolved path to avoid `ls | sort` on every shell start.
+    # Cache the resolved path to avoid directory scans on every shell start.
     # Cache invalidated when the mise installs directory mtime changes.
     local _mise_node_bin=""
     local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
@@ -286,17 +286,55 @@ _dotfiles_ensure_node_path() {
         IFS= read -r _mise_node_bin < "$cache_file" || _mise_node_bin=""
     fi
 
-    # Re-resolve when cache is missing, stale, or the cached binary went away
+    # Re-resolve when cache is missing, stale, or the cached binary went away.
+    # Prefer numeric version names without using ls/sort/head pipelines.
     if [ -z "$_mise_node_bin" ] || [ ! -x "$_mise_node_bin/node" ]; then
         _mise_node_bin=""
         local _mise_bin="${HOME}/.local/bin/mise"
-        if [ -x "$_mise_bin" ]; then
-            _mise_node_bin="$(ls -d "$mise_node_dir"/*/bin 2>/dev/null | sort -Vr | head -1)"
-            if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
+        local _node_dir _node_base _best_ver=""
+        local _a _b _a_part _b_part _i
+        if [ -x "$_mise_bin" ] && [ -d "$mise_node_dir" ]; then
+            for _node_dir in "$mise_node_dir"/*; do
+                [ -d "$_node_dir/bin" ] || continue
+                [ -x "$_node_dir/bin/node" ] || continue
+                _node_base="${_node_dir##*/}"
+                case "$_node_base" in
+                    v*) _node_base="${_node_base#v}" ;;
+                esac
+
+                if [ -z "$_best_ver" ]; then
+                    _best_ver="$_node_base"
+                    _mise_node_bin="$_node_dir/bin"
+                    continue
+                fi
+
+                # Compare dotted numeric versions without ls/sort/head pipelines.
+                _a="$_node_base"
+                _b="$_best_ver"
+                for _i in 1 2 3 4; do
+                    _a_part="${_a%%.*}"
+                    _b_part="${_b%%.*}"
+                    [ "$_a_part" = "$_a" ] && _a="" || _a="${_a#*.}"
+                    [ "$_b_part" = "$_b" ] && _b="" || _b="${_b#*.}"
+                    _a_part="${_a_part%%[^0-9]*}"
+                    _b_part="${_b_part%%[^0-9]*}"
+                    _a_part="${_a_part:-0}"
+                    _b_part="${_b_part:-0}"
+                    if [ "$_a_part" -gt "$_b_part" ] 2>/dev/null; then
+                        _best_ver="$_node_base"
+                        _mise_node_bin="$_node_dir/bin"
+                        break
+                    elif [ "$_a_part" -lt "$_b_part" ] 2>/dev/null; then
+                        break
+                    fi
+                done
+            done
+            if [ -n "$_mise_node_bin" ]; then
                 mkdir -p "$cache_dir"
                 printf '%s\n' "$_mise_node_bin" >| "$cache_file" 2>/dev/null || true
             fi
         fi
+        unset _node_dir _node_base _best_ver _a _b _a_part _b_part _i
     fi
 
     if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
@@ -414,7 +452,13 @@ if command -v jj >/dev/null 2>&1; then
         [ -s "$_jj_cache" ] && source "$_jj_cache"
         unset _jj_cache
     elif [ -n "${BASH_VERSION:-}" ]; then
-        source <(jj util completion bash 2>/dev/null) 2>/dev/null || true
+        _jj_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/jj.bash"
+        if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
+            mkdir -p "$(dirname "$_jj_cache")"
+            jj util completion bash >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
+        fi
+        [ -s "$_jj_cache" ] && source "$_jj_cache"
+        unset _jj_cache
     fi
 fi
 
@@ -439,6 +483,37 @@ if [ "$_DOTFILES_SHELL" = "bash" ]; then
     _starship_bin="$(_find_starship)" && eval "$("$_starship_bin" init bash)"
     unset _starship_bin
 fi
+
+# -----------------------------------------------------------------------------
+# Ruby gem executable directory (cached; shared by bash + zsh)
+# -----------------------------------------------------------------------------
+_dotfiles_add_gem_bin() {
+    command -v gem >/dev/null 2>&1 || return 0
+
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
+    local cache_file="$cache_dir/gem_bin_path"
+    local gem_bin=""
+    local gem_cmd
+    gem_cmd="$(command -v gem 2>/dev/null)" || return 0
+
+    if [ -r "$cache_file" ] && [ "$gem_cmd" -ot "$cache_file" ]; then
+        IFS= read -r gem_bin < "$cache_file" || gem_bin=""
+    fi
+
+    if [ -z "$gem_bin" ] || [ ! -d "$gem_bin" ]; then
+        gem_bin="$(gem environment gemdir 2>/dev/null)/bin"
+        if [ -d "$gem_bin" ]; then
+            mkdir -p "$cache_dir"
+            printf '%s\n' "$gem_bin" >| "$cache_file" 2>/dev/null || true
+        fi
+    fi
+
+    if [ -d "$gem_bin" ]; then
+        case ":$PATH:" in *":$gem_bin:"*) ;; *) export PATH="$PATH:$gem_bin" ;; esac
+    fi
+}
+_dotfiles_add_gem_bin
+unset -f _dotfiles_add_gem_bin
 
 # -----------------------------------------------------------------------------
 # Multiplexer user-var emitter (Ghostty + WezTerm both respect OSC 1337)

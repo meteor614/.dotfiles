@@ -139,7 +139,13 @@ update_dotfiles_repo() {
 
     (
         cd "$HOME/.dotfiles"
-        git pull --no-rebase
+        if have_cmd jj && [ -d .jj ]; then
+            jj git fetch
+            jj rebase -d master
+        else
+            log "jj not found or .jj missing; falling back to git pull for dotfiles"
+            git pull --no-rebase
+        fi
         git submodule update --init --recursive
         git submodule update --remote
         log ".dotfiles repo update finish"

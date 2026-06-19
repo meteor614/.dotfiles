@@ -109,21 +109,6 @@ if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
     fi
 fi
 
-# ── gem bin (cached) ─────────────────────────────────────────────────────────
-_gem_bin_cache="$HOME/.zsh_cache/.gem_bin_path"
-if (( $+commands[gem] )) && ! (( $+commands[tmuxinator] )); then
-    mkdir -p "$HOME/.zsh_cache"
-    if [ -f "$_gem_bin_cache" ]; then
-        read -r _gem_bin < "$_gem_bin_cache"
-        path_append "$_gem_bin"
-    else
-        _gem_bin="$(gem environment | grep 'EXECUTABLE DIRECTORY' | awk -F': ' '{print $2}')"
-        [ -n "$_gem_bin" ] && print -r -- "$_gem_bin" >| "$_gem_bin_cache" && path_append "$_gem_bin"
-    fi
-    unset _gem_bin
-fi
-unset _gem_bin_cache
-
 # ── venv helpers ─────────────────────────────────────────────────────────────
 vpy() {
     local python="${PWD}/.venv/bin/python3"

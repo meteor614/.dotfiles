@@ -160,15 +160,11 @@ if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
 fi
 unset AUTO_VENV_HELPER
 
-# ── Homebrew Ruby gem bin ────────────────────────────────────────────────────
+# ── Homebrew Ruby bin ────────────────────────────────────────────────────────
+# Gem executable directory is cached in common.sh; keep only Homebrew Ruby's
+# own bin prepend here so `ruby`/`gem` resolve to the brewed toolchain.
 if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
     [[ ":$PATH:" != *":/opt/homebrew/opt/ruby/bin:"* ]] && PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-    if (( $+commands[gem] )); then
-        local _gemdir
-        _gemdir="$(gem environment gemdir 2>/dev/null)/bin"
-        [[ -d "$_gemdir" && ":$PATH:" != *":$_gemdir:"* ]] && PATH="$_gemdir:$PATH"
-        unset _gemdir
-    fi
 fi
 
 # ── Ensure $HOME/bin stays at the front of PATH ──────────────────────────────
@@ -189,8 +185,6 @@ if [[ -o interactive ]] \
     && (( ${precmd_functions[(Ie)_emit_mux_user_var]:-0} == 0 )); then
     precmd_functions+=(_emit_mux_user_var)
 fi
-
-# pnpm — moved to ~/.zshenv so non-interactive shells (topgrade etc.) see it
 
 # kimi-code
 if [[ -d "$HOME/.kimi-code/bin" ]]; then

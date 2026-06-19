@@ -351,13 +351,25 @@ setup_neovim() {
     local config_link="$home_nvim/lua/config"
     local plugins_link="$home_nvim/lua/plugins"
 
+    if [ "$MODE" = "check" ]; then
+        if [ -e "$marker" ] || [ -L "$config_link" ] || [ -L "$plugins_link" ]; then
+            if [ ! -e "$marker" ]; then
+                yellow "check: nvim marker missing ($marker); repair will recreate it"
+                mark_check_failure
+            fi
+            ensure_link "$script_path/.config/nvim/lua/config" "$config_link"
+            ensure_link "$script_path/.config/nvim/lua/plugins" "$plugins_link"
+        else
+            yellow "check: ~/.config/nvim unmanaged; rerun with --bootstrap-nvim to adopt LazyVim starter"
+        fi
+        return 0
+    fi
+
     if [ -e "$marker" ] || [ -L "$config_link" ] || [ -L "$plugins_link" ]; then
         ensure_dir "$home_nvim/lua"
         ensure_link "$script_path/.config/nvim/lua/config" "$config_link"
         ensure_link "$script_path/.config/nvim/lua/plugins" "$plugins_link"
-        if [ "$MODE" != "check" ]; then
-            [ -e "$marker" ] || touch "$marker"
-        fi
+        [ -e "$marker" ] || touch "$marker"
         return 0
     fi
 
@@ -469,10 +481,28 @@ gh_dl() {
 # parsed without jq so this works on barebones Synology shells.
 gh_latest_tag() {
     local repo=$1
-    curl -fsSL --connect-timeout 10 --max-time 30 \
-        "https://api.github.com/repos/${repo}/releases/latest" 2>/dev/null \
+    local response tag
+    local curl_args=(-fsSL --connect-timeout 10 --max-time 30)
+
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        curl_args+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+    fi
+
+    response=$(curl "${curl_args[@]}" \
+        "https://api.github.com/repos/${repo}/releases/latest" 2>/dev/null) || {
+        yellow "GitHub API lookup failed for $repo; set GITHUB_TOKEN if rate-limited, or check network/proxy access to api.github.com" >&2
+        return 1
+    }
+
+    tag=$(printf '%s\n' "$response" \
         | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' \
-        | head -1
+        | head -1)
+    if [ -z "$tag" ]; then
+        yellow "GitHub API response for $repo did not include a latest release tag; set GITHUB_TOKEN if this is a rate-limit issue" >&2
+        return 1
+    fi
+
+    printf '%s\n' "$tag"
 }
 
 # Install one tool entry from linux_release_tools.
@@ -602,6 +632,11 @@ configure_brew_mirrors() {
 }
 
 configure_package_mirrors() {
+    local configure_language_mirrors="${DOTFILES_CONFIGURE_LANGUAGE_MIRRORS:-${USE_CN_MIRROR:-1}}"
+    if [ "$configure_language_mirrors" != "1" ]; then
+        return 0
+    fi
+
     if command_exists npm; then
         npm config set registry https://mirrors.tencent.com/npm/
     fi
@@ -710,12 +745,6 @@ install_oh_my_zsh_plugins() {
 
     ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom_dir/plugins/zsh-autosuggestions"
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom_dir/plugins/zsh-syntax-highlighting"
-}
-
-generate_cpp_tags_if_missing() {
-    if command_exists g++ && command_exists ctags && [ ! -f "$HOME/cpp_tags" ]; then
-        track_background "$HOME/bin/generate_tags.sh"
-    fi
 }
 
 init_authorized_keys_if_requested() {
@@ -879,7 +908,6 @@ run_setup() {
     install_user_language_packages
     install_oh_my_zsh_plugins
 
-    generate_cpp_tags_if_missing
     init_authorized_keys_if_requested
     install_herdr_integrations
     link_reasonix_herdr_integration

@@ -79,7 +79,13 @@ fi
 # atuin (needs bash-preexec in bash; skip in non-interactive shells)
 if [[ $- == *i* ]] && command -v atuin >/dev/null 2>&1; then
     [ -f ~/.bash-preexec.sh ] && . ~/.bash-preexec.sh
-    eval "$(atuin init bash)"
+    _atuin_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/atuin.bash"
+    if [ ! -f "$_atuin_cache" ] || [ "$(command -v atuin)" -nt "$_atuin_cache" ]; then
+        mkdir -p "$(dirname "$_atuin_cache")"
+        atuin init bash >| "$_atuin_cache" 2>/dev/null || rm -f "$_atuin_cache"
+    fi
+    [ -s "$_atuin_cache" ] && . "$_atuin_cache"
+    unset _atuin_cache
 fi
 
 # auto-venv: wire up via PROMPT_COMMAND (common.sh has already sourced the file)
