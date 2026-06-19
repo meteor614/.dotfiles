@@ -5,9 +5,12 @@
 # Homebrew's zsh binary bakes in a Cellar-versioned functions path that breaks
 # whenever zsh is upgraded (e.g. 5.9 -> 5.9.1). Prepend the stable symlinked
 # locations so compinit/add-zsh-hook/is-at-least/compdef are always findable.
-for _zfn in /opt/homebrew/share/zsh/functions /opt/homebrew/share/zsh/site-functions; do
-    [[ -d $_zfn ]] && fpath=($_zfn $fpath)
-done
+# Guard on /opt/homebrew to skip the loop entirely on Linux/remote hosts.
+if [[ -d /opt/homebrew ]]; then
+    for _zfn in /opt/homebrew/share/zsh/functions /opt/homebrew/share/zsh/site-functions; do
+        [[ -d $_zfn ]] && fpath=($_zfn $fpath)
+    done
+fi
 unset _zfn
 
 # ── Completion system (replaces oh-my-zsh compinit) ──────────────────────────

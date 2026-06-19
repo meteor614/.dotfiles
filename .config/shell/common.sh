@@ -273,11 +273,32 @@ _dotfiles_ensure_node_path() {
     # Mise: find the first installed node version and prepend its bin.
     # Don't rely on `command -v mise` — mise may live in ~/.local/bin
     # which isn't in PATH yet at this point (non-interactive shells).
+    #
+    # Cache the resolved path to avoid `ls | sort` on every shell start.
+    # Cache invalidated when the mise installs directory mtime changes.
     local _mise_node_bin=""
-    local _mise_bin="${HOME}/.local/bin/mise"
-    if [ -x "$_mise_bin" ]; then
-        _mise_node_bin="$(ls -d "$HOME/.local/share/mise/installs/node"/*/bin 2>/dev/null | sort -Vr | head -1)"
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
+    local cache_file="$cache_dir/mise_node_path"
+    local mise_node_dir="${HOME}/.local/share/mise/installs/node"
+
+    # Read from cache if mise installs haven't changed since we cached
+    if [ -r "$cache_file" ] && [ -d "$mise_node_dir" ] && [ "$mise_node_dir" -ot "$cache_file" ]; then
+        IFS= read -r _mise_node_bin < "$cache_file" || _mise_node_bin=""
     fi
+
+    # Re-resolve when cache is missing, stale, or the cached binary went away
+    if [ -z "$_mise_node_bin" ] || [ ! -x "$_mise_node_bin/node" ]; then
+        _mise_node_bin=""
+        local _mise_bin="${HOME}/.local/bin/mise"
+        if [ -x "$_mise_bin" ]; then
+            _mise_node_bin="$(ls -d "$mise_node_dir"/*/bin 2>/dev/null | sort -Vr | head -1)"
+            if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
+                mkdir -p "$cache_dir"
+                printf '%s\n' "$_mise_node_bin" >| "$cache_file" 2>/dev/null || true
+            fi
+        fi
+    fi
+
     if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
         case ":$PATH:" in *":$_mise_node_bin:"*) ;; *) export PATH="$_mise_node_bin:$PATH" ;; esac
         return 0
