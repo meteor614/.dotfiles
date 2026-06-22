@@ -32,7 +32,7 @@ proxy_mode = "auto"   # auto|env|custom|off; auto currently uses env proxy
 [agent]
 # system_prompt = """..."""   # omit to use the built-in prompt for this version
 # system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
-max_steps   = 80
+max_steps   = 0
 temperature = 0.0
 auto_plan   = "on"   # off|on; off keeps plan mode manual
 auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
