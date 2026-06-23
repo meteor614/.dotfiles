@@ -1,47 +1,95 @@
-rg (ripgrep)：比grep、ack、ag更快的递归搜索文件内容。
-tig：字符模式下交互查看git项目，可以替代git命令。
-lazygit: lazy git tool
-mosh：基于UDP的终端连接，可以替代ssh，连接更稳定，即使IP变了，也能自动重连。
-fzf：命令行下模糊搜索工具，能够交互式智能搜索并选取文件或者内容，配合终端ctrl-r历史命令搜索简直完美。
-axel：多线程下载工具，下载文件时可以替代curl、wget。
-cloc：代码统计工具，能够统计代码的空行数、注释行、编程语言。
-cppman：C++ 98/11/14 手册查询 for Linux/MacOS，pip install cppman
-ncdu：可视化的空间分析程序
-dust: 可视化du
-glances：更强大的 htop / top 代替者，pip install Glances
-htop：top替代者
-cheat：命令行笔记，pip install cheat
-multitail：多重 tail
-thefuck - 使用易记的命令修复常见的shell错误
-cpulimit，命令行敲一行解决所有痛点，哪个进程 导致电脑发热，我就 limit 之，谁敢不服233
-pip install pypinyin 获取汉字拼音
-mycli，mysql客户端，带语法高亮、提示
-icdiff：比传统 diff 更明白些，是吧？效果比 sdiff 好不少，还可以配置到 git 里，变成默认的 git diff查看工具，比原来的 diff 漂亮不少吧？
-Graphviz 可以将文本转成图表
-jq，命令行的json查询和格式化工具，适合查看rest接口的输出
-ttygif - 将终端录制转换成GIF动画。
-aria2c ：度盘下载全靠它
-tmuxinator，gem install tmuxinator
-xpanes：基于tmux的同步分屏工具
-pydf：更简洁的df
-you-get: 非常强大的媒体下载工具，支持youtube、google+、优酷、芒果TV、腾讯视频、秒拍等视频下载。
-parallel：xargs 是一个比较古老的命令，有简单的并行功能，这个不说了。对于GNU parallel来说，它不仅能够处理本机上多执行绪，还能分散至远端电脑协助处理，https://www.jianshu.com/p/c5a2369fa613
-vian：基于puppeteer的网页截图工具 npm install -g vian
-bpython：强大的python交互式终端，pip install bpython
-nnn：文本分析工具
-PathPicker(fpp):在命令行输出中自动识别目录和文件，支持交互式，配合git非常有用。
-lnav：Linux 下一个基于控制台的高级日志文件查看器
-exa: 替代ls命令的超好用工具
-peco: 交互式过滤
-hexyl: 十六进制查看器
-procs: 升级版ps
+# 常用 CLI 工具速览
+# 重点记录当前 dotfiles / 日常终端环境中值得优先使用的工具；
+# 末尾保留一些过时或低频工具，方便迁移旧习惯。
 
+# ── 搜索 / 过滤 / 选择 ───────────────────────────────────────────────
+rg (ripgrep)：递归搜索文件内容，通常替代 grep / ack / ag；遵守 .gitignore，速度快。
+fd：更现代的 find，默认忽略 .gitignore，常和 fzf 搭配选择文件。
+fzf：交互式模糊查找器；用于 Ctrl-R 历史、文件选择、进程/会话选择等。
+peco：交互式过滤器；功能和 fzf 有重叠，现阶段优先用 fzf。
+choose：按列/字段抽取文本，比 cut 更直观。
+sd：更友好的 sed 替代品，适合简单文本替换。
+ast-grep (sg)：基于 AST 的结构化代码搜索/替换工具，比纯文本 grep/sed 更适合跨语言重构。
+jq：JSON 查询、过滤、格式化工具，查看 REST API 输出必备。
+yq：YAML/TOML/XML 结构化查询工具，jq 思路的配置文件处理器。
 
-#图片识别
-npm install baidu-ocr-api -g
-ocr --help
-# 远程图片
-ocr http://7pun4e.com1.z0.glb.clouddn.com/test.jpg
-# 本地图片
-ocr ./test.jpg
-explainshell.com
+# ── 文件查看 / 目录导航 / 文件管理 ────────────────────────────────────
+eza：现代 ls 替代品；本 repo 已将 ls/ll/la 等 alias 到 eza（可用时）。
+bat：带语法高亮和 git diff 标记的 cat/less 替代品，也常作 fzf preview。
+yazi：终端文件管理器，适合快速浏览、预览和批量文件操作。
+zoxide：更聪明的 cd，根据访问频率跳转目录；常用 `z <目录片段>`。
+broot：交互式目录树/文件浏览器，适合在大目录中快速定位。
+tree：传统目录树输出，适合脚本或文档展示。
+lnav：交互式日志查看器，支持多日志合并、过滤和 SQL 查询。
+multitail：同时 tail 多个日志；低频，简单场景可用 `tail -f` + tmux/zellij 分屏。
+hexyl：彩色十六进制查看器，替代 xxd/hexdump 的阅读场景。
+ouch：统一压缩/解压入口，减少记 tar/zip/7z 参数。
+
+# ── 磁盘 / 进程 / 系统监控 ───────────────────────────────────────────
+dust：更直观的 du，可视化展示目录体积。
+ncdu：交互式磁盘占用分析，适合清理大目录。
+duf：更好看的 df，展示磁盘/挂载点使用情况。
+procs：现代 ps 替代品，输出更易读。
+bottom (btm)：现代 top/htop 替代品，CPU/内存/磁盘/网络/进程一屏查看。
+btop：另一个漂亮的系统监控工具；和 bottom 类似，按机器可用性选择。
+glances：跨平台系统监控，可远程/网页模式；Python 环境中可用。
+htop：经典交互式 top 替代品，远程机器上仍常见。
+cpulimit：限制进程 CPU 占用，临时压住发热/高负载进程。
+pstree：用树形结构查看进程父子关系。
+fastfetch：快速输出系统/硬件/终端环境概览，替代 neofetch 类工具。
+
+# ── Git / 版本控制 / Diff ───────────────────────────────────────────
+jj (Jujutsu)：Git 兼容的新一代 VCS；本 dotfiles 仓库提交/推送优先用 jj。
+lazygit：交互式 Git TUI，适合查看状态、提交、rebase、stash。
+gitui：Rust 写的 Git TUI，lazygit 的轻量替代选择。
+tig：经典字符界面 Git 浏览器，适合查看 log/blame/status。
+delta：漂亮的 git diff pager，支持 side-by-side、行号、语法高亮。
+icdiff：并排 diff；delta 不可用时仍可作为 git diff viewer。
+
+# ── Shell / 提示符 / 历史 / 环境管理 ──────────────────────────────────
+starship：跨 shell prompt，启动快、可配置，zsh/bash/fish 都能用。
+atuin：Shell 历史数据库和同步工具，增强 Ctrl-R 搜索。
+mise：多语言运行时/工具版本管理器；本环境默认用它管理 node/python/go。
+direnv：进入目录时自动加载/卸载环境变量，适合项目级开发环境。
+nvm：Node 版本管理器；本 repo 作为 mise 缺失时的 fallback，不再优先依赖。
+topgrade：一键升级系统包、语言包、插件等；高影响操作，运行前确认范围。
+thefuck：根据上一条失败命令给出修正建议；有趣但低频，按需启用。
+
+# ── 终端复用 / 会话 / 远程 ───────────────────────────────────────────
+zellij：日常主力终端复用器，替代多数本地 tmux 使用场景。
+herdr：多 agent / 多 pane 协作时的终端编排工具，本环境常与 zellij 搭配。
+tmux：经典终端复用器；本 repo 保留用于远程 SSH 兼容场景。
+tmuxinator：tmux 会话项目模板管理器，适合一键启动固定布局。
+xpanes：基于 tmux 的同步分屏/批量 SSH 工具。
+fzsession：本 repo 自带脚本，用 fzf 在 zellij + tmux session 间选择附加。
+mosh：基于 UDP 的远程终端连接，弱网/漫游 IP 下比 ssh 更稳。
+scp -O：本 repo alias 保留旧 scp 协议，兼容不支持 SFTP scp 的远端。
+
+# ── 下载 / 网络 / 媒体 / 文档转换 ─────────────────────────────────────
+curl：通用 HTTP/API 调试和下载工具，脚本里最常见。
+wget：传统下载工具，递归下载和镜像站点时仍方便。
+aria2c：多源/多线程下载器，适合大文件和断点续传。
+axel：简单多线程下载器；现在多数场景可用 aria2c/curl/wget 替代。
+xh：Rust 写的 HTTPie 风格客户端，适合人类可读的 API 调试。
+httpie (http)：人类友好的 HTTP 客户端；若已安装可替代复杂 curl 参数。
+yt-dlp：主流媒体下载工具，优先替代 youtube-dl / you-get。
+ffmpeg：音视频转码、抽帧、合并、录制的瑞士军刀。
+pandoc：文档格式转换器，Markdown/HTML/LaTeX/Word/PDF 流转常用。
+glow：终端 Markdown 阅读器，适合快速预览 README/笔记。
+imagemagick：图片格式转换、裁切、压缩、批处理；命令通常是 `magick`。
+graphviz：用 DOT 文本生成流程图/关系图。
+
+# ── 开发 / 构建 / 统计 / 性能 ────────────────────────────────────────
+cloc：统计代码行数、注释、空行和语言分布。
+hyperfine：命令行 benchmark 工具，比较不同命令/参数性能。
+parallel：GNU parallel，并行执行命令；复杂批处理比 xargs -P 更强。
+ctags / global / cscope：传统代码索引工具，老项目和 Vim 工作流中仍有价值。
+cppman：C/C++ 手册查询工具；低频，按需 pip 安装。
+bpython：增强 Python REPL；简单场景可用 python/ipython。
+mycli：带补全和高亮的 MySQL 客户端。
+
+# ── 本 repo / 个人命令 ───────────────────────────────────────────────
+cheat：命令行速查笔记；本文件就是 personal cheatsheet。
+process_monitor.sh：本 repo 脚本，用 fzf 选择并查看/处理进程。
+bin/update_all.sh：更新系统包、语言包、插件、submodule 等；高风险，需明确确认后运行。
+setup.sh：初始化/修复 dotfiles 链接与依赖；会写入 $HOME 和使用网络，需明确确认后运行。
