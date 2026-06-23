@@ -57,13 +57,6 @@ setopt hist_ignore_space
 setopt hist_verify
 setopt share_history
 
-# ── PATH (prepend common locations; de-duplicated) ───────────────────────────
-for _p in /opt/usr/bin /opt/bin /opt/sbin $HOME/.local/bin /usr/local/bin; do
-    [[ -d "$_p" && ":$PATH:" != *":$_p:"* ]] && PATH="$_p:$PATH"
-done
-unset _p
-export PATH
-
 # ── oh-my-zsh directory (kept for extract plugin & custom plugins) ───────────
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -160,24 +153,10 @@ if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
 fi
 unset AUTO_VENV_HELPER
 
-# ── Homebrew Ruby bin ────────────────────────────────────────────────────────
-# Gem executable directory is cached in common.sh; keep only Homebrew Ruby's
-# own bin prepend here so `ruby`/`gem` resolve to the brewed toolchain.
-if [[ -d "/opt/homebrew/opt/ruby/bin" ]]; then
-    [[ ":$PATH:" != *":/opt/homebrew/opt/ruby/bin:"* ]] && PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-fi
-
 # ── Ensure $HOME/bin stays at the front of PATH ──────────────────────────────
 # Placed last so any later prepends (Ruby, gem bindir, etc.) can't shadow it.
 if [[ -d "$HOME/bin" ]]; then
-    # Strip any existing occurrences, then prepend once.
-    local _p _new=""
-    for _p in ${(s.:.)PATH}; do
-        [[ "$_p" == "$HOME/bin" ]] && continue
-        _new="${_new:+$_new:}$_p"
-    done
-    PATH="$HOME/bin:$_new"
-    unset _p _new
+    path_force_prepend "$HOME/bin"
 fi
 
 # ── Multiplexer user-var emitter (tells WezTerm/Ghostty inner mux) ───────────

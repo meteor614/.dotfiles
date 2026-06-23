@@ -17,6 +17,49 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# PATH helpers (shared by bash and zsh)
+# -----------------------------------------------------------------------------
+path_prepend() {
+    [ -n "$1" ] && [ -d "$1" ] && case ":$PATH:" in
+        *":$1:"*) ;;
+        *) export PATH="$1:$PATH" ;;
+    esac
+}
+path_append() {
+    [ -n "$1" ] && [ -d "$1" ] && case ":$PATH:" in
+        *":$1:"*) ;;
+        *) export PATH="$PATH:$1" ;;
+    esac
+}
+path_force_prepend() {
+    [ -n "$1" ] && [ -d "$1" ] || return 0
+
+    _path_force_dir=$1
+    _path_force_old=$PATH
+    PATH=$_path_force_dir
+
+    while [ -n "$_path_force_old" ]; do
+        case $_path_force_old in
+            *:*)
+                _path_force_part=${_path_force_old%%:*}
+                _path_force_old=${_path_force_old#*:}
+                ;;
+            *)
+                _path_force_part=$_path_force_old
+                _path_force_old=
+                ;;
+        esac
+
+        [ "$_path_force_part" = "$_path_force_dir" ] && continue
+        [ -z "$_path_force_part" ] && continue
+        PATH="$PATH:$_path_force_part"
+    done
+
+    export PATH
+    unset _path_force_dir _path_force_old _path_force_part
+}
+
+# -----------------------------------------------------------------------------
 # Core environment
 # -----------------------------------------------------------------------------
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -25,6 +68,37 @@ export SVN_EDITOR='nvim'
 export PAGER='less'
 export LESS='-R -i -g -c -W'
 export DISABLE_VERSION_CHECK=1
+
+# -----------------------------------------------------------------------------
+# PATH — shared entries (Synology Entware, Homebrew, GNU tools, Go, etc.)
+# -----------------------------------------------------------------------------
+path_prepend /opt/usr/bin
+path_prepend /opt/bin
+path_prepend /opt/sbin
+path_prepend /opt/homebrew/bin
+path_prepend /usr/local/bin
+path_prepend "$HOME/.local/bin"
+path_prepend /usr/local/opt/findutils/libexec/gnubin
+path_prepend /usr/local/opt/gnu-getopt/bin
+path_prepend /usr/local/opt/ruby/bin
+
+# Homebrew Ruby (Apple Silicon) — only prepend if the directory exists
+if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
+    case ":$PATH:" in *":/opt/homebrew/opt/ruby/bin:"*) ;;
+        *) export PATH="/opt/homebrew/opt/ruby/bin:$PATH" ;;
+    esac
+fi
+
+# Go environment
+if command -v go >/dev/null 2>&1 && [ -z "$GOPATH" ]; then
+    export GOPATH="$HOME/gowork"
+    path_append "$GOPATH/bin"
+    path_append /usr/local/opt/go/libexec/bin
+    export GOPROXY=https://mirrors.tencent.com/go/
+fi
+
+# Obsidian CLI
+path_append "/Applications/Obsidian.app/Contents/MacOS"
 
 # fzf
 export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git || find . -type f"
@@ -260,6 +334,38 @@ if command -v claude-internal >/dev/null 2>&1; then
     fi
 fi
 
+# ouch: unified decompress (auto-detect format)
+command -v ouch >/dev/null 2>&1 && alias x='ouch decompress'
+
+# -----------------------------------------------------------------------------
+# Shared functions (cross-shell: yazi cd, venv helpers)
+# -----------------------------------------------------------------------------
+
+# yazi: cd to last-browsed directory on exit
+if command -v yazi >/dev/null 2>&1; then
+    y() {
+        local tmp cwd
+        tmp="$(mktemp -t "yazi-cwd.XXXXXX")" || return
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(cat -- "$tmp" 2>/dev/null)" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            builtin cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi
+
+# venv helpers: run python/pip from .venv if present
+vpy() {
+    local python="${PWD}/.venv/bin/python3"
+    [ -x "$python" ] || python="python3"
+    "$python" "$@"
+}
+vpip() {
+    local pip="${PWD}/.venv/bin/pip3"
+    [ -x "$pip" ] || pip="pip3"
+    "$pip" "$@"
+}
+
 # -----------------------------------------------------------------------------
 # Node.js PATH shim for npm global packages (e.g. reasonix)
 # npm -g packages have shebang "#!/usr/bin/env node" and fail when node
@@ -431,6 +537,10 @@ fi
 # -----------------------------------------------------------------------------
 [ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
 
+# Rust / Cargo
+# Keep this after mise/nvm activation because mise rewrites PATH during activate.
+path_append "$HOME/.cargo/bin"
+
 # -----------------------------------------------------------------------------
 # broot launcher (bash-style launcher works in both shells)
 # -----------------------------------------------------------------------------
@@ -557,3 +667,8 @@ if command -v direnv >/dev/null 2>&1; then
         unset _direnv_cache
     fi
 fi
+
+# -----------------------------------------------------------------------------
+# API key environment (shared by bash and zsh)
+# -----------------------------------------------------------------------------
+[ -f "$HOME/.api_key_env" ] && . "$HOME/.api_key_env"

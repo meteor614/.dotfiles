@@ -5,33 +5,6 @@
 export PS1='[\u@\h \w]$ '
 
 # -----------------------------------------------------------------------------
-# PATH (bash-friendly: no zsh-only operators)
-# -----------------------------------------------------------------------------
-_bash_path_prepend() {
-    [ -n "$1" ] && [ -d "$1" ] && case ":$PATH:" in
-        *":$1:"*) ;;
-        *) export PATH="$1:$PATH" ;;
-    esac
-}
-_bash_path_append() {
-    [ -n "$1" ] && [ -d "$1" ] && case ":$PATH:" in
-        *":$1:"*) ;;
-        *) export PATH="$PATH:$1" ;;
-    esac
-}
-
-# Synology Entware & common extra paths (highest priority first = prepended last)
-_bash_path_prepend /opt/usr/bin
-_bash_path_prepend /opt/bin
-_bash_path_prepend /opt/sbin
-_bash_path_prepend /opt/homebrew/bin
-_bash_path_prepend /usr/local/bin
-_bash_path_prepend /usr/local/opt/findutils/libexec/gnubin
-_bash_path_prepend /usr/local/opt/gnu-getopt/bin
-_bash_path_prepend /usr/local/opt/ruby/bin
-_bash_path_append  "$HOME/.local/bin"
-
-# -----------------------------------------------------------------------------
 # Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …)
 # -----------------------------------------------------------------------------
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -43,22 +16,15 @@ _common_sh="$XDG_CONFIG_HOME/shell/common.sh"
 unset _common_sh
 
 # Prepend $HOME/bin AFTER common.sh so it takes priority over atuin/nvm
-_bash_path_prepend "$HOME/bin"
-
-# -----------------------------------------------------------------------------
-# Go
-# -----------------------------------------------------------------------------
-if command -v go >/dev/null 2>&1 && [ -z "$GOPATH" ]; then
-    export GOPATH="$HOME/gowork"
-    _bash_path_append "$GOPATH/bin"
-    _bash_path_append /usr/local/opt/go/libexec/bin
-    export GOPROXY=https://mirrors.tencent.com/go/
+if command -v path_force_prepend >/dev/null 2>&1; then
+    path_force_prepend "$HOME/bin"
+elif [ -d "$HOME/bin" ]; then
+    case ":$PATH:" in *":$HOME/bin:"*) ;; *) export PATH="$HOME/bin:$PATH" ;; esac
 fi
 
 # -----------------------------------------------------------------------------
 # Extras that require bash-specific features / hooks
 # -----------------------------------------------------------------------------
-command -v thefuck >/dev/null 2>&1 && eval "$(thefuck --alias)"
 [ -f ~/.fzf.bash ] && . ~/.fzf.bash
 
 # kubectl completion: generate once and cache, regenerate when the binary
@@ -118,8 +84,6 @@ esac
 
 # zoxide
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
-
-unset -f _bash_path_prepend _bash_path_append
 
 # Local machine-specific overrides
 [ -f "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

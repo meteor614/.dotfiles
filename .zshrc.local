@@ -26,26 +26,6 @@ bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 # fzsession: switch multiplexer sessions via fzf (Alt+Z)
 (( $+commands[fzf] )) && bindkey -s '\ez' 'fzsession\n'
 
-# ── PATH helpers ─────────────────────────────────────────────────────────────
-path_prepend() { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"; }
-path_append()  { [[ -n "$1" && -d "$1" && ":$PATH:" != *":$1:"* ]] && export PATH="$PATH:$1"; }
-
-# ── ouch: 统一解压（自动检测格式） ──────────────────────────────────────────
-# NOTE: 替换了旧的后缀别名 (alias -s gz='tar -xzvf')。现在用 `x <file>` 而非直接
-# 敲文件名解压。安装 ouch 前 oh-my-zsh 的 extract 插件 (Ctrl+X e) 仍可用作 fallback。
-(( $+commands[ouch] )) && alias x='ouch decompress'
-
-# ── yazi: 退出时 cd 到最后浏览的目录 ────────────────────────────────────────
-y() {
-    local tmp
-    tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        builtin cd -- "$cwd"
-    fi
-    rm -f -- "$tmp"
-}
-
 # ── zsh options ──────────────────────────────────────────────────────────────
 setopt no_nomatch
 setopt no_beep
@@ -55,31 +35,6 @@ unsetopt inc_append_history
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zsh_cache/completions
 mkdir -p ~/.zsh_cache/completions
-
-# ── PATH ordering (macOS/Homebrew-specific; cross-platform basics are in .zshrc)
-# NOTE: /opt/usr/bin, /opt/bin, /usr/local/bin, $HOME/bin, $HOME/.local/bin
-# are already handled in ~/.zshrc's PATH loop — do not duplicate here.
-path_prepend /opt/homebrew/bin
-path_prepend /usr/local/opt/findutils/libexec/gnubin
-path_prepend /usr/local/opt/gnu-getopt/bin
-path_prepend /usr/local/opt/ruby/bin
-
-# ── Go ───────────────────────────────────────────────────────────────────────
-if (( $+commands[go] )) && [ -z "$GOPATH" ]; then
-    export GOPATH=$HOME/gowork
-    path_append "$GOPATH/bin"
-    path_append /usr/local/opt/go/libexec/bin
-    export GOPROXY=https://mirrors.tencent.com/go/
-fi
-
-# ── thefuck (lazy) ───────────────────────────────────────────────────────────
-if (( $+commands[thefuck] )); then
-    fuck() {
-        unset -f fuck
-        eval "$(thefuck --alias)"
-        fuck "$@"
-    }
-fi
 
 # ── kubectl completion (lazy) ────────────────────────────────────────────────
 kubectl() {
@@ -109,20 +64,6 @@ if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
     fi
 fi
 
-# ── venv helpers ─────────────────────────────────────────────────────────────
-vpy() {
-    local python="${PWD}/.venv/bin/python3"
-    [[ -x "$python" ]] || python="python3"
-    "$python" "$@"
-}
-vpip() {
-    local pip="${PWD}/.venv/bin/pip3"
-    [[ -x "$pip" ]] || pip="pip3"
-    "$pip" "$@"
-}
-
-path_append "/Applications/Obsidian.app/Contents/MacOS"
 # ── OpenClaw Completion ──────────────────────────────────────────────────────
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
 
-[ -f "$HOME/.api_key_env" ] && source "$HOME/.api_key_env"
