@@ -18,6 +18,12 @@
 #   SubagentStop       → ignore   (subagent done; parent may still be working)
 #   SessionEnd         → release  (clear agent label from herdr)
 #
+# Non-interactive caveat: in print mode (`codebuddy -p`), the process exits
+# right after Stop and SessionEnd never fires, so the pane would keep a stale
+# "codebuddy" label stuck at idle. To handle that, the Stop branch detects
+# whether the owning CodeBuddy process is running in print mode and, if so,
+# upgrades idle → release (the process is about to exit anyway).
+#
 # Triggered from ~/.codebuddy/settings.json hooks block. Every action
 # branch reads stdin to drain the hook payload (CodeBuddy writes JSON to
 # stdin and waits for the hook to read it).
@@ -44,6 +50,7 @@ import json
 import os
 import random
 import socket
+import subprocess
 import time
 
 source = "custom:codebuddy"
@@ -55,6 +62,42 @@ hook_input_file = os.environ.get("HERDR_HOOK_INPUT_FILE")
 
 if not pane_id or not socket_path:
     raise SystemExit(0)
+
+
+def _ps(pid, field):
+    try:
+        out = subprocess.run(
+            ["ps", "-o", field + "=", "-p", str(pid)],
+            capture_output=True,
+            text=True,
+            timeout=1.0,
+        )
+        return out.stdout.strip()
+    except Exception:
+        return ""
+
+
+def owning_codebuddy_in_print_mode():
+    # Walk up the process tree from this hook. CodeBuddy launches hooks via a
+    # short-lived shell, whose parent is the long-lived node CodeBuddy process.
+    # In print mode that process's argv contains -p / --print. If we find it,
+    # the session will exit without ever firing SessionEnd.
+    pid = os.getppid()
+    for _ in range(8):
+        if not pid or pid <= 1:
+            break
+        cmd = _ps(pid, "command")
+        if ("node" in cmd or "codebuddy" in cmd or "/cbc" in cmd) and (
+            "codebuddy" in cmd or "cbc" in cmd
+        ):
+            args = cmd.split()
+            if "-p" in args or "--print" in args:
+                return True
+        ppid = _ps(pid, "ppid")
+        if not ppid.isdigit():
+            break
+        pid = int(ppid)
+    return False
 
 hook_input = {}
 if hook_input_file:
@@ -75,6 +118,19 @@ if hook_event_name == "SubagentStop":
     raise SystemExit(0)
 if is_subagent and action in ("idle", "release"):
     raise SystemExit(0)
+
+# In print mode (`codebuddy -p`) the process exits right after Stop and never
+# emits SessionEnd, so a plain "idle" report would leave the pane labelled
+# forever. Upgrade the Stop → idle into a release so the label is cleared as
+# the session ends. Scope this strictly to the Stop event (SessionStart also
+# maps to idle, but the process is not exiting then).
+if (
+    action == "idle"
+    and hook_event_name == "Stop"
+    and not is_subagent
+    and owning_codebuddy_in_print_mode()
+):
+    action = "release"
 
 request_id = f"{source}:{int(time.time() * 1000)}:{random.randrange(1_000_000):06d}"
 report_seq = time.time_ns()
