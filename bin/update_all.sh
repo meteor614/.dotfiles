@@ -65,7 +65,17 @@ run_topgrade() {
         # Also disable topgrade's built-in mamba step — we handle it
         # ourselves via update_conda.
         update_conda
-        if topgrade -y --disable mamba; then
+
+        # On macOS, atuin is managed by brew and already updated via
+        # topgrade's own brew step — disable the redundant atuin step.
+        # On Linux, atuin is a manual ~/bin/atuin binary with no brew
+        # coverage, so keep it enabled as the sole auto-update path.
+        local topgrade_args=("-y" "--disable" "mamba")
+        if [ "$(uname)" = "Darwin" ]; then
+            topgrade_args+=("--disable" "atuin")
+        fi
+
+        if topgrade "${topgrade_args[@]}"; then
             log "topgrade finish"
             return 0
         fi

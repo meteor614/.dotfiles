@@ -6,6 +6,7 @@ All my dotfiles.
 * ghostty
 * zellij/herdr/tmux/tmuxinator
 * zsh/bash
+* claude/codex/codebuddy/reasonix
 * starship/yazi
 * git/lazygit
 * gdb/lldb
