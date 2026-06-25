@@ -1,6 +1,6 @@
 #!/bin/bash
 # fzsession — fuzzy-switch between multiplexer sessions
-# Shows zellij + tmux sessions in a combined fzf picker.
+# Shows zellij + tmux + herdr sessions in a combined fzf picker.
 set -euo pipefail
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -24,6 +24,25 @@ if have_cmd tmux; then
     fi
 fi
 
+if have_cmd herdr; then
+    # herdr session list --json outputs structured JSON
+    hjson=$(herdr session list --json 2>/dev/null || true)
+    if [ -n "$hjson" ]; then
+        hlist=$(printf '%s\n' "$hjson" | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+for s in data.get("sessions", []):
+    name = s["name"]
+    status = "running" if s.get("running") else "stopped"
+    directory = s.get("session_dir", "")
+    print(f"{name} [{status}] {directory}")
+' 2>/dev/null || true)
+        if [ -n "$hlist" ]; then
+            sessions="${sessions}$(printf '%s\n' "$hlist" | sed 's/^/herdr: /')"$'\n'
+        fi
+    fi
+fi
+
 # Trim trailing newline
 sessions=${sessions%$'\n'}
 
@@ -33,7 +52,7 @@ if [ -z "$sessions" ]; then
 fi
 
 chosen=$(printf '%s\n' "$sessions" | fzf \
-    --header="Sessions (zellij + tmux)" \
+    --header="Sessions (zellij + tmux + herdr)" \
     --prompt="attach > " \
     --preview='
         ln={}
@@ -44,6 +63,8 @@ chosen=$(printf '%s\n' "$sessions" | fzf \
             tmux list-windows -t "$name" 2>/dev/null
         elif [ "$prefix" = "zellij" ]; then
             zellij list-sessions 2>/dev/null | grep -F "$rest" || echo "$rest"
+        elif [ "$prefix" = "herdr" ]; then
+            echo "$rest"
         else
             echo "$ln"
         fi
@@ -67,6 +88,10 @@ case "$prefix" in
     tmux)
         name=$(printf '%s\n' "$remainder" | awk -F: '{print $1}')
         exec tmux attach-session -t "$name"
+        ;;
+    herdr)
+        name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        exec herdr session attach "$name"
         ;;
     *)
         echo "fzsession: unknown session type '$prefix'" >&2
