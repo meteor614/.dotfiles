@@ -7,14 +7,11 @@ onboarding = false
 prefix = "ctrl+b"
 
 # 与 dotfiles 的 Cmd+d / Cmd+Shift+d、tmux Ctrl+Alt+d 对齐
-split_vertical   = "prefix+d"          # 向右切（竖直分隔线）
-split_horizontal = "prefix+shift+d"    # 向下切
+split_vertical   = ["prefix+d", "alt+n"]          # 向右切（竖直分隔线）
+split_horizontal = ["prefix+shift+d", "alt+N"]    # 向下切
 
 # tab 切换：prefix+1..9，与 Alt+1..9 (tmux/zellij) 同手感
 switch_tab       = "prefix+1..9"
-
-# agent 聚焦：prefix+alt+1..9，避免占用 1..9 直达
-focus_agent      = "prefix+alt+1..9"
 
 # workspace 翻页（herdr 默认未启用）
 previous_workspace = "prefix+["
@@ -28,6 +25,22 @@ copy_mode        = ""                 # 默认占 prefix+[，让给 previous_wor
 toggle_sidebar   = ""                 # 默认占 prefix+b，让给 last_pane（如需用 sidebar 走鼠标/菜单）
 close_workspace  = ""                 # 默认占 prefix+shift+d，让给 split_horizontal（关 workspace 走菜单/CLI）
 close_tab        = ""                 # 默认占 prefix+shift+x，避免后续冲突；用 prefix+x 关单 pane 即可
+
+toggle_floating_pane = ["prefix+f", "alt+f"]
+cycle_pane_next = ["prefix+tab", "alt+]"]
+cycle_pane_previous = ["prefix+shift+tab", "alt+["]
+# switch_tab = ["prefix+1..9"]
+# switch_workspace = ["prefix+w+1..9", "alt+1..9"]
+# previous_tab = "prefix+p"
+# next_tab = "prefix+n
+# new_tab = ["prefix+c"]
+# next_agent = ["prefix+a"]
+# previous_agent = ["prefix+A"]
+
+# agent 聚焦：prefix+alt+1..9，避免占用 1..9 直达
+# focus_agent = ["prefix+alt+1..9", "alt+1..9"]
+focus_agent = ["alt+1..9"]
+goto = ["prefix+g", "alt+g"]
 
 # 常用应用直达；避开 herdr 默认的 prefix+g (goto)
 [[keys.command]]
@@ -51,6 +64,7 @@ agent_panel_scope = "all"
 prompt_new_tab_name = false        # 新 tab 即出现，跟 Cmd+t 风格一致
 accent = "cyan"
 show_agent_labels_on_pane_borders = true
+agent_panel_sort = "priority"
 
 [ui.toast]
 delivery = "herdr"
