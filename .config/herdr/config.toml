@@ -6,19 +6,10 @@ onboarding = false
 [keys]
 prefix = "ctrl+b"
 
-# 与 dotfiles 的 Cmd+d / Cmd+Shift+d、tmux Ctrl+Alt+d 对齐
-split_vertical   = ["prefix+d", "alt+n"]          # 向右切（竖直分隔线）
-split_horizontal = ["prefix+shift+d", "alt+N"]    # 向下切
-
-# tab 切换：prefix+1..9，与 Alt+1..9 (tmux/zellij) 同手感
-switch_tab       = "prefix+1..9"
-
 # workspace 翻页（herdr 默认未启用）
+switch_workspace = ["ctrl+alt+1..9"]
 previous_workspace = "prefix+["
 next_workspace     = "prefix+]"
-
-# 双击 prefix 跳到上一个 pane（类 tmux last-pane: prefix prefix）
-last_pane = "prefix+b"
 
 # 释放/迁移会跟我们冲突的默认绑定
 copy_mode        = ""                 # 默认占 prefix+[，让给 previous_workspace
@@ -26,20 +17,38 @@ toggle_sidebar   = ""                 # 默认占 prefix+b，让给 last_pane（
 close_workspace  = ""                 # 默认占 prefix+shift+d，让给 split_horizontal（关 workspace 走菜单/CLI）
 close_tab        = ""                 # 默认占 prefix+shift+x，避免后续冲突；用 prefix+x 关单 pane 即可
 
+# pane
 toggle_floating_pane = ["prefix+f", "alt+f"]
 cycle_pane_next = ["prefix+tab", "alt+]"]
 cycle_pane_previous = ["prefix+shift+tab", "alt+["]
-# switch_tab = ["prefix+1..9"]
-# switch_workspace = ["prefix+w+1..9", "alt+1..9"]
+last_pane = "prefix+b"
+
+# pane focus：补齐 zellij Ctrl+Alt+h/j/k/l
+focus_pane_left  = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down  = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up    = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+
+split_vertical   = ["prefix+d", "alt+n"]          # 向右切（竖直分隔线）
+split_horizontal = ["prefix+shift+d", "alt+N"]    # 向下切
+
+
+# zellij-like modes
+edit_scrollback = ["prefix+e", "alt+s"]
+resize_mode     = ["prefix+r", "alt+m"]
+
+# tab 切换：prefix+1..9，与 Alt+1..9 (tmux/zellij) 同手感
+switch_tab       = "prefix+1..9"
+new_tab          = ["prefix+c", "ctrl+alt+t"]
 # previous_tab = "prefix+p"
-# next_tab = "prefix+n
-# new_tab = ["prefix+c"]
+# next_tab = "prefix+n"
+
 # next_agent = ["prefix+a"]
 # previous_agent = ["prefix+A"]
 
 # agent 聚焦：prefix+alt+1..9，避免占用 1..9 直达
-# focus_agent = ["prefix+alt+1..9", "alt+1..9"]
 focus_agent = ["alt+1..9"]
+
 goto = ["prefix+g", "alt+g"]
 
 # 常用应用直达；避开 herdr 默认的 prefix+g (goto)
@@ -58,6 +67,13 @@ key  = "prefix+alt+y"
 type = "pane"
 command = "yazi"
 
+[terminal]
+new_cwd = "follow"
+
+ [theme]
+name = "gruvbox"
+# name = "terminal"
+
 # ─── UI ────────────────────────────────────────────────────────────────────
 [ui]
 agent_panel_scope = "all"
@@ -72,14 +88,11 @@ delivery = "herdr"
 [ui.sound]
 enabled = false
 
-# Reasonix 0.53 没有真正的 Stop hook，我们把 PostToolUse 映射为 idle，
-# 一个 turn 内多次工具调用会反复报 idle，触发多次 done 通知声。
-# 静音直到上游补上真正的 turn-end 信号。
-[ui.sound.agents]
-reasonix = "off"
-
 [session]
 resume_agents_on_restore = true
+
+[remote]
+manage_ssh_config = true
 
 # ─── Experimental ──────────────────────────────────────────────────────────
 [experimental]
