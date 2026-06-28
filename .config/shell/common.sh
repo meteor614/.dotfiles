@@ -75,8 +75,17 @@ export DISABLE_VERSION_CHECK=1
 path_prepend /opt/usr/bin
 path_prepend /opt/bin
 path_prepend /opt/sbin
-path_prepend /opt/homebrew/bin
-path_prepend /usr/local/bin
+
+# Homebrew: on Apple Silicon, prefer /opt/homebrew over the Intel/Rosetta
+# /usr/local tree. Since path_prepend puts later calls earlier in PATH, the
+# order below is intentionally reversed inside the arm64 branch.
+if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+    path_prepend /usr/local/bin
+    path_prepend /opt/homebrew/bin
+else
+    path_prepend /opt/homebrew/bin
+    path_prepend /usr/local/bin
+fi
 path_prepend "$HOME/.local/bin"
 path_prepend /usr/local/opt/findutils/libexec/gnubin
 path_prepend /usr/local/opt/gnu-getopt/bin

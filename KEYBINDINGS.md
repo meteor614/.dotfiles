@@ -1,6 +1,6 @@
 # 统一快捷键方案
 
-三层修饰键体系，在 Ghostty、tmux、zellij 之间保持一致的肌肉记忆。
+三层修饰键体系，在 Ghostty、herdr、tmux、zellij 之间保持一致的肌肉记忆。
 
 | 层级 | 修饰键 | 作用域 | 示例 |
 | ------ | -------- | -------- | ------ |
@@ -28,8 +28,46 @@ Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 | `Cmd+Shift+[/]` | `goto_split:previous`/`goto_split:next` |
 | `Alt+Enter` | `toggle_fullscreen` |
 
-> **Ghostty + tmux/zellij**：Cmd 键操作的是 Ghostty 自身的标签页/分屏，
+> **Ghostty + herdr/tmux/zellij**：Cmd 键操作的是 Ghostty 自身的标签页/分屏，
 > 而非复用器。请使用下方的 `Alt` / `Ctrl+Alt` 键来驱动复用器。
+
+---
+
+## 使用边界
+
+- **Ghostty**：窗口级操作和临时本地分屏。`Cmd` 键只控制 Ghostty 自身，不进入 herdr/tmux/zellij。
+- **herdr**：日常主力复用器，负责项目/session、pane/tab/workspace 和 agent sidebar。
+- **zellij**：远程 SSH 默认优先的兼容复用器，也保留一套与 herdr/tmux 接近的 `Alt` / `Ctrl+Alt` 肌肉记忆。
+- **tmux**：远程兼容与嵌套会话 fallback，尽量通过 `.tmux.conf.local` 覆盖，不改 submodule。
+
+---
+
+## Prefix — herdr 主力操作
+
+herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按两次 `Ctrl+b`
+可透传到内层。常用快捷键同时保留 `Alt` / `Ctrl+Alt` 直达路径，减少 prefix 次数。
+
+| 快捷键 | herdr |
+| -------- | -------- |
+| `Ctrl+b c` | 新建 tab |
+| `Ctrl+b 1..9` | 切换第 N 个 tab |
+| `Ctrl+b d` / `Alt+n` | 向右分 pane |
+| `Ctrl+b Shift+d` / `Alt+N` | 向下分 pane |
+| `Ctrl+b h/j/k/l` | 聚焦左/下/上/右 pane |
+| `Ctrl+Alt+h/j/k/l` | 聚焦左/下/上/右 pane |
+| `Ctrl+b Tab` / `Alt+]` | 下一个 pane |
+| `Ctrl+b Shift+Tab` / `Alt+[` | 上一个 pane |
+| `Ctrl+b b` | 上一个 pane |
+| `Ctrl+b f` / `Alt+f` | 切换 floating pane |
+| `Ctrl+b r` / `Alt+m` | 进入 resize mode |
+| `Ctrl+b e` / `Alt+s` | 编辑 scrollback |
+| `Ctrl+b [` / `Ctrl+b ]` | 上/下一个 workspace |
+| `Ctrl+Alt+1..9` | 切换第 N 个 workspace |
+| `Ctrl+b g` / `Alt+g` | goto |
+| `Alt+1..9` | 聚焦第 N 个 agent |
+| `Ctrl+b Alt+g` | 新 pane 打开 lazygit |
+| `Ctrl+b Alt+d` | 新 pane 打开 lazydocker |
+| `Ctrl+b Alt+y` | 新 pane 打开 yazi |
 
 ---
 
@@ -103,5 +141,6 @@ Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 | 文件 | 配置内容 |
 | ------ | ---------- |
 | `.config/ghostty/config` | Cmd 键（Ghostty 原生分屏） |
+| `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |

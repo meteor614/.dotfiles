@@ -8,6 +8,16 @@ local function in_tmux()
   return vim.env.TMUX ~= nil
 end
 
+local function is_remote_session()
+  return vim.env.SSH_TTY ~= nil or vim.env.SSH_CONNECTION ~= nil
+end
+
+local function can_open_with_macos()
+  return not is_remote_session()
+    and uv.os_uname().sysname == "Darwin"
+    and vim.fn.executable("open") == 1
+end
+
 local function in_ghostty()
   -- 环境变量可能因 zellij session 复用而过时，
   -- 额外检查 TERM 是否包含 ghostty
@@ -180,8 +190,8 @@ local function zellij_image_preview(ctx)
     return require("snacks.picker.preview").file(ctx)
   end
 
-  -- Ghostty + Zellij: zellij 不支持图形协议透传，chafa 太慢且模糊
-  -- 显示文件信息，按 gx 可用 Quick Look 预览
+  -- Ghostty + Zellij: zellij 不支持图形协议透传，chafa 太慢且模糊。
+  -- 本地 macOS 可按 gx 用 Quick Look 预览；远程只显示文件信息。
   if in_ghostty() then
     local buf = ctx.preview:scratch()
     ctx.preview:set_title(vim.fn.fnamemodify(path, ":t"))
@@ -189,7 +199,7 @@ local function zellij_image_preview(ctx)
     vim.bo[buf].filetype = "markdown"
     local stat = (vim.uv or vim.loop).fs_stat(path)
     local size = stat and string.format("%.1f KB", stat.size / 1024) or "unknown"
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+    local lines = {
       "# " .. vim.fn.fnamemodify(path, ":t"),
       "",
       "- **path**: `" .. path .. "`",
@@ -197,13 +207,20 @@ local function zellij_image_preview(ctx)
       "",
       "_zellij does not support image passthrough_",
       "",
-      "Press `gx` to open with Quick Look",
-    })
+    }
+    if can_open_with_macos() then
+      table.insert(lines, "Press `gx` to open with Quick Look")
+    else
+      table.insert(lines, "Quick Look is disabled outside local macOS sessions")
+    end
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
     vim.bo[buf].modified = false
-    vim.keymap.set("n", "gx", function()
-      vim.fn.jobstart({ "open", path }, { detach = true })
-    end, { buffer = buf, desc = "Open image with Quick Look" })
+    if can_open_with_macos() then
+      vim.keymap.set("n", "gx", function()
+        vim.fn.jobstart({ "open", path }, { detach = true })
+      end, { buffer = buf, desc = "Open image with Quick Look" })
+    end
     return
   end
 

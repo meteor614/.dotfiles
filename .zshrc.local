@@ -39,13 +39,20 @@ mkdir -p ~/.zsh_cache/completions
 # ── kubectl completion (lazy) ────────────────────────────────────────────────
 kubectl() {
     unset -f kubectl
-    if [ -f ~/.zsh/plugins/kubectl/_kubectl ]; then
-        source ~/.zsh/plugins/kubectl/_kubectl
-    elif (( $+commands[kubectl] )); then
-        mkdir -p ~/.zsh/plugins/kubectl/
-        kubectl completion zsh > ~/.zsh/plugins/kubectl/_kubectl
-        source ~/.zsh/plugins/kubectl/_kubectl
+    if (( ! $+commands[kubectl] )); then
+        print -u2 "kubectl: command not found"
+        return 127
     fi
+
+    local _kubectl_bin="${commands[kubectl]}"
+    local _kubectl_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/kubectl.zsh"
+    if [[ ! -f "$_kubectl_cache" || "$_kubectl_bin" -nt "$_kubectl_cache" ]]; then
+        mkdir -p "${_kubectl_cache:h}"
+        "$_kubectl_bin" completion zsh >| "$_kubectl_cache" 2>/dev/null || rm -f "$_kubectl_cache"
+    fi
+    [[ -s "$_kubectl_cache" ]] && source "$_kubectl_cache"
+    unset _kubectl_bin _kubectl_cache
+
     kubectl "$@"
 }
 
@@ -66,4 +73,3 @@ fi
 
 # ── OpenClaw Completion ──────────────────────────────────────────────────────
 [ -f "$HOME/.openclaw/completions/openclaw.zsh" ] && source "$HOME/.openclaw/completions/openclaw.zsh"
-

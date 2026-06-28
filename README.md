@@ -15,3 +15,10 @@ All my dotfiles.
 * brew/go/npm/gem/pip/conda source mirrors
 * scripts
 * …
+
+## Notes
+
+Neovim is based on a LazyVim starter tree managed in `~/.config/nvim`; this
+repo only overlays `lua/config` and `lua/plugins`. Plugin versions intentionally
+follow a rolling-update model, so `lazy-lock.json` is not tracked here. Use
+`:Lazy update` / `:Lazy restore` on each machine as needed.
