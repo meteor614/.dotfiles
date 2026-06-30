@@ -343,8 +343,11 @@ if command -v claude-internal >/dev/null 2>&1; then
     fi
 fi
 
-# ouch: unified decompress (auto-detect format)
-command -v ouch >/dev/null 2>&1 && alias x='ouch decompress'
+# ouch: unified compress/decompress
+command -v ouch >/dev/null 2>&1 && {
+    alias x='ouch decompress'
+    alias xc='ouch compress'
+}
 
 # -----------------------------------------------------------------------------
 # Shared functions (cross-shell: yazi cd, venv helpers)
