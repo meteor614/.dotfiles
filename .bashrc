@@ -6,6 +6,8 @@ export PS1='[\u@\h \w]$ '
 
 # -----------------------------------------------------------------------------
 # Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …)
+# NOTE: This path resolution is duplicated in .zshrc because bash has no
+# equivalent of .zshenv for early shared init. Keep both in sync.
 # -----------------------------------------------------------------------------
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 _common_sh="$XDG_CONFIG_HOME/shell/common.sh"

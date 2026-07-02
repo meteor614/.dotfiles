@@ -386,18 +386,12 @@ vpip() {
 # It runs before the reasonix wrapper so `command reasonix` always works.
 # -----------------------------------------------------------------------------
 _dotfiles_ensure_node_path() {
-    # Already available — nothing to do
     command -v node >/dev/null 2>&1 && return 0
-    # Mise: find the highest installed node version and prepend its bin.
-    # Don't rely on `command -v mise` — mise may live in ~/.local/bin
-    # which isn't in PATH yet at this point (non-interactive shells).
-    #
-    # Cache the resolved path to avoid directory scans on every shell start.
-    # Cache invalidated when the mise installs directory mtime changes.
-    local _mise_node_bin=""
+
     local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
     local cache_file="$cache_dir/mise_node_path"
     local mise_node_dir="${HOME}/.local/share/mise/installs/node"
+    local _mise_node_bin=""
 
     # Read from cache if mise installs haven't changed since we cached
     if [ -r "$cache_file" ] && [ -d "$mise_node_dir" ] && [ "$mise_node_dir" -ot "$cache_file" ]; then
@@ -405,13 +399,13 @@ _dotfiles_ensure_node_path() {
     fi
 
     # Re-resolve when cache is missing, stale, or the cached binary went away.
-    # Prefer numeric version names without using ls/sort/head pipelines.
+    # Prefer numeric version names without relying on GNU `sort -V`, which is not
+    # available on stock macOS/BSD hosts.
     if [ -z "$_mise_node_bin" ] || [ ! -x "$_mise_node_bin/node" ]; then
         _mise_node_bin=""
-        local _mise_bin="${HOME}/.local/bin/mise"
         local _node_dir _node_base _best_ver=""
         local _a _b _a_part _b_part _i
-        if [ -x "$_mise_bin" ] && [ -d "$mise_node_dir" ]; then
+        if [ -d "$mise_node_dir" ]; then
             for _node_dir in "$mise_node_dir"/*; do
                 [ -d "$_node_dir/bin" ] || continue
                 [ -x "$_node_dir/bin/node" ] || continue
@@ -459,9 +453,11 @@ _dotfiles_ensure_node_path() {
         case ":$PATH:" in *":$_mise_node_bin:"*) ;; *) export PATH="$_mise_node_bin:$PATH" ;; esac
         return 0
     fi
+
     # NVM fallback: check the default alias
     local _nvm_dir=""
     if [ -r "${NVM_DIR:-$HOME/.nvm}/alias/default" ]; then
+        local _nvm_target
         _nvm_target="$(head -1 "${NVM_DIR:-$HOME/.nvm}/alias/default" 2>/dev/null || true)"
         if [ -n "$_nvm_target" ]; then
             _nvm_dir="$(find "${NVM_DIR:-$HOME/.nvm}/versions/node" -maxdepth 1 -type d -name "${_nvm_target}*" 2>/dev/null | sort -Vr | head -1)"
@@ -600,7 +596,9 @@ _find_starship() {
     return 1
 }
 
-# Bash inits Starship directly. Zsh's .zshrc handles it via _cached_eval for speed.
+# Bash inits Starship directly. Zsh's .zshrc handles it via _cached_eval
+# for speed (can't use _find_starship here because .zshrc sources common.sh
+# AFTER its own starship init block).
 if [ "$_DOTFILES_SHELL" = "bash" ]; then
     _starship_bin="$(_find_starship)" && eval "$("$_starship_bin" init bash)"
     unset _starship_bin

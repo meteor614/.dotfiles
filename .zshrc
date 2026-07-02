@@ -88,6 +88,9 @@ _cached_eval() {
 (( $+commands[zoxide] )) && _cached_eval zoxide "${commands[zoxide]}" init zsh
 
 # ── Starship (cached init; single command probe) ─────────────────────────────
+# NOTE: _find_starship is defined in common.sh but not available here yet
+# (common.sh is sourced after this block). Duplicated probe is intentional:
+# zsh uses _cached_eval for speed, bash uses common.sh's _find_starship.
 if (( $+commands[starship] )); then
     _cached_eval starship "${commands[starship]}" init zsh
 else
@@ -101,6 +104,8 @@ else
 fi
 
 # ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
+# NOTE: This path resolution is duplicated in .bashrc because bash has no
+# equivalent of .zshenv for early shared init. Keep both in sync.
 _common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
 [[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
     && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"

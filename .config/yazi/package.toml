@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:git"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "88e56a64b7ce7c4314427452343fef17"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:diff"
-rev = "39aaf6d"
-hash = "8b1af6b5a69797ee951f2a80ce570818"
+rev = "65559fd"
+hash = "39ce0924dfe3989dc89d7caa1473c77c"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:smart-enter"
-rev = "39aaf6d"
+rev = "65559fd"
 hash = "187cc58ba7ac3befd49c342129e6f1b6"
 
 [flavor]
