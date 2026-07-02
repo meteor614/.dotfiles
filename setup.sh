@@ -21,7 +21,7 @@ brew_formulae=(
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
     bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin
-    imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf
+    imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf git-delta
 )
 brew_casks=(
     font-hack-nerd-font

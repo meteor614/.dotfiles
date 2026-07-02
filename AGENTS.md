@@ -19,7 +19,7 @@
 - `.config/mise/config.toml` declares default runtime versions (node/python/go). `setup.sh` runs `mise install --yes` to ensure they're present. `not_found_auto_install = false` means missing shims do **not** trigger silent installs — runtimes are only installed via explicit `mise install`.
 - `bin/*` is linked into `~/bin/*`.
 - `tmuxinator/` is linked into `~/.tmuxinator`.
-- `.aria2` and `.pip` are linked explicitly by `setup.sh`.
+- `.config/pip` is linked into `~/.config/pip` via the same generic `.config/*` link logic (no special-case handling in `setup.sh`).
 - `.tmux` and `cheat/cheatsheets` are git submodules. Treat them as upstream-managed content unless the user explicitly asks for a submodule change.
 - This repo is a `jj` workspace. Use `jj` for all commits, branch moves, and pushes — e.g. `jj commit -m …`, `jj bookmark set master -r @-`, `jj git push`. Do **not** run `git commit` / `git push` directly: `jj` will reset the working copy parent on its next invocation, and stray git operations land you in detached-HEAD with commits that aren't on any jj-tracked branch. Reading via `git log` / `git diff` is fine — `jj` commits stay git-compatible.
 - After every `jj git fetch`, always follow up by rebasing the working copy onto the updated bookmark (e.g. `jj rebase -d master`) so local work sits on top of the latest remote state. If the rebase reports conflicts, resolve them by editing the conflicted files to remove conflict markers, then run `jj squash` to move the resolution into the conflicted commit. Never leave the working copy stale after a fetch.
