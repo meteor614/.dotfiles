@@ -302,7 +302,7 @@ link_config_entries() {
             while IFS= read -r -d '' child; do
                 child_name=$(basename "$child")
                 ensure_link "$child" "$HOME/.config/$name/$child_name"
-            done < <(find "$entry" -maxdepth 1 -mindepth 1 ! -name ".gitmodules" ! -name "*.zwc" -print0)
+            done < <(find "$entry" -maxdepth 1 -mindepth 1 ! -name ".gitmodules" ! -name "*.zwc" ! -name "package.toml" -print0)
         else
             ensure_link "$entry" "$HOME/.config/$name"
         fi
