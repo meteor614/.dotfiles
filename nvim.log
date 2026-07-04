@@ -1,0 +1,5 @@
+WRN 2026-07-04T13:04:30.683 ?.77043    server_start:197: Failed to start server: operation not permitted: /var/folders/c6/pzn5v75j0q34j1myy323_kdm0000gn/T/nvim.meteorchen/6h8X4j/nvim.77043.0
+WRN 2026-07-04T13:04:51.651 ?.77529    server_start:197: Failed to start server: operation not permitted: /var/folders/c6/pzn5v75j0q34j1myy323_kdm0000gn/T/nvim.meteorchen/mHUqDY/nvim.77529.0
+WRN 2026-07-04T13:05:04.862 ?.77771    server_start:197: Failed to start server: operation not permitted: /var/folders/c6/pzn5v75j0q34j1myy323_kdm0000gn/T/nvim.meteorchen/uWoNIU/nvim.77771.0
+WRN 2026-07-04T13:05:11.895 ?.77947    server_start:197: Failed to start server: operation not permitted: /var/folders/c6/pzn5v75j0q34j1myy323_kdm0000gn/T/nvim.meteorchen/yVH6C6/nvim.77947.0
+WRN 2026-07-04T13:56:57.127 ?.43733    server_start:197: Failed to start server: operation not permitted: /var/folders/c6/pzn5v75j0q34j1myy323_kdm0000gn/T/nvim.meteorchen/Kdfemo/nvim.43733.0

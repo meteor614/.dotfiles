@@ -141,6 +141,8 @@ command -v lesspipe.sh >/dev/null 2>&1 && {
 # -----------------------------------------------------------------------------
 if [ -n "${ZELLIJ:-}" ] && [ -z "${SSH_TTY:-}" ]; then
     export SSH_TTY="zellij"
+elif [ -n "${HERDR_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
+    export SSH_TTY="herdr"
 fi
 
 # -----------------------------------------------------------------------------

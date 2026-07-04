@@ -81,22 +81,45 @@ vim.opt.autoread = true
 vim.opt.clipboard = { "unnamedplus", "unnamed" }
 
 -- OSC52 clipboard: when running over SSH there is no local pbcopy/wl-copy, so
--- route the system clipboard through the terminal's OSC52 escape. This is
--- forwarded out through tmux (set-clipboard on) / herdr → ghostty, giving us a
--- working "yank reaches the macOS clipboard" path even on remote hosts.
--- Locally we leave the default provider (pbcopy) alone: it is faster and gives
--- reliable two-way paste, whereas OSC52 read is widely blocked by terminals.
+-- route clipboard writes through the terminal's OSC52 escape. This is forwarded
+-- out through tmux (set-clipboard on) / herdr → ghostty, giving us a working
+-- "yank reaches the macOS clipboard" path even on remote hosts.
+--
+-- Keep paste local to the Nvim process: OSC52 clipboard reads require querying
+-- the terminal and waiting for a response, which is slow and often blocked by
+-- terminals/multiplexers. Copy still updates the client clipboard via OSC52 and
+-- also caches the text server-side, so p/P remain instant for text yanked from
+-- this Nvim instance.
 if vim.env.SSH_TTY or vim.env.SSH_CONNECTION or vim.env.ZELLIJ ~= nil then
   local osc52 = require("vim.ui.clipboard.osc52")
+  local cache = {
+    ["+"] = { {}, "v" },
+    ["*"] = { {}, "v" },
+  }
+
+  local function copy(reg)
+    local osc52_copy = osc52.copy(reg)
+    return function(lines, regtype)
+      cache[reg] = { vim.deepcopy(lines), regtype or "v" }
+      osc52_copy(lines)
+    end
+  end
+
+  local function paste(reg)
+    return function()
+      return cache[reg]
+    end
+  end
+
   vim.g.clipboard = {
     name = "OSC52",
     copy = {
-      ["+"] = osc52.copy("+"),
-      ["*"] = osc52.copy("*"),
+      ["+"] = copy("+"),
+      ["*"] = copy("*"),
     },
     paste = {
-      ["+"] = osc52.paste("+"),
-      ["*"] = osc52.paste("*"),
+      ["+"] = paste("+"),
+      ["*"] = paste("*"),
     },
   }
 end
