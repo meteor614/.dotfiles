@@ -39,8 +39,6 @@
 	followTags = true
 [receive]
 	denyCurrentBranch = ignore
-[commit]
-	template = ~/.stCommitMsg
 [color]
 	status = auto
 	branch = auto

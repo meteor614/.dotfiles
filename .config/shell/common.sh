@@ -387,6 +387,40 @@ vpip() {
 # shim path isn't active yet (non-interactive SSH, early rc ordering).
 # It runs before the reasonix wrapper so `command reasonix` always works.
 # -----------------------------------------------------------------------------
+# Print the path of the highest-versioned subdirectory under $1 (optional $2
+# glob, default '*'; optional $3 subpath that must exist under each candidate,
+# e.g. "bin/node"). Version = dotted numerals with an optional leading 'v'.
+# POSIX-ish: avoids GNU `sort -V`, which is unavailable on stock macOS/BSD.
+# Prints nothing if no candidate matches.
+_dotfiles_newest_version_dir() {
+    [ -d "$1" ] || return 0
+    local _root=$1 _glob=${2:-*} _need=${3:-}
+    local _d _base _best="" _bestv="" _a _b _ap _bp _i
+    for _d in "$_root"/$_glob; do
+        [ -d "$_d" ] || continue
+        [ -z "$_need" ] || [ -e "$_d/$_need" ] || continue
+        _base=${_d##*/}
+        case $_base in v*) _base=${_base#v} ;; esac
+        case $_base in *[0-9]*) ;; *) continue ;; esac
+        if [ -z "$_bestv" ]; then
+            _best=$_d; _bestv=$_base; continue
+        fi
+        _a=$_base; _b=$_bestv
+        for _i in 1 2 3 4 5; do
+            _ap=${_a%%.*}; _bp=${_b%%.*}
+            [ "$_ap" = "$_a" ] && _a= || _a=${_a#*.}
+            [ "$_bp" = "$_b" ] && _b= || _b=${_b#*.}
+            _ap=${_ap%%[^0-9]*}; _bp=${_bp%%[^0-9]*}
+            _ap=${_ap:-0}; _bp=${_bp:-0}
+            if [ "$_ap" -gt "$_bp" ] 2>/dev/null; then
+                _best=$_d; _bestv=$_base; break
+            fi
+            [ "$_ap" -lt "$_bp" ] 2>/dev/null && break
+        done
+    done
+    [ -n "$_best" ] && printf '%s\n' "$_best"
+}
+
 _dotfiles_ensure_node_path() {
     command -v node >/dev/null 2>&1 && return 0
 
@@ -401,54 +435,17 @@ _dotfiles_ensure_node_path() {
     fi
 
     # Re-resolve when cache is missing, stale, or the cached binary went away.
-    # Prefer numeric version names without relying on GNU `sort -V`, which is not
-    # available on stock macOS/BSD hosts.
+    # Picks the newest mise-managed node whose bin/node exists, without GNU
+    # `sort -V` (see _dotfiles_newest_version_dir above).
     if [ -z "$_mise_node_bin" ] || [ ! -x "$_mise_node_bin/node" ]; then
         _mise_node_bin=""
-        local _node_dir _node_base _best_ver=""
-        local _a _b _a_part _b_part _i
-        if [ -d "$mise_node_dir" ]; then
-            for _node_dir in "$mise_node_dir"/*; do
-                [ -d "$_node_dir/bin" ] || continue
-                [ -x "$_node_dir/bin/node" ] || continue
-                _node_base="${_node_dir##*/}"
-                case "$_node_base" in
-                    v*) _node_base="${_node_base#v}" ;;
-                esac
-
-                if [ -z "$_best_ver" ]; then
-                    _best_ver="$_node_base"
-                    _mise_node_bin="$_node_dir/bin"
-                    continue
-                fi
-
-                # Compare dotted numeric versions without ls/sort/head pipelines.
-                _a="$_node_base"
-                _b="$_best_ver"
-                for _i in 1 2 3 4; do
-                    _a_part="${_a%%.*}"
-                    _b_part="${_b%%.*}"
-                    [ "$_a_part" = "$_a" ] && _a="" || _a="${_a#*.}"
-                    [ "$_b_part" = "$_b" ] && _b="" || _b="${_b#*.}"
-                    _a_part="${_a_part%%[^0-9]*}"
-                    _b_part="${_b_part%%[^0-9]*}"
-                    _a_part="${_a_part:-0}"
-                    _b_part="${_b_part:-0}"
-                    if [ "$_a_part" -gt "$_b_part" ] 2>/dev/null; then
-                        _best_ver="$_node_base"
-                        _mise_node_bin="$_node_dir/bin"
-                        break
-                    elif [ "$_a_part" -lt "$_b_part" ] 2>/dev/null; then
-                        break
-                    fi
-                done
-            done
-            if [ -n "$_mise_node_bin" ]; then
-                mkdir -p "$cache_dir"
-                printf '%s\n' "$_mise_node_bin" >| "$cache_file" 2>/dev/null || true
-            fi
+        local _picked
+        _picked=$(_dotfiles_newest_version_dir "$mise_node_dir" "*" "bin/node")
+        if [ -n "$_picked" ] && [ -x "$_picked/bin/node" ]; then
+            _mise_node_bin="$_picked/bin"
+            mkdir -p "$cache_dir"
+            printf '%s\n' "$_mise_node_bin" >| "$cache_file" 2>/dev/null || true
         fi
-        unset _node_dir _node_base _best_ver _a _b _a_part _b_part _i
     fi
 
     if [ -n "$_mise_node_bin" ] && [ -x "$_mise_node_bin/node" ]; then
@@ -462,7 +459,7 @@ _dotfiles_ensure_node_path() {
         local _nvm_target
         _nvm_target="$(head -1 "${NVM_DIR:-$HOME/.nvm}/alias/default" 2>/dev/null || true)"
         if [ -n "$_nvm_target" ]; then
-            _nvm_dir="$(find "${NVM_DIR:-$HOME/.nvm}/versions/node" -maxdepth 1 -type d -name "${_nvm_target}*" 2>/dev/null | sort -Vr | head -1)"
+            _nvm_dir="$(_dotfiles_newest_version_dir "${NVM_DIR:-$HOME/.nvm}/versions/node" "${_nvm_target}*" "bin/node")"
         fi
     fi
     if [ -n "$_nvm_dir" ] && [ -x "$_nvm_dir/bin/node" ]; then
@@ -522,7 +519,7 @@ else
         _nvm_target="$(head -1 "$NVM_DIR/alias/default" 2>/dev/null || true)"
         if [ -n "$_nvm_target" ]; then
             _nvm_prefix="${_nvm_target#v}"
-            _nvm_dir="$(find "$NVM_DIR/versions/node" -maxdepth 1 -type d -name "v${_nvm_prefix}*" 2>/dev/null | sort -V | tail -1 || true)"
+            _nvm_dir="$(_dotfiles_newest_version_dir "$NVM_DIR/versions/node" "v${_nvm_prefix}*" "bin/node")"
             if [ -n "$_nvm_dir" ] && [ -x "$_nvm_dir/bin/node" ]; then
                 _nvm_bootstrap_bin="$_nvm_dir/bin"
             fi

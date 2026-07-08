@@ -163,15 +163,19 @@ update_dotfiles_repo() {
     )
 }
 
-# ── Zsh plugins (topgrade does not cover oh-my-zsh)
+# ── Zsh plugins (cloned directly by setup.sh; no oh-my-zsh framework)
 update_zsh_plugins() {
     if ! have_cmd zsh; then
         return 0
     fi
 
-    if [ -n "${ZSH:-}" ] && [ -f "$ZSH/tools/upgrade.sh" ]; then
-        ZSH="$ZSH" zsh -c '"$ZSH/tools/upgrade.sh"'
-    fi
+    local plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
+    local d
+    for d in "$plugins_dir"/zsh-autosuggestions "$plugins_dir"/zsh-syntax-highlighting; do
+        if [ -d "$d/.git" ]; then
+            git -C "$d" pull --ff-only 2>/dev/null && log "updated $(basename "$d")"
+        fi
+    done
 
     if [ -f "$HOME/.antigen/init.zsh" ]; then
         DOTFILES_NONINTERACTIVE=1 zsh -c 'source ~/.antigen/init.zsh && type antigen &>/dev/null && { antigen update; antigen cleanup; echo "antigen upgrade finish"; }'

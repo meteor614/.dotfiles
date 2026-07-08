@@ -16,12 +16,12 @@ brew_formulae=(
     cheat clang-format cloc cmake coreutils cpulimit cscope
     ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global
     gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli
-    neovim ninja numpy oniguruma openssl pandoc parallel perl protobuf
-    pstree psutils python readline ripgrep rtags rtmpdump ruby snappy sqlite
+    neovim ninja numpy oniguruma openssl@3 pandoc parallel perl protobuf
+    pstree psutils python@3.14 readline ripgrep rtags rtmpdump ruby snappy sqlite
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
     bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin
-    imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf git-delta
+    imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf git-delta pipx shellcheck
 )
 brew_casks=(
     font-hack-nerd-font
@@ -413,33 +413,33 @@ ensure_brew_tap_remote() {
 }
 
 install_missing_brew_packages() {
-    local pkg
-    local missing_formulae=()
-    local missing_casks=()
-
     if ! command_exists brew; then
         return 0
     fi
 
+    local missing_formulae=()
+    local missing_casks=()
+    local installed_formulae installed_casks pkg
+
+    # One `brew list` per kind instead of one fork per package (60+ calls).
+    # `brew list -1` prints every installed formula/cask (including deps), so
+    # exact-name membership is sufficient. Keep versioned formulae explicit
+    # (e.g. python@3.14, openssl@3) instead of Homebrew aliases to avoid
+    # repeated "already installed" warnings.
+    installed_formulae="$(brew list --formula -1 2>/dev/null || true)"
     for pkg in "${brew_formulae[@]}"; do
-        if ! brew list --formula "$pkg" >/dev/null 2>&1; then
-            missing_formulae+=("$pkg")
-        fi
+        printf '%s\n' "$installed_formulae" | grep -qxF -- "$pkg" || missing_formulae+=("$pkg")
     done
 
+    installed_casks="$(brew list --cask -1 2>/dev/null || true)"
     for pkg in "${brew_casks[@]}"; do
-        if ! brew list --cask "$pkg" >/dev/null 2>&1; then
-            missing_casks+=("$pkg")
-        fi
+        printf '%s\n' "$installed_casks" | grep -qxF -- "$pkg" || missing_casks+=("$pkg")
     done
 
-    if [ "${#missing_formulae[@]}" -gt 0 ]; then
-        brew install "${missing_formulae[@]}"
-    fi
-
-    if [ "${#missing_casks[@]}" -gt 0 ]; then
-        brew install --cask "${missing_casks[@]}"
-    fi
+    [ "${#missing_formulae[@]}" -gt 0 ] && brew install "${missing_formulae[@]}"
+    # --adopt lets Homebrew take ownership of matching artifacts that already
+    # exist outside brew, common for fonts restored from backup/iCloud.
+    [ "${#missing_casks[@]}" -gt 0 ] && brew install --cask --adopt "${missing_casks[@]}"
 }
 
 install_brew_if_needed() {
@@ -619,6 +619,12 @@ install_entware_packages() {
 }
 
 configure_brew_mirrors() {
+    # Mirror the gating used for the HOMEBREW_*_GIT_REMOTE env exports in
+    # common.sh: skip when the CN mirror is disabled. Set
+    # DOTFILES_CONFIGURE_BREW_MIRRORS=1 to force-enable regardless.
+    local configure="${DOTFILES_CONFIGURE_BREW_MIRRORS:-${USE_CN_MIRROR:-1}}"
+    [ "$configure" = "1" ] || return 0
+
     if ! command_exists brew || ! command_exists git; then
         return 0
     fi
@@ -626,7 +632,6 @@ configure_brew_mirrors() {
     ensure_brew_tap_remote brew https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
     ensure_brew_tap_remote homebrew/core https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
     ensure_brew_tap_remote homebrew/cask https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
-    ensure_brew_tap_remote homebrew/cask-drivers https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-drivers.git
 }
 
 configure_package_mirrors() {
@@ -640,11 +645,15 @@ configure_package_mirrors() {
     fi
 
     if command_exists gem; then
-        if ! gem sources --list | grep -Fq 'http://mirrors.tencent.com/rubygems/'; then
-            gem sources --add http://mirrors.tencent.com/rubygems/
-        fi
-        if gem sources --list | grep -Fq 'https://rubygems.org/'; then
-            gem sources --remove https://rubygems.org/
+        if ruby_is_macos_system_ruby; then
+            yellow "skip gem mirror config (macOS system Ruby is too old/noisy)"
+        else
+            if ! gem sources --list | grep -Fq 'http://mirrors.tencent.com/rubygems/'; then
+                gem sources --add http://mirrors.tencent.com/rubygems/
+            fi
+            if gem sources --list | grep -Fq 'https://rubygems.org/'; then
+                gem sources --remove https://rubygems.org/
+            fi
         fi
     fi
 }
@@ -665,6 +674,34 @@ python_package_installed() {
     python3 -m pip show "$pkg" >/dev/null 2>&1
 }
 
+# Detect a PEP 668 "externally-managed" interpreter (Homebrew/system python).
+# mise-managed pythons are generally not marked, so this is usually false there.
+python_externally_managed() {
+    local marker
+    marker=$(python3 -c 'import sysconfig,sys,os;print(os.path.join(sysconfig.get_path("stdlib",vars={"base":sys.prefix}),"EXTERNALLY-MANAGED"))' 2>/dev/null) || return 1
+    [ -n "$marker" ] && [ -f "$marker" ]
+}
+
+# Install python packages into the user site when the active interpreter allows
+# it. Do not bypass PEP 668 automatically: Homebrew/system pythons are
+# externally-managed, and setup.sh should not opt users into
+# --break-system-packages. Designed to run in a background subshell via
+# track_background.
+_dotfiles_pip_install_user() {
+    if python_externally_managed; then
+        yellow "skip python user packages on externally-managed python: $*"
+        yellow "install pipx or activate a mise-managed python before rerunning setup"
+        return 0
+    fi
+
+    python3 -m pip install --user "$@"
+}
+
+ruby_is_macos_system_ruby() {
+    [ "$os" = "darwin" ] || return 1
+    [ "$(command -v ruby 2>/dev/null || true)" = "/usr/bin/ruby" ]
+}
+
 gem_package_installed() {
     local pkg=$1
     gem list -i "^${pkg}$" >/dev/null 2>&1
@@ -672,22 +709,39 @@ gem_package_installed() {
 
 install_user_language_packages() {
     local npm_packages=()
-    local python_candidates=(
-        bpython
-        pynvim
-        python-lsp-server
-    )
-    local python_packages=()
     local pkg
 
     if command_exists python3; then
         if python3 -m pip --version >/dev/null 2>&1; then
-            for pkg in "${python_candidates[@]}"; do
-                python_package_installed "$pkg" || python_packages+=("$pkg")
-            done
-            if [ "${#python_packages[@]}" -gt 0 ]; then
-                track_background python3 -m pip install --user "${python_packages[@]}"
+            # CLI entry-point tools go through pipx when available, which
+            # isolates each in its own venv, survives python upgrades, and is
+            # immune to PEP 668. We intentionally do not auto-install pynvim:
+            # this nvim config has no Python provider dependency, and installing
+            # provider libraries into an arbitrary active python is too implicit.
+            local pipx_cli_tools=("bpython:bpython" "python-lsp-server:pylsp")
+            local tool cmd
+            if command_exists pipx; then
+                for pkg in "${pipx_cli_tools[@]}"; do
+                    tool=${pkg%%:*}
+                    cmd=${pkg#*:}
+                    if ! command_exists "$cmd" \
+                        && ! pipx list 2>/dev/null | grep -qE "^   package ${tool} "; then
+                        pipx install "$tool" || yellow "pipx install $tool failed"
+                    fi
+                done
+                unset tool cmd
+            else
+                local _pip_missing=()
+                for pkg in "${pipx_cli_tools[@]}"; do
+                    tool=${pkg%%:*}
+                    cmd=${pkg#*:}
+                    command_exists "$cmd" || python_package_installed "$tool" || _pip_missing+=("$tool")
+                done
+                unset tool cmd
+                [ "${#_pip_missing[@]}" -gt 0 ] \
+                    && track_background _dotfiles_pip_install_user "${_pip_missing[@]}"
             fi
+
         else
             yellow "skip python user packages (python3 -m pip unavailable)"
         fi
@@ -708,7 +762,9 @@ install_user_language_packages() {
     fi
 
     if command_exists gem; then
-        if ! gem_package_installed neovim; then
+        if ruby_is_macos_system_ruby; then
+            yellow "skip ruby neovim provider gem (macOS system Ruby is too old)"
+        elif ! gem_package_installed neovim; then
             track_background gem install --user-install neovim
         fi
     fi
@@ -724,25 +780,16 @@ install_user_language_packages() {
     fi
 }
 
-install_oh_my_zsh_plugins() {
-    local omz_dir
-    local zsh_custom_dir
-
+install_zsh_plugins() {
     if ! command_exists zsh; then
         return 0
     fi
 
-    omz_dir="$HOME/.oh-my-zsh"
-    zsh_custom_dir="${ZSH_CUSTOM:-$omz_dir/custom}"
-
-    if [ ! -d "$omz_dir" ]; then
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-    else
-        echo "skip $omz_dir (exists)"
-    fi
-
-    ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$zsh_custom_dir/plugins/zsh-autosuggestions"
-    ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$zsh_custom_dir/plugins/zsh-syntax-highlighting"
+    # Clone the plugins we source directly into an XDG data dir — no
+    # oh-my-zsh framework (and no curl|sh OMZ installer) required.
+    local plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
+    ensure_git_clone https://github.com/zsh-users/zsh-autosuggestions "$plugins_dir/zsh-autosuggestions"
+    ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting"
 }
 
 init_authorized_keys_if_requested() {
@@ -904,7 +951,7 @@ run_setup() {
     fi
     configure_package_mirrors
     install_user_language_packages
-    install_oh_my_zsh_plugins
+    install_zsh_plugins
 
     init_authorized_keys_if_requested
     install_herdr_integrations

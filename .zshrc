@@ -58,18 +58,16 @@ setopt hist_verify
 # share_history is intentionally omitted — disabled in .zshrc.local because
 # inter-session history sharing conflicts with atuin's own history sync.
 
-# ── oh-my-zsh directory (kept for extract plugin & custom plugins) ───────────
-export ZSH="$HOME/.oh-my-zsh"
-
 # ── Plugins (direct source, no oh-my-zsh framework) ─────────────────────────
-[[ -f "$ZSH/plugins/extract/extract.plugin.zsh" ]] && source "$ZSH/plugins/extract/extract.plugin.zsh"
-[[ -f "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
-    source "$ZSH/custom/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
-if [[ -f "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]]; then
-    source "$ZSH/custom/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
-elif [[ -f "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-    source "$ZSH/custom/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-fi
+# Cloned by setup.sh into an XDG data dir. zsh-syntax-highlighting wraps ZLE
+# widgets, so any widgets bound later (e.g. in ~/.zshrc.local) won't be
+# highlighted.
+_zsh_plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
+[[ -f "$_zsh_plugins_dir/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
+    source "$_zsh_plugins_dir/zsh-autosuggestions/zsh-autosuggestions.zsh"
+[[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
+    source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+unset _zsh_plugins_dir
 
 # ── Cached eval helper (zsh-only, used for starship/zoxide/atuin init) ───────
 _cached_eval() {
