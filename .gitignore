@@ -1,5 +1,6 @@
 # Reasonix CodeGraph runtime — auto-generated per-machine, not portable
 .codegraph/
+.mimocode/
 .reasonix/attachments/
 
 # macOS Zellij cache — local state, not portable

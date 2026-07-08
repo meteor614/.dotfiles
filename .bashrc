@@ -84,8 +84,16 @@ case ";$PROMPT_COMMAND;" in
         ;;
 esac
 
-# zoxide
-command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+# zoxide (cached to avoid fork on every shell startup)
+if command -v zoxide >/dev/null 2>&1; then
+    _zoxide_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/zoxide.bash"
+    if [ ! -f "$_zoxide_cache" ] || [ "$(command -v zoxide)" -nt "$_zoxide_cache" ]; then
+        mkdir -p "$(dirname "$_zoxide_cache")"
+        zoxide init bash >| "$_zoxide_cache" 2>/dev/null || rm -f "$_zoxide_cache"
+    fi
+    [ -s "$_zoxide_cache" ] && . "$_zoxide_cache"
+    unset _zoxide_cache
+fi
 
 # Local machine-specific overrides
 [ -f "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"

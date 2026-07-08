@@ -438,7 +438,6 @@ install_missing_brew_packages() {
     fi
 
     if [ "${#missing_casks[@]}" -gt 0 ]; then
-        brew tap homebrew/cask-fonts >/dev/null 2>&1 || true
         brew install --cask "${missing_casks[@]}"
     fi
 }
@@ -627,7 +626,6 @@ configure_brew_mirrors() {
     ensure_brew_tap_remote brew https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
     ensure_brew_tap_remote homebrew/core https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
     ensure_brew_tap_remote homebrew/cask https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
-    ensure_brew_tap_remote homebrew/cask-fonts https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-fonts.git
     ensure_brew_tap_remote homebrew/cask-drivers https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-drivers.git
 }
 

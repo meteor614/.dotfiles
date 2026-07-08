@@ -564,13 +564,21 @@ unset _broot_launcher
 if command -v jj >/dev/null 2>&1; then
     if [ -n "${ZSH_VERSION:-}" ]; then
         # Lazy-load zsh completion (generate once, cache it)
-        _jj_cache="${ZSH_CACHE_DIR:-$HOME/.zsh_cache}/_jj"
-        if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
-            mkdir -p "$(dirname "$_jj_cache")"
-            jj util completion zsh >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
+        _jj_load() {
+            _jj_cache="${ZSH_CACHE_DIR:-$HOME/.zsh_cache}/_jj"
+            if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
+                mkdir -p "$(dirname "$_jj_cache")"
+                jj util completion zsh >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
+            fi
+            [ -s "$_jj_cache" ] && source "$_jj_cache"
+            unset _jj_cache
+            unset -f _jj_load 2>/dev/null || true
+        }
+        if typeset -f _defer >/dev/null 2>&1; then
+            _defer _jj_load
+        else
+            _jj_load
         fi
-        [ -s "$_jj_cache" ] && source "$_jj_cache"
-        unset _jj_cache
     elif [ -n "${BASH_VERSION:-}" ]; then
         _jj_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/jj.bash"
         if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
@@ -668,7 +676,11 @@ fi
 # -----------------------------------------------------------------------------
 if command -v direnv >/dev/null 2>&1; then
     if [ -n "${ZSH_VERSION:-}" ]; then
-        _cached_eval direnv "${commands[direnv]}" hook zsh
+        if typeset -f _defer >/dev/null 2>&1; then
+            _defer _cached_eval direnv "${commands[direnv]}" hook zsh
+        else
+            _cached_eval direnv "${commands[direnv]}" hook zsh
+        fi
     else
         _direnv_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/direnv.bash"
         if [ ! -f "$_direnv_cache" ] || [ "$(command -v direnv)" -nt "$_direnv_cache" ]; then

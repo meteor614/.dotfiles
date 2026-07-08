@@ -55,7 +55,8 @@ setopt hist_expire_dups_first
 setopt hist_ignore_dups
 setopt hist_ignore_space
 setopt hist_verify
-setopt share_history
+# share_history is intentionally omitted — disabled in .zshrc.local because
+# inter-session history sharing conflicts with atuin's own history sync.
 
 # ── oh-my-zsh directory (kept for extract plugin & custom plugins) ───────────
 export ZSH="$HOME/.oh-my-zsh"
@@ -84,6 +85,27 @@ _cached_eval() {
     fi
     [[ -s "$cache" ]] && source "$cache"
 }
+
+# ── Deferred init helper (zsh-only) ─────────────────────────────────────────
+# Queue non-critical init commands and run them once from the parent shell at
+# the first prompt. These commands often source files or install hooks, so they
+# must not run in a background subshell.
+autoload -Uz add-zsh-hook
+typeset -ga _dotfiles_deferred_cmds
+_dotfiles_deferred_cmds=()
+_defer() {
+    _dotfiles_deferred_cmds+=("${(j: :)${(@q)@}}")
+}
+_dotfiles_run_deferred() {
+    add-zsh-hook -d precmd _dotfiles_run_deferred 2>/dev/null || true
+    local _cmd
+    for _cmd in "${_dotfiles_deferred_cmds[@]}"; do
+        eval "$_cmd"
+    done
+    unset _cmd _dotfiles_deferred_cmds
+    unset -f _dotfiles_run_deferred _defer 2>/dev/null || true
+}
+add-zsh-hook precmd _dotfiles_run_deferred
 
 (( $+commands[zoxide] )) && _cached_eval zoxide "${commands[zoxide]}" init zsh
 

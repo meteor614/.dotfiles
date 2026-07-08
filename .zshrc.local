@@ -29,6 +29,9 @@ bindkey '\e[1;3B' end-of-line         # ALT+下键：调到行尾
 # ── zsh options ──────────────────────────────────────────────────────────────
 setopt no_nomatch
 setopt no_beep
+# Disable inter-session history sharing — atuin handles cross-session history
+# via its own sync, and share_history causes duplicate entries between tmux
+# panes and multiple terminal windows.
 unsetopt share_history
 unsetopt inc_append_history
 
