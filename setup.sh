@@ -8,7 +8,6 @@ script_path="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 MODE="init"
 BOOTSTRAP_NVIM=0
-INIT_AUTHORIZED_KEYS=0
 CHECK_FAILED=0
 BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
@@ -69,7 +68,7 @@ ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
 
 usage() {
     cat <<'EOF'
-Usage: setup.sh [init|check|repair] [all] [--bootstrap-nvim]
+Usage: setup.sh [init|check|repair] [--bootstrap-nvim]
 
 Commands:
   init            Create missing links and install missing dependencies (default)
@@ -77,7 +76,6 @@ Commands:
   repair          Backup and repair mismatched links
 
 Flags:
-  all             Also append this repo's public key to ~/.ssh/authorized_keys
   --bootstrap-nvim
                   Explicitly adopt LazyVim starter in ~/.config/nvim
 EOF
@@ -94,9 +92,6 @@ parse_args() {
                 ;;
             repair|--repair|--force)
                 MODE="repair"
-                ;;
-            all)
-                INIT_AUTHORIZED_KEYS=1
                 ;;
             --bootstrap-nvim)
                 BOOTSTRAP_NVIM=1
@@ -518,7 +513,10 @@ install_linux_release_tool() {
     fi
 
     local tag ver url bin_path
-    tag=$(gh_latest_tag "$repo")
+    # set -e aborts the whole script if this command-substitution assignment
+    # returns nonzero; absorb the exit so the -z skip below actually runs
+    # instead of killing the entire install on a single API failure.
+    tag=$(gh_latest_tag "$repo") || tag=""
     if [ -z "$tag" ]; then
         yellow "skip $name (could not resolve latest tag for $repo)"
         return 0
@@ -792,50 +790,6 @@ install_zsh_plugins() {
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting"
 }
 
-init_authorized_keys_if_requested() {
-    if [ "$INIT_AUTHORIZED_KEYS" -ne 1 ]; then
-        return 0
-    fi
-
-    red 'Init ssh authorized_keys...'
-    ensure_dir "$HOME/.ssh"
-    chmod 700 "$HOME/.ssh"
-
-    local src_pub="${script_path}/.ssh/id_rsa.pub"
-    local auth_file="$HOME/.ssh/authorized_keys"
-
-    if [ ! -f "$src_pub" ]; then
-        yellow "skip authorized_keys (missing $src_pub)"
-        return 0
-    fi
-
-    if cmp -s "$src_pub" "$HOME/.ssh/id_rsa.pub" 2>/dev/null; then
-        echo 'Local ~/.ssh/id_rsa.pub matches repo key; leaving authorized_keys alone'
-        return 0
-    fi
-
-    # Read the repo's public key (first line only, stripped of trailing newline).
-    local pubkey
-    pubkey=$(awk 'NR==1' "$src_pub")
-    if [ -z "$pubkey" ]; then
-        yellow "skip authorized_keys (empty $src_pub)"
-        return 0
-    fi
-
-    # Append only if this exact line is not already present.
-    if [ -f "$auth_file" ] && grep -Fxq -- "$pubkey" "$auth_file"; then
-        echo 'Authorized_keys already contains this key'
-    else
-        # Ensure trailing newline before appending so entries never collide.
-        if [ -s "$auth_file" ] && [ "$(tail -c 1 "$auth_file" 2>/dev/null)" != "" ]; then
-            printf '\n' >> "$auth_file"
-        fi
-        printf '%s\n' "$pubkey" >> "$auth_file"
-        chmod 600 "$auth_file"
-    fi
-    yellow 'Init ssh authorized_keys finish.'
-}
-
 # Install herdr's stock claude hook script into ~/.claude. The other
 # Claude-Code-compatible config dirs (~/.claude-internal, ~/.codebuddy)
 # go through link_custom_herdr_hook below so we can label them
@@ -953,7 +907,6 @@ run_setup() {
     install_user_language_packages
     install_zsh_plugins
 
-    init_authorized_keys_if_requested
     install_herdr_integrations
     link_reasonix_herdr_integration
     link_custom_herdr_hook ".claude-internal" "$HOME/.claude-internal"
