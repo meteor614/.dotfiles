@@ -16,5 +16,3 @@ package-lock.json
 # Neovim server log — local debugging artifacts
 nvim.log
 
-# SSH public keys — machine-specific and potentially sensitive
-.ssh/*.pub
