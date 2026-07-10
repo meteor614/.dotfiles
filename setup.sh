@@ -460,6 +460,7 @@ install_missing_brew_packages() {
     # --adopt lets Homebrew take ownership of matching artifacts that already
     # exist outside brew, common for fonts restored from backup/iCloud.
     [ "${#missing_casks[@]}" -gt 0 ] && brew install --cask --adopt "${missing_casks[@]}"
+    return 0
 }
 
 install_brew_if_needed() {
