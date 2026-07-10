@@ -30,15 +30,25 @@ _auto_venv_is_current() {
 }
 
 _auto_venv_external_env_active() {
+    local target_venv="${1:-}"
+
     _auto_venv_is_current && return 1
 
-    [ -n "${VIRTUAL_ENV:-}" ] && return 0
+    [ -n "${VIRTUAL_ENV:-}" ] || {
+        if [ "${CONDA_SHLVL:-0}" -gt 0 ] 2>/dev/null; then
+            return 0
+        fi
+        return 1
+    }
 
-    if [ "${CONDA_SHLVL:-0}" -gt 0 ] 2>/dev/null; then
-        return 0
+    # VIRTUAL_ENV is set. If it does not match the .venv we would activate
+    # for the current directory, treat it as a stale/inherited env (e.g. from
+    # a tmux/herdr server process) and allow auto-venv to take over.
+    if [ -n "$target_venv" ] && [ "$VIRTUAL_ENV" != "$target_venv" ]; then
+        return 1
     fi
 
-    return 1
+    return 0
 }
 
 _auto_venv_deactivate() {
@@ -65,7 +75,7 @@ _auto_venv_activate() {
     fi
 
     _auto_venv_deactivate
-    _auto_venv_external_env_active && return 0
+    _auto_venv_external_env_active "$venv_path" && return 0
 
     [ -f "$venv_path/bin/activate" ] || return 1
 
@@ -79,6 +89,13 @@ _auto_venv_activate() {
 _auto_venv_refresh() {
     local venv_path=""
 
+    # Avoid repeated work when hooked to precmd/PROMPT_COMMAND and PWD
+    # has not changed since the last run.
+    if [ "${AUTO_VENV_LAST_PWD:-}" = "${PWD:-}" ]; then
+        return 0
+    fi
+    AUTO_VENV_LAST_PWD="${PWD:-}"
+
     if [ "${AUTO_VENV_ACTIVE:-}" = "1" ] && ! _auto_venv_is_current; then
         _auto_venv_clear_state
     fi
@@ -90,7 +107,7 @@ _auto_venv_refresh() {
             return 0
         fi
 
-        _auto_venv_external_env_active && return 0
+        _auto_venv_external_env_active "$venv_path" && return 0
         _auto_venv_activate "$venv_path"
         return 0
     fi

@@ -168,11 +168,16 @@ mamba() { _lazy_load_conda && mamba "$@" }
 # ── Atuin (zsh has native preexec; no bash-preexec needed) ───────────────────
 (( $+commands[atuin] )) && _cached_eval atuin atuin init zsh
 
-# ── auto-venv: wire chpwd hook (common.sh sourced the helper file) ───────────
+# ── auto-venv: wire chpwd + precmd hooks (common.sh sourced the helper file) ─
+# chpwd catches explicit directory changes; precmd catches late cwd changes
+# (e.g. herdr restoring a pane) before the first prompt is drawn.
 if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
     autoload -Uz add-zsh-hook
     if (( ! ${chpwd_functions[(I)_auto_venv_refresh]:-0} )); then
         add-zsh-hook chpwd _auto_venv_refresh
+    fi
+    if (( ! ${precmd_functions[(I)_auto_venv_refresh]:-0} )); then
+        add-zsh-hook precmd _auto_venv_refresh
     fi
     _auto_venv_refresh
 fi
