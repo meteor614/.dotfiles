@@ -26,7 +26,15 @@ _auto_venv_find() {
 _auto_venv_is_current() {
     [ "${AUTO_VENV_ACTIVE:-}" = "1" ] || return 1
     [ -n "${AUTO_VENV_PATH:-}" ] || return 1
-    [ "${VIRTUAL_ENV:-}" = "$AUTO_VENV_PATH" ]
+    [ "${VIRTUAL_ENV:-}" = "$AUTO_VENV_PATH" ] || return 1
+
+    # Make sure the venv's bin dir is actually at the front of PATH. Other
+    # tools (e.g. mise) may prepend themselves after the venv was activated,
+    # especially in restored multiplexer sessions where the env is inherited.
+    case ":${PATH:-}:" in
+        ":$AUTO_VENV_PATH/bin:"*) return 0 ;;
+        *) return 1 ;;
+    esac
 }
 
 _auto_venv_external_env_active() {
@@ -41,11 +49,19 @@ _auto_venv_external_env_active() {
         return 1
     }
 
-    # VIRTUAL_ENV is set. If it does not match the .venv we would activate
-    # for the current directory, treat it as a stale/inherited env (e.g. from
-    # a tmux/herdr server process) and allow auto-venv to take over.
+    # If VIRTUAL_ENV points to a different .venv, treat it as a stale/inherited
+    # env (e.g. from a tmux/herdr server process) and allow auto-venv to take over.
     if [ -n "$target_venv" ] && [ "$VIRTUAL_ENV" != "$target_venv" ]; then
         return 1
+    fi
+
+    # VIRTUAL_ENV matches the target. Only block if PATH already has the venv
+    # bin dir at the front; otherwise let auto-venv re-activate to fix PATH.
+    if [ -n "$target_venv" ]; then
+        case ":${PATH:-}:" in
+            ":$target_venv/bin:"*) return 0 ;;
+            *) return 1 ;;
+        esac
     fi
 
     return 0

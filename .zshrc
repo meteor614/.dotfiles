@@ -179,7 +179,6 @@ if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
     if (( ! ${precmd_functions[(I)_auto_venv_refresh]:-0} )); then
         add-zsh-hook precmd _auto_venv_refresh
     fi
-    _auto_venv_refresh
 fi
 unset AUTO_VENV_HELPER
 
