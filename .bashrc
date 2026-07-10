@@ -1,9 +1,6 @@
 # ~/.bashrc — bash-specific bits only; shared logic lives in
 # $XDG_CONFIG_HOME/shell/common.sh (sourced below).
 
-# Bash prompt (Starship is started from common.sh)
-export PS1='[\u@\h \w]$ '
-
 # -----------------------------------------------------------------------------
 # Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …)
 # NOTE: This path resolution is duplicated in .zshrc because bash has no
@@ -16,6 +13,11 @@ _common_sh="$XDG_CONFIG_HOME/shell/common.sh"
 # shellcheck source=/dev/null
 [ -f "$_common_sh" ] && . "$_common_sh"
 unset _common_sh
+
+# Bash prompt fallback; Starship (when present) is initialized from common.sh.
+if ! command -v starship >/dev/null 2>&1; then
+    export PS1='[\u@\h \w]$ '
+fi
 
 # Prepend $HOME/bin AFTER common.sh so it takes priority over atuin/nvm
 if command -v path_force_prepend >/dev/null 2>&1; then
@@ -32,13 +34,7 @@ fi
 # kubectl completion: generate once and cache, regenerate when the binary
 # changes. Avoids forking kubectl on every interactive shell startup.
 if command -v kubectl >/dev/null 2>&1; then
-    _kubectl_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/kubectl.bash"
-    if [ ! -f "$_kubectl_cache" ] || [ "$(command -v kubectl)" -nt "$_kubectl_cache" ]; then
-        mkdir -p "$(dirname "$_kubectl_cache")"
-        kubectl completion bash >| "$_kubectl_cache" 2>/dev/null || rm -f "$_kubectl_cache"
-    fi
-    [ -s "$_kubectl_cache" ] && . "$_kubectl_cache"
-    unset _kubectl_cache
+    dotfiles_cached_eval kubectl "$(command -v kubectl)" bash completion bash
 fi
 
 # perlbrew
@@ -47,13 +43,7 @@ fi
 # atuin (needs bash-preexec in bash; skip in non-interactive shells)
 if [[ $- == *i* ]] && command -v atuin >/dev/null 2>&1; then
     [ -f ~/.bash-preexec.sh ] && . ~/.bash-preexec.sh
-    _atuin_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/atuin.bash"
-    if [ ! -f "$_atuin_cache" ] || [ "$(command -v atuin)" -nt "$_atuin_cache" ]; then
-        mkdir -p "$(dirname "$_atuin_cache")"
-        atuin init bash >| "$_atuin_cache" 2>/dev/null || rm -f "$_atuin_cache"
-    fi
-    [ -s "$_atuin_cache" ] && . "$_atuin_cache"
-    unset _atuin_cache
+    dotfiles_cached_eval atuin "$(command -v atuin)" bash init bash
 fi
 
 # auto-venv: wire up via PROMPT_COMMAND (common.sh has already sourced the file)
@@ -86,13 +76,7 @@ esac
 
 # zoxide (cached to avoid fork on every shell startup)
 if command -v zoxide >/dev/null 2>&1; then
-    _zoxide_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/zoxide.bash"
-    if [ ! -f "$_zoxide_cache" ] || [ "$(command -v zoxide)" -nt "$_zoxide_cache" ]; then
-        mkdir -p "$(dirname "$_zoxide_cache")"
-        zoxide init bash >| "$_zoxide_cache" 2>/dev/null || rm -f "$_zoxide_cache"
-    fi
-    [ -s "$_zoxide_cache" ] && . "$_zoxide_cache"
-    unset _zoxide_cache
+    dotfiles_cached_eval zoxide "$(command -v zoxide)" bash init bash
 fi
 
 # Local machine-specific overrides

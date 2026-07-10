@@ -69,20 +69,25 @@ _zsh_plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
     source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 unset _zsh_plugins_dir
 
-# ── Cached eval helper (zsh-only, used for starship/zoxide/atuin init) ───────
-_cached_eval() {
-    local name="$1" bin="$2"; shift 2
-    local cache="$ZSH_CACHE_DIR/${name}.zsh"
-    if [[ ! -f "$cache" || "$bin" -nt "$cache" ]]; then
-        local tmp="${cache}.tmp.$$"
-        if "$bin" "$@" >| "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
-            mv -f "$tmp" "$cache"
-        else
-            rm -f "$tmp"
-        fi
+# ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
+# NOTE: This path resolution is duplicated in .bashrc because bash has no
+# equivalent of .zshenv for early shared init. Keep both in sync.
+_common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
+[[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
+    && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
+[[ -f "$_common_sh" ]] && source "$_common_sh"
+unset _common_sh
+
+
+# ── pnpm/corepack global binaries (interactive zsh only) ─────────────────────
+if [[ -z "${PNPM_HOME:-}" ]]; then
+    if [[ -d "$HOME/Library/pnpm" ]]; then
+        export PNPM_HOME="$HOME/Library/pnpm"
+    else
+        export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
     fi
-    [[ -s "$cache" ]] && source "$cache"
-}
+fi
+[[ -d "$PNPM_HOME" ]] && path_prepend "$PNPM_HOME"
 
 # ── Deferred init helper (zsh-only) ─────────────────────────────────────────
 # Queue non-critical init commands and run them once from the parent shell at
@@ -105,32 +110,20 @@ _dotfiles_run_deferred() {
 }
 add-zsh-hook precmd _dotfiles_run_deferred
 
-(( $+commands[zoxide] )) && _cached_eval zoxide "${commands[zoxide]}" init zsh
+(( $+commands[zoxide] )) && dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
 # ── Starship (cached init; single command probe) ─────────────────────────────
-# NOTE: _find_starship is defined in common.sh but not available here yet
-# (common.sh is sourced after this block). Duplicated probe is intentional:
-# zsh uses _cached_eval for speed, bash uses common.sh's _find_starship.
 if (( $+commands[starship] )); then
-    _cached_eval starship "${commands[starship]}" init zsh
+    dotfiles_cached_eval starship "${commands[starship]}" zsh init zsh
 else
     _starship_bin=""
     for _c in /opt/homebrew/bin/starship /usr/local/bin/starship \
               "$HOME/.local/bin/starship" "$HOME/bin/starship"; do
         [[ -x "$_c" ]] && _starship_bin="$_c" && break
     done
-    [[ -n "$_starship_bin" ]] && _cached_eval starship "$_starship_bin" init zsh
+    [[ -n "$_starship_bin" ]] && dotfiles_cached_eval starship "$_starship_bin" zsh init zsh
     unset _c _starship_bin
 fi
-
-# ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
-# NOTE: This path resolution is duplicated in .bashrc because bash has no
-# equivalent of .zshenv for early shared init. Keep both in sync.
-_common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
-[[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
-    && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
-[[ -f "$_common_sh" ]] && source "$_common_sh"
-unset _common_sh
 
 # ── User configuration (local overrides) ─────────────────────────────────────
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
@@ -166,7 +159,7 @@ conda() { _lazy_load_conda && conda "$@" }
 mamba() { _lazy_load_conda && mamba "$@" }
 
 # ── Atuin (zsh has native preexec; no bash-preexec needed) ───────────────────
-(( $+commands[atuin] )) && _cached_eval atuin atuin init zsh
+(( $+commands[atuin] )) && dotfiles_cached_eval atuin "${commands[atuin]}" zsh init zsh
 
 # ── auto-venv: wire chpwd + precmd hooks (common.sh sourced the helper file) ─
 # chpwd catches explicit directory changes; precmd catches late cwd changes

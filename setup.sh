@@ -33,19 +33,20 @@ brew_casks=(
 # provide eza, fzf, zoxide, bat, rg, fd, btop, procs, sd — those are skipped.
 # Format: <name>|<api_repo>|<download_url>|<bin_path_inside_archive>
 # Use {VER} to interpolate the latest tag stripped of the leading 'v'; {TAG} keeps the leading 'v'.
+# Use {LINUX_ARCH} and tool-specific aliases for GitHub asset architectures selected by uname -m.
 linux_release_tools=(
-    "topgrade|topgrade-rs/topgrade|https://github.com/topgrade-rs/topgrade/releases/download/{TAG}/topgrade-{TAG}-x86_64-unknown-linux-musl.tar.gz|topgrade"
-    "starship|starship/starship|https://github.com/starship/starship/releases/download/{TAG}/starship-x86_64-unknown-linux-musl.tar.gz|starship"
-    "zoxide|ajeetdsouza/zoxide|https://github.com/ajeetdsouza/zoxide/releases/download/{TAG}/zoxide-{VER}-x86_64-unknown-linux-musl.tar.gz|zoxide"
-    "atuin|atuinsh/atuin|https://github.com/atuinsh/atuin/releases/download/{TAG}/atuin-x86_64-unknown-linux-musl.tar.gz|atuin-x86_64-unknown-linux-musl/atuin"
-    "lazygit|jesseduffield/lazygit|https://github.com/jesseduffield/lazygit/releases/download/{TAG}/lazygit_{VER}_Linux_x86_64.tar.gz|lazygit"
-    "delta|dandavison/delta|https://github.com/dandavison/delta/releases/download/{TAG}/delta-{TAG}-x86_64-unknown-linux-musl.tar.gz|delta-{TAG}-x86_64-unknown-linux-musl/delta"
-    "dust|bootandy/dust|https://github.com/bootandy/dust/releases/download/{TAG}/dust-{TAG}-x86_64-unknown-linux-musl.tar.gz|dust-{TAG}-x86_64-unknown-linux-musl/dust"
-    "hyperfine|sharkdp/hyperfine|https://github.com/sharkdp/hyperfine/releases/download/{TAG}/hyperfine-{TAG}-x86_64-unknown-linux-musl.tar.gz|hyperfine-{TAG}-x86_64-unknown-linux-musl/hyperfine"
-    "gitui|extrawurst/gitui|https://github.com/extrawurst/gitui/releases/download/{TAG}/gitui-linux-x86_64.tar.gz|gitui"
-    "fastfetch|fastfetch-cli/fastfetch|https://github.com/fastfetch-cli/fastfetch/releases/download/{TAG}/fastfetch-linux-amd64.tar.gz|fastfetch-linux-amd64/usr/bin/fastfetch"
-    "zellij|zellij-org/zellij|https://github.com/zellij-org/zellij/releases/download/{TAG}/zellij-x86_64-unknown-linux-musl.tar.gz|zellij"
-    "yazi|sxyazi/yazi|https://github.com/sxyazi/yazi/releases/download/{TAG}/yazi-x86_64-unknown-linux-musl.zip|yazi-x86_64-unknown-linux-musl/yazi"
+    "topgrade|topgrade-rs/topgrade|https://github.com/topgrade-rs/topgrade/releases/download/{TAG}/topgrade-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|topgrade"
+    "starship|starship/starship|https://github.com/starship/starship/releases/download/{TAG}/starship-{LINUX_ARCH}-unknown-linux-musl.tar.gz|starship"
+    "zoxide|ajeetdsouza/zoxide|https://github.com/ajeetdsouza/zoxide/releases/download/{TAG}/zoxide-{VER}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|zoxide"
+    "atuin|atuinsh/atuin|https://github.com/atuinsh/atuin/releases/download/{TAG}/atuin-{LINUX_ARCH}-unknown-linux-musl.tar.gz|atuin-{LINUX_ARCH}-unknown-linux-musl/atuin"
+    "lazygit|jesseduffield/lazygit|https://github.com/jesseduffield/lazygit/releases/download/{TAG}/lazygit_{VER}_Linux_{LINUX_ARCH_LAZYGIT}.tar.gz|lazygit"
+    "delta|dandavison/delta|https://github.com/dandavison/delta/releases/download/{TAG}/delta-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|delta-{TAG}-{LINUX_ARCH}-unknown-linux-musl/delta"
+    "dust|bootandy/dust|https://github.com/bootandy/dust/releases/download/{TAG}/dust-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|dust-{TAG}-{LINUX_ARCH}-unknown-linux-musl/dust"
+    "hyperfine|sharkdp/hyperfine|https://github.com/sharkdp/hyperfine/releases/download/{TAG}/hyperfine-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|hyperfine-{TAG}-{LINUX_ARCH}-unknown-linux-musl/hyperfine"
+    "gitui|extrawurst/gitui|https://github.com/extrawurst/gitui/releases/download/{TAG}/gitui-linux-{LINUX_ARCH}.tar.gz|gitui"
+    "fastfetch|fastfetch-cli/fastfetch|https://github.com/fastfetch-cli/fastfetch/releases/download/{TAG}/fastfetch-linux-{LINUX_ARCH_FASTFETCH}.tar.gz|fastfetch-linux-{LINUX_ARCH_FASTFETCH}/usr/bin/fastfetch"
+    "zellij|zellij-org/zellij|https://github.com/zellij-org/zellij/releases/download/{TAG}/zellij-{LINUX_ARCH}-unknown-linux-musl.tar.gz|zellij"
+    "yazi|sxyazi/yazi|https://github.com/sxyazi/yazi/releases/download/{TAG}/yazi-{LINUX_ARCH}-unknown-linux-musl.zip|yazi-{LINUX_ARCH}-unknown-linux-musl/yazi"
 )
 
 # Entware packages available on Synology DSM via /opt/bin/opkg.
@@ -113,6 +114,30 @@ parse_args() {
 track_background() {
     "$@" &
     background_pids+=("$!")
+}
+
+linux_release_arch() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s\n' x86_64 ;;
+        aarch64|arm64) printf '%s\n' aarch64 ;;
+        *) return 1 ;;
+    esac
+}
+
+linux_release_arch_lazygit() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s\n' x86_64 ;;
+        aarch64|arm64) printf '%s\n' arm64 ;;
+        *) return 1 ;;
+    esac
+}
+
+linux_release_arch_fastfetch() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s\n' amd64 ;;
+        aarch64|arm64) printf '%s\n' aarch64 ;;
+        *) return 1 ;;
+    esac
 }
 
 wait_for_background_jobs() {
@@ -512,7 +537,13 @@ install_linux_release_tool() {
         return 0
     fi
 
-    local tag ver url bin_path
+    local linux_arch linux_arch_lazygit linux_arch_fastfetch tag ver url bin_path
+    linux_arch=$(linux_release_arch) || {
+        yellow "skip $name (unsupported Linux architecture: $(uname -m))"
+        return 0
+    }
+    linux_arch_lazygit=$(linux_release_arch_lazygit) || linux_arch_lazygit="$linux_arch"
+    linux_arch_fastfetch=$(linux_release_arch_fastfetch) || linux_arch_fastfetch="$linux_arch"
     # set -e aborts the whole script if this command-substitution assignment
     # returns nonzero; absorb the exit so the -z skip below actually runs
     # instead of killing the entire install on a single API failure.
@@ -525,8 +556,14 @@ install_linux_release_tool() {
 
     url=${url_tpl//\{TAG\}/$tag}
     url=${url//\{VER\}/$ver}
+    url=${url//\{LINUX_ARCH\}/$linux_arch}
+    url=${url//\{LINUX_ARCH_LAZYGIT\}/$linux_arch_lazygit}
+    url=${url//\{LINUX_ARCH_FASTFETCH\}/$linux_arch_fastfetch}
     bin_path=${bin_tpl//\{TAG\}/$tag}
     bin_path=${bin_path//\{VER\}/$ver}
+    bin_path=${bin_path//\{LINUX_ARCH\}/$linux_arch}
+    bin_path=${bin_path//\{LINUX_ARCH_LAZYGIT\}/$linux_arch_lazygit}
+    bin_path=${bin_path//\{LINUX_ARCH_FASTFETCH\}/$linux_arch_fastfetch}
 
     local workdir
     workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX")
@@ -749,7 +786,6 @@ install_user_language_packages() {
         if npm_prefix_is_user_writable; then
             command_exists bash-language-server || npm_packages+=("bash-language-server")
             command_exists docker-langserver || npm_packages+=("dockerfile-language-server-nodejs")
-            npm_global_package_installed neovim || npm_packages+=("neovim")
 
             if [ "${#npm_packages[@]}" -gt 0 ]; then
                 track_background npm install -g "${npm_packages[@]}"
@@ -774,7 +810,7 @@ install_user_language_packages() {
     # reported instead of swallowed, since python builds in particular often
     # fail on missing system headers (openssl/xz/libffi).
     if command_exists mise; then
-        track_background mise install --yes || yellow "mise install failed (see above)"
+        mise install --yes
     fi
 }
 
@@ -915,7 +951,10 @@ run_setup() {
 
 parse_args "$@"
 run_setup
-wait_for_background_jobs
+if ! wait_for_background_jobs; then
+    red 'One or more background setup jobs failed.'
+    exit 1
+fi
 
 if [ "$MODE" = "check" ] && [ "$CHECK_FAILED" -ne 0 ]; then
     red 'Setup check detected mismatches.'

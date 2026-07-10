@@ -61,7 +61,9 @@ kubectl() {
 
 # ── Autostart multiplexer on incoming SSH (prefer zellij, fallback tmux) ─────
 if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
+      && -o login \
       && -n "$SSH_CONNECTION" \
+      && -z "${SSH_ORIGINAL_COMMAND:-}" \
       && -z "$TMUX" \
       && -z "$ZELLIJ" \
       && -t 0 \

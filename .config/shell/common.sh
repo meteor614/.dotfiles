@@ -59,10 +59,42 @@ path_force_prepend() {
     unset _path_force_dir _path_force_old _path_force_part
 }
 
+
+# -----------------------------------------------------------------------------
+# Cached eval helper (shared by bash + zsh)
+# -----------------------------------------------------------------------------
+dotfiles_cached_eval() {
+    local name=$1
+    local bin=$2
+    local shell_name=${3:-$_DOTFILES_SHELL}
+    shift 3
+
+    [ -n "$name" ] && [ -n "$bin" ] && [ -x "$bin" ] || return 0
+
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
+    [ "$shell_name" = "zsh" ] && cache_dir="${ZSH_CACHE_DIR:-$HOME/.zsh_cache}"
+    local cache="$cache_dir/${name}.${shell_name}"
+    local tmp
+
+    if [ ! -f "$cache" ] || [ "$bin" -nt "$cache" ]; then
+        mkdir -p "$cache_dir"
+        tmp="${cache}.tmp.$$"
+        if "$bin" "$@" >| "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+            mv -f "$tmp" "$cache"
+        else
+            rm -f "$tmp"
+        fi
+    fi
+
+    [ -s "$cache" ] && . "$cache"
+}
+
 # -----------------------------------------------------------------------------
 # Core environment
 # -----------------------------------------------------------------------------
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export EDITOR='nvim'
 export SVN_EDITOR='nvim'
 export PAGER='less'
@@ -500,17 +532,9 @@ if command -v mise >/dev/null 2>&1; then
     # subdirectories automatically switch runtime versions on cd.
     # Output is cached so mise is only forked once per binary update.
     if [ -n "${ZSH_VERSION:-}" ]; then
-        # _cached_eval is defined in .zshrc before common.sh is sourced
-        _cached_eval mise "${commands[mise]}" activate -s zsh
+        dotfiles_cached_eval mise "$(command -v mise)" zsh activate -s zsh
     else
-        # Bash inline cache (no _cached_eval helper available)
-        _mise_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/mise.bash"
-        if [ ! -f "$_mise_cache" ] || [ "$(command -v mise)" -nt "$_mise_cache" ]; then
-            mkdir -p "$(dirname "$_mise_cache")"
-            mise activate -s bash >| "$_mise_cache" 2>/dev/null || rm -f "$_mise_cache"
-        fi
-        [ -s "$_mise_cache" ] && source "$_mise_cache"
-        unset _mise_cache
+        dotfiles_cached_eval mise "$(command -v mise)" bash activate -s bash
     fi
 else
     # Fallback: nvm lazy load (preserved for environments without mise)
@@ -562,13 +586,7 @@ if command -v jj >/dev/null 2>&1; then
     if [ -n "${ZSH_VERSION:-}" ]; then
         # Lazy-load zsh completion (generate once, cache it)
         _jj_load() {
-            _jj_cache="${ZSH_CACHE_DIR:-$HOME/.zsh_cache}/_jj"
-            if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
-                mkdir -p "$(dirname "$_jj_cache")"
-                jj util completion zsh >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
-            fi
-            [ -s "$_jj_cache" ] && source "$_jj_cache"
-            unset _jj_cache
+            dotfiles_cached_eval _jj "$(command -v jj)" zsh util completion zsh
             unset -f _jj_load 2>/dev/null || true
         }
         if typeset -f _defer >/dev/null 2>&1; then
@@ -577,18 +595,12 @@ if command -v jj >/dev/null 2>&1; then
             _jj_load
         fi
     elif [ -n "${BASH_VERSION:-}" ]; then
-        _jj_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/jj.bash"
-        if [ ! -f "$_jj_cache" ] || [ "$(command -v jj)" -nt "$_jj_cache" ]; then
-            mkdir -p "$(dirname "$_jj_cache")"
-            jj util completion bash >| "$_jj_cache" 2>/dev/null || rm -f "$_jj_cache"
-        fi
-        [ -s "$_jj_cache" ] && source "$_jj_cache"
-        unset _jj_cache
+        dotfiles_cached_eval jj "$(command -v jj)" bash util completion bash
     fi
 fi
 
 # -----------------------------------------------------------------------------
-# Starship prompt (shell-aware; zsh gets cached init via _cached_eval in .zshrc)
+# Starship prompt (shell-aware; zsh gets cached init via dotfiles_cached_eval in .zshrc)
 # -----------------------------------------------------------------------------
 _find_starship() {
     if command -v starship >/dev/null 2>&1; then
@@ -603,11 +615,11 @@ _find_starship() {
     return 1
 }
 
-# Bash inits Starship directly. Zsh's .zshrc handles it via _cached_eval
+# Bash inits Starship directly. Zsh's .zshrc handles it via dotfiles_cached_eval
 # for speed (can't use _find_starship here because .zshrc sources common.sh
 # AFTER its own starship init block).
 if [ "$_DOTFILES_SHELL" = "bash" ]; then
-    _starship_bin="$(_find_starship)" && eval "$("$_starship_bin" init bash)"
+    _starship_bin="$(_find_starship)" && dotfiles_cached_eval starship "$_starship_bin" bash init bash
     unset _starship_bin
 fi
 
@@ -674,18 +686,12 @@ fi
 if command -v direnv >/dev/null 2>&1; then
     if [ -n "${ZSH_VERSION:-}" ]; then
         if typeset -f _defer >/dev/null 2>&1; then
-            _defer _cached_eval direnv "${commands[direnv]}" hook zsh
+            _defer dotfiles_cached_eval direnv "$(command -v direnv)" zsh hook zsh
         else
-            _cached_eval direnv "${commands[direnv]}" hook zsh
+            dotfiles_cached_eval direnv "$(command -v direnv)" zsh hook zsh
         fi
     else
-        _direnv_cache="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/direnv.bash"
-        if [ ! -f "$_direnv_cache" ] || [ "$(command -v direnv)" -nt "$_direnv_cache" ]; then
-            mkdir -p "$(dirname "$_direnv_cache")"
-            direnv hook bash >| "$_direnv_cache" 2>/dev/null || rm -f "$_direnv_cache"
-        fi
-        [ -s "$_direnv_cache" ] && source "$_direnv_cache"
-        unset _direnv_cache
+        dotfiles_cached_eval direnv "$(command -v direnv)" bash hook bash
     fi
 fi
 
