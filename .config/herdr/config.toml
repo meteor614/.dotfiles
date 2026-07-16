@@ -88,6 +88,9 @@ delivery = "herdr"
 [ui.sound]
 enabled = false
 
+[ui.sidebar.spaces]
+row_gap = 1
+
 [session]
 resume_agents_on_restore = true
 
