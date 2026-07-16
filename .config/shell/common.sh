@@ -290,10 +290,10 @@ alias zjk='zellij kill-session'
 
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza'
-    alias ll='eza -l --icons'
-    alias l='eza -l --icons'
-    alias la='eza -la --icons'
-    alias k='eza -l --icons'
+    alias ll='eza --icons -l'
+    alias l='eza --icons -l'
+    alias la='eza --icons -la'
+    alias k='eza --icons -l'
 else
     if [ "$(uname -s)" = "Darwin" ]; then
         alias ls='ls -G'
