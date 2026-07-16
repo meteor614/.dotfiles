@@ -1,82 +1,123 @@
 # Reasonix configuration.
 # Resolution order: flag > ./reasonix.toml > ~/.reasonix/config.toml > built-in defaults.
-# Secrets come from the environment via api_key_env; never put keys here.
+# Fields marked user/global only are not overridden by ./reasonix.toml.
+# Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
-config_version = 2   # schema marker for diagnostics; old versions may ignore it
+config_version = 4   # schema marker for diagnostics; old versions may ignore it
 default_model = "deepseek-flash"
-language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
+# language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
+credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
 [ui]
 theme = "auto"   # auto|dark|light; CLI colors only; REASONIX_THEME can override per run
-# theme_style = "graphite"   # graphite|ember|aurora|midnight|sandstone|porcelain|linen|glacier
+theme_style = "aurora"   # CLI accent palette; REASONIX_THEME_STYLE can override per run
+# shortcut_layout = "desktop"   # classic|desktop; compatibility setting; Shift+Tab toggles Plan, Ctrl+Y toggles YOLO
+# cursor_shape = "underline"   # block|underline|bar; text input cursor shape
+# show_reasoning = true   # CLI: show thinking text by default; false = collapsed (toggle with Ctrl+O)
 
 [desktop]
 # language = "zh"   # desktop UI language; empty/auto = browser/OS auto-detect
+layout_style = "workbench"   # desktop layout: classic|workbench|creation
 theme = "dark"   # desktop only: auto|dark|light
-# theme_style = "graphite"   # graphite|ember|aurora|midnight|sandstone|porcelain|linen|glacier
+theme_style = "graphite"   # desktop accent palette
 close_behavior = "background"   # desktop: quit|background when the window close button is clicked
+status_bar_style = "text"   # desktop: icon|text metric labels in the bottom status bar
+status_bar_items = ["model", "workspace", "git_branch", "cache", "cache_avg", "session_tokens", "turn_tokens", "turn_cost", "session_turns", "context", "compact", "cost", "balance"]   # desktop: ordered visible bottom status bar items
+default_tool_approval_mode = "ask"   # desktop: Ask/Auto/YOLO default for newly-created sessions
+check_updates = true   # desktop: check for new versions on startup
+telemetry = true   # desktop: anonymous launch ping (install id + version + OS); never content
+metrics = true   # desktop: aggregate desktop metrics (anonymous signal/bucket counts); never content
+expand_thinking = false   # desktop: show reasoning text expanded by default; false = collapsed
+display_mode = "standard"   # desktop: standard|compact transcript display mode
 
 [notifications]
-enabled = false   # system notifications for CLI chat/run; default off
-# Sub-items are shadowed by enabled=false — kept as documentation only.
-# sound = false      # disable sound notifications
-# turn_done = true   # notify when a turn finishes
-# approval_request = true   # notify when a tool approval is waiting
-# ask_request = true   # notify when a question is waiting
+enabled = false   # system notifications for CLI and desktop turns; default off
+turn_done = true   # notify when a turn finishes
+approval_request = true   # notify when a tool approval is waiting
+ask_request = true   # notify when a question is waiting
 
 [network]
 proxy_mode = "auto"   # auto|env|custom|off; auto currently uses env proxy
 # proxy_url  = "socks5://127.0.0.1:7890"   # optional custom override
 # no_proxy   = "localhost,127.0.0.1,.local"   # honored for proxy_mode = "custom"
 
+[network.proxy]
+type = "socks5"   # http|https|socks5|socks5h
+# server = "127.0.0.1"
+# port = 7890
+# username = ""
+# password = "${REASONIX_PROXY_PASSWORD}"   # optional; supports ${VAR} expansion
+
+[environment]
+enabled = true   # inject a stable startup environment summary into the model prompt
+# [environment.tools]
+# go = "/opt/homebrew/bin/go"   # trusted executable path; workspace-local paths are not auto-executed
+
 [agent]
 # system_prompt = """..."""   # omit to use the built-in prompt for this version
 # system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
-max_steps   = 0
-temperature = 0.0
-auto_plan   = "off"   # off|on; off keeps plan mode manual
-auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
-soft_compact_ratio  = 0.7   # notice only; keeps cache-first prefix intact
+# max_steps         = 0   # executor tool-call rounds; 0 = no limit
+# planner_max_steps = 0    # planner read-only tool-call rounds; 0 = no limit
+temperature       = 0.0
+auto_plan   = "off"   # user-level only: off|on; off keeps plan mode manual
+memory_compiler = { enabled = true, verbosity = "observe" }   # user-level only: observe|compact
+# reasoning_language = "zh"   # visible reasoning language: auto|zh|en
+# auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
+soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
+tool_result_snip_ratio = 0.6   # snip stale tool results at this fraction before summary compaction
 compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
 compact_force_ratio = 0.9   # force compacting at this high-water mark
-planner_model = "deepseek-pro"   # low-frequency planner (two-model collaboration)
-planner_max_steps = 20
+# keep                = ["errors"]   # compaction keep policy: errors, user_marked
+# recent_keep         = 2   # minimum recent messages kept verbatim
+cold_resume_prune   = true   # elide stale tool results when reopening a session past the provider cache window
+# plan_mode_allowed_tools = ["custom_reader"]   # extra read-only declarations; cannot unlock known blocked tools or unsafe bash
+# plan_mode_read_only_commands = ["gh issue view", "gh pr diff"]   # concrete read-only shell prefixes; does not allow shell operators or shell interpreters
+# planner_model = "deepseek-pro"   # optional: enable two-model collaboration
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # subagent_effort = "high"   # optional default effort for subagents
 # subagent_efforts = { review = "max", task = "high" }   # per-tool/skill effort overrides
+# max_subagent_depth = 2   # nested subagent delegation depth; set 1 to disable nested delegation
 # output_style = "explanatory"   # explanatory | learning | concise | custom; empty = default
 
 [[providers]]
 name        = "deepseek-flash"
 kind        = "openai"
 base_url    = "https://api.deepseek.com"
-models      = ["deepseek-v4-flash"]
-default     = "deepseek-v4-flash"
+model       = "deepseek-v4-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
 context_window = 1000000   # tokens; compaction triggers near this limit
-price       = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }   # per 1M tokens
+price       = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }   # provider-wide fallback, per 1M tokens
 
 [[providers]]
 name        = "deepseek-pro"
 kind        = "openai"
 base_url    = "https://api.deepseek.com"
-models      = ["deepseek-v4-pro"]
-default     = "deepseek-v4-pro"
+model       = "deepseek-v4-pro"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
 context_window = 1000000   # tokens; compaction triggers near this limit
-price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # per 1M tokens
+price       = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" }   # provider-wide fallback, per 1M tokens
 
 [tools]
 enabled = []   # empty = all built-in tools
-bash_timeout_seconds = 180   # foreground safety cap; set 0 for no tool-local cap
+bash_timeout_seconds = 120   # foreground safety cap; set 0 for no tool-local cap
+mcp_call_timeout_seconds = 300   # default MCP call safety cap; per-plugin/tool overrides may raise it
 
-[codegraph]
-enabled      = true   # built-in MCP server; off by default for first-run sessions
-auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
-# path       = ""   # empty = cache, then PATH, then a bundle beside reasonix
+[tools.background_jobs]
+stalled_warning_seconds = 900   # warn once per background job after this many quiet seconds; 0 disables
+
+[tools.shell]
+# prefer = "auto"   # auto|bash|powershell|pwsh; empty/default = auto-detect
+# path   = "/opt/homebrew/bin/bash"   # absolute path to the shell executable; empty = PATH lookup
+
+[lsp]
+enabled = true   # language server tools; servers launch lazily when used
+# [lsp.servers.go]
+# command = "gopls"
+# args = []
+# extensions = [".go"]
 
 [skills]
 # paths = ["~/my-skills", "../shared/skills"]   # extra custom skill roots
@@ -87,8 +128,11 @@ auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
 [permissions]
 # Per-call gating. mode = writer fallback when no rule matches: ask|allow|deny.
 # Readers always default to allow. Precedence: deny > ask > allow > fallback.
-# Rules are "ToolName" or "ToolName(glob)"; '*' matches any run, '?' one char.
+# Rules are "Tool" or "Tool(specifier)"; e.g. Bash(go test:*), Edit(src/**).
 mode  = "ask"
+# deny = ["Bash(rm -rf*)", "Bash(git push*)"]   # hard-blocked in every mode
+# allow = ["Bash(go test:*)", "Bash(git status:*)"]   # never prompted
+# ask = ["Edit(src/**)"]   # force a prompt even if otherwise allowed
 deny = [
     "bash(rm -rf *)", "bash(sudo *)", "bash(chmod 777 *)",
     "bash(curl * | sh *)", "bash(wget * -O - | sh *)",
@@ -109,17 +153,18 @@ allow = [
     "bash(jj status *)", "bash(jj st *)", "bash(jj log *)", "bash(jj diff *)",
     "bash(jj show *)", "bash(jj workspace *)",
 ]
-# ask = ["write_file"]   # force a prompt even if otherwise allowed
 
 [sandbox]
-# Confine tool blast radius. File-writers (write_file/edit_file/multi_edit)
-# may only write under workspace_root (empty = current dir) + allow_write.
-# bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
-# graceful fallback elsewhere); "off" disables it. network allows egress.
+# Confine tool blast radius. File-writers (write_file/edit_file/multi_edit/move_file)
+# may only write under workspace_root (empty = current dir) and allow_write extras.
+# bash = "enforce" jails each command in an OS sandbox when available;
+# without one, bash execution is refused. Empty defaults to enforce on macOS/Linux.
+# Windows currently forces bash = "off" to restore pre-1.16 unconfined shell execution.
+# network allows sandboxed bash egress.
 # workspace_root = ""            # default: current working directory
-allow_write = ["/tmp", "~", "~/.config/jj"]
+# allow_write = ["/tmp"]          # extra dirs writers may also modify
+# forbid_read = []                  # dirs the agent cannot read or list
 bash    = "off"
-# bash    = "enforce"
 network = true
 
 [statusline]
@@ -127,11 +172,84 @@ network = true
 # data row. It receives {"model","contextUsed","contextWindow","cwd"} as JSON on stdin.
 # command = "my-statusline.sh"
 
+# Bot gateway: multi-channel IM bot for QQ, Feishu/Lark, and WeChat.
+[bot]
+enabled = false
+# model = ""   # empty = default_model
+tool_approval_mode = "ask"   # ask|auto|yolo; yolo skips tool approvals only
+max_steps = 25
+debounce_ms = 1500
+queue_mode = "steer"   # steer|followup|collect|interrupt
+queue_cap = 20
+queue_drop = "summarize"   # summarize|old|new
+ignore_self_messages = true   # ignore bot echo by returned message_id and configured self user ids
+
+[bot.self_user_ids]
+qq = []
+feishu = []
+weixin = []
+
+[bot.control]
+enabled = false   # local loopback HTTP API for status/send; requires Bearer token
+addr = "127.0.0.1:37913"
+token_env = "REASONIX_BOT_CONTROL_TOKEN"
+
+[bot.pairing]
+enabled = true
+request_ttl_minutes = 60
+max_pending_per_platform = 3
+
+[bot.allowlist]
+enabled = true
+allow_all = false
+qq_users = []
+feishu_users = []
+weixin_users = []
+qq_approvers = []
+feishu_approvers = []
+weixin_approvers = []
+qq_admins = []
+feishu_admins = []
+weixin_admins = []
+qq_groups = []
+feishu_groups = []
+weixin_groups = []
+
+[bot.qq]
+enabled = false
+app_id = ""
+app_secret_env = "QQ_BOT_APP_SECRET"
+sandbox = false
+
+[bot.feishu]
+enabled = false
+app_id = ""
+domain = "feishu"
+app_secret_env = "FEISHU_BOT_APP_SECRET"
+verification_token = ""
+mode = "webhook"
+webhook_port = 8080
+require_mention = true
+
+[bot.weixin]
+enabled = false
+account_id = "default"
+token_env = "WEIXIN_BOT_TOKEN"
+api_base = "https://ilinkai.weixin.qq.com"
+
+[secrets]   # credential protection; user/global only, ./reasonix.toml cannot override
+# redact_tool_output = true   # default on; set false only if masking breaks fixture-heavy edit workflows
+# filter_subprocess_env = false   # opt-in; stripping tokens breaks gh, HTTPS git push, npm publish
+# protect_sensitive_files = false   # opt-in; values are already masked by redaction even when files stay readable
+
 # External MCP servers. type: "stdio" (default, a subprocess) | "http" | "sse".
 # ${VAR} / ${VAR:-default} are expanded from the environment in command/args/env/url/headers.
 # [[plugins]]
 # name    = "example"
 # command = "reasonix-plugin-example"
+# call_timeout_seconds = 600       # optional per-server MCP call timeout
+# tool_timeout_seconds = { "generate_video" = 1800 }   # raw MCP tool names
+# trusted_read_only_tools = ["search"]   # optional pre-seeded MCP read-only trust
 # [[plugins]]                                  # a remote server over Streamable HTTP
 # name    = "stripe"
 # type    = "http"
