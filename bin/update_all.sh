@@ -182,6 +182,46 @@ update_zsh_plugins() {
     fi
 }
 
+# ── Mise: upgrade runtime versions (node/python/go) to latest in pinned range
+update_mise() {
+    if ! have_cmd mise; then
+        return 0
+    fi
+    log "=== mise ==="
+    if mise upgrade 2>/dev/null; then
+        log "mise finish"
+    else
+        log "mise upgrade failed"
+    fi
+}
+
+# ── Rustup: keep Rust toolchain current
+update_rustup() {
+    if ! have_cmd rustup; then
+        return 0
+    fi
+    log "=== rustup ==="
+    if rustup update 2>/dev/null; then
+        log "rustup finish"
+    else
+        log "rustup update failed"
+    fi
+}
+
+# ── Reasonix: coding agent self-update (Linux: npm global; macOS: brew cask)
+update_reasonix() {
+    [ "$(uname)" = "Darwin" ] && return 0
+    if ! have_cmd reasonix; then
+        return 0
+    fi
+    log "=== reasonix ==="
+    if reasonix upgrade 2>/dev/null; then
+        log "reasonix finish"
+    else
+        log "reasonix upgrade failed"
+    fi
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 # Wrap the entire main block in `{ ... }` so bash reads it all into memory
 # before executing. Without this, topgrade's "Git Repositories" step can
@@ -198,12 +238,24 @@ main() {
     if ! run_topgrade; then
         log "=== topgrade not found — falling back to manual steps ==="
         update_pkg_manager
+
+        # npm/pipx — covered by topgrade when present, manual on fallback
+        if have_cmd npm; then
+            npm update -g 2>/dev/null && log "npm global update finish" || log "npm global update failed"
+        fi
+        if have_cmd pipx; then
+            pipx upgrade-all 2>/dev/null && log "pipx upgrade-all finish" || log "pipx upgrade-all failed"
+        fi
     fi
 
     # Run gem update separately from topgrade (topgrade disables gem to avoid
     # `gem update --system` on old system Ruby). Our update_gem handles the
     # version check gracefully.
     update_gem
+
+    update_mise
+    update_rustup
+    update_reasonix
 
     if have_cmd cpan; then
         sudo cpan -u -T
