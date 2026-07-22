@@ -76,7 +76,6 @@ name = "gruvbox"
 
 # ─── UI ────────────────────────────────────────────────────────────────────
 [ui]
-agent_panel_scope = "all"
 prompt_new_tab_name = false        # 新 tab 即出现，跟 Cmd+t 风格一致
 accent = "cyan"
 show_agent_labels_on_pane_borders = true
