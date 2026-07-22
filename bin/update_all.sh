@@ -117,6 +117,28 @@ update_pkg_manager() {
 # Only run gem operations on a user-installed modern Ruby (≥ 3.2.0).
 readonly GEM_RUBY_MINVER="3.2.0"
 
+# POSIX-ish version compare: _version_ge A B returns 0 when A >= B.
+# Compares dotted numerals piece by piece; avoids GNU `sort -V`, which is
+# unavailable on stock macOS/BSD (same constraint as _dotfiles_newest_version_dir
+# in common.sh).
+_version_ge() {
+    local _a=$1 _b=$2 _ap _bp
+    while [ -n "$_a" ] || [ -n "$_b" ]; do
+        _ap=${_a%%.*}; _bp=${_b%%.*}
+        [ "$_ap" = "$_a" ] && _a= || _a=${_a#*.}
+        [ "$_bp" = "$_b" ] && _b= || _b=${_b#*.}
+        _ap=${_ap%%[^0-9]*}; _bp=${_bp%%[^0-9]*}
+        _ap=${_ap:-0}; _bp=${_bp:-0}
+        if [ "$_ap" -gt "$_bp" ] 2>/dev/null; then
+            return 0
+        fi
+        if [ "$_ap" -lt "$_bp" ] 2>/dev/null; then
+            return 1
+        fi
+    done
+    return 0
+}
+
 update_gem() {
     if ! have_cmd gem; then
         return 0
@@ -130,7 +152,8 @@ update_gem() {
     local ruby_ver
     ruby_ver="$(ruby -e 'puts RUBY_VERSION' 2>/dev/null)" || ruby_ver=""
 
-    if [ -z "$ruby_ver" ] || [ "$ruby_ver" = "$(printf '%s\n' "$GEM_RUBY_MINVER" "$ruby_ver" | sort -V | tail -1)" ]; then
+    # Empty ruby_ver keeps the original fail-open behavior (proceed with update).
+    if [ -z "$ruby_ver" ] || _version_ge "$ruby_ver" "$GEM_RUBY_MINVER"; then
         # Ruby ≥ 3.2.0 (user-installed) — safe to update gems normally
         gem update -f
         gem cleanup
@@ -150,8 +173,20 @@ update_dotfiles_repo() {
     (
         cd "$HOME/.dotfiles"
         if have_cmd jj && [ -d .jj ]; then
-            jj git fetch
-            jj rebase -d master
+            if ! jj git fetch; then
+                log "jj git fetch failed — skipping dotfiles repo update"
+                exit 1
+            fi
+            if ! jj rebase -d master; then
+                # Rebase conflict: leave the working copy untouched and point at
+                # the documented recovery flow instead of aborting mid-script.
+                log "jj rebase -d master hit conflicts — working copy left in conflicted state"
+                log "recover manually per AGENTS.md:"
+                log "  cd ~/.dotfiles && jj st          # inspect conflicted files"
+                log "  # resolve the conflicts, then: jj squash"
+                log "  # afterwards re-run: update_all.sh all"
+                exit 1
+            fi
         else
             log "jj not found or .jj missing; falling back to git pull for dotfiles"
             git pull --no-rebase
@@ -160,7 +195,7 @@ update_dotfiles_repo() {
         git submodule update --remote
         log ".dotfiles repo update finish"
         log "re-run ~/.dotfiles/setup.sh repair manually if links need reconciliation"
-    )
+    ) || log "dotfiles repo update incomplete — see messages above; continuing with remaining steps"
 }
 
 # ── Zsh plugins (cloned directly by setup.sh; no oh-my-zsh framework)
