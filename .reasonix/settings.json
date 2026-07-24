@@ -1,17 +1,29 @@
 {
-  "_comment": "Reasonix 1.2.0+ fires UserPromptSubmit, PreToolUse, PostToolUse, and Stop. UserPromptSubmit → working (turn starts). PreToolUse match:write-tools → blocked. PostToolUse (always) → working (unsticks blocked→working after tool runs). Stop → idle (turn over). Shell wrapper sends release on exit.",
+  "_comment": "Hook events from Reasonix v1.17.20. Lifecycle: SessionStart → idle; UserPromptSubmit → working; Notification (approval dialog) → blocked; PreToolUse (write tools) → blocked; PostToolUse → working; Stop → idle; SessionEnd → release.",
   "hooks": {
+    "SessionStart": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh idle",
+        "description": "herdr: ensure idle state on session start"
+      }
+    ],
     "UserPromptSubmit": [
       {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh working",
         "description": "herdr: report working when user submits a prompt"
       }
     ],
+    "Notification": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh blocked",
+        "description": "herdr: report blocked when approval is needed (e.g. tool permission dialog)"
+      }
+    ],
     "PreToolUse": [
       {
-        "match": "edit_file|write_file|multi_edit",
+        "match": "delete_range|delete_symbol|edit_file|move_file|multi_edit|notebook_edit|write_file",
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh blocked",
-        "description": "herdr: report blocked when file-writer tool is called"
+        "description": "herdr: report blocked when file-writer tool is about to execute"
       }
     ],
     "PostToolUse": [
@@ -24,6 +36,12 @@
       {
         "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh idle",
         "description": "herdr: report idle when turn ends"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "command": "bash ~/.reasonix/hooks/herdr-agent-state.sh release",
+        "description": "herdr: release agent label when session ends"
       }
     ]
   }
