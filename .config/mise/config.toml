@@ -4,6 +4,9 @@ jobs = 4
 verbose = false
 status.show_tools = false
 not_found_auto_install = false
+terminal_progress = false
+github.oauth_open_browser = false
+plugin_autoupdate_last_check_duration = "0d"
 
 [tools]
 # Versions mirror what was active on this machine at config time

@@ -188,11 +188,7 @@ if [[ -o interactive ]] \
 fi
 
 # kimi-code
-if [[ -d "$HOME/.kimi-code/bin" ]]; then
-    path=("$HOME/.kimi-code/bin" $path)
-fi
+path_prepend "$HOME/.kimi-code/bin"
 
 # mimocode
-if [[ -d "$HOME/.mimocode/bin" ]]; then
-    path=("$HOME/.mimocode/bin" $path)
-fi
+path_prepend "$HOME/.mimocode/bin"

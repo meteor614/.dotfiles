@@ -963,4 +963,4 @@ if [ "$MODE" = "check" ] && [ "$CHECK_FAILED" -ne 0 ]; then
 fi
 
 end=$(date "+%s")
-echo -e "\033[33mSetup (${MODE}) finish in $(expr "$end" - "$begin") seconds.\033[0m"
+echo -e "\033[33mSetup (${MODE}) finish in $((end - begin)) seconds.\033[0m"

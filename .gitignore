@@ -2,6 +2,7 @@
 .codegraph/
 .mimocode/
 .reasonix/attachments/
+.qoder/
 
 # macOS Zellij cache — local state, not portable
 Library/

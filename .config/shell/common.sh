@@ -123,12 +123,8 @@ path_prepend /usr/local/opt/findutils/libexec/gnubin
 path_prepend /usr/local/opt/gnu-getopt/bin
 path_prepend /usr/local/opt/ruby/bin
 
-# Homebrew Ruby (Apple Silicon) — only prepend if the directory exists
-if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
-    case ":$PATH:" in *":/opt/homebrew/opt/ruby/bin:"*) ;;
-        *) export PATH="/opt/homebrew/opt/ruby/bin:$PATH" ;;
-    esac
-fi
+# Homebrew Ruby (Apple Silicon)
+path_prepend /opt/homebrew/opt/ruby/bin
 
 # Go environment
 if command -v go >/dev/null 2>&1 && [ -z "$GOPATH" ]; then
