@@ -611,9 +611,8 @@ _find_starship() {
     return 1
 }
 
-# Bash inits Starship directly. Zsh's .zshrc handles it via dotfiles_cached_eval
-# for speed (can't use _find_starship here because .zshrc sources common.sh
-# AFTER its own starship init block).
+# Zsh's .zshrc calls _find_starship + dotfiles_cached_eval itself after sourcing
+# common.sh (cached init for speed); bash inits Starship directly here.
 if [ "$_DOTFILES_SHELL" = "bash" ]; then
     _starship_bin="$(_find_starship)" && dotfiles_cached_eval starship "$_starship_bin" bash init bash
     unset _starship_bin

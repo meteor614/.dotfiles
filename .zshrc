@@ -112,18 +112,9 @@ fi
 
 (( $+commands[zoxide] )) && dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
-# ── Starship (cached init; single command probe) ─────────────────────────────
-if (( $+commands[starship] )); then
-    dotfiles_cached_eval starship "${commands[starship]}" zsh init zsh
-else
-    _starship_bin=""
-    for _c in /opt/homebrew/bin/starship /usr/local/bin/starship \
-              "$HOME/.local/bin/starship" "$HOME/bin/starship"; do
-        [[ -x "$_c" ]] && _starship_bin="$_c" && break
-    done
-    [[ -n "$_starship_bin" ]] && dotfiles_cached_eval starship "$_starship_bin" zsh init zsh
-    unset _c _starship_bin
-fi
+# ── Starship (cached init; _find_starship is defined in common.sh) ───────────
+_starship_bin="$(_find_starship)" && dotfiles_cached_eval starship "$_starship_bin" zsh init zsh
+unset _starship_bin
 
 # ── User configuration (local overrides) ─────────────────────────────────────
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
@@ -175,8 +166,12 @@ if [[ -n "${AUTO_VENV_HELPER:-}" && -f "$AUTO_VENV_HELPER" ]]; then
 fi
 unset AUTO_VENV_HELPER
 
+# ── Agent CLI bin dirs ───────────────────────────────────────────────────────
+path_prepend "$HOME/.kimi-code/bin"   # kimi-code
+path_prepend "$HOME/.mimocode/bin"    # mimocode
+
 # ── Ensure $HOME/bin stays at the front of PATH ──────────────────────────────
-# Placed last so any later prepends (Ruby, gem bindir, etc.) can't shadow it.
+# Placed last so no earlier prepend (Ruby, gem bindir, agent CLIs) can shadow it.
 if [[ -d "$HOME/bin" ]]; then
     path_force_prepend "$HOME/bin"
 fi
@@ -186,9 +181,3 @@ if [[ -o interactive ]] \
     && (( ${precmd_functions[(Ie)_emit_mux_user_var]:-0} == 0 )); then
     precmd_functions+=(_emit_mux_user_var)
 fi
-
-# kimi-code
-path_prepend "$HOME/.kimi-code/bin"
-
-# mimocode
-path_prepend "$HOME/.mimocode/bin"
