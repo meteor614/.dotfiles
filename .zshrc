@@ -69,26 +69,6 @@ _zsh_plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
     source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 unset _zsh_plugins_dir
 
-# ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
-# NOTE: This path resolution is duplicated in .bashrc because bash has no
-# equivalent of .zshenv for early shared init. Keep both in sync.
-_common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
-[[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
-    && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
-[[ -f "$_common_sh" ]] && source "$_common_sh"
-unset _common_sh
-
-
-# ── pnpm/corepack global binaries (interactive zsh only) ─────────────────────
-if [[ -z "${PNPM_HOME:-}" ]]; then
-    if [[ -d "$HOME/Library/pnpm" ]]; then
-        export PNPM_HOME="$HOME/Library/pnpm"
-    else
-        export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
-    fi
-fi
-[[ -d "$PNPM_HOME" ]] && path_prepend "$PNPM_HOME"
-
 # ── Deferred init helper (zsh-only) ─────────────────────────────────────────
 # Queue non-critical init commands and run them once from the parent shell at
 # the first prompt. These commands often source files or install hooks, so they
@@ -109,6 +89,26 @@ _dotfiles_run_deferred() {
     unset -f _dotfiles_run_deferred _defer 2>/dev/null || true
 }
 add-zsh-hook precmd _dotfiles_run_deferred
+
+# ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
+# NOTE: This path resolution is duplicated in .bashrc because bash has no
+# equivalent of .zshenv for early shared init. Keep both in sync.
+_common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
+[[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
+    && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
+[[ -f "$_common_sh" ]] && source "$_common_sh"
+unset _common_sh
+
+
+# ── pnpm/corepack global binaries (interactive zsh only) ─────────────────────
+if [[ -z "${PNPM_HOME:-}" ]]; then
+    if [[ -d "$HOME/Library/pnpm" ]]; then
+        export PNPM_HOME="$HOME/Library/pnpm"
+    else
+        export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
+    fi
+fi
+[[ -d "$PNPM_HOME" ]] && path_prepend "$PNPM_HOME"
 
 (( $+commands[zoxide] )) && dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
