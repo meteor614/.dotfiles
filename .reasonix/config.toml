@@ -4,7 +4,7 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 5   # schema marker for diagnostics; old versions may ignore it
-default_model = "hy3/hy3-ioa"
+default_model = "deepseek-flash/deepseek-v4-flash"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
