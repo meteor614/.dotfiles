@@ -101,7 +101,13 @@ kind        = "openai"
 base_url    = "http://127.0.0.1:15721/tencent/v1"
 models      = ["deepseek-v4-flash-ioa", "deepseek-v4-pro-ioa", "kimi-k3-ioa", "hy3-ioa"]
 api_key_env = "TT_SWITCH_API_KEY"
-context_window = 1000000   # tokens; compaction triggers near this limit
+# context_window = 1000000   # tokens; compaction triggers near this limit
+model_overrides = {
+  "deepseek-v4-flash-ioa" = { context_window = 1000000, max_output_tokens = 50000 },
+  "deepseek-v4-pro-ioa"   = { context_window = 1000000, max_output_tokens = 50000 },
+  "kimi-k3-ioa"           = { context_window = 1000000,  max_output_tokens = 32000 },
+  "hy3-ioa"               = { context_window = 192000 },
+}
 
 [tools]
 enabled = []   # empty = all built-in tools
