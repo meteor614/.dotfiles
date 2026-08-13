@@ -35,10 +35,6 @@ setopt no_beep
 unsetopt share_history
 unsetopt inc_append_history
 
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zsh_cache/completions
-mkdir -p ~/.zsh_cache/completions
-
 # ── kubectl completion (lazy) ────────────────────────────────────────────────
 kubectl() {
     unset -f kubectl

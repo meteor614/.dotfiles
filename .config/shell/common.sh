@@ -90,6 +90,12 @@ dotfiles_cached_eval() {
 }
 
 # -----------------------------------------------------------------------------
+# Platform facts (cached once; plain `uname` forks a subshell per call)
+# -----------------------------------------------------------------------------
+_DOTFILES_UNAME_S=$(uname -s)
+_DOTFILES_UNAME_M=$(uname -m)
+
+# -----------------------------------------------------------------------------
 # Core environment
 # -----------------------------------------------------------------------------
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -111,7 +117,7 @@ path_prepend /opt/sbin
 # Homebrew: on Apple Silicon, prefer /opt/homebrew over the Intel/Rosetta
 # /usr/local tree. Since path_prepend puts later calls earlier in PATH, the
 # order below is intentionally reversed inside the arm64 branch.
-if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ]; then
+if [ "$_DOTFILES_UNAME_S" = "Darwin" ] && [ "$_DOTFILES_UNAME_M" = "arm64" ]; then
     path_prepend /usr/local/bin
     path_prepend /opt/homebrew/bin
 else
@@ -279,6 +285,9 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias 。。=..
+# scp -O: force the legacy SCP protocol instead of SFTP. Needed for hosts whose
+# SFTP subsystem is missing/broken (old NAS, Entware, embedded). OpenSSH 9.x
+# still supports it; very old scp builds reject the flag — drop it there.
 alias scp='scp -O'
 alias zj='zellij attach -c'
 alias zjl='zellij list-sessions'
@@ -291,7 +300,7 @@ if command -v eza >/dev/null 2>&1; then
     alias la='eza --icons -la'
     alias k='eza --icons -l'
 else
-    if [ "$(uname -s)" = "Darwin" ]; then
+    if [ "$_DOTFILES_UNAME_S" = "Darwin" ]; then
         alias ls='ls -G'
     else
         alias ls='ls --color=auto'
@@ -338,7 +347,7 @@ command -v watch >/dev/null 2>&1 && alias watch='watch -c'
 # On macOS (Docker Desktop), rootless docker, or when already in the docker
 # group / running as root, plain `docker` works and sudo would be wrong.
 if command -v docker >/dev/null 2>&1; then
-    if [ "$(uname -s)" = "Linux" ] && [ "$(id -u)" -ne 0 ] \
+    if [ "$_DOTFILES_UNAME_S" = "Linux" ] && [ "$(id -u)" -ne 0 ] \
         && ! id -nG 2>/dev/null | tr ' ' '\n' | grep -qx docker; then
         alias docker='sudo -E docker'
     fi
