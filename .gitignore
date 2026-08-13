@@ -22,3 +22,7 @@ package-lock.json
 # Neovim server log — local debugging artifacts
 nvim.log
 
+# zsh tool-init cache — machine-specific PATH snapshots (stale venv leaks)
+# (real cache lives at ~/.zsh_cache; this covers a stray copy in the repo)
+.zsh_cache/
+

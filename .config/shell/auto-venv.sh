@@ -80,6 +80,45 @@ _auto_venv_deactivate() {
     _auto_venv_clear_state
 }
 
+_auto_venv_restore() {
+    # Restore PATH to its pre-auto-venv state right before forking a
+    # long-lived subprocess (agent CLI). Auto-venv activates a project .venv
+    # by prepending its bin dir to PATH; an agent forked in that window
+    # inherits the venv's `python3` (e.g. a 3.11 venv without PyYAML) and
+    # breaks unrelated scripts that rely on the system/mise python. Callers
+    # (e.g. the reasonix wrapper in common.sh) invoke this before spawning.
+    #
+    # Must not rely on _auto_venv_deactivate/VIRTUAL_ENV: in the real leak
+    # (herdr pane restore) the venv's bin dir is left in PATH but the
+    # AUTO_VENV_* / VIRTUAL_ENV state is already gone, so deactivate is a
+    # no-op. Strip any known .venv bin dir directly from PATH instead.
+    local _av_entry _av_out="" _av_seen_venv=0
+    case ":${PATH}:" in
+        *:*/\.venv/bin:*) _av_seen_venv=1 ;;
+    esac
+    [ "$_av_seen_venv" -eq 1 ] || return 0
+
+    while [ -n "$PATH" ]; do
+        case "$PATH" in
+            *:*)
+                _av_entry=${PATH%%:*}
+                PATH=${PATH#*:}
+                ;;
+            *)
+                _av_entry=$PATH
+                PATH=
+                ;;
+        esac
+        case "$_av_entry" in
+            */\.venv/bin) ;;
+            *) _av_out="${_av_out}${_av_out:+:}${_av_entry}" ;;
+        esac
+    done
+    PATH=$_av_out
+    export PATH
+    unset _av_entry _av_out _av_seen_venv
+}
+
 _auto_venv_activate() {
     local venv_path
     venv_path="$1"
@@ -104,6 +143,18 @@ _auto_venv_activate() {
 
 _auto_venv_refresh() {
     local venv_path=""
+
+    # Guard: only (re)activate a venv in interactive shells. Agent CLIs
+    # (reasonix/claude/codex/...) and scripts are forked from a shell whose
+    # PATH may briefly carry a project .venv during a herdr/tmux pane restore;
+    # if they fork in that window they inherit the venv's `python3` (e.g. a
+    # 3.11 venv without PyYAML) and break unrelated scripts. Restricting
+    # auto-activation to interactive shells keeps the venv scoped to the
+    # user's own prompt and out of non-interactive subprocesses.
+    case $- in
+        *i*) ;;
+        *) return 0 ;;
+    esac
 
     # Avoid repeated work when hooked to precmd/PROMPT_COMMAND and PWD
     # has not changed since the last run.

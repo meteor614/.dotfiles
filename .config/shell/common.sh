@@ -517,6 +517,9 @@ if command -v reasonix >/dev/null 2>&1; then
         if [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
             bash "$hook" idle </dev/null >/dev/null 2>&1 || true
         fi
+        # Restore PATH before forking the agent: an auto-activated project
+        # .venv must not leak into the agent and shadow `python3`.
+        type _auto_venv_restore >/dev/null 2>&1 && _auto_venv_restore
         command reasonix "$@"
         local rc=$?
         if [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
