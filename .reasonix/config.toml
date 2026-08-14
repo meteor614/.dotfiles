@@ -3,7 +3,7 @@
 # Fields marked user/global only are not overridden by ./reasonix.toml.
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
-config_version = 6   # schema marker for diagnostics; old versions may ignore it
+config_version = 7   # schema marker for diagnostics; old versions may ignore it
 default_model = "sensenova/deepseek-v4-flash"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
@@ -69,9 +69,9 @@ offline = false   # declare that outbound network access is unavailable; prevent
 temperature       = 0.0
 # recovery_model = "deepseek-pro"   # optional; falls back to guardian then main model
 # reasoning_language = "zh"   # visible reasoning language: auto|zh|en
-compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default 0.85)
-# keep                = ["errors"]   # compaction keep policy: errors, user_marked
-# recent_keep         = 2   # minimum recent messages kept verbatim
+compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default 0.80)
+# keep                = ["errors"]   # deprecated compatibility field; ignored at runtime
+# recent_keep         = 2   # deprecated compatibility field; ignored at runtime
 # plan_mode_read_only_commands = ["gh issue view"]   # legacy compatibility only; Plan bash uses Permissions
 planner_model = "ioa/deepseek-v4-pro-ioa"   # low-frequency planner (two-model collaboration)
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
@@ -96,7 +96,7 @@ context_window = 1000000   # tokens; compaction triggers near this limit
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
-prices      = { "deepseek-v4-flash" = { cache_hit = 0.02, input = 1, output = 2, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.025, input = 3, output = 6, currency = "¥" } }   # per-model prices, per 1M tokens
+prices      = { "deepseek-v4-flash" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.3, input = 9, output = 27, currency = "¥" } }   # per-model prices, per 1M tokens
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
 
 [[providers]]
