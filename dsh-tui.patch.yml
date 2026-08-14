@@ -1,0 +1,14 @@
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+
+# Repoint the TUI's `main` agent to match settings.yaml's `agent-default-model`
+# (ioa / deepseek-v4-flash-ioa) instead of the bundle's deepseek-official /
+# deepseek-v4-pro.
+- id: agent-loop
+  config:
+    agents:
+      - id: main
+        provider: ioa
+        model: deepseek-v4-flash-ioa
+        cwd: !!js process.cwd()

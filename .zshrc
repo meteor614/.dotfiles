@@ -170,6 +170,22 @@ unset AUTO_VENV_HELPER
 path_prepend "$HOME/.kimi-code/bin"   # kimi-code
 path_prepend "$HOME/.mimocode/bin"    # mimocode
 
+# ── dsh (DeepSeek Harness) global install ────────────────────────────────────
+# npm -g installs under mise-managed Node land in the node installation's bin
+# dir (e.g. ~/.local/share/mise/installs/node/<ver>/bin). Some toolchains
+# (npm exec / npx) prepend ~/.npm/_npx/*/node_modules/.bin to PATH, which would
+# shadow the global dsh with a stale npx cache copy. Prepend the active mise
+# Node bin dir here so `dsh` always resolves to the global install.
+if [[ -n "${MISE_NODE_BIN:-}" && -x "$MISE_NODE_BIN/dsh" ]]; then
+    path_prepend "$MISE_NODE_BIN"
+elif [[ -d "$HOME/.local/share/mise/installs/node" ]]; then
+    _mise_dsh_node_dir=("$HOME/.local/share/mise/installs/node"/*/bin(N))
+    if [[ -n "${_mise_dsh_node_dir[1]:-}" && -x "${_mise_dsh_node_dir[1]}/dsh" ]]; then
+        path_prepend "${_mise_dsh_node_dir[1]}"
+    fi
+    unset _mise_dsh_node_dir
+fi
+
 # ── Ensure $HOME/bin stays at the front of PATH ──────────────────────────────
 # Placed last so no earlier prepend (Ruby, gem bindir, agent CLIs) can shadow it.
 if [[ -d "$HOME/bin" ]]; then
