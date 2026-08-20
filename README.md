@@ -7,7 +7,7 @@
 * zellij/herdr/tmux/tmuxinator
 * zsh/bash
 * claude/codex/codebuddy/reasonix
-* starship/yazi
+* starship/yazi/atuin/direnv
 * git/lazygit
 * gdb/lldb
 * karabiner

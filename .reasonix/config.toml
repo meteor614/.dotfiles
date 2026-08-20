@@ -73,6 +73,7 @@ compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default
 # keep                = ["errors"]   # deprecated compatibility field; ignored at runtime
 # recent_keep         = 2   # deprecated compatibility field; ignored at runtime
 # plan_mode_read_only_commands = ["gh issue view"]   # legacy compatibility only; Plan bash uses Permissions
+# legacy_anchor_safety_gate = true   # rollback delete_range to the full-file fresh-read guard
 planner_model = "ioa/deepseek-v4-pro-ioa"   # low-frequency planner (two-model collaboration)
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
