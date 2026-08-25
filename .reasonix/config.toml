@@ -4,7 +4,7 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 7   # schema marker for diagnostics; old versions may ignore it
-default_model = "sensenova/deepseek-v4-flash"
+default_model = "openrouter/stealth/ox-alpha"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -75,6 +75,7 @@ compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default
 # plan_mode_read_only_commands = ["gh issue view"]   # legacy compatibility only; Plan bash uses Permissions
 # legacy_anchor_safety_gate = true   # rollback delete_range to the full-file fresh-read guard
 planner_model = "ioa/deepseek-v4-pro-ioa"   # low-frequency planner (two-model collaboration)
+# vision_model = "auto"   # optional: summarize images for text-only models
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
 # subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
 # subagent_effort = "high"   # optional default effort for subagents
@@ -88,7 +89,7 @@ planner_model = "ioa/deepseek-v4-pro-ioa"   # low-frequency planner (two-model c
 name        = "deepseek"
 kind        = "openai"
 base_url    = "https://api.deepseek.com/"
-models      = ["deepseek-v4-flash", "deepseek-v4-pro"]
+models      = ["deepseek-v4-flash", "deepseek-v4-pro", "deepseek-v4-flash-vision-exp"]
 default     = "deepseek-v4-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
@@ -97,8 +98,9 @@ context_window = 1000000   # tokens; compaction triggers near this limit
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
-prices      = { "deepseek-v4-flash" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.3, input = 9, output = 27, currency = "¥" } }   # per-model prices, per 1M tokens
+prices      = { "deepseek-v4-flash" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-flash-vision-exp" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.3, input = 9, output = 27, currency = "¥" } }   # per-model prices, per 1M tokens
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
+vision_models = ["deepseek-v4-flash-vision-exp"]   # models in this provider that accept image input
 
 [[providers]]
 name        = "ioa"
@@ -113,18 +115,6 @@ api_key_env = "TT_SWITCH_API_KEY"
 model_overrides   = { "deepseek-v4-flash-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "deepseek-v4-pro-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "hy3-ioa" = { context_window = 192000 }, "kimi-k3-ioa" = { context_window = 1000000, max_output_tokens = 32000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
-name        = "opencode"
-kind        = "openai"
-base_url    = "https://opencode.ai/zen/v1"
-models      = ["deepseek-v4-flash-free"]
-api_key_env = "ZEN_API_KEY"
-context_window = 256000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
-
-[[providers]]
 name        = "sensenova"
 kind        = "openai"
 base_url    = "https://token.sensenova.cn/v1"
@@ -135,6 +125,22 @@ context_window = 256000   # tokens; compaction triggers near this limit
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
+
+[[providers]]
+name        = "openrouter"
+kind        = "openai"
+base_url    = "https://openrouter.ai/api/v1"
+models      = ["openrouter/free", "stealth/ox-alpha", "google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free", "cohere/north-mini-code:free", "nvidia/nemotron-3-super-120b-a12b:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free", "liquid/lfm-2.5-2.6b:free", "thinkingmachines/inkling-small:free", "thinkingmachines/inkling:free", "poolside/laguna-s-2.1:free", "poolside/laguna-xs-2.1:free", "z-ai/glm-5.2:free"]
+default     = "openrouter/free"
+api_key_env = "OPENROUTER_API_KEY"
+context_window = 200000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
+prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
+billing_currency = "USD"   # frozen list-price currency; independent of display_currency
+vision_models = ["openrouter/free"]   # models in this provider that accept image input
 
 [tools]
 enabled = []   # empty = all built-in tools
@@ -207,6 +213,7 @@ ignore_self_messages = true   # ignore bot echo by returned message_id and confi
 qq = []
 feishu = []
 weixin = []
+dingtalk = []
 
 [bot.control]
 enabled = false   # local loopback HTTP API for status/send; requires Bearer token
@@ -224,15 +231,19 @@ allow_all = false
 qq_users = []
 feishu_users = []
 weixin_users = []
+dingtalk_users = []
 qq_approvers = []
 feishu_approvers = []
 weixin_approvers = []
+dingtalk_approvers = []
 qq_admins = []
 feishu_admins = []
 weixin_admins = []
+dingtalk_admins = []
 qq_groups = []
 feishu_groups = []
 weixin_groups = []
+dingtalk_groups = []
 
 [bot.qq]
 enabled = false
@@ -255,6 +266,15 @@ enabled = false
 account_id = "default"
 token_env = "WEIXIN_BOT_TOKEN"
 api_base = "https://ilinkai.weixin.qq.com"
+
+[bot.dingtalk]
+enabled = false
+client_id = ""
+client_secret = ""
+client_id_env = ""
+secret_env = ""
+bot_name = ""
+require_mention = true
 
 [secrets]   # credential protection; user/global only, ./reasonix.toml cannot override
 # filter_subprocess_env = false   # opt-in; stripping tokens breaks gh, HTTPS git push, npm publish
