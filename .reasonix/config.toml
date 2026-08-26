@@ -13,7 +13,7 @@ theme = "auto"   # auto|dark|light; CLI colors only; REASONIX_THEME can override
 theme_style = "aurora"   # CLI accent palette; REASONIX_THEME_STYLE can override per run
 # shortcut_layout = "desktop"   # classic|desktop; compatibility setting; Shift+Tab toggles Plan, Ctrl+Y toggles YOLO
 # cursor_shape = "bar"   # block|underline|bar; text input cursor shape
-# show_reasoning = true   # CLI: show thinking text by default; false = collapsed (toggle with Ctrl+O)
+show_reasoning = true   # CLI: show thinking text by default; false = collapsed (toggle with Ctrl+O)
 show_turn_usage = true   # CLI/TUI: show per-request token and cost receipts in the transcript
 
 [desktop]
@@ -149,7 +149,7 @@ mcp_startup_timeout_seconds = 30   # background initialize + tools/list safety c
 mcp_call_timeout_seconds = 300   # default MCP call safety cap; per-plugin/tool overrides may raise it
 
 [tools.background_jobs]
-stalled_warning_seconds = 900   # warn once per background job after this many quiet seconds; 0 disables
+stalled_warning_seconds = 900   # heads-up once per background job after this many quiet seconds; a quiet job is not necessarily stuck; 0 disables
 
 [tools.shell]
 # prefer = "auto"   # auto|bash|powershell|pwsh; empty/default = auto-detect
