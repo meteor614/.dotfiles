@@ -1,21 +1,28 @@
 #!/bin/sh
 # CodeBuddy → herdr agent state reporter (dotfiles-managed).
 #
-# Modeled on herdr's official claude integration v4, with two differences:
-#   1. Reports agent="codebuddy" (not "claude") so herdr's sidebar shows
-#      the right label. CodeBuddy is a Claude fork but it's a distinct
-#      product to surface separately.
-#   2. Reports agent="codebuddy" (not "claude") so herdr's sidebar shows
-#      the right label. Stop maps to "idle" (consistent with other agents).
+# Labels panes agent="codebuddy" (not "claude") in herdr's sidebar:
+# CodeBuddy is a Claude fork but a distinct product to surface separately.
+# Stop maps to "idle" (turn ended, waiting for next prompt).
+#
+# Status vs herdr >=0.8 official integrations (claude/codex/pi v8): those
+# hooks now only bind the conversation at SessionStart via
+# pane.report_agent_session and leave working/idle/blocked to the server's
+# terminal-title screen detection, which has no rules for a custom
+# "codebuddy" label (it falls back to unknown_agent). So this reporter
+# keeps the explicit-report model — same shape as herdr's own kimi
+# integration v7 (session|working|blocked|idle actions). Those RPC methods
+# and states are still first-class in the 0.8 socket schema, and the
+# sibling custom:reasonix reporter runs unchanged against it.
 #
 # Lifecycle map:
-#   SessionStart       → idle     (fresh session, no work yet)
+#   SessionStart       → idle     + one-time pane.report_agent_session bind
 #   UserPromptSubmit   → working  (user just submitted)
 #   PreToolUse         → working  (about to call a tool)
 #   PostToolUse        → working  (tool returned, more may follow)
 #   PermissionRequest  → blocked  (asking user to allow a tool)
 #   Stop               → idle     (turn ended, waiting for next prompt)
-#   SubagentStop       → ignore   (subagent done; parent may still be working)
+#   SubagentStop       → ignore   (teammate done; main session may still work)
 #   SessionEnd         → release  (clear agent label from herdr)
 #
 # Non-interactive caveat: in print mode (`codebuddy -p`), the process exits
@@ -109,14 +116,14 @@ if hook_input_file:
     except Exception:
         hook_input = {}
 
-# SubagentStop fires when a teammate/subagent finishes. The parent main
-# session may still be working — never let SubagentStop revive an idle
-# pane or downgrade a working one.
+# Subagent events fire when a teammate/subagent finishes. The parent main
+# session may still be working — never let them revive an idle pane or
+# downgrade a working one (same guard as herdr's official v8 integrations).
 hook_event_name = str(hook_input.get("hook_event_name") or "")
 is_subagent = bool(hook_input.get("agent_id"))
 if hook_event_name == "SubagentStop":
     raise SystemExit(0)
-if is_subagent and action in ("idle", "release"):
+if is_subagent:
     raise SystemExit(0)
 
 # In print mode (`codebuddy -p`) the process exits right after Stop and never
@@ -143,7 +150,7 @@ if not isinstance(session_start_source, str) or not session_start_source:
     session_start_source = None
 
 if action == "release":
-    request = {
+    requests = [{
         "id": request_id,
         "method": "pane.release_agent",
         "params": {
@@ -152,8 +159,28 @@ if action == "release":
             "agent": agent_name,
             "seq": report_seq,
         },
-    }
+    }]
 else:
+    requests = []
+    # Bind the logical conversation to the pane once at SessionStart (the
+    # one thing official integrations still do in 0.8), so herdr correlates
+    # state reports with this conversation across pane reuse.
+    if hook_event_name == "SessionStart" and agent_session_id:
+        bind = {
+            "id": request_id + ":s",
+            "method": "pane.report_agent_session",
+            "params": {
+                "pane_id": pane_id,
+                "source": source,
+                "agent": agent_name,
+                "seq": report_seq,
+                "agent_session_id": agent_session_id,
+            },
+        }
+        if session_start_source:
+            # Schema puts this field on report_agent_session only.
+            bind["params"]["session_start_source"] = session_start_source
+        requests.append(bind)
     params = {
         "pane_id": pane_id,
         "source": source,
@@ -165,20 +192,19 @@ else:
         params["agent_session_id"] = agent_session_id
     if agent_session_path:
         params["agent_session_path"] = agent_session_path
-    if session_start_source:
-        params["session_start_source"] = session_start_source
-    request = {"id": request_id, "method": "pane.report_agent", "params": params}
+    requests.append({"id": request_id, "method": "pane.report_agent", "params": params})
 
 try:
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.settimeout(2.0)
-    sock.connect(socket_path)
-    sock.sendall((json.dumps(request) + "\n").encode("utf-8"))
-    try:
-        sock.recv(4096)
-    except Exception:
-        pass
-    sock.close()
+    for request in requests:
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.settimeout(0.5)
+        sock.connect(socket_path)
+        sock.sendall((json.dumps(request) + "\n").encode("utf-8"))
+        try:
+            sock.recv(4096)
+        except Exception:
+            pass
+        sock.close()
 except Exception:
     raise SystemExit(0)
 PY
