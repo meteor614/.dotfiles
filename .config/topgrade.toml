@@ -6,3 +6,8 @@
 # - git_repos: this dotfiles repo uses jj; avoid Topgrade pulling arbitrary repos.
 disable = ["node", "gem", "ruby_gems", "containers", "git_repos"]
 assume_yes = true
+# Retry a failed step automatically up to N times instead of blocking on
+# the "Retry? (y)es/(N)o/(s)hell/(q)uit" prompt; still failing, skip it
+# silently (ask_retry = false) and continue with the next step.
+auto_retry = 3
+ask_retry = false
