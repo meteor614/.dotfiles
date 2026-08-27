@@ -118,9 +118,9 @@ update_pkg_manager() {
 readonly GEM_RUBY_MINVER="3.2.0"
 
 # POSIX-ish version compare: _version_ge A B returns 0 when A >= B.
-# Compares dotted numerals piece by piece; avoids GNU `sort -V`, which is
-# unavailable on stock macOS/BSD (same constraint as _dotfiles_newest_version_dir
-# in common.sh).
+# Compares dotted numerals piece by piece; avoids GNU `sort -V`, which BusyBox
+# (Synology/Entware) lacks — same constraint as _dotfiles_newest_version_dir
+# in common.sh.
 _version_ge() {
     local _a=$1 _b=$2 _ap _bp
     while [ -n "$_a" ] || [ -n "$_b" ]; do
