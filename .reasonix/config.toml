@@ -4,7 +4,7 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 7   # schema marker for diagnostics; old versions may ignore it
-default_model = "openrouter/stealth/ox-alpha"
+default_model = "bigmodel/glm-5.3"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -106,7 +106,7 @@ vision_models = ["deepseek-v4-flash-vision-exp"]   # models in this provider tha
 name        = "ioa"
 kind        = "openai"
 base_url    = "http://127.0.0.1:15721/tencent/v1"
-models      = ["deepseek-v4-flash-ioa", "deepseek-v4-pro-ioa", "kimi-k3-ioa", "hy3-ioa"]
+models      = ["deepseek-v4-flash-ioa", "deepseek-v4-pro-ioa", "kimi-k3-ioa"]
 api_key_env = "TT_SWITCH_API_KEY"
 # max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
 # max_output_tokens = 32768   # optional cost cap
@@ -127,10 +127,25 @@ context_window = 256000   # tokens; compaction triggers near this limit
 # max_output_tokens = 131072  # optional cost cap
 
 [[providers]]
+name        = "bigmodel"
+kind        = "openai"
+base_url    = "https://open.bigmodel.cn/api/paas/v4/"
+models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
+default     = "glm-5.3"
+api_key_env = "GLM_API_KEY"
+context_window = 1048576   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: 官方默认按模型上限；仅在需要成本上限时放开
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
+model_overrides = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context overrides
+vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
+
+[[providers]]
 name        = "openrouter"
 kind        = "openai"
 base_url    = "https://openrouter.ai/api/v1"
-models      = ["openrouter/free", "stealth/ox-alpha", "google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free", "cohere/north-mini-code:free", "nvidia/nemotron-3-super-120b-a12b:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free", "liquid/lfm-2.5-2.6b:free", "thinkingmachines/inkling-small:free", "thinkingmachines/inkling:free", "poolside/laguna-s-2.1:free", "poolside/laguna-xs-2.1:free", "z-ai/glm-5.2:free"]
+models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemma-4-31b-it:free", "cohere/north-mini-code:free", "nvidia/nemotron-3-super-120b-a12b:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3.5-lightning:free", "liquid/lfm-2.5-2.6b:free", "thinkingmachines/inkling-small:free", "thinkingmachines/inkling:free", "poolside/laguna-s-2.1:free", "poolside/laguna-xs-2.1:free", "z-ai/glm-5.2:free"]
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
