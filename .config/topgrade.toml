@@ -11,3 +11,9 @@ assume_yes = true
 # silently (ask_retry = false) and continue with the next step.
 auto_retry = 3
 ask_retry = false
+
+[cargo]
+# cargo-nextest ships a `locked-tripwire` that refuses to build without
+# --locked. Run cargo install-update with --locked so nextest (and other
+# locked-aware crates) update cleanly during the cargo step.
+locked = true
