@@ -4,7 +4,7 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 7   # schema marker for diagnostics; old versions may ignore it
-default_model = "bigmodel/glm-5.3"
+default_model = "sensenova/deepseek-v4-flash"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -112,7 +112,7 @@ api_key_env = "TT_SWITCH_API_KEY"
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
-model_overrides   = { "deepseek-v4-flash-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "deepseek-v4-pro-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "hy3-ioa" = { context_window = 192000 }, "kimi-k3-ioa" = { context_window = 1000000, max_output_tokens = 32000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
+model_overrides   = { "deepseek-v4-flash-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "deepseek-v4-pro-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "hy4-preview-ioa" = { context_window = 1000000 }, "kimi-k3-ioa" = { context_window = 1000000, max_output_tokens = 32000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "sensenova"
@@ -129,17 +129,17 @@ context_window = 256000   # tokens; compaction triggers near this limit
 [[providers]]
 name        = "bigmodel"
 kind        = "openai"
-base_url    = "https://open.bigmodel.cn/api/paas/v4/"
+base_url    = "https://open.bigmodel.cn/api/coding/paas/v4"
 models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
 default     = "glm-5.3"
 api_key_env = "GLM_API_KEY"
 context_window = 1048576   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: 官方默认按模型上限；仅在需要成本上限时放开
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
-model_overrides = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context overrides
 vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
+model_overrides   = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "openrouter"
