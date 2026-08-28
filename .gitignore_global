@@ -12,3 +12,5 @@ tags
 package-lock.json
 .nvimlog
 .claude/
+.venv/
+.DS_Store
