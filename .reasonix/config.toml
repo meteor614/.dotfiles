@@ -102,14 +102,6 @@ prices      = { "deepseek-v4-flash" = { cache_hit = 0.1, input = 3, output = 9, 
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
 vision_models = ["deepseek-v4-flash-vision-exp"]   # models in this provider that accept image input
 
-# [[providers]]
-# name        = "ioa"
-# kind        = "openai"
-# base_url    = "http://127.0.0.1:15721/tencent/v1"
-# models      = ["deepseek-v4-flash-ioa", "deepseek-v4-pro-ioa", "kimi-k3-ioa"]
-# api_key_env = "TT_SWITCH_API_KEY"
-# model_overrides   = { "deepseek-v4-flash-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "deepseek-v4-pro-ioa" = { context_window = 1000000, max_output_tokens = 50000 }, "hy4-preview-ioa" = { context_window = 1000000 }, "kimi-k3-ioa" = { context_window = 1000000, max_output_tokens = 32000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
-
 [[providers]]
 name        = "sensenova"
 kind        = "openai"
@@ -117,6 +109,10 @@ base_url    = "https://token.sensenova.cn/v1"
 models      = ["deepseek-v4-flash"]
 api_key_env = "SN_API_KEY"
 context_window = 256000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
 
 [[providers]]
 name        = "bigmodel"
@@ -126,6 +122,10 @@ models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
 default     = "glm-5.3"
 api_key_env = "GLM_API_KEY"
 context_window = 1048576   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
 vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
 model_overrides   = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
@@ -137,6 +137,10 @@ models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemm
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
 prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
 billing_currency = "USD"   # frozen list-price currency; independent of display_currency
 vision_models = ["openrouter/free"]   # models in this provider that accept image input
