@@ -874,13 +874,43 @@ link_reasonix_herdr_integration() {
 }
 
 # ~/.pi/agent mixes runtime data (sessions/, models-store.json, auth.json)
-# with user-managed config (models.json), so we symlink only the file we own.
+# with user-managed config (models.json, extensions/), so we symlink only the
+# files we own and merge the extension list into pi's settings.json (which pi
+# itself owns).
 link_pi_config() {
     local src_dir="$script_path/.pi"
     [ -d "$src_dir" ] || return 0
 
     ensure_dir "$HOME/.pi/agent"
     ensure_link "$src_dir/agent/models.json" "$HOME/.pi/agent/models.json"
+
+    # Model-slimming extension: replaces pi's large built-in openrouter catalog
+    # with only the models reasonix configures.
+    ensure_dir "$HOME/.pi/agent/extensions"
+    ensure_link "$src_dir/agent/extensions/openrouter-slim.mjs" "$HOME/.pi/agent/extensions/openrouter-slim.mjs"
+
+    # Register the extension in pi's settings.json without clobbering fields
+    # pi owns (defaultModel, theme, packages, ...).
+    local settings="$HOME/.pi/agent/settings.json"
+    [ -f "$settings" ] || return 0
+    if ! command_exists jq; then
+        yellow "skip pi settings.json extensions merge: jq not installed"
+        return 0
+    fi
+
+    local ext_entry="./extensions/openrouter-slim.mjs"
+    if jq -e --arg e "$ext_entry" '.extensions // [] | index($e)' "$settings" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local tmp
+    tmp="$(mktemp "${TMPDIR:-/tmp}/pi-settings-merge.XXXXXX.json")"
+    if jq --arg e "$ext_entry" '.extensions = ((.extensions // []) + [$e])' "$settings" > "$tmp" 2>/dev/null; then
+        mv "$tmp" "$settings"
+    else
+        rm -f "$tmp"
+        yellow "pi settings.json extensions merge failed; left untouched"
+    fi
 }
 
 # Symlink a hand-written herdr hook script into a Claude-Code-compatible
