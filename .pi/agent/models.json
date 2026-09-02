@@ -1,0 +1,69 @@
+{
+  "providers": {
+    "sensenova": {
+      "name": "Sensenova",
+      "baseUrl": "https://token.sensenova.cn/v1",
+      "api": "openai-completions",
+      "apiKey": "$SN_API_KEY",
+      "models": [
+        {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash (Sensenova)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 256000,
+          "maxTokens": 384000,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "compat": {
+            "supportsDeveloperRole": false,
+            "maxTokensField": "max_tokens",
+            "requiresReasoningContentOnAssistantMessages": true,
+            "thinkingFormat": "deepseek"
+          },
+          "thinkingLevelMap": {
+            "minimal": null,
+            "low": "low",
+            "medium": null,
+            "high": "high",
+            "max": "max"
+          }
+        }
+      ]
+    },
+    "bigmodel": {
+      "name": "BigModel (Zhipu)",
+      "baseUrl": "https://open.bigmodel.cn/api/coding/paas/v4",
+      "api": "openai-completions",
+      "apiKey": "$GLM_API_KEY",
+      "models": [
+        {
+          "id": "glm-5.3",
+          "name": "GLM 5.3",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 1048576,
+          "maxTokens": 32768,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
+        },
+        {
+          "id": "glm-5.3-flash",
+          "name": "GLM 5.3 Flash",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 1048576,
+          "maxTokens": 32768,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
+        },
+        {
+          "id": "glm-5-turbo",
+          "name": "GLM 5 Turbo",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 204800,
+          "maxTokens": 32768,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 }
+        }
+      ]
+    }
+  }
+}

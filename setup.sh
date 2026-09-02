@@ -873,6 +873,16 @@ link_reasonix_herdr_integration() {
     ensure_link "$src_dir/config.toml" "$config_dst"
 }
 
+# ~/.pi/agent mixes runtime data (sessions/, models-store.json, auth.json)
+# with user-managed config (models.json), so we symlink only the file we own.
+link_pi_config() {
+    local src_dir="$script_path/.pi"
+    [ -d "$src_dir" ] || return 0
+
+    ensure_dir "$HOME/.pi/agent"
+    ensure_link "$src_dir/agent/models.json" "$HOME/.pi/agent/models.json"
+}
+
 # Symlink a hand-written herdr hook script into a Claude-Code-compatible
 # agent's config dir, then merge the dotfiles `hooks` block into the
 # agent's settings.json (which also holds gateway/model/etc. owned by the
@@ -946,6 +956,7 @@ run_setup() {
 
     install_herdr_integrations
     link_reasonix_herdr_integration
+    link_pi_config
     link_custom_herdr_hook ".claude-internal" "$HOME/.claude-internal"
     link_custom_herdr_hook ".codebuddy"       "$HOME/.codebuddy"
 }
