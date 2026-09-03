@@ -71,10 +71,11 @@ command = "yazi"
 new_cwd = "follow"
 
  [theme]
-name = "gruvbox"
+name = "gruvbox-light"
 # name = "terminal"
 
 # ─── UI ────────────────────────────────────────────────────────────────────
+auto_switch = false
 [ui]
 prompt_new_tab_name = false        # 新 tab 即出现，跟 Cmd+t 风格一致
 accent = "cyan"

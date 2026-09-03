@@ -68,6 +68,8 @@ offline = false   # declare that outbound network access is unavailable; prevent
 # system_prompt_file = "prompts/system.md"   # project paths stay in <workspace>; user paths may fall back to <reasonix home>
 temperature       = 0.0
 # recovery_model = "deepseek-pro"   # optional; falls back to guardian then main model
+# completion_validation = "enforce"   # completion validator mode: off | shadow | enforce
+# completion_evaluator_model = ""   # optional; empty follows the working model
 # reasoning_language = "zh"   # visible reasoning language: auto|zh|en
 compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default 0.80)
 # keep                = ["errors"]   # deprecated compatibility field; ignored at runtime
@@ -109,25 +111,17 @@ base_url    = "https://token.sensenova.cn/v1"
 models      = ["deepseek-v4-flash"]
 api_key_env = "SN_API_KEY"
 context_window = 256000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
 
-[[providers]]
-name        = "bigmodel"
-kind        = "openai"
-base_url    = "https://open.bigmodel.cn/api/coding/paas/v4"
-models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
-default     = "glm-5.3"
-api_key_env = "GLM_API_KEY"
-context_window = 1048576   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
-vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
-model_overrides   = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
+# [[providers]]
+# name        = "bigmodel"
+# kind        = "openai"
+# base_url    = "https://open.bigmodel.cn/api/coding/paas/v4"
+# models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
+# default     = "glm-5.3"
+# api_key_env = "GLM_API_KEY"
+# context_window = 1048576   # tokens; compaction triggers near this limit
+# vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
+# model_overrides   = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "openrouter"
@@ -137,10 +131,6 @@ models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemm
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
 prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
 billing_currency = "USD"   # frozen list-price currency; independent of display_currency
 vision_models = ["openrouter/free"]   # models in this provider that accept image input
