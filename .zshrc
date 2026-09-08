@@ -59,15 +59,12 @@ setopt hist_verify
 # inter-session history sharing conflicts with atuin's own history sync.
 
 # ── Plugins (direct source, no oh-my-zsh framework) ─────────────────────────
-# Cloned by setup.sh into an XDG data dir. zsh-syntax-highlighting wraps ZLE
-# widgets, so any widgets bound later (e.g. in ~/.zshrc.local) won't be
-# highlighted.
+# Cloned by setup.sh into an XDG data dir. zsh-autosuggestions must load before
+# zsh-syntax-highlighting; the latter is sourced at the very end of this file
+# so widgets bound in ~/.zshrc.local/atuin are wrapped too.
 _zsh_plugins_dir="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins"
 [[ -f "$_zsh_plugins_dir/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
     source "$_zsh_plugins_dir/zsh-autosuggestions/zsh-autosuggestions.zsh"
-[[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
-    source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-unset _zsh_plugins_dir
 
 # ── Deferred init helper (zsh-only) ─────────────────────────────────────────
 # Queue non-critical init commands and run them once from the parent shell at
@@ -197,3 +194,8 @@ if [[ -o interactive ]] \
     && (( ${precmd_functions[(Ie)_emit_mux_user_var]:-0} == 0 )); then
     precmd_functions+=(_emit_mux_user_var)
 fi
+
+# ── zsh-syntax-highlighting (source last, after all widgets) ────────────────
+[[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
+    source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+unset _zsh_plugins_dir

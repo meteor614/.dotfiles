@@ -76,10 +76,25 @@ dotfiles_cached_eval() {
     local cache="$cache_dir/${name}.${shell_name}"
     local tmp
 
+    # mise activate bakes the current PATH into an `export PATH=...` line.
+    # Caching that freezes stale PATH entries (e.g. an auto-activated project
+    # .venv) into every new shell and clobbers PATH entries added earlier in
+    # this file. Drop the old cache so it is regenerated without that line;
+    # mise's hook-env refreshes PATH at the first prompt instead.
+    if [ "$name" = "mise" ] && [ -f "$cache" ] \
+        && grep -q '^export PATH=' "$cache" 2>/dev/null; then
+        rm -f "$cache"
+    fi
+
     if [ ! -f "$cache" ] || [ "$bin" -nt "$cache" ]; then
         mkdir -p "$cache_dir"
         tmp="${cache}.tmp.$$"
         if "$bin" "$@" >| "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+            if [ "$name" = "mise" ]; then
+                grep -v '^export PATH=' "$tmp" >| "${tmp}.filtered" 2>/dev/null \
+                    || cp "$tmp" "${tmp}.filtered"
+                mv -f "${tmp}.filtered" "$tmp"
+            fi
             mv -f "$tmp" "$cache"
         else
             rm -f "$tmp"
@@ -125,8 +140,15 @@ else
     path_prepend /usr/local/bin
 fi
 path_prepend "$HOME/.local/bin"
+# GNU userland from Homebrew (coreutils/findutils/gnu-getopt). Both prefixes
+# are listed; path_prepend skips missing dirs and later calls win, so the
+# native arm64 prefix ends up ahead of the Intel one on Apple Silicon.
+path_prepend /usr/local/opt/coreutils/libexec/gnubin
+path_prepend /opt/homebrew/opt/coreutils/libexec/gnubin
 path_prepend /usr/local/opt/findutils/libexec/gnubin
+path_prepend /opt/homebrew/opt/findutils/libexec/gnubin
 path_prepend /usr/local/opt/gnu-getopt/bin
+path_prepend /opt/homebrew/opt/gnu-getopt/bin
 path_prepend /usr/local/opt/ruby/bin
 
 # Homebrew Ruby (Apple Silicon)

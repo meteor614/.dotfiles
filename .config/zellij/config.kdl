@@ -286,10 +286,11 @@ web_client {
   cursor_inactive_style "outline"
 }
 
-web_server true
-web_sharing "on"
-web_server_port 8082
-web_server_ip "127.0.0.1"
-web_server_cert "/Users/meteorchen/.certs/fullchain.pem"
-web_server_key "/Users/meteorchen/.certs/privkey.pem"
-
+// Web server is disabled for now. Re-enable and set per-machine certificate
+// paths when needed; the previous cert paths were machine-specific.
+// web_server true
+// web_sharing "on"
+// web_server_port 8082
+// web_server_ip "127.0.0.1"
+// web_server_cert "/path/to/fullchain.pem"
+// web_server_key "/path/to/privkey.pem"

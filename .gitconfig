@@ -2,17 +2,18 @@
 	email = meteorchen@qq.com
 	name = meteorchen
 	useConfigOnly = true
+# core.hooksPath / core.attributesfile are intentionally not set here:
+# ~/.git-hooks and ~/.attributes_global are machine-local and not deployed
+# by setup.sh. Set them per machine if needed.
+# core.ignorecase / core.filemode are left to git's per-repo auto-detection
+# so the same config works on macOS and Linux/Synology.
 [core]
-	hooksPath = ~/.git-hooks
 	quotepath = false
 	longpaths = true
 	autocrlf = input
 	trustctime = false
 	excludesfile = ~/.gitignore_global
-	attributesfile = ~/.attributes_global
-	ignorecase = true
 	untrackedcache = true
-	filemode = false
 	pager = delta
 
 [filter "lfs"]
@@ -37,8 +38,9 @@
     #default = matching
 	default = simple
 	followTags = true
-[receive]
-	denyCurrentBranch = ignore
+# receive.denyCurrentBranch is intentionally not set globally: it allows
+# pushing into the checked-out branch of a non-bare repo and can clobber the
+# working tree. Set it per-repo on NAS checkouts that need it.
 [color]
 	status = auto
 	branch = auto

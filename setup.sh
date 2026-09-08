@@ -472,6 +472,25 @@ install_brew_if_needed() {
     bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 }
 
+# Homebrew's installer only updates shell profiles; the current setup process
+# still has the pre-install PATH. Eval `brew shellenv` so formulae installed in
+# this same run (mise, etc.) are visible to later steps.
+sync_brew_shellenv() {
+    [ "$os" = "darwin" ] || return 0
+
+    local brew_bin="" candidate brew_shellenv
+    for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+        if [ -x "$candidate" ]; then
+            brew_bin="$candidate"
+            break
+        fi
+    done
+    [ -n "$brew_bin" ] || return 0
+
+    brew_shellenv="$("$brew_bin" shellenv 2>/dev/null)" || return 0
+    eval "$brew_shellenv"
+}
+
 # ---------------------------------------------------------------------------
 # Linux package installers (Entware + GitHub release tarballs)
 # ---------------------------------------------------------------------------
@@ -803,16 +822,6 @@ install_user_language_packages() {
             track_background gem install --user-install neovim
         fi
     fi
-
-    # Mise: install configured runtimes (versions from .config/mise/config.toml).
-    # `mise install` is idempotent and exits quickly when versions are present,
-    # so just always invoke it rather than trying to detect-and-skip (which is
-    # tricky — `mise ls` lists configured-but-uninstalled tools too). Errors are
-    # reported instead of swallowed, since python builds in particular often
-    # fail on missing system headers (openssl/xz/libffi).
-    if command_exists mise; then
-        mise install --yes
-    fi
 }
 
 install_zsh_plugins() {
@@ -827,10 +836,10 @@ install_zsh_plugins() {
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting"
 }
 
-# Install herdr's stock claude hook script into ~/.claude. The other
-# Claude-Code-compatible config dirs (~/.claude-internal, ~/.codebuddy)
-# go through link_custom_herdr_hook below so we can label them
-# distinctly in herdr's sidebar.
+# Install herdr's stock claude hook script into ~/.claude. Other
+# Claude-Code-compatible config dirs (e.g. ~/.codebuddy) go through
+# link_custom_herdr_hook below so we can label them distinctly in
+# herdr's sidebar.
 # Symlinking is unsafe — herdr's installer overwrites the hook file in
 # place, so a shared symlink would let one uninstall remove all of them.
 install_herdr_integrations() {
@@ -916,9 +925,9 @@ link_pi_config() {
 # Symlink a hand-written herdr hook script into a Claude-Code-compatible
 # agent's config dir, then merge the dotfiles `hooks` block into the
 # agent's settings.json (which also holds gateway/model/etc. owned by the
-# agent itself). Used for both claude-internal and codebuddy so each pane
-# carries the right agent label in herdr's sidebar (rather than all being
-# tagged "claude" by herdr's stock installer).
+# agent itself). Used for codebuddy so each pane carries the right agent label
+# in herdr's sidebar (rather than all being tagged "claude" by herdr's stock
+# installer).
 #
 # args: <dotfiles-subdir-name> <target-dir>
 #   dotfiles-subdir-name: directory under $script_path that holds
@@ -971,15 +980,26 @@ run_setup() {
         return 0
     fi
 
-    load_nvm_default_node
     if [ "$os" = "darwin" ]; then
         install_brew_if_needed
+        sync_brew_shellenv
         configure_brew_mirrors
         install_missing_brew_packages
     else
         install_entware_packages
         install_linux_release_tools
     fi
+
+    # Install configured runtimes before npm/pipx/gem packages that depend on
+    # them. `mise install` is idempotent and exits quickly when versions are
+    # already present.
+    load_nvm_default_node
+    if command_exists mise; then
+        red 'Install mise runtimes...'
+        mise install --yes
+        load_nvm_default_node
+    fi
+
     configure_package_mirrors
     install_user_language_packages
     install_zsh_plugins
@@ -987,8 +1007,7 @@ run_setup() {
     install_herdr_integrations
     link_reasonix_herdr_integration
     link_pi_config
-    link_custom_herdr_hook ".claude-internal" "$HOME/.claude-internal"
-    link_custom_herdr_hook ".codebuddy"       "$HOME/.codebuddy"
+    link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
 }
 
 parse_args "$@"

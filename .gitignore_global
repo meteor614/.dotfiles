@@ -9,10 +9,13 @@ CMakeFiles/
 *.pyc
 *.un~
 tags
-package-lock.json
 .nvimlog
 .claude/
 .venv/
 .DS_Store
-.reasonix/
 .envrc
+.backpassrc.json
+
+# Intentionally not ignored globally:
+# - package-lock.json: library repos should commit lockfiles.
+# - .reasonix/: dotfiles tracks .reasonix/config.toml; ignore runtime data per repo.
