@@ -3,8 +3,8 @@
 # Fields marked user/global only are not overridden by ./reasonix.toml.
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
-config_version = 8   # schema marker for diagnostics; old versions may ignore it
-default_model = "sensenova/deepseek-v4-flash"
+config_version = 9   # schema marker for diagnostics; old versions may ignore it
+default_model = "omniroute/auto/coding"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -18,13 +18,14 @@ show_turn_usage = true   # CLI/TUI: show per-request token and cost receipts in 
 
 [desktop]
 # language = "zh"   # desktop UI language; empty/auto = browser/OS auto-detect
-layout_style = "workbench"   # desktop layout: classic|workbench|creation
+layout_style = "workbench"   # desktop layout: workbench|creation; legacy classic migrates to workbench
 theme = "dark"   # desktop only: auto|dark|light
 terminal_theme = "auto"   # integrated terminal: auto|dark|light; auto follows the desktop app
 theme_style = "graphite"   # desktop accent palette
 # external_opener = "vscode"   # desktop Open control: installed application id
 close_behavior = "background"   # desktop: quit|background when the window close button is clicked
-status_bar_style = "text"   # desktop: icon|text metric labels in the bottom status bar
+status_bar_style = "icon"   # desktop: icon|text metric labels in the bottom status bar
+status_bar_style_initialized = true   # icon default upgrade applied; preserve later user choices
 status_bar_items = ["model", "workspace", "git_branch", "cache", "cache_avg", "session_tokens", "turn_tokens", "turn_cost", "session_turns", "context", "compact", "cost", "balance"]   # desktop: ordered visible bottom status bar items
 default_tool_approval_mode = "ask"   # desktop: Ask/Auto/YOLO default for newly-created sessions
 check_updates = true   # desktop: check for new versions on startup
@@ -67,9 +68,7 @@ offline = false   # declare that outbound network access is unavailable; prevent
 # system_prompt = """..."""   # omit to use the built-in prompt for this version
 # system_prompt_file = "prompts/system.md"   # project paths stay in <workspace>; user paths may fall back to <reasonix home>
 temperature       = 0.0
-# recovery_model = "deepseek-pro"   # optional; falls back to guardian then main model
-# completion_validation = "enforce"   # completion validator mode: off | shadow | enforce
-# completion_evaluator_model = ""   # optional; empty follows the working model
+# recovery_model = "deepseek-pro"   # optional; empty leaves rule-only recovery
 # reasoning_language = "zh"   # visible reasoning language: auto|zh|en
 compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default 0.80)
 # keep                = ["errors"]   # deprecated compatibility field; ignored at runtime
@@ -90,9 +89,9 @@ planner_model = "deepseek/deepseek-v4-pro"   # low-frequency planner (two-model 
 [[providers]]
 name        = "deepseek"
 kind        = "openai"
-base_url    = "https://api.deepseek.com/"
-models      = ["deepseek-v4-flash", "deepseek-v4-pro", "deepseek-v4.1-flash-expires-on-0910", "deepseek-v4-flash-vision-exp"]
-default     = "deepseek-v4-flash"
+base_url    = "https://api.deepseek.com"
+models      = ["deepseek-flash", "deepseek-v4-pro"]
+default     = "deepseek-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
 context_window = 1000000   # tokens; compaction triggers near this limit
@@ -100,9 +99,9 @@ context_window = 1000000   # tokens; compaction triggers near this limit
 # max_output_tokens = 32768   # optional cost cap
 # max_output_tokens = 65536   # optional cost cap
 # max_output_tokens = 131072  # optional cost cap
-prices      = { "deepseek-v4-flash" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-flash-vision-exp" = { cache_hit = 0.1, input = 3, output = 9, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.3, input = 9, output = 27, currency = "¥" } }   # per-model prices, per 1M tokens
+prices      = { "deepseek-flash" = { cache_hit = 0.02, input = 1, output = 4, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.15, input = 4.5, output = 13.5, currency = "¥" } }   # per-model prices, per 1M tokens
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
-vision_models = ["deepseek-v4-flash-vision-exp"]   # models in this provider that accept image input
+vision_models = ["deepseek-flash"]   # models in this provider that accept image input
 
 [[providers]]
 name        = "sensenova"
@@ -111,17 +110,24 @@ base_url    = "https://token.sensenova.cn/v1"
 models      = ["deepseek-v4-flash"]
 api_key_env = "SN_API_KEY"
 context_window = 256000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
 
-# [[providers]]
-# name        = "bigmodel"
-# kind        = "openai"
-# base_url    = "https://open.bigmodel.cn/api/coding/paas/v4"
-# models      = ["glm-5.3", "glm-5.3-flash", "glm-5-turbo"]
-# default     = "glm-5.3"
-# api_key_env = "GLM_API_KEY"
-# context_window = 1048576   # tokens; compaction triggers near this limit
-# vision_models = ["glm-5.3-flash"]   # models in this provider that accept image input
-# model_overrides   = { "glm-5-turbo" = { context_window = 204800 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
+[[providers]]
+name        = "omniroute"
+kind        = "openai"
+base_url    = "http://localhost:20128/v1"
+models      = ["auto", "auto/coding", "auto/vision", "auto/coding:free", "oc/nemotron-3-ultra-free", "oc/big-pickle"]
+api_key_env = "OMNIROUTE_API_KEY"
+context_window = 128000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
+vision_models = ["auto/vision"]   # models in this provider that accept image input
+model_overrides   = { "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "openrouter"
@@ -131,6 +137,10 @@ models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemm
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
+# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
+# max_output_tokens = 32768   # optional cost cap
+# max_output_tokens = 65536   # optional cost cap
+# max_output_tokens = 131072  # optional cost cap
 prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
 billing_currency = "USD"   # frozen list-price currency; independent of display_currency
 vision_models = ["openrouter/free"]   # models in this provider that accept image input
