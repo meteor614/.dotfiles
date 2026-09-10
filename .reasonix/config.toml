@@ -3,8 +3,8 @@
 # Fields marked user/global only are not overridden by ./reasonix.toml.
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
-config_version = 9   # schema marker for diagnostics; old versions may ignore it
-default_model = "omniroute/auto/coding"
+config_version = 10   # schema marker for diagnostics; old versions may ignore it
+default_model = "omniroute/oc/big-pickle"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -95,10 +95,7 @@ default     = "deepseek-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
 context_window = 1000000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
+max_output_tokens = -1
 prices      = { "deepseek-flash" = { cache_hit = 0.02, input = 1, output = 4, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.15, input = 4.5, output = 13.5, currency = "¥" } }   # per-model prices, per 1M tokens
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
 vision_models = ["deepseek-flash"]   # models in this provider that accept image input
@@ -110,10 +107,7 @@ base_url    = "https://token.sensenova.cn/v1"
 models      = ["deepseek-v4-flash"]
 api_key_env = "SN_API_KEY"
 context_window = 256000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
+max_output_tokens = -1
 
 [[providers]]
 name        = "omniroute"
@@ -122,10 +116,7 @@ base_url    = "http://localhost:20128/v1"
 models      = ["auto", "auto/coding", "auto/vision", "auto/coding:free", "oc/nemotron-3-ultra-free", "oc/big-pickle"]
 api_key_env = "OMNIROUTE_API_KEY"
 context_window = 128000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
+max_output_tokens = -1
 vision_models = ["auto/vision"]   # models in this provider that accept image input
 model_overrides   = { "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
@@ -137,10 +128,7 @@ models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemm
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
-# max_output_tokens = 0       # recommended: official DeepSeek omits the field (server 384K ceiling)
-# max_output_tokens = 32768   # optional cost cap
-# max_output_tokens = 65536   # optional cost cap
-# max_output_tokens = 131072  # optional cost cap
+max_output_tokens = -1
 prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
 billing_currency = "USD"   # frozen list-price currency; independent of display_currency
 vision_models = ["openrouter/free"]   # models in this provider that accept image input
