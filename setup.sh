@@ -8,6 +8,8 @@ script_path="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 MODE="init"
 BOOTSTRAP_NVIM=0
+DRY_RUN=0
+ONLY_SECTIONS=""
 CHECK_FAILED=0
 BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
@@ -69,7 +71,7 @@ ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
 
 usage() {
     cat <<'EOF'
-Usage: setup.sh [init|check|repair] [--bootstrap-nvim]
+Usage: setup.sh [init|check|repair] [--bootstrap-nvim] [--dry-run] [--only SECTION]
 
 Commands:
   init            Create missing links and install missing dependencies (default)
@@ -79,7 +81,33 @@ Commands:
 Flags:
   --bootstrap-nvim
                   Explicitly adopt LazyVim starter in ~/.config/nvim
+
+  --dry-run       Print what would be done without executing any installs.
+                  Links are still checked (read-only) but never created.
+                  Implies --only is ignored; all sections are listed.
+
+  --only SECTION  Run only the named section(s). Comma-separated list.
+                  Available sections:
+                    links      — dotfile symlinks (top-level, .config, bin)
+                    nvim       — Neovim / LazyVim bootstrap
+                    brew       — Homebrew install + formulae/casks  (macOS only)
+                    entware    — Entware opkg packages              (Linux/Synology)
+                    releases   — GitHub release binaries → ~/bin   (Linux/Synology)
+                    runtimes   — mise install + nvm default node
+                    mirrors    — Homebrew + package manager mirrors
+                    packages   — npm/pip/gem language packages
+                    zsh        — zsh plugin clones
+                    herdr      — herdr agent integrations
 EOF
+}
+
+# Valid section names for --only
+VALID_SECTIONS="links nvim brew entware releases runtimes mirrors packages zsh herdr"
+
+section_requested() {
+    # With no --only filter, every section runs.
+    [ -z "$ONLY_SECTIONS" ] && return 0
+    printf '%s\n' "$ONLY_SECTIONS" | tr ',' '\n' | grep -qx "$1"
 }
 
 parse_args() {
@@ -97,6 +125,22 @@ parse_args() {
             --bootstrap-nvim)
                 BOOTSTRAP_NVIM=1
                 ;;
+            --dry-run)
+                DRY_RUN=1
+                ;;
+            --only)
+                shift
+                [ "$#" -gt 0 ] || { red "--only requires a section name"; usage; exit 1; }
+                ONLY_SECTIONS="$1"
+                # Validate section names early so typos fail fast.
+                local sec
+                for sec in $(printf '%s\n' "$ONLY_SECTIONS" | tr ',' ' '); do
+                    if ! printf '%s\n' $VALID_SECTIONS | grep -qx "$sec"; then
+                        red "Unknown section: $sec (valid: $VALID_SECTIONS)"
+                        exit 1
+                    fi
+                done
+                ;;
             -h|--help)
                 usage
                 exit 0
@@ -109,6 +153,21 @@ parse_args() {
         esac
         shift
     done
+}
+
+# ---------------------------------------------------------------------------
+# dry_run_echo — print what would run, or actually run it
+# Usage: run_or_print <description> <command...>
+# In dry-run mode: prints "+ <description>" and returns 0 without executing.
+# In normal mode: executes the command and returns its exit code.
+# ---------------------------------------------------------------------------
+run_or_print() {
+    local desc="$1"; shift
+    if [ "$DRY_RUN" = "1" ]; then
+        printf '\033[36m[dry-run]\033[0m %s\n' "$desc"
+        return 0
+    fi
+    "$@"
 }
 
 track_background() {
@@ -967,51 +1026,117 @@ link_custom_herdr_hook() {
 }
 
 run_setup() {
-    if [ "$MODE" != "check" ]; then
+    if [ "$MODE" != "check" ] && [ "$DRY_RUN" != "1" ]; then
         init_submodules
     fi
 
-    link_top_level_dotfiles
-    link_config_entries
-    setup_neovim
-    link_tmux_and_bin
+    # ── links ──────────────────────────────────────────────────────────────
+    if section_requested "links"; then
+        link_top_level_dotfiles
+        link_config_entries
+        link_tmux_and_bin
+    fi
 
-    if [ "$MODE" = "check" ]; then
+    # ── nvim ───────────────────────────────────────────────────────────────
+    if section_requested "nvim"; then
+        setup_neovim
+    fi
+
+    if [ "$MODE" = "check" ] || [ "$DRY_RUN" = "1" ]; then
+        # In dry-run mode, list what the remaining sections would do without
+        # executing any of them. Link sections above already printed their
+        # actions via ensure_link / run_or_print.
+        if [ "$DRY_RUN" = "1" ]; then
+            _dry_run_remaining
+        fi
         return 0
     fi
 
+    # ── brew / entware / releases ──────────────────────────────────────────
     if [ "$os" = "darwin" ]; then
-        install_brew_if_needed
-        sync_brew_shellenv
-        configure_brew_mirrors
-        install_missing_brew_packages
+        if section_requested "brew"; then
+            install_brew_if_needed
+            sync_brew_shellenv
+            install_missing_brew_packages
+        fi
     else
-        install_entware_packages
-        install_linux_release_tools
+        if section_requested "entware"; then
+            install_entware_packages
+        fi
+        if section_requested "releases"; then
+            install_linux_release_tools
+        fi
     fi
 
-    # Install configured runtimes before npm/pipx/gem packages that depend on
-    # them. `mise install` is idempotent and exits quickly when versions are
-    # already present.
-    load_nvm_default_node
-    if command_exists mise; then
-        red 'Install mise runtimes...'
-        mise install --yes
+    # ── runtimes ───────────────────────────────────────────────────────────
+    if section_requested "runtimes"; then
+        # Install configured runtimes before npm/pipx/gem packages that depend
+        # on them. `mise install` is idempotent and exits quickly when versions
+        # are already present.
         load_nvm_default_node
+        if command_exists mise; then
+            red 'Install mise runtimes...'
+            mise install --yes
+            load_nvm_default_node
+        fi
     fi
 
-    configure_package_mirrors
-    install_user_language_packages
-    install_zsh_plugins
+    # ── mirrors ────────────────────────────────────────────────────────────
+    if section_requested "mirrors"; then
+        if [ "$os" = "darwin" ]; then
+            configure_brew_mirrors
+        fi
+        configure_package_mirrors
+    fi
 
-    install_herdr_integrations
-    link_reasonix_herdr_integration
-    link_pi_config
-    link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
+    # ── packages ───────────────────────────────────────────────────────────
+    if section_requested "packages"; then
+        install_user_language_packages
+    fi
+
+    # ── zsh ────────────────────────────────────────────────────────────────
+    if section_requested "zsh"; then
+        install_zsh_plugins
+    fi
+
+    # ── herdr ──────────────────────────────────────────────────────────────
+    if section_requested "herdr"; then
+        install_herdr_integrations
+        link_reasonix_herdr_integration
+        link_pi_config
+        link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
+    fi
+}
+
+# Print a summary of what the install-time sections would do without running
+# any of them. Called only in --dry-run mode after link sections have run.
+_dry_run_remaining() {
+    printf '\033[36m[dry-run]\033[0m Section summary (no changes made):\n'
+
+    if [ "$os" = "darwin" ]; then
+        if section_requested "brew"; then
+            echo "  brew      — install Homebrew (if missing) + missing formulae/casks"
+        fi
+    else
+        section_requested "entware"  && echo "  entware   — opkg install missing packages"
+        section_requested "releases" && echo "  releases  — download GitHub release binaries → ~/bin"
+    fi
+
+    section_requested "runtimes" && echo "  runtimes  — mise install --yes + nvm default node"
+    section_requested "mirrors"  && echo "  mirrors   — configure Homebrew + npm/pip/gem mirrors"
+    section_requested "packages" && echo "  packages  — install npm/pipx/gem language packages"
+    section_requested "zsh"      && echo "  zsh       — clone zsh plugin repos (autosuggestions, syntax-highlighting)"
+    section_requested "herdr"    && echo "  herdr     — install herdr agent integrations (claude, reasonix, pi, codebuddy)"
 }
 
 parse_args "$@"
 run_setup
+
+if [ "$DRY_RUN" = "1" ]; then
+    yellow 'Dry run complete — no changes were made.'
+    exit 0
+fi
+
 if ! wait_for_background_jobs; then
     red 'One or more background setup jobs failed.'
     exit 1

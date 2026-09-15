@@ -4,7 +4,7 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 10   # schema marker for diagnostics; old versions may ignore it
-default_model = "omniroute/oc/big-pickle"
+default_model = "omniroute/deepseek-flash"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
@@ -95,7 +95,7 @@ default     = "deepseek-flash"
 api_key_env = "DEEPSEEK_API_KEY"
 balance_url = "https://api.deepseek.com/user/balance"   # optional; wallet-balance endpoint shown in the status bar
 context_window = 1000000   # tokens; compaction triggers near this limit
-max_output_tokens = -1
+max_output_tokens = -1   # per-turn total output; 0 = provider auto (official DeepSeek 384K, omit when safe); positive = cost cap; negative = force-omit; never affects compact_ratio
 prices      = { "deepseek-flash" = { cache_hit = 0.02, input = 1, output = 4, currency = "¥" }, "deepseek-v4-pro" = { cache_hit = 0.15, input = 4.5, output = 13.5, currency = "¥" } }   # per-model prices, per 1M tokens
 billing_currency = "CNY"   # frozen list-price currency; independent of display_currency
 vision_models = ["deepseek-flash"]   # models in this provider that accept image input
@@ -107,18 +107,18 @@ base_url    = "https://token.sensenova.cn/v1"
 models      = ["deepseek-v4-flash"]
 api_key_env = "SN_API_KEY"
 context_window = 256000   # tokens; compaction triggers near this limit
-max_output_tokens = -1
+max_output_tokens = -1   # per-turn total output; 0 = provider auto (official DeepSeek 384K, omit when safe); positive = cost cap; negative = force-omit; never affects compact_ratio
 
 [[providers]]
 name        = "omniroute"
 kind        = "openai"
 base_url    = "http://localhost:20128/v1"
-models      = ["auto", "auto/coding", "auto/vision", "auto/coding:free", "oc/nemotron-3-ultra-free", "oc/big-pickle"]
+models      = ["deepseek-flash", "auto", "auto/coding", "auto/vision", "auto/coding:free", "cbcn/kimi-k3-1", "cbcn/kimi-k2.8-preview", "cbcn/glm-5.3-flash", "oc/nemotron-3-ultra-free", "oc/big-pickle"]
 api_key_env = "OMNIROUTE_API_KEY"
 context_window = 128000   # tokens; compaction triggers near this limit
-max_output_tokens = -1
+max_output_tokens = -1   # per-turn total output; 0 = provider auto (official DeepSeek 384K, omit when safe); positive = cost cap; negative = force-omit; never affects compact_ratio
 vision_models = ["auto/vision"]   # models in this provider that accept image input
-model_overrides   = { "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
+model_overrides   = { "deepseek-flash" = { context_window = 1000000 }, "cbcn/glm-5.3-flash" = { context_window = 1000000 }, "cbcn/kimi-k2.8-preview" = { context_window = 1000000 }, "cbcn/kimi-k3-1" = { context_window = 1000000 }, "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "openrouter"
@@ -128,7 +128,7 @@ models      = ["openrouter/free", "google/gemma-4-26b-a4b-it:free", "google/gemm
 default     = "openrouter/free"
 api_key_env = "OPENROUTER_API_KEY"
 context_window = 200000   # tokens; compaction triggers near this limit
-max_output_tokens = -1
+max_output_tokens = -1   # per-turn total output; 0 = provider auto (official DeepSeek 384K, omit when safe); positive = cost cap; negative = force-omit; never affects compact_ratio
 prices      = { "openrouter/free" = { cache_hit = 0, input = 0, output = 0, currency = "$" } }   # per-model prices, per 1M tokens
 billing_currency = "USD"   # frozen list-price currency; independent of display_currency
 vision_models = ["openrouter/free"]   # models in this provider that accept image input

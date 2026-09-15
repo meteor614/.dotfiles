@@ -191,14 +191,21 @@ command -v lesspipe.sh >/dev/null 2>&1 && {
 # herdr 会尝试 xclip/wl-copy 写入远端剪贴板而非透传 OSC52，
 # 导致 nvim yank 的内容到不了本地 mac 剪贴板。
 #
-# 这里补一个环境标记：当在 zellij 中且 SSH_TTY 未设置时，伪造 SSH_TTY
-# 让 herdr 优先走 OSC52 透传。去掉 pbcopy 判断是因为 SSH 到远程 Mac
-# 时 pbcopy 存在但写入的是远端剪贴板，回不到本地。
+# 这里补一个环境标记：当在 zellij/herdr 中且 SSH_TTY 未设置时，伪造
+# SSH_TTY 让 herdr 优先走 OSC52 透传。值用 /dev/tty 而不是 "zellij"
+# 这样的自定义字符串——某些工具（ssh-agent 探测、tmux 远端检测）只
+# 检查 SSH_TTY 是否存在不读值，/dev/tty 对所有这类工具都安全。
+# 去掉 pbcopy 判断是因为 SSH 到远程 Mac 时 pbcopy 存在但写入的是远端
+# 剪贴板，回不到本地。
+#
+# herdr 0.9.0 源码里没有任何 OSC52 相关的环境变量或命令行参数
+# （已确认无 HERDR_PREFER_OSC52 等），所以这个 workaround 在 herdr
+# 原生支持该开关之前必须保留。
 # -----------------------------------------------------------------------------
 if [ -n "${ZELLIJ:-}" ] && [ -z "${SSH_TTY:-}" ]; then
-    export SSH_TTY="zellij"
+    export SSH_TTY="/dev/tty"
 elif [ -n "${HERDR_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
-    export SSH_TTY="herdr"
+    export SSH_TTY="/dev/tty"
 fi
 
 # -----------------------------------------------------------------------------
@@ -226,14 +233,39 @@ _dotfiles_set_term() {
     local cache_file="$cache_dir/term"
     local program="${TERM_PROGRAM:-}"
 
+    # Stale-cache guard: if the cache file was written more than 30 days ago,
+    # drop it and re-probe. This catches the case where the terminal binary is
+    # upgraded to ship richer terminfo (e.g. ghostty gains new capabilities)
+    # without us ever noticing because the cache was written long ago.
+    #
+    # POSIX find has no "newer than X days" predicate, so compare mtimes
+    # directly against a reference file instead — portable across GNU/BSD.
+    _dotfiles_term_cache_fresh() {
+        [ -r "$1" ] || return 1
+        local _ref _rc
+        _ref="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/.term-cache-ref"
+        if [ ! -f "$_ref" ]; then
+            mkdir -p "${_ref%/*}"
+            # touch -d is GNU-only; BSD/macOS needs -t YYYYMMDDHHMM.
+            # Use touch -t with a date computed by the available date(1).
+            touch -t "$(date -v-30d +%Y%m%d%H%M 2>/dev/null \
+                || date -d '-30 days' +%Y%m%d%H%M)" "$_ref" 2>/dev/null \
+                || touch "$_ref"
+        fi
+        [ "$1" -nt "$_ref" ]
+        _rc=$?
+        return $_rc
+    }
+
     # Ghostty sets TERM=xterm-ghostty itself; keep it if terminfo is installed.
     case "$program" in
         ghostty)
-            if [ -r "$cache_file.ghostty" ]; then
+            if _dotfiles_term_cache_fresh "$cache_file.ghostty"; then
                 IFS= read -r TERM < "$cache_file.ghostty" || TERM=xterm-256color
                 export TERM
                 return 0
             fi
+            rm -f "$cache_file.ghostty" 2>/dev/null || true
             mkdir -p "$cache_dir"
             if command -v infocmp >/dev/null 2>&1 \
                 && infocmp -x xterm-ghostty >/dev/null 2>&1; then
@@ -246,11 +278,12 @@ _dotfiles_set_term() {
             return 0
             ;;
         WezTerm)
-            if [ -r "$cache_file.wezterm" ]; then
+            if _dotfiles_term_cache_fresh "$cache_file.wezterm"; then
                 IFS= read -r TERM < "$cache_file.wezterm" || TERM=xterm-256color
                 export TERM
                 return 0
             fi
+            rm -f "$cache_file.wezterm" 2>/dev/null || true
             mkdir -p "$cache_dir"
             if command -v infocmp >/dev/null 2>&1 \
                 && infocmp -x wezterm >/dev/null 2>&1; then
@@ -282,7 +315,18 @@ fi
 # -----------------------------------------------------------------------------
 # brew wrapper with mirror fallback — swap provider on failure
 # -----------------------------------------------------------------------------
-if [ "${USE_CN_MIRROR:-1}" = "1" ] && command -v brew >/dev/null 2>&1; then
+# Restrict the wrapper to interactive shells: non-interactive shells (CI,
+# scripts, `sh -c 'brew …'`) should hit the real brew binary directly and
+# never silently retry a failed mirror download against a second provider.
+# `case $-` works identically in bash and zsh for the i (interactive) flag.
+case $- in
+    *i*) _dotfiles_interactive=1 ;;
+    *)   _dotfiles_interactive=0 ;;
+esac
+# (intentionally not unset — read once more below by the SSH_TTY workaround)
+if [ "${USE_CN_MIRROR:-1}" = "1" ] \
+    && [ "$_dotfiles_interactive" = "1" ] \
+    && command -v brew >/dev/null 2>&1; then
     _DOTFILES_BREW="$(command -v brew)"
     brew() {
         local _dotfiles_brew_exit=0
