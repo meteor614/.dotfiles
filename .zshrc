@@ -26,6 +26,9 @@ if [[ -f "$ZSH_COMPDUMP" && "$ZSH_COMPDUMP"(N.mh+24) == "" ]]; then
     compinit -C -d "$ZSH_COMPDUMP"
 else
     compinit -i -d "$ZSH_COMPDUMP"
+    # Compile the just-(re)built dump so later starts load the .zwc instead of
+    # re-parsing 3k+ lines of compdef. Rebuilt at most once per day.
+    zcompile "$ZSH_COMPDUMP" 2>/dev/null || true
 fi
 
 # ── Completion styles (from oh-my-zsh lib/completion.zsh) ────────────────────
@@ -33,7 +36,7 @@ zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}
 zstyle ':completion:*' special-dirs true
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
-zstyle ':completion:*:*:*:*:processes' command "ps -u $USERNAME -o pid,user,comm -w -w"
+zstyle ':completion:*:*:*:*:processes' command "ps -u ${USER:-$USERNAME} -o pid,user,comm -w -w"
 zstyle ':completion:*' menu select
 zstyle ':completion:*' use-cache yes
 zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"

@@ -40,7 +40,8 @@
 - Do not run `setup.sh` without explicit user approval. It writes into `$HOME`, creates symlinks, updates submodules, clones repositories, touches package manager configuration, and uses the network.
 - Do not run `bin/update_all.sh` without explicit user approval. It updates system packages, language package managers, plugins, submodules, and may run privileged commands.
 - `setup.sh` can move existing Neovim directories out of the way, bootstrap LazyVim, rewrite Homebrew remotes, install packages, and update external repositories.
-- `setup.sh` runs in `init|check|repair` modes; only `check` is read-only. `repair` backs up and rewrites mismatched links under `$HOME`.
+- `setup.sh` runs in `init|check|repair|prune` modes; only `check` is read-only. `repair` backs up and rewrites mismatched links under `$HOME`. `prune` deletes links that point into this repo but whose source no longer exists (plus stale `*.zwc`); it never touches links that resolve outside the repo.
+- Retired configs (`alacritty`, `lvim`, `~/.vim/coc-settings.json`, `bin/generate_tags.sh`, `.claude-internal/hooks/`, yazi `plugins/`/`package.toml`) have no source in this repo. Their leftovers in `$HOME` are expected to disappear on the next `setup.sh prune` — that is deliberate cleanup, not lost configuration. See README “退役配置清单”.
 - Do not perform remote `ssh` provisioning or host changes without explicit user approval. Installing packages, changing login shells, touching remote dotfiles, or modifying local/remote `~/.ssh` state are all high-impact operations.
 - Avoid GUI tools, interactive installers, and login-shell side effects unless the user explicitly wants them.
 

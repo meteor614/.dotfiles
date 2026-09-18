@@ -47,18 +47,22 @@
 
 ## setup.sh
 
-`setup.sh` 支持三种模式：
+`setup.sh` 支持四种模式：
 
 | 模式      | 行为                                                    |
 | --------- | ------------------------------------------------------- |
 | `init`    | （默认）创建缺失的符号链接，然后安装依赖                 |
-| `check`   | 只读：报告缺失/不匹配的链接，不写入任何内容              |
+| `check`   | 只读：报告缺失/不匹配的链接（含指向本仓库但源已删除的死链） |
 | `repair`  | 备份并修复不匹配的链接                                   |
+| `prune`   | 删除死链（指向本仓库、源已不存在）及过期 `*.zwc`          |
 
 参数：
 
 * `--bootstrap-nvim` — 在 `~/.config/nvim` 采用 LazyVim starter 树
   （会先备份已有的 nvim 目录）。
+* `--dry-run` — 只打印将要执行的操作，不做任何写入。
+* `--only SECTION` — 只运行指定段（逗号分隔）。**不会**自动拉取依赖：
+  如 `--only packages` 需先确保 `runtimes`，`herdr` 需先跑 `links`。
 
 按 OS 区分的安装行为：macOS → Homebrew；Linux/Synology → Entware（`opkg`）+
 GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR` /
@@ -74,7 +78,28 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 * `tmuxinator/` → `~/.tmuxinator`。
 * `.tmux`、`cheat/cheatsheets` — git 子模块（视为上游管理）。
 
+> 版本控制为 **jj + git 共存** 的 colocated workspace：`.jj/` 由自身的
+> `.jj/.gitignore`（`/*`）屏蔽，不进入 git 树；提交统一走 `jj`（见 `AGENTS.md`）。
+
 完整的 shell 启动流程与编辑规范见 `AGENTS.md`。
+
+## 退役配置清单
+
+`setup.sh prune` 会**主动删除**指向本仓库但源文件已不存在的死链。以下配置已从
+本仓库退役，机器上残留的旧链接会在下次 `setup.sh prune` 时被移除
+（`check` 会报告它们，`repair` 不会删除死链），属于预期行为，不是“配置丢了”：
+
+| 配置                 | 现状                         |
+| -------------------- | ---------------------------- |
+| alacritty            | 已退役（改用 ghostty）       |
+| lvim（LunarVim）     | 已退役（改用 lazyvim/nvim）  |
+| coc-settings.json    | 已退役（coc.nvim → 原生 LSP）|
+| yazi `plugins/`、`package.toml` | 由 `ya pack` 管理，不入库 |
+| `bin/generate_tags.sh` | 已退役（改用 gtags/ctags 流程）|
+| `.claude-internal/hooks/` | herdr 集成已改为 `~/.claude` |
+
+自指的陈旧链接（如 `~/.zshrc.bak.*`、`~/.zshrc.pre-oh-my-zsh`）指向的源仍存在，
+不会被自动清理；确认无用后可手动删除。
 
 ## Shell 启动流程
 
@@ -90,9 +115,8 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 | 脚本                     | 用途                                                       |
 | ------------------------ | ---------------------------------------------------------- |
 | `color.sh`               | 用循环 ANSI 颜色给 stdin 行上色                             |
-| `find_duplicated.sh`     | 查找重复文件（大小 → md5），并行处理                        |
+| `find_duplicated.sh`     | 查找重复文件（大小 → 内容哈希；BSD/GNU 自适应，并行处理）    |
 | `fzsession`              | 在 zellij/tmux/herdr 会话间 fzf 切换（绑定到 `Alt+z`）      |
-| `kssh.sh`                | kubectl：通过 xpanes 批量 exec 进入匹配的 pods/node         |
 | `process_monitor.sh`     | 按名称/PID 监控进程，进程结束时执行命令                     |
 | `update_all.sh`          | topgrade 驱动的包/运行时/插件更新                           |
 

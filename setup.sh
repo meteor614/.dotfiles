@@ -71,12 +71,14 @@ ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
 
 usage() {
     cat <<'EOF'
-Usage: setup.sh [init|check|repair] [--bootstrap-nvim] [--dry-run] [--only SECTION]
+Usage: setup.sh [init|check|repair|prune] [--bootstrap-nvim] [--dry-run] [--only SECTION]
 
 Commands:
   init            Create missing links and install missing dependencies (default)
   check           Report missing/mismatched links without writing changes
   repair          Backup and repair mismatched links
+  prune           Remove stale links under the managed roots that point back into
+                  this repo but whose source no longer exists (and stale *.zwc)
 
 Flags:
   --bootstrap-nvim
@@ -84,9 +86,12 @@ Flags:
 
   --dry-run       Print what would be done without executing any installs.
                   Links are still checked (read-only) but never created.
-                  Implies --only is ignored; all sections are listed.
+                  Combine with --only to preview a subset of sections.
 
   --only SECTION  Run only the named section(s). Comma-separated list.
+                  Note: --only does not pull in dependencies. To install packages
+                  on a fresh machine you usually need `--only runtimes,packages`
+                  (and `herdr` also needs the `links` section first).
                   Available sections:
                     links      — dotfile symlinks (top-level, .config, bin)
                     nvim       — Neovim / LazyVim bootstrap
@@ -122,6 +127,9 @@ parse_args() {
             repair|--repair|--force)
                 MODE="repair"
                 ;;
+            prune|--prune)
+                MODE="prune"
+                ;;
             --bootstrap-nvim)
                 BOOTSTRAP_NVIM=1
                 ;;
@@ -156,20 +164,8 @@ parse_args() {
 }
 
 # ---------------------------------------------------------------------------
-# dry_run_echo — print what would run, or actually run it
-# Usage: run_or_print <description> <command...>
-# In dry-run mode: prints "+ <description>" and returns 0 without executing.
-# In normal mode: executes the command and returns its exit code.
+# track_background — run a command in the background and remember its PID
 # ---------------------------------------------------------------------------
-run_or_print() {
-    local desc="$1"; shift
-    if [ "$DRY_RUN" = "1" ]; then
-        printf '\033[36m[dry-run]\033[0m %s\n' "$desc"
-        return 0
-    fi
-    "$@"
-}
-
 track_background() {
     "$@" &
     background_pids+=("$!")
@@ -234,6 +230,39 @@ mark_check_failure() {
     CHECK_FAILED=1
 }
 
+# ---------------------------------------------------------------------------
+# resolve_path — canonicalize a path, tolerating a missing final component
+# (e.g. a dangling symlink). Uses `readlink -f` where available (GNU coreutils
+# and macOS 12.3+); otherwise chases the link manually.
+# ---------------------------------------------------------------------------
+resolve_path() {
+    local out p dir base
+
+    out=$(readlink -f "$1" 2>/dev/null) || true
+    if [ -n "$out" ]; then
+        printf '%s\n' "$out"
+        return 0
+    fi
+
+    p=$1
+    while [ -L "$p" ]; do
+        base=$(readlink "$p" 2>/dev/null || true)
+        [ -n "$base" ] || break
+        case "$base" in
+            /*) p=$base ;;
+            *) p="$(dirname -- "$p")/$base" ;;
+        esac
+    done
+
+    dir=$(dirname -- "$p")
+    base=$(basename -- "$p")
+    if [ -d "$dir" ]; then
+        printf '%s/%s\n' "$(cd -P -- "$dir" && pwd)" "$base"
+    else
+        printf '%s\n' "$p"
+    fi
+}
+
 ensure_directory_target() {
     local dst=$1
 
@@ -271,6 +300,13 @@ ensure_link() {
         local current
         current=$(readlink "$dst" 2>/dev/null || true)
         if [ "$current" = "$src" ]; then
+            return 0
+        fi
+        # Accept an equivalent path too: a relative link, or one that only
+        # differs because a parent directory is itself a symlink (e.g.
+        # /etc vs /private/etc on macOS). Compare canonicalized targets.
+        if [ -n "$current" ] && \
+           [ "$(resolve_path "$dst")" = "$(resolve_path "$src")" ]; then
             return 0
         fi
     fi
@@ -311,6 +347,126 @@ ensure_git_clone() {
 
     ensure_dir "$(dirname "$dst")"
     git clone "$@" "$repo" "$dst"
+}
+
+# ---------------------------------------------------------------------------
+# Stale-link / stale-artifact pruning
+#
+# `check`/`repair` only look at the links setup.sh would (re)create, so they
+# never notice links left behind by *removed* config entries. These helpers
+# scan the managed roots for:
+#   * dangling symlinks whose target lives inside this repo, and
+#   * *.zwc files that are older than the file they were compiled from.
+# ---------------------------------------------------------------------------
+
+# Roots/pruning depth managed by setup.sh — "<root>\t<maxdepth>". Depth is
+# relative to the root (1 = immediate children). Only links that resolve into
+# this repo are ever touched, so unrelated user links are safe.
+managed_scan_specs() {
+    printf '%s\t1\n' "$HOME"
+    printf '%s\t2\n' "$HOME/.config"
+    printf '%s\t1\n' "$HOME/bin"
+    printf '%s\t2\n' "$HOME/.vim"
+    # Agent-CLI config dirs that used to be linked by setup.sh.
+    printf '%s\t3\n' "$HOME/.pi"
+    printf '%s\t2\n' "$HOME/.reasonix"
+    printf '%s\t2\n' "$HOME/.codebuddy"
+    printf '%s\t2\n' "$HOME/.claude-internal"
+}
+
+# find_managed_links — NUL-separated list of candidate symlinks.
+find_managed_links() {
+    local root depth
+    while IFS="$(printf '\t')" read -r root depth; do
+        [ -n "$root" ] && [ -d "$root" ] || continue
+        find "$root" -maxdepth "$depth" -mindepth 1 -type l -print0 2>/dev/null
+    done < <(managed_scan_specs)
+}
+
+# is_repo_dangling_link <link> — true when <link> is a broken symlink that
+# points (lexically) into this repository.
+is_repo_dangling_link() {
+    local link=$1 target
+
+    [ -L "$link" ] || return 1
+    [ -e "$link" ] && return 1           # resolves fine — not dangling
+
+    target=$(readlink "$link" 2>/dev/null || true)
+    [ -n "$target" ] || return 1
+    case "$target" in
+        /*) ;;
+        *) target="$(dirname -- "$link")/$target" ;;
+    esac
+    target=$(resolve_path "$target")
+
+    case "$target" in
+        "$script_path"/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# report_dangling_links — print repo-owned dangling links (check mode).
+report_dangling_links() {
+    local link found=0
+
+    while IFS= read -r -d '' link; do
+        if is_repo_dangling_link "$link"; then
+            yellow "check: dangling link $link -> $(readlink "$link")"
+            found=1
+        fi
+    done < <(find_managed_links)
+
+    [ "$found" -eq 1 ] && mark_check_failure
+    return 0
+}
+
+# prune_stale_zwc — remove *.zwc that is older than the file it was compiled
+# from (zsh compdump, or a sourced rc file). A stale compiled dump is always
+# regenerable, so removing it is safe; a *.zwc with no sibling source is left
+# alone. Honors $DRY_RUN.
+prune_stale_zwc() {
+    local zwc src root
+
+    for root in "$HOME" "$HOME/bin" "$HOME/.config" \
+                "$HOME/.zsh_cache" "${ZSH_CACHE_DIR:-$HOME/.zsh_cache}"; do
+        [ -n "$root" ] && [ -d "$root" ] || continue
+        while IFS= read -r -d '' zwc; do
+            src=${zwc%.zwc}
+            [ -f "$src" ] || continue
+            [ "$zwc" -ot "$src" ] || continue
+            if [ "$DRY_RUN" = "1" ]; then
+                yellow "[dry-run] would remove stale $zwc (older than $src)"
+            else
+                rm -f -- "$zwc"
+                yellow "prune: removed stale $zwc (older than $src)"
+            fi
+        done < <(find "$root" -maxdepth 1 -mindepth 1 -name '*.zwc' -print0 2>/dev/null)
+    done
+}
+
+# prune_managed_links — delete repo-owned dangling links + stale *.zwc.
+# Honors $DRY_RUN.
+prune_managed_links() {
+    local link removed=0
+
+    while IFS= read -r -d '' link; do
+        if is_repo_dangling_link "$link"; then
+            if [ "$DRY_RUN" = "1" ]; then
+                yellow "[dry-run] would remove dangling link $link"
+            else
+                rm -f -- "$link"
+                yellow "prune: removed dangling link $link"
+            fi
+            removed=$((removed + 1))
+        fi
+    done < <(find_managed_links)
+
+    prune_stale_zwc
+
+    if [ "$removed" -eq 0 ]; then
+        echo 'prune: no dangling links found'
+    fi
+    return 0
 }
 
 load_nvm_default_node() {
@@ -388,6 +544,30 @@ link_config_entries() {
     done < <(find "$script_path/.config" -maxdepth 1 -mindepth 1 ! -name ".gitmodules" ! -name "*.zwc" ! -name "nvim" -print0)
 }
 
+# ---------------------------------------------------------------------------
+# warn_unmanaged_nvim_entries — ~/.config/nvim is a LazyVim starter tree, so
+# this repo only owns `lua/config` and `lua/plugins` (linked by setup_neovim);
+# everything else under .config/nvim is excluded from link_config_entries and
+# would NOT be deployed. Warn about anything we now track there so a new
+# subdirectory is not silently dropped.
+# ---------------------------------------------------------------------------
+warn_unmanaged_nvim_entries() {
+    local src_nvim="$script_path/.config/nvim"
+    [ -d "$src_nvim" ] || return 0
+
+    local rel
+    while IFS= read -r -d '' rel; do
+        rel=${rel#"$src_nvim"/}
+        case "$rel" in
+            lua/config/*|lua/plugins/*) ;;
+            *)
+                yellow "warn: .config/nvim/$rel is not linked (only lua/config, lua/plugins are managed)"
+                ;;
+        esac
+    done < <(find "$src_nvim" -type f ! -name '.gitmodules' -print0 2>/dev/null)
+    return 0
+}
+
 bootstrap_lazyvim_starter() {
     local home_nvim="$HOME/.config/nvim"
     local home_share="$HOME/.local/share/nvim"
@@ -429,6 +609,8 @@ setup_neovim() {
     local marker="$home_nvim/.dotfiles-lazyvim-starter"
     local config_link="$home_nvim/lua/config"
     local plugins_link="$home_nvim/lua/plugins"
+
+    warn_unmanaged_nvim_entries
 
     if [ "$MODE" = "check" ]; then
         if [ -e "$marker" ] || [ -L "$config_link" ] || [ -L "$plugins_link" ]; then
@@ -908,8 +1090,8 @@ install_herdr_integrations() {
 
     red 'Init herdr integrations...'
 
-    local dir
-    for dir in "$HOME/.claude"; do
+    local dir dirs=("$HOME/.claude")
+    for dir in "${dirs[@]}"; do
         if [ -d "$dir" ]; then
             CLAUDE_CONFIG_DIR="$dir" herdr integration install claude \
                 || yellow "herdr integration install claude failed for $dir"
@@ -1026,6 +1208,14 @@ link_custom_herdr_hook() {
 }
 
 run_setup() {
+    # `prune` only removes stale artifacts; it never creates links or installs.
+    if [ "$MODE" = "prune" ]; then
+        red 'Prune stale links...'
+        prune_managed_links
+        yellow 'Prune finish.'
+        return 0
+    fi
+
     if [ "$MODE" != "check" ] && [ "$DRY_RUN" != "1" ]; then
         init_submodules
     fi
@@ -1042,10 +1232,16 @@ run_setup() {
         setup_neovim
     fi
 
+    # Report links left behind by config entries removed from this repo. These
+    # are invisible to ensure_link (which only knows about live sources).
+    if [ "$MODE" = "check" ] && section_requested "links"; then
+        report_dangling_links
+    fi
+
     if [ "$MODE" = "check" ] || [ "$DRY_RUN" = "1" ]; then
         # In dry-run mode, list what the remaining sections would do without
         # executing any of them. Link sections above already printed their
-        # actions via ensure_link / run_or_print.
+        # actions via ensure_link.
         if [ "$DRY_RUN" = "1" ]; then
             _dry_run_remaining
         fi

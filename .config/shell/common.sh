@@ -149,10 +149,14 @@ path_prepend /usr/local/opt/findutils/libexec/gnubin
 path_prepend /opt/homebrew/opt/findutils/libexec/gnubin
 path_prepend /usr/local/opt/gnu-getopt/bin
 path_prepend /opt/homebrew/opt/gnu-getopt/bin
-path_prepend /usr/local/opt/ruby/bin
-
-# Homebrew Ruby (Apple Silicon)
-path_prepend /opt/homebrew/opt/ruby/bin
+# Homebrew Ruby: same arm64-over-Intel ordering as Homebrew above.
+if [ "$_DOTFILES_UNAME_S" = "Darwin" ] && [ "$_DOTFILES_UNAME_M" = "arm64" ]; then
+    path_prepend /usr/local/opt/ruby/bin
+    path_prepend /opt/homebrew/opt/ruby/bin
+else
+    path_prepend /opt/homebrew/opt/ruby/bin
+    path_prepend /usr/local/opt/ruby/bin
+fi
 
 # Go environment
 if command -v go >/dev/null 2>&1 && [ -z "$GOPATH" ]; then
@@ -323,7 +327,7 @@ case $- in
     *i*) _dotfiles_interactive=1 ;;
     *)   _dotfiles_interactive=0 ;;
 esac
-# (intentionally not unset — read once more below by the SSH_TTY workaround)
+# (intentionally not unset — reused by the brew wrapper just below)
 if [ "${USE_CN_MIRROR:-1}" = "1" ] \
     && [ "$_dotfiles_interactive" = "1" ] \
     && command -v brew >/dev/null 2>&1; then
