@@ -1,20 +1,21 @@
 {
   "providers": {
-    "sensenova": {
-      "name": "Sensenova",
-      "baseUrl": "https://token.sensenova.cn/v1",
+    "omniroute": {
+      "name": "OmniRoute",
+      "baseUrl": "http://localhost:20128/v1",
       "api": "openai-completions",
-      "apiKey": "$SN_API_KEY",
+      "apiKey": "$OMNIROUTE_API_KEY",
       "models": [
         {
-          "id": "deepseek-v4-flash",
-          "name": "DeepSeek V4 Flash (Sensenova)",
+          "id": "deepseek-flash",
+          "name": "DeepSeek Flash (OmniRoute)",
           "reasoning": true,
-          "input": ["text"],
-          "contextWindow": 256000,
+          "input": ["text", "image"],
+          "contextWindow": 1000000,
           "maxTokens": 384000,
-          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "cost": { "input": 0.3, "output": 1.2, "cacheRead": 0.006, "cacheWrite": 0 },
           "compat": {
+            "supportsStore": false,
             "supportsDeveloperRole": false,
             "maxTokensField": "max_tokens",
             "requiresReasoningContentOnAssistantMessages": true,
