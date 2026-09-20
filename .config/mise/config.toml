@@ -8,6 +8,17 @@ terminal_progress = false
 github.oauth_open_browser = false
 plugin_autoupdate_last_check_duration = "0d"
 
+[env]
+# Keep npm's global prefix OUT of the mise Node install dir. By default
+# `npm prefix -g` is the active Node install (…/installs/node/<ver>), so
+# `mise upgrade` moving node 26.x -> 26.y builds a fresh, empty tree and every
+# `npm i -g` CLI (codex/claude/codebuddy/pi/…) silently disappears.
+# Pin the prefix to a Node-version-independent dir instead:
+#   bins -> ~/.local/bin   (already path_prepend-ed in .config/shell/common.sh)
+#   pkgs -> ~/.local/lib/node_modules
+# {{env.HOME}} stays a template so no machine-specific path is committed.
+npm_config_prefix = "{{env.HOME}}/.local"
+
 [tools]
 # Versions mirror what was active on this machine at config time
 node = "26"

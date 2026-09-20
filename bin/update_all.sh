@@ -230,6 +230,41 @@ update_mise() {
     fi
 }
 
+# Install-script allow-list for the npm globals this script manages.
+# npm >= 12 blocks dependency install scripts by default (setting
+# `allow-scripts`), which leaves packages that fetch or build a native binary
+# in postinstall — notably @anthropic-ai/claude-code — with only a stub
+# placeholder, so `claude` stops working after an update. Names that are not
+# present in the tree are ignored, and npm < 12 ignores the flag entirely.
+readonly NPM_GLOBAL_ALLOW_SCRIPTS='@anthropic-ai/claude-code,@google/genai,@jackwener/opencli,@moonshot-ai/kimi-code,@parcel/watcher,@swc/core,better-sqlite3,esbuild,fsevents,keytar,koffi,node-pty,omniroute,onnxruntime-node,protobufjs,tls-client-node'
+
+# ── npm global CLIs (codex/claude/codebuddy/pi/…)
+# topgrade's `node` step is disabled in .config/topgrade.toml because runtimes
+# are mise-managed, so nothing else upgrades the npm globals. They also used to
+# live inside the mise Node install dir and were wiped on every node bump;
+# .config/mise/config.toml now pins npm_config_prefix to ~/.local so they
+# survive mise upgrades. Update them here.
+update_npm_globals() {
+    if ! have_cmd npm; then
+        return 0
+    fi
+    log "=== npm globals ==="
+    # --prefix is passed explicitly (mirroring npm_config_prefix in
+    #   .config/mise/config.toml) so the prefix is correct even when mise's
+    #   env is not loaded, e.g. when run from cron/systemd without an
+    #   activated shell. Otherwise npm would default back to the versioned
+    #   mise Node dir and the original bug would return.
+    # --allow-scripts keeps claude's native-binary postinstall working under
+    #   npm >= 12 (see NPM_GLOBAL_ALLOW_SCRIPTS above).
+    if npm update -g \
+        --prefix "$HOME/.local" \
+        --allow-scripts="$NPM_GLOBAL_ALLOW_SCRIPTS" 2>/dev/null; then
+        log "npm global update finish"
+    else
+        log "npm global update failed"
+    fi
+}
+
 # ── Rustup: keep Rust toolchain current
 update_rustup() {
     if ! have_cmd rustup; then
@@ -289,6 +324,7 @@ main() {
     update_gem
 
     update_mise
+    update_npm_globals
     update_rustup
     update_reasonix
 
