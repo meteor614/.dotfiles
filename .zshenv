@@ -7,7 +7,7 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
-# Force Reasonix in-app mouse capture on (even over SSH) so the wheel scrolls
-# the transcript inside the TUI; /mouse or REASONIX_DISABLE_MOUSE=1 turns it
-# off and hands the mouse back to the terminal.
-export REASONIX_DISABLE_MOUSE=0
+# Default Reasonix in-app mouse capture on (even over SSH) so the wheel
+# scrolls the transcript inside the TUI; /mouse or REASONIX_DISABLE_MOUSE=1
+# turns it off and hands the mouse back to the terminal. External values win.
+export REASONIX_DISABLE_MOUSE="${REASONIX_DISABLE_MOUSE:-0}"

@@ -10,10 +10,13 @@
 # -----------------------------------------------------------------------------
 if [ -n "${ZSH_VERSION:-}" ]; then
     _DOTFILES_SHELL="zsh"
+    _DOTFILES_UID=${UID:-$(id -u)}
 elif [ -n "${BASH_VERSION:-}" ]; then
     _DOTFILES_SHELL="bash"
+    _DOTFILES_UID=${UID:-$(id -u)}
 else
     _DOTFILES_SHELL="sh"
+    _DOTFILES_UID=$(id -u)
 fi
 
 # -----------------------------------------------------------------------------
@@ -107,12 +110,16 @@ dotfiles_cached_eval() {
 # -----------------------------------------------------------------------------
 # Platform facts (cached once; plain `uname` forks a subshell per call)
 # -----------------------------------------------------------------------------
-_DOTFILES_UNAME_S=$(uname -s)
-_DOTFILES_UNAME_M=$(uname -m)
+_dotfiles_uname_sm=$(uname -sm 2>/dev/null) || _dotfiles_uname_sm="unknown unknown"
+_DOTFILES_UNAME_S=${_dotfiles_uname_sm%% *}
+_DOTFILES_UNAME_M=${_dotfiles_uname_sm#* }
+unset _dotfiles_uname_sm
 
 # -----------------------------------------------------------------------------
 # Core environment
 # -----------------------------------------------------------------------------
+# Fallback defaults for bash/sh — zsh exports these earlier via .zshenv, so
+# these are effectively no-ops there. Keep in sync with .zshenv.
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
@@ -212,6 +219,28 @@ elif [ -n "${HERDR_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
     export SSH_TTY="/dev/tty"
 fi
 
+# Stale-cache guard shared by the TERM and gem-bin caches: true when the file
+# is readable and was touched within the last 30 days.
+#
+# POSIX find has no "newer than X days" predicate, so compare mtimes
+# directly against a reference file instead — portable across GNU/BSD.
+_dotfiles_term_cache_fresh() {
+    [ -r "$1" ] || return 1
+    local _ref _rc
+    _ref="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/.term-cache-ref"
+    if [ ! -f "$_ref" ]; then
+        mkdir -p "${_ref%/*}"
+        # touch -d is GNU-only; BSD/macOS needs -t YYYYMMDDHHMM.
+        # Use touch -t with a date computed by the available date(1).
+        touch -t "$(date -v-30d +%Y%m%d%H%M 2>/dev/null \
+            || date -d '-30 days' +%Y%m%d%H%M)" "$_ref" 2>/dev/null \
+            || touch "$_ref"
+    fi
+    [ "$1" -nt "$_ref" ]
+    _rc=$?
+    return $_rc
+}
+
 # -----------------------------------------------------------------------------
 # TERM detection (Ghostty primary; WezTerm/Kitty fallbacks; tmux/ssh aware)
 # Priority: tmux > ghostty > wezterm > kitty > default
@@ -236,30 +265,6 @@ _dotfiles_set_term() {
     local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
     local cache_file="$cache_dir/term"
     local program="${TERM_PROGRAM:-}"
-
-    # Stale-cache guard: if the cache file was written more than 30 days ago,
-    # drop it and re-probe. This catches the case where the terminal binary is
-    # upgraded to ship richer terminfo (e.g. ghostty gains new capabilities)
-    # without us ever noticing because the cache was written long ago.
-    #
-    # POSIX find has no "newer than X days" predicate, so compare mtimes
-    # directly against a reference file instead — portable across GNU/BSD.
-    _dotfiles_term_cache_fresh() {
-        [ -r "$1" ] || return 1
-        local _ref _rc
-        _ref="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/.term-cache-ref"
-        if [ ! -f "$_ref" ]; then
-            mkdir -p "${_ref%/*}"
-            # touch -d is GNU-only; BSD/macOS needs -t YYYYMMDDHHMM.
-            # Use touch -t with a date computed by the available date(1).
-            touch -t "$(date -v-30d +%Y%m%d%H%M 2>/dev/null \
-                || date -d '-30 days' +%Y%m%d%H%M)" "$_ref" 2>/dev/null \
-                || touch "$_ref"
-        fi
-        [ "$1" -nt "$_ref" ]
-        _rc=$?
-        return $_rc
-    }
 
     # Ghostty sets TERM=xterm-ghostty itself; keep it if terminfo is installed.
     case "$program" in
@@ -368,7 +373,6 @@ if command -v eza >/dev/null 2>&1; then
     alias ll='eza --icons -l'
     alias l='eza --icons -l'
     alias la='eza --icons -la'
-    alias k='eza --icons -l'
 else
     if [ "$_DOTFILES_UNAME_S" = "Darwin" ]; then
         alias ls='ls -G'
@@ -417,7 +421,7 @@ command -v watch >/dev/null 2>&1 && alias watch='watch -c'
 # On macOS (Docker Desktop), rootless docker, or when already in the docker
 # group / running as root, plain `docker` works and sudo would be wrong.
 if command -v docker >/dev/null 2>&1; then
-    if [ "$_DOTFILES_UNAME_S" = "Linux" ] && [ "$(id -u)" -ne 0 ] \
+    if [ "$_DOTFILES_UNAME_S" = "Linux" ] && [ "$_DOTFILES_UID" -ne 0 ] \
         && ! id -nG 2>/dev/null | tr ' ' '\n' | grep -qx docker; then
         alias docker='sudo -E docker'
     fi
@@ -444,7 +448,7 @@ if command -v dtruss >/dev/null 2>&1 && ! command -v strace >/dev/null 2>&1; the
     alias strace='dtruss'
 fi
 if command -v claude-internal >/dev/null 2>&1; then
-    if [ "$(id -u)" -ne 0 ]; then
+    if [ "$_DOTFILES_UID" -ne 0 ]; then
         alias claude-internal='claude-internal --allow-dangerously-skip-permissions'
         alias cci='claude-internal --allow-dangerously-skip-permissions'
     else
@@ -672,24 +676,42 @@ fi
 # -----------------------------------------------------------------------------
 # Starship prompt (shell-aware; zsh gets cached init via dotfiles_cached_eval in .zshrc)
 # -----------------------------------------------------------------------------
-_find_starship() {
+# Locate the starship binary without a command-substitution fork: assigns the
+# path to the global _dotfiles_starship_bin (empty when not found).
+_dotfiles_starship_bin() {
+    _dotfiles_starship_bin=""
     if command -v starship >/dev/null 2>&1; then
-        command -v starship
+        _dotfiles_starship_bin=$(command -v starship)
         return 0
     fi
     local candidate
     for candidate in /opt/homebrew/bin/starship /usr/local/bin/starship \
         "$HOME/.local/bin/starship" "$HOME/bin/starship"; do
-        [ -x "$candidate" ] && printf '%s\n' "$candidate" && return 0
+        if [ -x "$candidate" ]; then
+            _dotfiles_starship_bin=$candidate
+            return 0
+        fi
     done
     return 1
 }
 
-# Zsh's .zshrc calls _find_starship + dotfiles_cached_eval itself after sourcing
-# common.sh (cached init for speed); bash inits Starship directly here.
+# Compile the hot rc files once per edit (zsh only); later startups load the
+# .zwc transparently. Queued via _defer from .zshrc so it never blocks boot.
+_dotfiles_zcompile_startup() {
+    [ "$_DOTFILES_SHELL" = "zsh" ] || return 0
+    command -v zcompile >/dev/null 2>&1 || return 0
+    local f
+    for f in "$HOME/.zshrc" "$HOME/.zshrc.local" "$HOME/.config/shell/common.sh"; do
+        [ -f "$f" ] && zcompile "$f" 2>/dev/null || true
+    done
+    unset -f _dotfiles_zcompile_startup 2>/dev/null || true
+}
+
+# Zsh's .zshrc calls _dotfiles_starship_bin + dotfiles_cached_eval itself
+# after sourcing common.sh (cached init for speed); bash inits Starship
+# directly here.
 if [ "$_DOTFILES_SHELL" = "bash" ]; then
-    _starship_bin="$(_find_starship)" && dotfiles_cached_eval starship "$_starship_bin" bash init bash
-    unset _starship_bin
+    _dotfiles_starship_bin && dotfiles_cached_eval starship "$_dotfiles_starship_bin" bash init bash
 fi
 
 # -----------------------------------------------------------------------------
@@ -701,10 +723,11 @@ _dotfiles_add_gem_bin() {
     local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
     local cache_file="$cache_dir/gem_bin_path"
     local gem_bin=""
-    local gem_cmd
-    gem_cmd="$(command -v gem 2>/dev/null)" || return 0
 
-    if [ -r "$cache_file" ] && [ "$gem_cmd" -ot "$cache_file" ]; then
+    # TTL-based validity (same 30-day guard as the TERM cache). Keying on the
+    # gem binary's mtime instead would invalidate the cache permanently after
+    # every gem/ruby upgrade and re-fork the slow `gem environment gemdir`.
+    if [ -r "$cache_file" ] && _dotfiles_term_cache_fresh "$cache_file"; then
         IFS= read -r gem_bin < "$cache_file" || gem_bin=""
     fi
 

@@ -31,10 +31,15 @@ fi
 # -----------------------------------------------------------------------------
 [ -f ~/.fzf.bash ] && . ~/.fzf.bash
 
-# kubectl completion: generate once and cache, regenerate when the binary
-# changes. Avoids forking kubectl on every interactive shell startup.
+# kubectl completion: lazy wrapper aligned with the zsh side (.zshrc.local) —
+# the ~30KB generated script is only sourced on first use, and the cache is
+# regenerated when the binary changes.
 if command -v kubectl >/dev/null 2>&1; then
-    dotfiles_cached_eval kubectl "$(command -v kubectl)" bash completion bash
+    kubectl() {
+        unset -f kubectl
+        dotfiles_cached_eval kubectl "$(command -v kubectl)" bash completion bash
+        command kubectl "$@"
+    }
 fi
 
 # perlbrew

@@ -16,20 +16,28 @@ unset _zfn
 # ── Completion system (replaces oh-my-zsh compinit) ──────────────────────────
 export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"
-mkdir -p "$ZSH_CACHE_DIR"
+[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p "$ZSH_CACHE_DIR"
 export STARSHIP_CACHE="${ZSH_CACHE_DIR}/starship"
-mkdir -p "$STARSHIP_CACHE"
+[[ -d "$STARSHIP_CACHE" ]] || mkdir -p "$STARSHIP_CACHE"
 
-autoload -Uz compinit
-# Rebuild dump only once per day (skip security check for speed)
-if [[ -f "$ZSH_COMPDUMP" && "$ZSH_COMPDUMP"(N.mh+24) == "" ]]; then
-    compinit -C -d "$ZSH_COMPDUMP"
-else
-    compinit -i -d "$ZSH_COMPDUMP"
-    # Compile the just-(re)built dump so later starts load the .zwc instead of
-    # re-parsing 3k+ lines of compdef. Rebuilt at most once per day.
-    zcompile "$ZSH_COMPDUMP" 2>/dev/null || true
-fi
+# Lazy compinit: the ~40-60ms dump load + widget setup moves off the startup
+# path into a one-shot precmd (which fires before any user input is possible,
+# so Tab can never race it) and is skipped entirely by non-interactive shells.
+autoload -Uz compinit add-zsh-hook
+_dotfiles_lazy_compinit() {
+    add-zsh-hook -d precmd _dotfiles_lazy_compinit 2>/dev/null || true
+    unset -f _dotfiles_lazy_compinit 2>/dev/null || true
+    # Rebuild dump only once per day (skip security check for speed)
+    if [[ -f "$ZSH_COMPDUMP" && "$ZSH_COMPDUMP"(N.mh+24) == "" ]]; then
+        compinit -C -d "$ZSH_COMPDUMP"
+    else
+        compinit -i -d "$ZSH_COMPDUMP"
+        # Compile the just-(re)built dump so later starts load the .zwc instead
+        # of re-parsing 3k+ lines of compdef. Rebuilt at most once day.
+        zcompile "$ZSH_COMPDUMP" 2>/dev/null || true
+    fi
+}
+add-zsh-hook precmd _dotfiles_lazy_compinit
 
 # ── Completion styles (from oh-my-zsh lib/completion.zsh) ────────────────────
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'r:|=*' 'l:|=* r:|=*'
@@ -112,13 +120,26 @@ fi
 
 (( $+commands[zoxide] )) && dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
-# ── Starship (cached init; _find_starship is defined in common.sh) ───────────
-_starship_bin="$(_find_starship)" && dotfiles_cached_eval starship "$_starship_bin" zsh init zsh
-unset _starship_bin
+# ── Starship (cached init; _dotfiles_starship_bin is defined in common.sh) ───
+# Command substitution would fork a subshell on every startup; the helper
+# assigns the result to a variable instead.
+_dotfiles_starship_bin=""
+_dotfiles_starship_bin
+[[ -n "$_dotfiles_starship_bin" ]] \
+    && dotfiles_cached_eval starship "$_dotfiles_starship_bin" zsh init zsh
+unset _dotfiles_starship_bin
 
 # ── User configuration (local overrides) ─────────────────────────────────────
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# ── Compile rc files after first load ────────────────────────────────────────
+# zsh uses ~/.zshrc.zwc / .zshrc.local.zwc / common.sh.zwc automatically on
+# later startups when they are newer than the source; the fork (~5ms) runs
+# from the deferred queue so only the post-edit startup pays it.
+if (( $+functions[_defer] )); then
+    _defer _dotfiles_zcompile_startup
+fi
 
 # ── Conda lazy loader (zsh-specific hook) ────────────────────────────────────
 _find_conda_exe() {
