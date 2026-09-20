@@ -4,14 +4,14 @@
 # Secrets are named via api_key_env and stored in Reasonix's global .env; never put keys here.
 
 config_version = 10   # schema marker for diagnostics; old versions may ignore it
-default_model = "omniroute/deepseek-flash"
+default_model = "deepseek/deepseek-flash"
 language      = "zh"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
 credentials_store = "auto"   # legacy compatibility; provider keys are saved in Reasonix's global .env
 
 [ui]
 theme = "auto"   # auto|dark|light; CLI colors only; REASONIX_THEME can override per run
 theme_style = "aurora"   # CLI accent palette; REASONIX_THEME_STYLE can override per run
-# shortcut_layout = "desktop"   # classic|desktop; compatibility setting; Shift+Tab toggles Plan, Ctrl+Y toggles YOLO
+# shortcut_layout = "desktop"   # classic|desktop; compatibility setting; Shift+Tab cycles read-only/workspace/plan
 # cursor_shape = "bar"   # block|underline|bar; text input cursor shape
 show_reasoning = true   # CLI: show thinking text by default; false = collapsed (toggle with Ctrl+O)
 show_turn_usage = true   # CLI/TUI: show per-request token and cost receipts in the transcript
@@ -27,7 +27,7 @@ close_behavior = "background"   # desktop: quit|background when the window close
 status_bar_style = "icon"   # desktop: icon|text metric labels in the bottom status bar
 status_bar_style_initialized = true   # icon default upgrade applied; preserve later user choices
 status_bar_items = ["model", "workspace", "git_branch", "cache", "cache_avg", "session_tokens", "turn_tokens", "turn_cost", "session_turns", "context", "compact", "cost", "balance"]   # desktop: ordered visible bottom status bar items
-default_tool_approval_mode = "ask"   # desktop: Ask/Auto/YOLO default for newly-created sessions
+default_tool_approval_mode = "read-only"   # desktop: read-only/workspace-write/danger-full-access default for new sessions
 check_updates = true   # desktop: check for new versions on startup
 telemetry = true   # desktop: anonymous launch ping + scrubbed next-launch native crash diagnostics; never content
 metrics = true   # desktop: aggregate quality/lifecycle metrics (anonymous signal/bucket counts); never content
@@ -68,13 +68,11 @@ offline = false   # declare that outbound network access is unavailable; prevent
 # system_prompt = """..."""   # omit to use the built-in prompt for this version
 # system_prompt_file = "prompts/system.md"   # project paths stay in <workspace>; user paths may fall back to <reasonix home>
 temperature       = 0.0
-# recovery_model = "deepseek-pro"   # optional; empty leaves rule-only recovery
 # reasoning_language = "zh"   # visible reasoning language: auto|zh|en
 compact_ratio       = 0.8   # sole auto trigger; presets 0.70/0.80/0.85 (default 0.80)
 # keep                = ["errors"]   # deprecated compatibility field; ignored at runtime
 # recent_keep         = 2   # deprecated compatibility field; ignored at runtime
 # plan_mode_read_only_commands = ["gh issue view"]   # legacy compatibility only; Plan bash uses Permissions
-# legacy_anchor_safety_gate = true   # rollback delete_range to the full-file fresh-read guard
 planner_model = "deepseek/deepseek-v4-pro"   # low-frequency planner (two-model collaboration)
 # vision_model = "auto"   # optional: summarize images for text-only models
 # subagent_model = "deepseek-pro"   # optional default for runAs=subagent skills
@@ -118,7 +116,7 @@ api_key_env = "OMNIROUTE_API_KEY"
 context_window = 128000   # tokens; compaction triggers near this limit
 max_output_tokens = -1   # per-turn total output; 0 = provider auto (official DeepSeek 384K, omit when safe); positive = cost cap; negative = force-omit; never affects compact_ratio
 vision_models = ["auto/vision"]   # models in this provider that accept image input
-model_overrides   = { "deepseek-flash" = { context_window = 1000000 }, "cbcn/glm-5.3-flash" = { context_window = 1000000 }, "cbcn/kimi-k2.8-preview" = { context_window = 1000000 }, "cbcn/kimi-k3-1" = { context_window = 1000000 }, "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
+model_overrides   = { "cbcn/glm-5.3-flash" = { context_window = 1000000 }, "cbcn/kimi-k2.8-preview" = { context_window = 1000000 }, "cbcn/kimi-k3-1" = { context_window = 1000000 }, "deepseek-flash" = { context_window = 1000000 }, "oc/big-pickle" = { context_window = 200000 }, "oc/nemotron-3-ultra-free" = { context_window = 1000000 } }   # per-model context/output/reasoning/vision overrides for mixed gateways
 
 [[providers]]
 name        = "openrouter"
@@ -165,7 +163,6 @@ enabled = true   # language server tools; servers launch lazily when used
 # Readers always default to allow. Precedence: deny > ask > allow > fallback.
 # Rules are "Tool" or "Tool(specifier)"; e.g. Bash(go test:*), Edit(src/**).
 mode  = "ask"
-# allow_dynamic_bash = false   # advanced opt-in; deny/ask and exact rules still take precedence
 deny = ["bash(rm -rf *)", "bash(sudo *)", "bash(chmod 777 *)", "bash(curl * | sh *)", "bash(wget * -O - | sh *)"]
 allow = ["write_file", "edit_file", "multi_edit", "bash(rg *)", "bash(find *)", "bash(ls *)", "bash(cat *)", "bash(head *)", "bash(tail *)", "bash(fd *)", "bash(wc *)", "bash(which *)", "bash(type *)", "bash(du *)", "bash(df *)", "bash(env *)", "bash(pwd *)", "bash(git status *)", "bash(git log *)", "bash(git diff *)", "bash(git show *)", "bash(git branch *)", "bash(jj status *)", "bash(jj st *)", "bash(jj log *)", "bash(jj diff *)", "bash(jj show *)", "bash(jj workspace *)"]
 # ask = ["Edit(src/**)"]   # force a prompt even if otherwise allowed
@@ -174,8 +171,8 @@ allow = ["write_file", "edit_file", "multi_edit", "bash(rg *)", "bash(find *)", 
 # Confine tool blast radius. File-writers (write_file/edit_file/multi_edit/move_file)
 # may only write under workspace_root (empty = current dir) and allow_write extras.
 # bash = "enforce" jails each command in an OS sandbox when available;
-# without one, bash execution is refused. Empty defaults to enforce on macOS/Linux.
-# Windows has no OS-level Bash sandbox and fixes bash = "off".
+# without one, restricted permission modes refuse bash execution. Empty defaults to enforce.
+# macOS uses Seatbelt, Linux uses bubblewrap, and Windows uses a restricted token/AppContainer.
 # network allows sandboxed bash egress.
 # workspace_root = ""            # default: current working directory
 # allow_write = ["/tmp"]          # extra dirs writers may also modify
@@ -192,7 +189,7 @@ network = true
 [bot]
 enabled = false
 # model = ""   # empty = default_model
-tool_approval_mode = "ask"   # ask|auto|yolo; yolo skips tool approvals only
+tool_approval_mode = "read-only"   # read-only|workspace-write|danger-full-access
 max_steps = 25
 debounce_ms = 1500
 queue_mode = "steer"   # steer|followup|collect|interrupt
