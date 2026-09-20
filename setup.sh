@@ -36,6 +36,10 @@ brew_casks=(
 # Format: <name>|<api_repo>|<download_url>|<bin_path_inside_archive>
 # Use {VER} to interpolate the latest tag stripped of the leading 'v'; {TAG} keeps the leading 'v'.
 # Use {LINUX_ARCH} and tool-specific aliases for GitHub asset architectures selected by uname -m.
+# Integrity: starship/atuin/lazygit/zellij ship official checksums and are
+# verified before install (see checksum_url_for); the rest are installed
+# unverified because upstream publishes no digests — adding a tool here with
+# checksum assets only requires extending checksum_url_for.
 linux_release_tools=(
     "topgrade|topgrade-rs/topgrade|https://github.com/topgrade-rs/topgrade/releases/download/{TAG}/topgrade-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|topgrade"
     "starship|starship/starship|https://github.com/starship/starship/releases/download/{TAG}/starship-{LINUX_ARCH}-unknown-linux-musl.tar.gz|starship"
@@ -63,11 +67,54 @@ entware_packages=(
 GH_MIRROR_DEFAULT="https://gh-proxy.com/"
 
 background_pids=()
+# Newline-delimited list (NAS ships bash 3.2; `local -a` is unsupported there).
+_temp_dirs=""
 
 red() { printf '\033[31m%s\033[0m\n' "$1"; }
 yellow() { printf '\033[33m%s\033[0m\n' "$1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
-ensure_dir() { [ -d "$1" ] || mkdir -p "$1"; }
+ensure_dir() {
+    [ -d "$1" ] && return 0
+    # check mode is strictly read-only; a missing parent dir is already
+    # reported by ensure_link as a missing link.
+    [ "$MODE" = "check" ] && return 0
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would create dir $1"
+        return 0
+    fi
+    mkdir -p "$1"
+}
+
+register_temp_dir() { _temp_dirs="${_temp_dirs}${1}
+"; }
+remove_temp_dir() {
+    _temp_dirs=$(printf '%s\n' "$_temp_dirs" | grep -Fxv "$1" || true)
+}
+
+cleanup_temp_dirs() {
+    local d
+    [ -n "$_temp_dirs" ] || return 0
+    while IFS= read -r d; do
+        [ -n "$d" ] && [ -d "$d" ] && rm -rf -- "$d"
+    done < <(printf '%s\n' "$_temp_dirs")
+    _temp_dirs=""
+}
+
+# Kill still-running tracked background jobs and drop temp dirs on any exit,
+# including Ctrl-C mid-install. EXIT fires after an INT/TERM trap exits, so
+# one handler is enough.
+_dotfiles_cleanup_on_exit() {
+    local _pid
+    for _pid in ${background_pids[@]+"${background_pids[@]}"}; do
+        kill "$_pid" 2>/dev/null || true
+    done
+    cleanup_temp_dirs
+}
+setup_exit_trap() {
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    trap _dotfiles_cleanup_on_exit EXIT
+}
 
 usage() {
     cat <<'EOF'
@@ -78,7 +125,9 @@ Commands:
   check           Report missing/mismatched links without writing changes
   repair          Backup and repair mismatched links
   prune           Remove stale links under the managed roots that point back into
-                  this repo but whose source no longer exists (and stale *.zwc)
+                  this repo but whose source no longer exists (and stale *.zwc).
+                  Honors --only: prune runs when its sections are selected
+                  (stale *.zwc cleanup belongs to the links section).
 
 Flags:
   --bootstrap-nvim
@@ -170,6 +219,7 @@ track_background() {
     "$@" &
     background_pids+=("$!")
 }
+setup_exit_trap
 
 linux_release_arch() {
     case "$(uname -m)" in
@@ -277,6 +327,10 @@ ensure_directory_target() {
             return 1
             ;;
         repair)
+            if [ "$DRY_RUN" = "1" ]; then
+                yellow "[dry-run] would backup and recreate directory $dst"
+                return 1
+            fi
             if [ -e "$dst" ] || [ -L "$dst" ]; then
                 backup_existing_path "$dst"
             fi
@@ -285,6 +339,10 @@ ensure_directory_target() {
         *)
             if [ -e "$dst" ] || [ -L "$dst" ]; then
                 echo "skip $dst (exists)"
+                return 1
+            fi
+            if [ "$DRY_RUN" = "1" ]; then
+                yellow "[dry-run] would create directory $dst"
                 return 1
             fi
             mkdir -p "$dst"
@@ -321,17 +379,24 @@ ensure_link() {
         return 0
     fi
 
-    ensure_dir "$(dirname "$dst")"
-
     if [ -e "$dst" ] || [ -L "$dst" ]; then
-        if [ "$MODE" = "repair" ]; then
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would skip $dst (exists, not linked)"
+            return 0
+        elif [ "$MODE" = "repair" ]; then
             backup_existing_path "$dst"
         else
             echo "skip $dst (exists)"
             return 0
         fi
+    elif [ "$DRY_RUN" = "1" ]; then
+        [ -d "$(dirname "$dst")" ] \
+            || yellow "[dry-run] would create dir $(dirname "$dst")"
+        yellow "[dry-run] would link $dst -> $src"
+        return 0
     fi
 
+    ensure_dir "$(dirname "$dst")"
     ln -s "$src" "$dst"
 }
 
@@ -340,8 +405,24 @@ ensure_git_clone() {
     local dst=$2
     shift 2
 
+    # A dangling symlink passes neither -e nor -d, but `git clone` still
+    # refuses the path — drop it first (unless this is a --dry-run), then treat
+    # as missing.
+    if [ -L "$dst" ] && [ ! -e "$dst" ]; then
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would remove dangling link $dst"
+        else
+            rm -f -- "$dst"
+        fi
+    fi
+
     if [ -e "$dst" ]; then
         echo "skip $dst (exists)"
+        return 0
+    fi
+
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would clone $repo -> $dst"
         return 0
     fi
 
@@ -469,6 +550,29 @@ prune_managed_links() {
     return 0
 }
 
+# remove_dangling_links — repair-mode counterpart of report_dangling_links:
+# delete repo-owned dangling links (they have no content, no backup needed).
+# Honors $DRY_RUN like prune_managed_links. Never touches *.zwc — that stays
+# prune's job.
+remove_dangling_links() {
+    local link removed=0
+
+    while IFS= read -r -d '' link; do
+        if is_repo_dangling_link "$link"; then
+            if [ "$DRY_RUN" = "1" ]; then
+                yellow "[dry-run] would remove dangling link $link"
+            else
+                rm -f -- "$link"
+                yellow "repair: removed dangling link $link"
+            fi
+            removed=$((removed + 1))
+        fi
+    done < <(find_managed_links)
+
+    [ "$removed" -eq 0 ] && echo 'repair: no dangling links found'
+    return 0
+}
+
 load_nvm_default_node() {
     local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
 
@@ -582,12 +686,28 @@ bootstrap_lazyvim_starter() {
         return 0
     fi
 
-    if [ -d "$home_nvim" ]; then
-        backup_existing_path "$home_nvim"
-    elif [ -L "$home_nvim" ]; then
-        backup_existing_path "$home_nvim"
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would bootstrap LazyVim starter into $home_nvim (backing up existing nvim dirs)"
+        return 0
     fi
 
+    # Clone into a temp dir FIRST: a network/API failure must never leave the
+    # user's existing nvim tree half-moved into .bak backups.
+    local tmpdir
+    tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-lazyvim.XXXXXX")
+    register_temp_dir "$tmpdir"
+    if ! git clone https://github.com/LazyVim/starter "$tmpdir/starter"; then
+        remove_temp_dir "$tmpdir"
+        cleanup_temp_dirs
+        red "LazyVim starter clone failed; existing nvim config left untouched"
+        return 1
+    fi
+    rm -rf "$tmpdir/starter/.git"
+    rm -rf "$tmpdir/starter/lua/config" "$tmpdir/starter/lua/plugins"
+
+    if [ -d "$home_nvim" ] || [ -L "$home_nvim" ]; then
+        backup_existing_path "$home_nvim"
+    fi
     if [ -d "$home_share" ] || [ -L "$home_share" ]; then
         backup_existing_path "$home_share"
     fi
@@ -595,10 +715,11 @@ bootstrap_lazyvim_starter() {
         backup_existing_path "$home_cache"
     fi
 
-    git clone https://github.com/LazyVim/starter "$home_nvim"
-    rm -rf "$home_nvim/.git"
-    rm -rf "$home_nvim/lua/config"
-    rm -rf "$home_nvim/lua/plugins"
+    ensure_dir "$(dirname "$home_nvim")"
+    mv "$tmpdir/starter" "$home_nvim"
+    remove_temp_dir "$tmpdir"
+    cleanup_temp_dirs
+
     ensure_link "$script_path/.config/nvim/lua/config" "$home_nvim/lua/config"
     ensure_link "$script_path/.config/nvim/lua/plugins" "$home_nvim/lua/plugins"
     touch "$marker"
@@ -744,16 +865,64 @@ is_synology() {
 }
 
 # Fetch a URL via the GitHub mirror, then fall back to direct.
+# check_mode=1 skips the mirror — used for checksum files, which must come
+# from the canonical GitHub release so a mirror cannot fake both artifact and
+# digest.
 gh_dl() {
     local url=$1
     local out=$2
+    local check_mode=${3:-0}
     local mirror=${DOTFILES_GH_MIRROR-$GH_MIRROR_DEFAULT}
-    if [ -n "$mirror" ]; then
+    if [ -n "$mirror" ] && [ "$check_mode" != "1" ]; then
         if curl -fsSL --connect-timeout 15 --max-time 240 "${mirror}${url}" -o "$out"; then
             return 0
         fi
     fi
     curl -fsSL --connect-timeout 15 --max-time 240 "$url" -o "$out"
+}
+
+# sha256_of — print the sha256 hex digest of a file (GNU or BSD tool).
+sha256_of() {
+    if command_exists sha256sum; then
+        sha256sum "$1" | cut -d' ' -f1
+    elif command_exists shasum; then
+        shasum -a 256 "$1" | cut -d' ' -f1
+    else
+        return 1
+    fi
+}
+
+# verify_sha256 <file> <expected-hex>
+verify_sha256() {
+    local actual
+    actual=$(sha256_of "$1") || return 1
+    [ "$actual" = "$2" ]
+}
+
+# checksum_url_for — canonical checksum asset URL for verified release tools,
+# derived from the download URL itself. Returns 1 for tools without official
+# checksums (see the verify flag on linux_release_tools entries).
+checksum_url_for() {
+    local name=$1 url=$2 tag url_root
+    case "$name" in
+        starship|atuin)
+            printf '%s.sha256\n' "$url"
+            ;;
+        lazygit)
+            tag=$(printf '%s\n' "$url" | sed -n 's|.*/download/\([^/]*\)/.*|\1|p')
+            printf 'https://github.com/jesseduffield/lazygit/releases/download/%s/checksums.txt\n' "$tag"
+            ;;
+        zellij)
+            url_root=${url%.tar.gz}
+            printf '%s.sha256sum\n' "$url_root"
+            ;;
+        topgrade|zoxide|delta|dust|hyperfine|gitui|fastfetch|yazi)
+            return 1
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 # Resolve the latest release tag for a repo. api.github.com is queried
@@ -828,13 +997,45 @@ install_linux_release_tool() {
 
     local workdir
     workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX")
+    register_temp_dir "$workdir"
+    # RETURN fires on every `return` path and is auto-cleared afterwards, so it
+    # never clobbers the global EXIT handler (which kills background jobs).
+    # Interruption between/before returns is covered by register_temp_dir +
+    # the global EXIT trap's cleanup_temp_dirs.
     # shellcheck disable=SC2064
-    trap "rm -rf '$workdir'" RETURN
+    trap "rm -rf -- '$workdir'" RETURN
 
     local archive="$workdir/pkg"
     if ! gh_dl "$url" "$archive"; then
         yellow "skip $name (download failed: $url)"
         return 0
+    fi
+
+    # Integrity: tools whose releases ship official checksums are verified
+    # (checksum fetched from GitHub directly — never the mirror). A mismatch
+    # triggers one direct re-download; still-bad or unavailable checksums
+    # skip the tool rather than install an unverifiable binary.
+    local cs_url cs_file want
+    if cs_url=$(checksum_url_for "$name" "$url"); then
+        cs_file="$workdir/pkg.sha256"
+        if ! gh_dl "$cs_url" "$cs_file" 1; then
+            yellow "skip $name (checksum fetch failed: $cs_url)"
+            return 0
+        fi
+        want=$(grep -F -- "$(basename "$url")" "$cs_file" 2>/dev/null \
+               | grep -oE '\b[0-9a-fA-F]{64}\b' | head -1)
+        [ -n "$want" ] || want=$(grep -oE '\b[0-9a-fA-F]{64}\b' "$cs_file" | head -1)
+        if [ -z "$want" ]; then
+            yellow "skip $name (no usable digest in $cs_url)"
+            return 0
+        fi
+        if ! verify_sha256 "$archive" "$want"; then
+            yellow "$name checksum mismatch via mirror; re-downloading direct from GitHub"
+            if ! gh_dl "$url" "$archive" 1 || ! verify_sha256 "$archive" "$want"; then
+                red "skip $name (checksum verification FAILED for $url — possible corruption or MITM)"
+                return 0
+            fi
+        fi
     fi
 
     case "$url" in
@@ -1101,6 +1302,17 @@ install_herdr_integrations() {
     yellow 'Init herdr integrations finish.'
 }
 
+# check_source_present <repo-path> — check-mode-only diagnostic for the repo
+# sources this script links into $HOME. A missing source is reported separately
+# from a missing/mismatched link (ensure_link reports the latter) so the two
+# causes are not conflated. No-op outside check mode.
+check_source_present() {
+    [ "$MODE" = "check" ] || return 0
+    [ -f "$1" ] && return 0
+    yellow "check: missing source $1 (its link cannot resolve)"
+    mark_check_failure
+}
+
 # ~/.reasonix mixes runtime data (sessions/, version-cache.json)
 # with user-managed config (config.json, settings.json, hooks/), so we symlink only the
 # files we own. Reasonix has no built-in herdr integration — these hooks
@@ -1113,6 +1325,12 @@ link_reasonix_herdr_integration() {
     # Reasonix reads config.toml from ~/.reasonix/config.toml
     # (model/provider config, project overrides via ./reasonix.toml).
     # Hooks config lives in ~/.reasonix/settings.json.
+    # ensure_dir/ensure_link are read-only in check mode, so link state is
+    # verified there too; a missing repo source is reported on top of it.
+    check_source_present "$src_dir/settings.json"
+    check_source_present "$src_dir/hooks/herdr-agent-state.sh"
+    check_source_present "$src_dir/config.toml"
+
     ensure_dir "$HOME/.reasonix/hooks"
     ensure_link "$src_dir/settings.json"            "$HOME/.reasonix/settings.json"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
@@ -1131,6 +1349,11 @@ link_pi_config() {
     local src_dir="$script_path/.pi"
     [ -d "$src_dir" ] || return 0
 
+    # ensure_dir/ensure_link are read-only in check mode, so link state is
+    # verified there too; a missing repo source is reported on top of it.
+    check_source_present "$src_dir/agent/models.json"
+    check_source_present "$src_dir/agent/extensions/openrouter-slim.mjs"
+
     ensure_dir "$HOME/.pi/agent"
     ensure_link "$src_dir/agent/models.json" "$HOME/.pi/agent/models.json"
 
@@ -1148,19 +1371,18 @@ link_pi_config() {
         return 0
     fi
 
-    local ext_entry="./extensions/openrouter-slim.mjs"
+    ext_entry="./extensions/openrouter-slim.mjs"
     if jq -e --arg e "$ext_entry" '.extensions // [] | index($e)' "$settings" >/dev/null 2>&1; then
         return 0
     fi
-
-    local tmp
-    tmp="$(mktemp "${TMPDIR:-/tmp}/pi-settings-merge.XXXXXX.json")"
-    if jq --arg e "$ext_entry" '.extensions = ((.extensions // []) + [$e])' "$settings" > "$tmp" 2>/dev/null; then
-        mv "$tmp" "$settings"
-    else
-        rm -f "$tmp"
-        yellow "pi settings.json extensions merge failed; left untouched"
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would merge extensions entry into $settings"
+        return 0
     fi
+
+    merge_into_settings 'pi extensions' "$settings" \
+        '.extensions = ((.extensions // []) + [$e])' \
+        --arg e "$ext_entry" "$settings"
 }
 
 # Symlink a hand-written herdr hook script into a Claude-Code-compatible
@@ -1181,6 +1403,9 @@ link_custom_herdr_hook() {
     [ -d "$src_dir" ] || return 0
     [ -d "$target_dir" ] || return 0
 
+    # ensure_dir/ensure_link are read-only in check mode, so link state is
+    # verified there too; a missing repo source is reported on top of it.
+    check_source_present "$src_dir/hooks/herdr-agent-state.sh"
     ensure_dir "$target_dir/hooks"
     ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$target_dir/hooks/herdr-agent-state.sh"
 
@@ -1188,31 +1413,126 @@ link_custom_herdr_hook() {
     local hooks_src="$src_dir/hooks-settings.json"
     [ -f "$hooks_src" ] || return 0
 
+    # check mode must stay read-only: creating $settings here would break that
+    # contract. The merge state is verified read-only by check_custom_herdr_hook.
+    [ "$MODE" = "check" ] && return 0
+
     if ! command_exists jq; then
         yellow "skip $subdir settings.json hooks merge: jq not installed"
         return 0
     fi
 
     if [ ! -f "$settings" ]; then
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would create $settings and merge hooks"
+            return 0
+        fi
         printf '{}\n' > "$settings"
     fi
 
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would merge hooks from $hooks_src into $settings"
+        return 0
+    fi
+
+    merge_into_settings "$subdir hooks" "$settings" \
+        -s '.[0] * {hooks: .[1].hooks}' "$settings" "$hooks_src"
+}
+
+# ---------------------------------------------------------------------------
+# jq merge helpers for agent-owned settings.json files. `mv` of a mktemp file
+# would impose 0600 on the target, so write with `cat >` and record/restore
+# the original mode.
+# ---------------------------------------------------------------------------
+settings_file_mode() {
+    local file=$1 mode=""
+    mode=$(stat -c '%a' "$file" 2>/dev/null) || true
+    [ -n "$mode" ] || mode=$(stat -f '%Lp' "$file" 2>/dev/null) || true
+    printf '%s\n' "${mode:-644}"
+}
+
+merge_into_settings() {
+    # args: <label> <settings-file> <jq-program> [jq args & input files...]
+    # The caller supplies the full jq input list (program + flags + files);
+    # merge result is written back into <settings-file> in place.
+    # check mode is read-only by contract; its jq state is verified by the
+    # dedicated check_* helpers instead.
+    local label=$1 settings=$2 prog=$3
+    shift 3
+    [ "$MODE" = "check" ] && return 0
+
     local tmp
-    tmp="$(mktemp "${TMPDIR:-/tmp}/herdr-hook-merge.XXXXXX.json")"
-    if jq -s '.[0] * {hooks: .[1].hooks}' "$settings" "$hooks_src" > "$tmp" 2>/dev/null; then
-        mv "$tmp" "$settings"
+    tmp="$(mktemp "${TMPDIR:-/tmp}/dotfiles-settings-merge.XXXXXX.json")"
+    if jq "$prog" "$@" > "$tmp" 2>/dev/null; then
+        if [ "$MODE" = "repair" ]; then
+            local mode
+            mode=$(settings_file_mode "$settings")
+            cp -p "$settings" "${settings}.bak.${BACKUP_SUFFIX}" 2>/dev/null \
+                || cp "$settings" "${settings}.bak.${BACKUP_SUFFIX}"
+            chmod "$mode" "${settings}.bak.${BACKUP_SUFFIX}" 2>/dev/null || true
+            yellow "backup $settings -> ${settings}.bak.${BACKUP_SUFFIX}"
+        fi
+        cat "$tmp" > "$settings"
+        rm -f "$tmp"
+        echo "$label merged into $settings"
     else
         rm -f "$tmp"
-        yellow "$subdir settings.json merge failed; left untouched"
+        yellow "$label merge failed; $settings left untouched"
+    fi
+}
+
+# check_pi_settings_merge — read-only counterpart of link_pi_config's merge.
+check_pi_settings_merge() {
+    local settings="$HOME/.pi/agent/settings.json"
+    [ -f "$settings" ] || return 0
+    if ! command_exists jq; then
+        yellow "check: cannot verify pi settings.json merge (jq not installed)"
+        return 0
+    fi
+    if ! jq -e --arg e './extensions/openrouter-slim.mjs' \
+        '.extensions // [] | index($e)' "$settings" >/dev/null 2>&1; then
+        yellow "check: pi settings.json missing extensions entry"
+        mark_check_failure
+    fi
+}
+
+# check_custom_herdr_hook — read-only jq verification for link_custom_herdr_hook
+# (its symlink half is checked by ensure_link itself in check mode).
+check_custom_herdr_hook() {
+    local subdir="$1" target_dir="$2"
+    local src_dir="$script_path/$subdir"
+    [ -d "$src_dir" ] || return 0
+    [ -d "$target_dir" ] || return 0
+
+    local settings="$target_dir/settings.json"
+    local hooks_src="$src_dir/hooks-settings.json"
+    [ -f "$hooks_src" ] || return 0
+
+    if [ ! -f "$settings" ]; then
+        yellow "check: $settings missing (would be created on init)"
+        mark_check_failure
+        return 0
+    fi
+    if ! command_exists jq; then
+        yellow "check: cannot verify $subdir settings.json merge (jq not installed)"
+        return 0
+    fi
+    if ! jq -e -s '(.[0].hooks // {}) as $cur | (.[1].hooks // {}) as $new
+            | all($new | keys[]; . as $k | $cur[$k] == $new[$k])' \
+            "$settings" "$hooks_src" >/dev/null 2>&1; then
+        yellow "check: $subdir settings.json hooks not merged"
+        mark_check_failure
     fi
 }
 
 run_setup() {
     # `prune` only removes stale artifacts; it never creates links or installs.
     if [ "$MODE" = "prune" ]; then
-        red 'Prune stale links...'
-        prune_managed_links
-        yellow 'Prune finish.'
+        if section_requested "links"; then
+            red 'Prune stale links...'
+            prune_managed_links
+            yellow 'Prune finish.'
+        fi
         return 0
     fi
 
@@ -1232,16 +1552,34 @@ run_setup() {
         setup_neovim
     fi
 
+    # ── agent link sections ────────────────────────────────────────────────
+    # Read-only in check mode (ensure_link/ensure_dir no-op), preview-only in
+    # dry-run; herdr's own integration installer stays init/repair-only.
+    if section_requested "herdr"; then
+        if [ "$MODE" != "check" ] && [ "$DRY_RUN" != "1" ]; then
+            install_herdr_integrations
+        fi
+        link_reasonix_herdr_integration
+        link_pi_config
+        link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
+    fi
+
     # Report links left behind by config entries removed from this repo. These
     # are invisible to ensure_link (which only knows about live sources).
-    if [ "$MODE" = "check" ] && section_requested "links"; then
-        report_dangling_links
+    if section_requested "links"; then
+        if [ "$MODE" = "check" ]; then
+            report_dangling_links
+            check_pi_settings_merge
+            check_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
+        elif [ "$MODE" = "repair" ]; then
+            remove_dangling_links
+        fi
     fi
 
     if [ "$MODE" = "check" ] || [ "$DRY_RUN" = "1" ]; then
-        # In dry-run mode, list what the remaining sections would do without
-        # executing any of them. Link sections above already printed their
-        # actions via ensure_link.
+        # In dry-run mode, list what the remaining install sections would do
+        # without executing any of them. Link sections above already printed
+        # their actions via ensure_link.
         if [ "$DRY_RUN" = "1" ]; then
             _dry_run_remaining
         fi
@@ -1294,14 +1632,6 @@ run_setup() {
     if section_requested "zsh"; then
         install_zsh_plugins
     fi
-
-    # ── herdr ──────────────────────────────────────────────────────────────
-    if section_requested "herdr"; then
-        install_herdr_integrations
-        link_reasonix_herdr_integration
-        link_pi_config
-        link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
-    fi
 }
 
 # Print a summary of what the install-time sections would do without running
@@ -1322,7 +1652,7 @@ _dry_run_remaining() {
     section_requested "mirrors"  && echo "  mirrors   — configure Homebrew + npm/pip/gem mirrors"
     section_requested "packages" && echo "  packages  — install npm/pipx/gem language packages"
     section_requested "zsh"      && echo "  zsh       — clone zsh plugin repos (autosuggestions, syntax-highlighting)"
-    section_requested "herdr"    && echo "  herdr     — install herdr agent integrations (claude, reasonix, pi, codebuddy)"
+    section_requested "herdr"    && echo "  herdr     — link agent configs/hooks (herdr integration install itself is skipped in dry-run)"
 }
 
 parse_args "$@"
