@@ -9,7 +9,8 @@ freetype-load-flags = no-hinting
 font-thicken = true
 
 # ----- Window -----
-macos-titlebar-style = tabs
+# macos-titlebar-style = tabs
+macos-titlebar-style = transparent
 macos-option-as-alt = true
 window-padding-x = 2
 window-padding-y = 2
@@ -18,13 +19,13 @@ window-save-state = always
 quit-after-last-window-closed = true
 
 # ----- Performance -----
-scrollback-limit = 5000
+scrollback-limit = 10000000
 cursor-style-blink = false
 mouse-hide-while-typing = true
 
 # ----- Shell Integration -----
 shell-integration = detect
-shell-integration-features = cursor,sudo,title
+shell-integration-features = cursor,sudo,title,path
 
 # ----- Bell -----
 bell-features = no-system,no-audio,no-attention,no-title,no-border

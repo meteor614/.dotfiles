@@ -57,7 +57,9 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按
 | `Ctrl+Alt+h/j/k/l` | 聚焦左/下/上/右 pane |
 | `Ctrl+b Tab` / `Alt+]` | 下一个 pane |
 | `Ctrl+b Shift+Tab` / `Alt+[` | 上一个 pane |
-| `Ctrl+b b` | 上一个 pane |
+| `Ctrl+b ;` | 上一个 pane（tmux 同款） |
+| `Ctrl+b b` | 显示/隐藏 sidebar |
+| `Ctrl+b z` / `Ctrl+Alt+z` | 缩放（最大化）当前 pane，再按一次还原 |
 | `Ctrl+b f` / `Alt+f` | 切换 floating pane |
 | `Ctrl+b r` / `Alt+m` | 进入 resize mode |
 | `Ctrl+b e` / `Alt+s` | 编辑 scrollback |
@@ -65,9 +67,9 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按
 | `Ctrl+Alt+1..9` | 切换第 N 个 workspace |
 | `Ctrl+b g` / `Alt+g` | goto |
 | `Alt+1..9` | 聚焦第 N 个 agent |
-| `Ctrl+b Alt+g` | 新 pane 打开 lazygit |
-| `Ctrl+b Alt+d` | 新 pane 打开 lazydocker |
-| `Ctrl+b Alt+y` | 新 pane 打开 yazi |
+| `Ctrl+b Alt+g` | popup 浮层打开 lazygit |
+| `Ctrl+b Alt+d` | popup 浮层打开 lazydocker |
+| `Ctrl+b Alt+y` | popup 浮层打开 yazi |
 
 ---
 

@@ -13,7 +13,6 @@ next_workspace     = "prefix+]"
 
 # 释放/迁移会跟我们冲突的默认绑定
 copy_mode        = ""                 # 默认占 prefix+[，让给 previous_workspace
-toggle_sidebar   = ""                 # 默认占 prefix+b，让给 last_pane（如需用 sidebar 走鼠标/菜单）
 close_workspace  = ""                 # 默认占 prefix+shift+d，让给 split_horizontal（关 workspace 走菜单/CLI）
 close_tab        = ""                 # 默认占 prefix+shift+x，避免后续冲突；用 prefix+x 关单 pane 即可
 
@@ -21,7 +20,9 @@ close_tab        = ""                 # 默认占 prefix+shift+x，避免后续�
 toggle_floating_pane = ["prefix+f", "alt+f"]
 cycle_pane_next = ["prefix+tab", "alt+]"]
 cycle_pane_previous = ["prefix+shift+tab", "alt+["]
-last_pane = "prefix+b"
+# prefix+b 让给默认的 toggle_sidebar；last_pane 改用 tmux 同款 prefix+;
+last_pane = "prefix+;"
+zoom = ["prefix+z", "ctrl+alt+z"] # 最大化当前 pane；不用 alt+z（被 zsh fzsession / zellij 占用）
 
 # pane focus：补齐 zellij Ctrl+Alt+h/j/k/l
 focus_pane_left  = ["prefix+h", "ctrl+alt+h"]
@@ -52,30 +53,37 @@ focus_agent = ["alt+1..9"]
 goto = ["prefix+g", "alt+g"]
 
 # 常用应用直达；避开 herdr 默认的 prefix+g (goto)
+# popup：会话级模态浮层，不改动 tab 布局（popup 内取 HERDR_ACTIVE_PANE_ID 而非 HERDR_PANE_ID）
 [[keys.command]]
 key  = "prefix+alt+g"
-type = "pane"
+type = "popup"
 command = "lazygit"
 
 [[keys.command]]
 key  = "prefix+alt+d"
-type = "pane"
+type = "popup"
 command = "lazydocker"
 
 [[keys.command]]
 key  = "prefix+alt+y"
-type = "pane"
+type = "popup"
 command = "yazi"
 
 [terminal]
 new_cwd = "follow"
+# Kitty graphics 渲染（ghostty 兼容该协议）；原 experimental.kitty_graphics 已废弃
+kitty_graphics = true
 
- [theme]
-name = "gruvbox-light"
+[theme]
+name = "gruvbox"
 # name = "terminal"
 
+# 跟随宿主终端的明暗外观切换（gruvbox=暗 / gruvbox-light=明）
+auto_switch = true
+light_name = "gruvbox-light"
+dark_name = "gruvbox"
+
 # ─── UI ────────────────────────────────────────────────────────────────────
-auto_switch = false
 [ui]
 prompt_new_tab_name = false        # 新 tab 即出现，跟 Cmd+t 风格一致
 accent = "cyan"
@@ -103,6 +111,4 @@ manage_ssh_config = true
 pane_history = true
 # 中文输入法候选窗跟随焦点 pane 的光标（Claude Code / codex 等 TUI）
 reveal_hidden_cursor_for_cjk_ime = true
-# 本地 Kitty graphics 渲染（ghostty 兼容 Kitty graphics 协议）
-kitty_graphics = true
 switch_ascii_input_source_in_prefix = true
