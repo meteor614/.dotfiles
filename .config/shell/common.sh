@@ -195,19 +195,22 @@ command -v lesspipe.sh >/dev/null 2>&1 && {
 }
 
 # -----------------------------------------------------------------------------
-# herdr OSC52 透传 workaround（SSH over zellij）
+# 复用器内 OSC52 透传 workaround（zellij / herdr / tuios）
 #
 # herdr 的 should_prefer_osc52() 只检查 SSH_TTY/SSH_CONNECTION/WSL，
 # 不检查 ZELLIJ。在远程 zellij session 中（SSH 环境变量不存在），
 # herdr 会尝试 xclip/wl-copy 写入远端剪贴板而非透传 OSC52，
 # 导致 nvim yank 的内容到不了本地 mac 剪贴板。
 #
-# 这里补一个环境标记：当在 zellij/herdr 中且 SSH_TTY 未设置时，伪造
-# SSH_TTY 让 herdr 优先走 OSC52 透传。值用 /dev/tty 而不是 "zellij"
+# 这里补一个环境标记：当在 zellij/herdr/tuios 中且 SSH_TTY 未设置时，伪造
+# SSH_TTY 让 nvim 等工具优先走 OSC52 透传。值用 /dev/tty 而不是 "zellij"
 # 这样的自定义字符串——某些工具（ssh-agent 探测、tmux 远端检测）只
 # 检查 SSH_TTY 是否存在不读值，/dev/tty 对所有这类工具都安全。
 # 去掉 pbcopy 判断是因为 SSH 到远程 Mac 时 pbcopy 存在但写入的是远端
 # 剪贴板，回不到本地。
+#
+# tuios 侧只需要这个标记：pane 发出的 OSC52 由客户端落盘，配置里
+# appearance.selection.osc52_write = 'focused' 已放行，不再需要额外开关。
 #
 # herdr 0.9.0 源码里没有任何 OSC52 相关的环境变量或命令行参数
 # （已确认无 HERDR_PREFER_OSC52 等），所以这个 workaround 在 herdr
@@ -216,6 +219,8 @@ command -v lesspipe.sh >/dev/null 2>&1 && {
 if [ -n "${ZELLIJ:-}" ] && [ -z "${SSH_TTY:-}" ]; then
     export SSH_TTY="/dev/tty"
 elif [ -n "${HERDR_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
+    export SSH_TTY="/dev/tty"
+elif [ -n "${TUIOS_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
     export SSH_TTY="/dev/tty"
 fi
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # fzsession — fuzzy-switch between multiplexer sessions
-# Shows zellij + tmux + herdr sessions in a combined fzf picker.
+# Shows zellij + tmux + herdr + tuios sessions in a combined fzf picker.
 set -euo pipefail
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -43,6 +43,31 @@ for s in data.get("sessions", []):
     fi
 fi
 
+if have_cmd tuios; then
+    # `tuios ls --json` prints saved sessions too and exits 3 when the daemon is
+    # down; both cases still give usable rows, so ignore the status.
+    tujson=$(tuios ls --json 2>/dev/null || true)
+    if [ -n "$tujson" ]; then
+        tulist=$(printf '%s\n' "$tujson" | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+for s in data:
+    name = s.get("name", "?")
+    nwins = s.get("window_count", 0)
+    if s.get("saved"):
+        state = "saved"
+    elif s.get("attached"):
+        state = "attached"
+    else:
+        state = "idle"
+    print(f"{name} [{nwins}w {state}]")
+' 2>/dev/null || true)
+        if [ -n "$tulist" ]; then
+            sessions="${sessions}$(printf '%s\n' "$tulist" | sed 's/^/tuios: /')"$'\n'
+        fi
+    fi
+fi
+
 # Trim trailing newline
 sessions=${sessions%$'\n'}
 
@@ -52,7 +77,7 @@ if [ -z "$sessions" ]; then
 fi
 
 chosen=$(printf '%s\n' "$sessions" | fzf \
-    --header="Sessions (zellij + tmux + herdr)" \
+    --header="Sessions (zellij + tmux + herdr + tuios)" \
     --prompt="attach > " \
     --preview='
         ln={}
@@ -65,6 +90,9 @@ chosen=$(printf '%s\n' "$sessions" | fzf \
             zellij list-sessions 2>/dev/null | grep -F "$rest" || echo "$rest"
         elif [ "$prefix" = "herdr" ]; then
             echo "$rest"
+        elif [ "$prefix" = "tuios" ]; then
+            name="${rest%% *}"
+            tuios list-windows -s "$name" 2>/dev/null || echo "$rest"
         else
             echo "$ln"
         fi
@@ -76,7 +104,7 @@ if [ -z "$chosen" ]; then
     exit 0
 fi
 
-# Parse the prefix (zellij: / tmux:) and the remainder
+# Parse the prefix (zellij: / tmux: / herdr: / tuios:) and the remainder
 prefix="${chosen%%:*}"
 remainder="${chosen#*: }"
 
@@ -92,6 +120,10 @@ case "$prefix" in
     herdr)
         name=$(printf '%s\n' "$remainder" | awk '{print $1}')
         exec herdr session attach "$name"
+        ;;
+    tuios)
+        name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        exec tuios attach "$name"
         ;;
     *)
         echo "fzsession: unknown session type '$prefix'" >&2

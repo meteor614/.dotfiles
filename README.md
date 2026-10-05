@@ -4,7 +4,7 @@
 
 * neovim/lazyvim
 * ghostty
-* zellij/herdr/tmux/tmuxinator
+* zellij/herdr/tuios/tmux/tmuxinator
 * zsh/bash
 * claude/codex/codebuddy/reasonix
 * starship/yazi/atuin/direnv
