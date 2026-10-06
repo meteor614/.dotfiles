@@ -55,6 +55,10 @@ auto_enter_terminal_on_focus = 'targeted'
 
 show_clock = true
 
+right_click_opens_menu = true
+
+whichkey_position = 'center'
+
 [appearance.sidebar]
 position = 'left'
 # Spacer rows keep the sections readable; files:70 gives the file tree most of
@@ -135,6 +139,7 @@ terminal_prev_window = ['opt+shift+tab', 'alt+[']
 open_default_window = true
 start_in_terminal_mode = true
 tiled = false
+daemon = true
 
 # ============================================================================
 # DAEMON
