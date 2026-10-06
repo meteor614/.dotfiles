@@ -1,34 +1,19 @@
 # TUIOS Configuration File
-# This file allows you to customize appearance and keybindings
 #
-# Configuration location: $HOME/.config/tuios/config.toml (a symlink into this
-# dotfiles repo). tuios rewrites this path in place from its settings page,
-# `config edit` and `keybinds free|unbind`; if that replaces the symlink with a
-# regular file, the repo copy goes stale — re-link via `setup.sh` after such edits.
-# Documentation: https://github.com/Gaurav-Gosain/tuios
-# For keybindings documentation, run: tuios keybinds list
+# This file is deliberately a diff against the defaults, not a copy of them:
+# anything it does not mention gets its default back, so deleting a line is how
+# you unset it. Keep it that way — never let a tool re-pin the defaults here.
 #
-# tuios watches this file. A save takes effect at once, with no restart.
-# tuios does not apply a file that has an error. It keeps the settings that
-# are in use and shows the error on screen.
+# Everything *about* this file — the reload/inode rules, the whole-template
+# rewrite trap, and the audit commands — lives in README (## tuios) and
+# KEYBINDINGS.md. Keeping it there and not here is deliberate: one source
+# cannot drift from itself.
 #
-# Verified on 0.8.5: the live reload covers appearance only, and only while the
-# file keeps its inode — a rename-based write (`sed -i`, editors that save via
-# temp+rename, `git`/`jj` checkout) detaches the watcher, and [keybindings] are
-# read when a client attaches anyway. So after any edit here: detach (ctrl+b d)
-# and attach again. `tuios config apply` reloads neither.
-#
-# This file is deliberately a diff against the defaults, not a copy of them.
-# Audit it against `tuios list-options --json` (every scalar path plus its
-# default) and `tuios keybinds doctor` / `keybinds explain <key>` (bindings);
-# a line the file does not have gets its default back, so deleting a line is how
-# you unset it.
-#
-# The settings page does not respect that: it rewrites the whole template,
-# re-pinning every default AND writing its struct's zero values for any line
-# the file did not have ('' where the default is 'auto', 0 where it is 95). So
-# after using it, check `git diff` here and re-trim, or the empties silently
-# stand in for settings you never chose.
+# Path: $HOME/.config/tuios/config.toml, a symlink into this dotfiles repo.
+# tuios rewrites this path in place from its settings page, `config edit` and
+# `keybinds free|unbind`; if that replaces the symlink with a regular file, the
+# repo copy goes stale — re-link via `setup.sh` after such edits.
+# Upstream: https://github.com/Gaurav-Gosain/tuios
 
 # ============================================================================
 # APPEARANCE
@@ -40,7 +25,7 @@
 #               targeted (numbered select and arrows start typing),
 #               all (every covered focus command, including Tab)
 #
-# Read-only on 0.8.5: `tuios list-themes <id> --json` reports which palette
+# Read-only: `tuios list-themes <id> --json` reports which palette
 # entries fail their contrast floor (4.5 for fg, 3.0 for the rest, measured
 # against the theme's own background). gruvbox_light fails four of them (black,
 # bright_green, bright_yellow, bright_cyan — near-white on a light ground), so
@@ -50,6 +35,13 @@
 # invisible on any gruvbox dark ground, in this theme and in the original.
 [appearance]
 theme = 'gruvbox_dark_hard'
+
+# Paint the theme's own background on every tuios surface. Without this the
+# panes sit on Ghostty's default ground (#282c34 — `ghostty +show-config
+# --default`), while `tuios list-themes <id> --json` measures contrast against
+# the theme's own ground #1b1b1b. On #282c34 red falls 3.15 → 2.56 and green
+# 5.56 → 4.52, i.e. below their floors; 'theme' makes the audit's premise true.
+background = 'theme'
 
 # Quitting the whole session asks first, which matters because a stray ctrl+b q
 # otherwise drops every pane and every agent running in them.
@@ -75,18 +67,20 @@ sections = 'sessions,spacer:4,terminals,spacer:4,files:70,spacer:4,agents'
 # Set an action to [] to unbind it and hand the key back to the shell.
 # An empty list and a missing line are not the same thing.
 #
-# You do not have to edit this by hand. In tuios, open the keybind manager
-# (leader then k, or the command palette) and press ctrl+d on a binding to
-# remove it, or ctrl+x to take its key off every action. From a shell:
+# Edit this file by hand. The in-app key manager (leader then k, or the command
+# palette) and the shell forms below rewrite config.toml as a whole re-pinned
+# template, dropping this diff — verified for `keybinds unbind` in a throwaway
+# XDG_CONFIG_HOME, see README (## tuios). Use them as diagnostics, not writers.
 #
-#   tuios keybinds unbind close_window w   # one key off one action
-#   tuios keybinds free alt+left           # off every action
+#   tuios keybinds unbind close_window w   # rewrites the whole file
+#   tuios keybinds free alt+left           # rewrites the whole file
 #
 # `tuios keybinds doctor` says which binding in each scope is live, what
 # clashes with what, and which keys never reach the program in the pane.
 # `tuios keybinds list-custom` lists only the actions whose default key was
-# replaced — a key added on top of a default (alt+f, ctrl+alt+t) does not show
-# up there. `keybinds doctor` and `keybinds explain <key>` read the file and do.
+# replaced — a key added on top of a default (alt+f, ctrl+alt+t/alt+n,
+# ctrl+alt+z) does not show up there. `keybinds doctor` and
+# `keybinds explain <key>` read the file and do.
 #
 # The leader itself is not configurable: ctrl+b starts a prefix command in the
 # built-in layer (`tuios keybinds explain ctrl+b`), so there is nothing to pin
@@ -102,21 +96,24 @@ sections = 'sessions,spacer:4,terminals,spacer:4,files:70,spacer:4,agents'
 # reachable after the leader (ctrl+b g — prefix_mode is untouched, both work).
 # The cost is zsh's default `^[f` forward-word; alt+right jumps words here
 # anyway. new_window keeps the cross-multiplexer Ctrl+Alt+t (see
-# KEYBINDINGS.md) plus alt+n. Scope global, so all of it fires in window mode
-# too. `keybinds list-custom` does not count bindings added this way — it only
-# lists actions whose default key was replaced; `keybinds doctor` and
-# `keybinds explain <key>` do show them.
+# KEYBINDINGS.md) plus alt+n. snap_fullscreen adds the key herdr calls zoom
+# (ctrl+alt+z) on top of the layout-scope f; all of these are scope global, so
+# they fire in window mode and terminal mode alike. `keybinds list-custom` does
+# not count bindings added this way — it only lists actions whose default key
+# was replaced; `keybinds doctor` and `keybinds explain <key>` do show them.
 [keybindings.global]
 command_palette = []
 launcher = []
 toggle_scratch = ['alt+f']
 new_window = ['ctrl+alt+t', 'alt+n']
+snap_fullscreen = ['ctrl+alt+z']
 
 # Bare arrows belong to the shell (history, line editing) and .zshrc.local binds
 # alt+left/right to word jumps plus alt+up/down to line start/end, so pane focus
 # uses ctrl+alt+{h,j,k,l} only — matching herdr and leaving every alt+arrow to
-# the shell (`tuios keybinds explain alt+up` reads "free"). zellij still binds
-# alt+up/down for focus, so this differs between the two multiplexers.
+# the shell (`tuios keybinds explain alt+up` reads "free"). zellij is aligned now:
+# .config/zellij/config.kdl releases all four Alt+arrows too, leaving Ctrl+Alt
+# as the only pane-focus layer in both multiplexers.
 # Window cycling takes alt+[ / alt+] alongside opt+tab — both are unbound in zsh
 # — which frees the default alt+p for its history-search-backward. alt+n is not:
 # [keybindings.global] uses it, with ctrl+alt+t, to open a window.
@@ -138,3 +135,13 @@ terminal_prev_window = ['opt+shift+tab', 'alt+[']
 open_default_window = true
 start_in_terminal_mode = true
 tiled = false
+
+# ============================================================================
+# DAEMON
+# ============================================================================
+# Each pane keeps appearance.scrollback_lines (10000) lines in memory, but the
+# daemon's saved history defaults to only 1000 lines / 2048 KiB per pane, so a
+# daemon restart silently truncates a long agent log. Raise the line cap toward
+# the in-memory buffer; a change applies when the daemon next starts.
+[daemon]
+persist_scrollback_lines = 5000

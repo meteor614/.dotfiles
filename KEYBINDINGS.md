@@ -38,7 +38,7 @@ Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 - **Ghostty**：窗口级操作和临时本地分屏。`Cmd` 键只控制 Ghostty 自身，不进入 herdr/tmux/zellij。
 - **herdr**：日常主力复用器，负责项目/session、pane/tab/workspace 和 agent sidebar。
 - **tuios**：与 herdr 并列的日常主力（agent sidebar + 可脚本化的 pane）。`Ctrl+Alt+h/j/k/l`
-  与 herdr 一致；方向键和 `Alt+[`/`Alt+]` 的含义见下方 tuios 一节。
+  与 herdr 一致，`Ctrl+Alt+z` 对齐 herdr 的 `zoom`；方向键和 `Alt+[`/`Alt+]` 的含义见下方 tuios 一节。
 - **zellij**：远程 SSH 默认优先的兼容复用器，也保留一套与 herdr/tmux 接近的 `Alt` / `Ctrl+Alt` 肌肉记忆。
 - **tmux**：远程兼容与嵌套会话 fallback，尽量通过 `.tmux.conf.local` 覆盖，不改 submodule。
 
@@ -142,9 +142,9 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按
 
 ## tuios
 
-leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 10 条，
+leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 11 条，
 复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的 8 条，
-新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`）不计数，得用 `tuios keybinds doctor`
+新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`）不计数，得用 `tuios keybinds doctor`
 或 `tuios keybinds explain <key>` 看：
 
 | 快捷键 | 功能 | 与默认的差别 |
@@ -154,12 +154,14 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Alt+[` / `Alt+]` | 上/下一个 window（terminal 模式） | 默认用 `Alt+p` / `Alt+n`，这里换成 `Alt+[` / `Alt+]`；`Opt+Tab` / `Opt+Shift+Tab` 保留，`Alt+p` 因此空给 shell |
 | `Ctrl+Alt+t` / `Alt+n` | 新建 window（global，两种模式都生效） | tuios 默认只在 leader 后绑 `n`，这里补上与 herdr/tmux/zellij 一致的 `Ctrl+Alt+t` |
 | `Alt+f` | 显示/隐藏 scratch 终端 | tuios 没有浮动 pane，借用 herdr/zellij 的 `alt+f` 语义；prefix 的 `Ctrl+b g` 仍保留 |
+| `Ctrl+Alt+z` | 全屏/最大化当前 pane（global，两种模式都生效） | tuios 默认只在 window 模式绑 `f`（prefix 的 `Ctrl+b z` 也保留）；这里补上与 herdr `zoom` 一致的 `Ctrl+Alt+z` |
 | `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板仍可从 `Ctrl+b P` 打开 |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 
 `auto_enter_terminal_on_focus = 'targeted'` 让编号选择和方向键在聚焦的同时把打字权
 交给 pane，不会停在 window 模式。四个 `Alt+方向键` 全部不再被 tuios 占用，
-分别落到 shell 的跳词（`←`/`→`）和行首/行尾（`↑`/`↓`）。
+分别落到 shell 的跳词（`←`/`→`）和行首/行尾（`↑`/`↓`）；`.config/zellij/config.kdl`
+同步释放了这四个键，两个复用器现在一致。
 
 ---
 
@@ -171,5 +173,5 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
-| `.config/tuios/config.toml` | leader 下的 10 条自定义键、sidebar/主题/startup（只写偏离默认值的项） |
+| `.config/tuios/config.toml` | leader 下的 11 条自定义键、sidebar/主题/startup（只写偏离默认值的项） |
 

@@ -113,21 +113,30 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 ## tuios
 
 配置入口 `.config/tuios/config.toml` → `~/.config/tuios/config.toml`（daemon 与 client 共用）。
+以下口径核对于 **tuios 0.8.5**；`config.toml` 顶部只留「本文件是 diff / 删行=还原默认 /
+路径是符号链接」这几条就地提示，其余说明以本节为准——两处各写一份必然漂移。
 
 * **文件里只写偏离默认值的项**。默认值对照：标量项用 `tuios list-options --json`
   （196 项，不含 keybindings），键位用 `tuios keybinds list-custom`。删掉一行等于
   交还给下次启动时的默认值，所以瘦身不改变语义，不是“配置丢了”。
-* **设置页（`ctrl+b ,`）会重写整份文件**：重新钉回全部默认值，并把文件里缺失的行
-  写成结构体零值，而零值不总等于默认值（如 `window_title_position` 默认 `'top'`
-  会被写成 `''`、`zoom_size` 的 `95` 写成 `0`）。用过设置页后 `git diff` 这里并重新瘦身。
+* **凡是 tuios 自己写回 config 的入口都会重写整份文件**：设置页（`ctrl+b ,`）、
+  `tuios config edit`、`tuios keybinds free|unbind`。它们重新钉回全部默认值，并把
+  文件里缺失的行写成结构体零值，而零值不总等于默认值（如 `window_title_position`
+  默认 `'top'` 会被写成 `''`、`zoom_size` 的 `95` 写成 `0`）。已实测：在一次性
+  `XDG_CONFIG_HOME` 下跑 `tuios keybinds unbind snap_fullscreen f`，写出的是整份
+  模板。**所以改键位/外观一律手改这个文件**，这些命令只当只读诊断用；用过写回
+  入口后 `git diff` 这里并重新瘦身。
+* **写回可能把符号链接换成普通文件**。tuios 是原地改写 `~/.config/tuios/config.toml`
+  这条指向仓库的链接；一旦它被替换成普通文件，仓库里那份就再也不会更新。
+  `setup.sh check` 会报 `link mismatch`，`repair` 会备份并重链——前提是你想起来跑。
 * **热重载只覆盖 appearance，且要求 inode 不变**；temp+rename 的写入（`sed -i`、
   多数编辑器、`git`/`jj` checkout）会让 watcher 失效，而 `[keybindings]` 本来就只在
   client attach 时读取。改完这里：`ctrl+b d` detach 再 attach。`tuios config apply`
   两者都不重载。
 * **leader 是内建的 `ctrl+b`，不可配置**（`tuios keybinds explain ctrl+b` 会说明这一点，
-  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 10 条键位见
+  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 11 条键位见
   [KEYBINDINGS.md](KEYBINDINGS.md)；复核口径要注意：`tuios keybinds list-custom` 只列
-  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`）不计数，
+  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`）不计数，
   要用 `tuios keybinds doctor` 或 `keybinds explain <key>` 确认。瘦身时只按
   `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑。
 * **OSC 133 命令标记由 `.config/shell/common.sh` 提供**（`A`/`B`/`C`/`D;<status>`）。

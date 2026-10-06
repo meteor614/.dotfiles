@@ -227,10 +227,13 @@ keybinds clear-defaults=true {
         bind "Ctrl Alt F9" { GoToTab 9; SwitchToMode "Normal"; }
         bind "Ctrl Alt i" { MoveTab "Left"; }
         bind "Ctrl Alt o" { MoveTab "Right"; }
-        bind "Ctrl Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
-        bind "Ctrl Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
-        bind "Ctrl Alt j" "Alt Down" { MoveFocus "Down"; }
-        bind "Ctrl Alt k" "Alt Up" { MoveFocus "Up"; }
+        // Alt+arrows are left to the shell: .zshrc.local binds Alt+Left/Right to
+        // word jumps and Alt+Up/Down to line start/end, and tuios releases the same
+        // four keys — pane focus is Ctrl+Alt+hjkl only, as in herdr.
+        bind "Ctrl Alt h" { MoveFocusOrTab "Left"; }
+        bind "Ctrl Alt l" { MoveFocusOrTab "Right"; }
+        bind "Ctrl Alt j" { MoveFocus "Down"; }
+        bind "Ctrl Alt k" { MoveFocus "Up"; }
         bind "Ctrl Alt Shift Left" { Resize "Increase Left"; SwitchToMode "Normal"; }
         bind "Ctrl Alt Shift Down" { Resize "Increase Down"; SwitchToMode "Normal"; }
         bind "Ctrl Alt Shift Up" { Resize "Increase Up"; SwitchToMode "Normal"; }
