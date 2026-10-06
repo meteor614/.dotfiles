@@ -50,6 +50,12 @@ esac
 [ "${HERDR_ENV:-}" = "1" ] || exit 0
 [ -n "${HERDR_SOCKET_PATH:-}" ] || exit 0
 [ -n "${HERDR_PANE_ID:-}" ] || exit 0
+# Under tuios, HERDR_* is emulated and the socket answers too — but the
+# settings.json hooks already run `tuios agent-hook claude-code` natively
+# (richer states: done/needs_input + activity ring). Skip this channel so the
+# two do not race writing the same pane state. (stdin was drained above
+# already, so CodeBuddy's payload write cannot EPIPE.)
+[ "${TUIOS_ENV:-}" = "1" ] && exit 0
 command -v python3 >/dev/null 2>&1 || exit 0
 
 HERDR_ACTION="$action" HERDR_HOOK_INPUT_FILE="$hook_input_file" python3 - <<'PY'

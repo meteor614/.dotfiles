@@ -1,11 +1,12 @@
 {
-  "_comment": "CodeBuddy → herdr agent state hooks. Custom (not herdr's official claude integration) so we can label panes 'codebuddy' instead of 'claude' and map Stop to 'blocked' (waiting for user input) instead of 'idle'. Other lifecycle map: SessionStart→idle, PreToolUse/UserPromptSubmit/PostToolUse→working, PermissionRequest→blocked, SessionEnd→release.",
+  "_comment": "CodeBuddy → agent state hooks, two channels per event, each self-gating. herdr-agent-state.sh reports to herdr (and skips itself under TUIOS_ENV=1); `tuios agent-hook claude-code` reads the hook payload on stdin and reports natively to the tuios pane (outside tuios it finds no pane and reports nothing; the guard keeps hosts without tuios quiet). Custom codebuddy hook (not herdr's official claude integration) so panes are labeled 'codebuddy' in herdr's sidebar. herdr lifecycle: SessionStart→idle, UserPromptSubmit/PreToolUse/PostToolUse→working, PermissionRequest→blocked, Stop→idle, SessionEnd→release. tuios lifecycle via payload events: SessionStart→idle+bind, UserPromptSubmit/PreToolUse/PostToolUse→working, PermissionRequest→needs_input(approval), Stop→done, SessionEnd→state cleared.",
   "hooks": {
     "SessionStart": [
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -13,7 +14,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -21,7 +23,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -29,7 +32,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh working", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -37,7 +41,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh blocked", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh blocked", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -45,7 +50,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh idle", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ],
@@ -53,7 +59,8 @@
       {
         "matcher": "*",
         "hooks": [
-          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh release", "timeout": 10 }
+          { "type": "command", "command": "bash ~/.codebuddy/hooks/herdr-agent-state.sh release", "timeout": 10 },
+          { "type": "command", "command": "command -v tuios >/dev/null 2>&1 && tuios agent-hook claude-code || :", "timeout": 10 }
         ]
       }
     ]

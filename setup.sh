@@ -140,7 +140,7 @@ Flags:
   --only SECTION  Run only the named section(s). Comma-separated list.
                   Note: --only does not pull in dependencies. To install packages
                   on a fresh machine you usually need `--only runtimes,packages`
-                  (and `herdr` also needs the `links` section first).
+                  (and `herdr` / `tuios` also need the `links` section first).
                   Available sections:
                     links      — dotfile symlinks (top-level, .config, bin)
                     nvim       — Neovim / LazyVim bootstrap
@@ -152,11 +152,12 @@ Flags:
                     packages   — npm/pip/gem language packages
                     zsh        — zsh plugin clones
                     herdr      — herdr agent integrations
+                    tuios      — tuios agent integrations
 EOF
 }
 
 # Valid section names for --only
-VALID_SECTIONS="links nvim brew entware releases runtimes mirrors packages zsh herdr"
+VALID_SECTIONS="links nvim brew entware releases runtimes mirrors packages zsh herdr tuios"
 
 section_requested() {
     # With no --only filter, every section runs.
@@ -1302,6 +1303,36 @@ install_herdr_integrations() {
     yellow 'Init herdr integrations finish.'
 }
 
+# Install tuios's official agent-state hook entries for the harnesses it
+# supports natively. tuios reports richer state than its herdr-compat socket
+# (done with a last-line summary, needs_input kinds, activity ring), so the
+# dotfiles herdr channels self-disable under TUIOS_ENV to avoid racing writes
+# on the same pane state. reasonix/codebuddy are Claude forks tuios does not
+# know; they are wired straight to `tuios agent-hook claude-code` from their
+# own settings.json (see the herdr section above), so they need no installer
+# step here. qoder reports only the conversation id; its pane state keeps
+# coming from tuios's screen rules.
+# Symlinking is not involved — tuios rewrites settings in place, keeps a
+# .tuios.bak of the first rewrite, and never touches entries it did not write.
+install_tuios_integrations() {
+    if ! command_exists tuios; then
+        return 0
+    fi
+
+    red 'Init tuios integrations...'
+
+    for harness_dir in "claude-code:.claude" "qoder:.qoder" "pi:.pi"; do
+        harness="${harness_dir%%:*}"
+        dir="$HOME/${harness_dir#*:}"
+        if [ -d "$dir" ]; then
+            tuios integration install "$harness" \
+                || yellow "tuios integration install $harness failed"
+        fi
+    done
+
+    yellow 'Init tuios integrations finish.'
+}
+
 # check_source_present <repo-path> — check-mode-only diagnostic for the repo
 # sources this script links into $HOME. A missing source is reported separately
 # from a missing/mismatched link (ensure_link reports the latter) so the two
@@ -1564,6 +1595,20 @@ run_setup() {
         link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
     fi
 
+    # ── tuios ──────────────────────────────────────────────────────────────
+    # tuios's official hook entries for natively supported harnesses. check
+    # mode only reports install state (tuios integration status is read-only).
+    if section_requested "tuios"; then
+        if [ "$MODE" = "check" ]; then
+            if command_exists tuios; then
+                red 'Checking tuios integrations...'
+                tuios integration status claude-code qoder pi || true
+            fi
+        elif [ "$DRY_RUN" != "1" ]; then
+            install_tuios_integrations
+        fi
+    fi
+
     # Report links left behind by config entries removed from this repo. These
     # are invisible to ensure_link (which only knows about live sources).
     if section_requested "links"; then
@@ -1653,6 +1698,7 @@ _dry_run_remaining() {
     section_requested "packages" && echo "  packages  — install npm/pipx/gem language packages"
     section_requested "zsh"      && echo "  zsh       — clone zsh plugin repos (autosuggestions, syntax-highlighting)"
     section_requested "herdr"    && echo "  herdr     — link agent configs/hooks (herdr integration install itself is skipped in dry-run)"
+    section_requested "tuios"    && echo "  tuios     — tuios integration install for claude-code/qoder/pi (skipped in dry-run)"
 }
 
 parse_args "$@"

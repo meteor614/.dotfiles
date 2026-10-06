@@ -138,6 +138,16 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 * `~/.config/tuios/themes/` 由 daemon 创建，**不入库**：`setup.sh` 逐子项链接
   `.config/*`，这个目录既不会被 link，`check`/`prune` 也不管它；`import-theme`
   导入的主题 json 属于本机状态。
+* **agent 状态接入**：tuios 每个 pane 都注入 herdr 兼容环境（`HERDR_ENV=1`、
+  `HERDR_SOCKET_PATH` 等），所以 herdr 的 hook 在 tuios 里本来就能打通；但原生
+  `tuios agent-hook` 提供更细的状态（done 带末行摘要、needs_input 分类、activity
+  ring）。为避免两条通道竞争写同一 pane，`herdr-agent-state.sh`（reasonix /
+  codebuddy）在 `TUIOS_ENV=1` 时自行退出，改由 settings.json 里新增的
+  `tuios agent-hook claude-code` 通道上报（reasonix / codebuddy 是 Claude fork，
+  tuios 无官方集成，直接透传 hook payload，事件名与 claude-code 同名）。
+  claude-code / qoder / pi 用官方条目，由 `setup.sh --only tuios` 执行
+  `tuios integration install` 写入（`check` 模式只读跑 `integration status`）；
+  卸载用 `tuios integration uninstall`，它只删自己带版本标记的条目。
 
 ## bin/ 脚本
 
