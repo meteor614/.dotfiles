@@ -108,7 +108,36 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 * `.bashrc` — 仅 bash 相关部分。
 * `.config/shell/common.sh` — bash+zsh 共享环境、别名、运行时管理器激活、
   工具 init 缓存、跨 shell 辅助函数。
-* `.zshrc.local` / `.bashrc.local` — 机器本地覆盖（不在本仓库中）。
+* `.zshrc.local` — zsh 交互覆盖（在本仓库中）；`.bashrc.local` — 机器本地覆盖（不在本仓库中）。
+
+## tuios
+
+配置入口 `.config/tuios/config.toml` → `~/.config/tuios/config.toml`（daemon 与 client 共用）。
+
+* **文件里只写偏离默认值的项**。默认值对照：标量项用 `tuios list-options --json`
+  （196 项，不含 keybindings），键位用 `tuios keybinds list-custom`。删掉一行等于
+  交还给下次启动时的默认值，所以瘦身不改变语义，不是“配置丢了”。
+* **设置页（`ctrl+b ,`）会重写整份文件**：重新钉回全部默认值，并把文件里缺失的行
+  写成结构体零值，而零值不总等于默认值（如 `window_title_position` 默认 `'top'`
+  会被写成 `''`、`zoom_size` 的 `95` 写成 `0`）。用过设置页后 `git diff` 这里并重新瘦身。
+* **热重载只覆盖 appearance，且要求 inode 不变**；temp+rename 的写入（`sed -i`、
+  多数编辑器、`git`/`jj` checkout）会让 watcher 失效，而 `[keybindings]` 本来就只在
+  client attach 时读取。改完这里：`ctrl+b d` detach 再 attach。`tuios config apply`
+  两者都不重载。
+* **leader 是内建的 `ctrl+b`，不可配置**（`tuios keybinds explain ctrl+b` 会说明这一点，
+  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 10 条键位见
+  [KEYBINDINGS.md](KEYBINDINGS.md)；复核口径要注意：`tuios keybinds list-custom` 只列
+  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`）不计数，
+  要用 `tuios keybinds doctor` 或 `keybinds explain <key>` 确认。瘦身时只按
+  `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑。
+* **OSC 133 命令标记由 `.config/shell/common.sh` 提供**（`A`/`B`/`C`/`D;<status>`）。
+  daemon 自己 fork pane 的 shell，Ghostty 注入的 shell integration 到不了这一层；
+  没有标记时 `tuios run` 会以 `no_shell_integration` 直接拒绝。验证用
+  `tuios doctor shell`，且只对新开的 pane 生效——shell 在 pane 创建时 fork，
+  detach/attach 不会重建它。
+* `~/.config/tuios/themes/` 由 daemon 创建，**不入库**：`setup.sh` 逐子项链接
+  `.config/*`，这个目录既不会被 link，`check`/`prune` 也不管它；`import-theme`
+  导入的主题 json 属于本机状态。
 
 ## bin/ 脚本
 
@@ -116,7 +145,7 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 | ------------------------ | ---------------------------------------------------------- |
 | `color.sh`               | 用循环 ANSI 颜色给 stdin 行上色                             |
 | `find_duplicated.sh`     | 查找重复文件（大小 → 内容哈希；BSD/GNU 自适应，并行处理）    |
-| `fzsession`              | 在 zellij/tmux/herdr 会话间 fzf 切换（绑定到 `Alt+z`）      |
+| `fzsession`              | 在 zellij/tmux/herdr/tuios 会话间 fzf 切换（绑定到 `Alt+z`） |
 | `process_monitor.sh`     | 按名称/PID 监控进程，进程结束时执行命令                     |
 | `update_all.sh`          | topgrade 驱动的包/运行时/插件更新                           |
 

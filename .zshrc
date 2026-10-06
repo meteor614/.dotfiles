@@ -219,6 +219,17 @@ if [[ -o interactive ]] \
     precmd_functions+=(_emit_mux_user_var)
 fi
 
+# ── OSC 133 command marks (tuios run/wait-for need A/B/C/D; see common.sh) ───
+if [[ -o interactive ]]; then
+    (( ${precmd_functions[(Ie)_emit_osc133_precmd]:-0} )) \
+        || precmd_functions+=(_emit_osc133_precmd)
+    (( ${preexec_functions[(Ie)_emit_osc133_preexec]:-0} )) \
+        || preexec_functions+=(_emit_osc133_preexec)
+    # Last, so the B chunk lands after starship has assigned this prompt's PS1.
+    (( ${precmd_functions[(Ie)_emit_osc133_prompt_tail]:-0} )) \
+        || precmd_functions+=(_emit_osc133_prompt_tail)
+fi
+
 # ── zsh-syntax-highlighting (source last, after all widgets) ────────────────
 [[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
     source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

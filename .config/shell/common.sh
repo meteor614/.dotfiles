@@ -768,6 +768,52 @@ _emit_mux_user_var() {
 }
 
 # -----------------------------------------------------------------------------
+# OSC 133 语义提示符标记（tuios run / wait-for 的前提）
+#
+# tuios 从 pane 的输出流里读 A(prompt 开始)/B(输入就绪)/C(命令开始)/
+# D;<status>(命令结束) 四个标记，用来判断 shell 是否空闲、命令何时跑完、
+# 退出码是多少。没有标记时 `tuios run` 直接拒绝并报 no_shell_integration，
+# `tuios doctor shell` 会逐个 pane 列出来。tuios daemon 自己 fork pane 的
+# shell，Ghostty 注入的 shell integration 到不了这一层，所以必须由本仓库补齐。
+#
+# 状态码的两条规则，都实测过（bash 3.2 / zsh）：
+#   1. 取 $? 必须写成 `local x=$?` 一条语句。把 local 单独写一行是一条成功的
+#      命令，之后 $? 已经是 0，D 标记里的退出码就永远是 0。
+#   2. printf 会把 $? 改成 0，从而污染排在后面的 PROMPT_COMMAND 条目
+#      （bash 只在提示符展开时恢复 last_command_exit_value，链中间不恢复）。
+#      所以本函数排在最前，并用 `return $status` 把状态原样交还给下一条目。
+#      zsh 不需要这两条：它在每次 precmd hook 调用前后都保存 laststatus。
+#
+# 这里不按 TUIOS_ENV 收口：Ghostty/kitty/WezTerm/zellij 同样读 OSC 133 来划分
+# 语义区域（在提示符和命令输出间跳转），tmux 只是忽略不认识的 OSC。
+# -----------------------------------------------------------------------------
+_emit_osc133_precmd() {
+    local _osc133_status=$?
+    printf '\033]133;D;%s\007\033]133;A\007' "$_osc133_status"
+    return "$_osc133_status"
+}
+
+_emit_osc133_preexec() {
+    printf '\033]133;C\007'
+}
+
+# B 标记属于「提示符已画完、可以接收输入」，只能挂在 PS1 尾部，而且必须排在
+# starship 之后：starship 每次 prompt 都重新赋值 PS1，早追加会被覆盖掉。
+# 每个 prompt 一次字符串比较 + 可能的追加，不 fork。
+if [ -n "${ZSH_VERSION:-}" ]; then
+    _osc133_b_chunk=$'%{\033]133;B\007%}'
+else
+    _osc133_b_chunk='\[\033]133;B\007\]'
+fi
+
+_emit_osc133_prompt_tail() {
+    case "$PS1" in
+        *'133;B'*) ;;
+        *) PS1="$PS1$_osc133_b_chunk" ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
 # auto-venv (shell-specific hook wiring done in rc files)
 # -----------------------------------------------------------------------------
 AUTO_VENV_HELPER="${XDG_CONFIG_HOME}/shell/auto-venv.sh"

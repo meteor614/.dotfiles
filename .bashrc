@@ -79,6 +79,51 @@ case ";$PROMPT_COMMAND;" in
         ;;
 esac
 
+# OSC 133 command marks (tuios run/wait-for needs A/B/C/D; see common.sh)
+if [[ $- == *i* ]]; then
+    # bash has no native preexec, so the C mark depends on bash-preexec, whose
+    # public arrays are preexec_functions / precmd_functions. atuin vendors one
+    # and registers through it; honour a standalone ~/.bash-preexec.sh too, so
+    # the marks do not quietly depend on atuin being installed.
+    if ! declare -p preexec_functions >/dev/null 2>&1 \
+        && [ -f "$HOME/.bash-preexec.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$HOME/.bash-preexec.sh"
+    fi
+
+    # First in PROMPT_COMMAND, so $? is still the previous command's status.
+    case ";$PROMPT_COMMAND;" in
+        *";_emit_osc133_precmd;"*) ;;
+        *)
+            if [ -n "$PROMPT_COMMAND" ]; then
+                PROMPT_COMMAND="_emit_osc133_precmd;$PROMPT_COMMAND"
+            else
+                PROMPT_COMMAND="_emit_osc133_precmd"
+            fi
+            ;;
+    esac
+
+    if declare -p preexec_functions >/dev/null 2>&1; then
+        case ";${preexec_functions[*]};" in
+            *";_emit_osc133_preexec;"*) ;;
+            *) preexec_functions+=(_emit_osc133_preexec) ;;
+        esac
+    fi
+
+    # Last in PROMPT_COMMAND, so the B chunk lands after starship has assigned
+    # this prompt's PS1.
+    case ";$PROMPT_COMMAND;" in
+        *";_emit_osc133_prompt_tail;"*) ;;
+        *)
+            if [ -n "$PROMPT_COMMAND" ]; then
+                PROMPT_COMMAND="$PROMPT_COMMAND;_emit_osc133_prompt_tail"
+            else
+                PROMPT_COMMAND="_emit_osc133_prompt_tail"
+            fi
+            ;;
+    esac
+fi
+
 # zoxide (cached to avoid fork on every shell startup)
 if command -v zoxide >/dev/null 2>&1; then
     dotfiles_cached_eval zoxide "$(command -v zoxide)" bash init bash
