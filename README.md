@@ -119,6 +119,11 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
 * **文件里只写偏离默认值的项**。默认值对照：标量项用 `tuios list-options --json`
   （196 项，不含 keybindings），键位用 `tuios keybinds list-custom`。删掉一行等于
   交还给下次启动时的默认值，所以瘦身不改变语义，不是“配置丢了”。
+* **`[dock] left` 是刻意写出的默认顺序**：Dock 顶端的当前模式由内建 `mode` 组件显示
+  （窗口管理 / terminal / copy / sidebar / hints / tiling 及其下一个分割方向），它
+  默认就在 `left` 首位。显式写 `left = ['mode', 'workspaces', 'trail', 'tape']` 是
+  为了抗住设置页的整份重写和后续手动增删——region 列表是整份替换，不写就会退回
+  默认顺序。`center`/`right` 故意留空，继续跟默认。
 * **凡是 tuios 自己写回 config 的入口都会重写整份文件**：设置页（`ctrl+b ,`）、
   `tuios config edit`、`tuios keybinds free|unbind`。它们重新钉回全部默认值，并把
   文件里缺失的行写成结构体零值，而零值不总等于默认值（如 `window_title_position`

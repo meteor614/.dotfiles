@@ -66,6 +66,21 @@ position = 'left'
 sections = 'sessions,spacer:4,terminals,spacer:4,files:70,spacer:4,agents'
 
 # ============================================================================
+# DOCK
+# ============================================================================
+# The dock is three ordered region lists of component names, in the `[dock]`
+# table. Only `left` is written here, and only to pin the mode chip: "mode" is
+# the dock's pill for the current input mode (window management, terminal,
+# copy, sidebar, hints, or tiling with its next split). Naming it explicitly
+# keeps it on the bar's left end instead of relying on the default order, so a
+# later edit to the other segments — or a settings-page rewrite that drops one —
+# cannot take the mode indicator off the dock. `center` and `right` are left
+# out on purpose and keep their defaults (windows; notifications, copy-help,
+# cpu, ram, clock, session-controls), so this does not freeze the whole bar.
+[dock]
+left = ['mode', 'workspaces', 'trail', 'tape']
+
+# ============================================================================
 # KEYBINDINGS
 # ============================================================================
 # Set an action to [] to unbind it and hand the key back to the shell.
