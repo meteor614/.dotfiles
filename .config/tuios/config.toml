@@ -132,7 +132,7 @@ preferred_shell = ''
 motion = 'full'
 modal_dim = 30
 confirm_quit = true
-whichkey_position = 'center'
+whichkey_position = "center"
 window_title_position = ''
 hide_clock = false
 show_clock = true
@@ -471,10 +471,13 @@ terminal_scroll_down = ['shift+down']
 terminal_scroll_up = ['shift+up']
 
 [keybindings.global]
+choose_tree = ['alt+/']
 command_palette = []
 launcher = []
 new_window = ['ctrl+alt+t', 'alt+n']
 prefix_inbox = ['alt+i']
+prefix_next_attention = ['alt+o']
+prefix_review = ['alt+v']
 snap_fullscreen = ['ctrl+alt+z']
 toggle_scratch = ['alt+f']
 

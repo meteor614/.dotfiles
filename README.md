@@ -139,9 +139,9 @@ GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR
   client attach 时读取。改完这里：`ctrl+b d` detach 再 attach。`tuios config apply`
   两者都不重载。
 * **leader 是内建的 `ctrl+b`，不可配置**（`tuios keybinds explain ctrl+b` 会说明这一点，
-  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 11 条键位见
+  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 14 条键位见
   [KEYBINDINGS.md](KEYBINDINGS.md)；复核口径要注意：`tuios keybinds list-custom` 只列
-  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`）不计数，
+  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`、`alt+o`、`alt+v`、`alt+/`）不计数，
   要用 `tuios keybinds doctor` 或 `keybinds explain <key>` 确认。瘦身时只按
   `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑。
 * **OSC 133 命令标记由 `.config/shell/common.sh` 提供**（`A`/`B`/`C`/`D;<status>`）。

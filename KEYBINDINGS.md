@@ -142,9 +142,9 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按
 
 ## tuios
 
-leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 11 条，
+leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 14 条，
 复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的 8 条，
-新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`）不计数，得用 `tuios keybinds doctor`
+新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`）不计数，得用 `tuios keybinds doctor`
 或 `tuios keybinds explain <key>` 看：
 
 | 快捷键 | 功能 | 与默认的差别 |
@@ -155,6 +155,9 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Ctrl+Alt+t` / `Alt+n` | 新建 window（global，两种模式都生效） | tuios 默认只在 leader 后绑 `n`，这里补上与 herdr/tmux/zellij 一致的 `Ctrl+Alt+t` |
 | `Alt+f` | 显示/隐藏 scratch 终端 | tuios 没有浮动 pane，借用 herdr/zellij 的 `alt+f` 语义；prefix 的 `Ctrl+b g` 仍保留 |
 | `Ctrl+Alt+z` | 全屏/最大化当前 pane（global，两种模式都生效） | tuios 默认只在 window 模式绑 `f`（prefix 的 `Ctrl+b z` 也保留）；这里补上与 herdr `zoom` 一致的 `Ctrl+Alt+z` |
+| `Alt+o` | 跳到最老的需要你处理的项（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b o`（next attention）；指向 agent 工作流的直达键，代价是 tuios 内 zsh 的 `Alt+o`（`cd ..`）失效 |
+| `Alt+v` | 查看当前 pane 的改动（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b v`；代价是 tuios 内 zsh 的 `Alt+v`（装了 `deer` 时）失效 |
+| `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree） |
 | `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板仍可从 `Ctrl+b P` 打开 |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 
@@ -173,5 +176,5 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
-| `.config/tuios/config.toml` | leader 下的 11 条自定义键、sidebar/主题/startup（只写偏离默认值的项） |
+| `.config/tuios/config.toml` | leader 下的 14 条自定义键、sidebar/主题/startup（只写偏离默认值的项） |
 

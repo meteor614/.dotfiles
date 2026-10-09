@@ -234,3 +234,5 @@ fi
 [[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
     source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 unset _zsh_plugins_dir
+
+. "$HOME/.local/share/../bin/env"

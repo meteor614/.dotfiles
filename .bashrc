@@ -131,3 +131,5 @@ fi
 
 # Local machine-specific overrides
 [ -f "$HOME/.bashrc.local" ] && . "$HOME/.bashrc.local"
+
+. "$HOME/.local/share/../bin/env"

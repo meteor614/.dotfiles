@@ -21,7 +21,7 @@ brew_formulae=(
     pstree psutils python@3.14 readline ripgrep rtags rtmpdump ruby snappy sqlite
     starship swig telnet tig tmux tmux-xpanes tmuxinator tmuxinator-completion
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
-    bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin
+    bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin tuios bookokrat
     imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf git-delta pipx shellcheck
 )
 brew_casks=(
