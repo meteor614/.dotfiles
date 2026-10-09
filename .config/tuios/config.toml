@@ -126,7 +126,7 @@ scroll_lines = 3
 right_click_opens_menu = true
 kitty_placeholders = ''
 auto_enter_terminal_on_focus = 'targeted'
-click_to_type = 'double'
+click_to_type = "double"
 dockbar_position = 'top'
 preferred_shell = ''
 motion = 'full'
@@ -169,6 +169,7 @@ window_chrome_background = ''
 dock_background = ''
 dock_compact = true
 nvim_navigation = false
+focus_follows_mouse = false
 
 [appearance.scrollbar]
 style = 'track'
@@ -300,7 +301,7 @@ quit = ['q']
 toggle_help = ['?']
 
 [keybindings.system]
-toggle_spotlight = ['b']
+toggle_spotlight = ['B']
 
 [keybindings.navigation]
 [keybindings.restore_minimized]
