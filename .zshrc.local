@@ -55,17 +55,21 @@ kubectl() {
     kubectl "$@"
 }
 
-# ── Autostart multiplexer on incoming SSH (prefer zellij, fallback tmux) ─────
+# ── Autostart multiplexer on incoming SSH ────────────────────────────────────
+# tuios > zellij > tmux. tuios 缺失时回退到原有的 zellij/tmux 逻辑。
 if [[ -z "${DOTFILES_NONINTERACTIVE:-}" \
       && -o login \
       && -n "$SSH_CONNECTION" \
       && -z "${SSH_ORIGINAL_COMMAND:-}" \
       && -z "$TMUX" \
       && -z "$ZELLIJ" \
+      && -z "${TUIOS_ENV:-}" \
       && -t 0 \
       && $# -eq 0 \
       && -z "${ZSH_EXECUTION_STRING:-}" ]]; then
-    if (( $+commands[zellij] )); then
+    if (( $+commands[tuios] )); then
+        exec tuios attach
+    elif (( $+commands[zellij] )); then
         exec zellij a -c work
     elif (( $+commands[tmux] )); then
         exec tmux new -As default-0
