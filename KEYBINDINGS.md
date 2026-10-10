@@ -159,7 +159,7 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Alt+o` | 跳到最老的需要你处理的项（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b o`（next attention）；指向 agent 工作流的直达键，代价是 tuios 内 zsh 的 `Alt+o`（`cd ..`）失效 |
 | `Alt+v` | 查看当前 pane 的改动（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b v`；代价是 tuios 内 zsh 的 `Alt+v`（装了 `deer` 时）失效 |
 | `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree） |
-| `Alt+i` | 打开 Inbox（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键 |
+| `Alt+i` | 打开 Inbox；Inbox 已打开时再按一次关闭（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键，inbox scope 里 `Alt+i` 绑到 `inbox_close`，实现开/关切换 |
 | `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板仍可从 `Ctrl+b P` 打开 |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 

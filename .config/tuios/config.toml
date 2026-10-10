@@ -540,7 +540,7 @@ agent_snooze = ['z']
 agent_unread = ['u']
 
 [keybindings.inbox]
-inbox_close = ['esc', 'q']
+inbox_close = ['esc', 'q', 'alt+i']
 inbox_deny_reason = ['n']
 inbox_detail_down = ['J', 'ctrl+d']
 inbox_detail_up = ['K', 'ctrl+u']
