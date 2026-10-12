@@ -30,6 +30,20 @@ brew_casks=(
     font-sarasa-gothic
 )
 
+# WSL mirrors the macOS brew path via Homebrew on Linux (Linuxbrew). The
+# formula list stays short on purpose: apt/releases already cover the distro
+# packages above, and it only needs the macOS tools that have neither an apt
+# package nor a release install. Names without a Linux bottle (e.g.
+# reattach-to-user-namespace, yarn, telnet) are omitted so `brew install` never
+# aborts the whole setup run. Fonts are NOT installed through casks on Linux:
+# Homebrew's cask JSON bakes in the macOS ~/Library/Fonts target, so the WSL
+# font path installs them directly into ~/.local/share/fonts instead.
+# rtags stays macOS-only: it drags in a multi-GB LLVM toolchain that is not
+# worth it just for a ctags helper on WSL.
+brew_formulae_linux=(
+    gotags rust
+)
+
 # Debian/Ubuntu: distro packages, the Linux counterpart to brew_formulae.
 # Only names that exist in the distro repos belong here; anything newer or
 # unpackaged stays in linux_release_tools below. Synology DSM has neither apt
@@ -46,6 +60,7 @@ apt_packages=(
     tmux htop tree ncdu psmisc procps parallel tig vnstat telnet pv
     jq gawk perl pandoc sqlite3 imagemagick ffmpeg
     python3-pip python3-venv pipx ruby ruby-dev shellcheck
+    duf file p7zip-full
     fontconfig fonts-firacode fonts-hack-ttf
 )
 
@@ -177,10 +192,11 @@ Flags:
                   Available sections:
                     links      — dotfile symlinks (top-level, .config, bin)
                     nvim       — Neovim / LazyVim bootstrap
-                    brew       — Homebrew install + formulae/casks  (macOS only)
+                    brew       — Homebrew formulae/casks (macOS + WSL/Linuxbrew)
                     apt        — Debian/Ubuntu packages + Neovim      (Linux only)
                     entware    — Entware opkg packages              (Linux/Synology)
                     releases   — GitHub release binaries → ~/bin   (Linux/Synology)
+                    fonts      — Nerd Font + Sarasa Mono SC        (WSL)
                     runtimes   — mise install + nvm default node
                     mirrors    — Homebrew/apt + package manager mirrors
                     packages   — npm/pip/gem language packages
@@ -191,7 +207,7 @@ EOF
 }
 
 # Valid section names for --only
-VALID_SECTIONS="links nvim brew apt entware releases runtimes mirrors packages zsh herdr tuios"
+VALID_SECTIONS="links nvim brew apt entware releases fonts runtimes mirrors packages zsh herdr tuios"
 
 section_requested() {
     # With no --only filter, every section runs.
@@ -859,7 +875,17 @@ install_missing_brew_packages() {
 
     local missing_formulae=()
     local missing_casks=()
-    local installed_formulae installed_casks pkg
+    local installed_formulae installed_casks pkg formula_list cask_list
+
+    # macOS uses the full Homebrew list; Linuxbrew (WSL) uses the curated
+    # Linux subset so we do not duplicate what apt/releases already provide.
+    # No casks on the Linux path — install_wsl_fonts handles fonts there.
+    formula_list=("${brew_formulae[@]}")
+    cask_list=("${brew_casks[@]}")
+    if [ "$os" != "darwin" ]; then
+        formula_list=("${brew_formulae_linux[@]}")
+        cask_list=()
+    fi
 
     # One `brew list` per kind instead of one fork per package (60+ calls).
     # `brew list -1` prints every installed formula/cask (including deps), so
@@ -867,39 +893,66 @@ install_missing_brew_packages() {
     # (e.g. python@3.14, openssl@3) instead of Homebrew aliases to avoid
     # repeated "already installed" warnings.
     installed_formulae="$(brew list --formula -1 2>/dev/null || true)"
-    for pkg in "${brew_formulae[@]}"; do
+    for pkg in "${formula_list[@]}"; do
         printf '%s\n' "$installed_formulae" | grep -qxF -- "$pkg" || missing_formulae+=("$pkg")
     done
 
     installed_casks="$(brew list --cask -1 2>/dev/null || true)"
-    for pkg in "${brew_casks[@]}"; do
+    for pkg in "${cask_list[@]}"; do
         printf '%s\n' "$installed_casks" | grep -qxF -- "$pkg" || missing_casks+=("$pkg")
     done
 
-    [ "${#missing_formulae[@]}" -gt 0 ] && brew install "${missing_formulae[@]}"
+    # Tolerate an unavailable bottle/disabled formula instead of letting set -e
+    # abort the rest of setup. The Linux list is curated to avoid this, but the
+    # failure mode is worse than a warning if an upstream name is ever pulled.
+    if [ "${#missing_formulae[@]}" -gt 0 ]; then
+        brew install "${missing_formulae[@]}" \
+            || yellow "brew install failed for: ${missing_formulae[*]}"
+    fi
     # --adopt lets Homebrew take ownership of matching artifacts that already
     # exist outside brew, common for fonts restored from backup/iCloud.
-    [ "${#missing_casks[@]}" -gt 0 ] && brew install --cask --adopt "${missing_casks[@]}"
+    if [ "${#missing_casks[@]}" -gt 0 ]; then
+        brew install --cask --adopt "${missing_casks[@]}" \
+            || yellow "brew install --cask failed for: ${missing_casks[*]}"
+    fi
     return 0
 }
 
 install_brew_if_needed() {
-    if command_exists brew || [ "$os" != "darwin" ]; then
+    if command_exists brew; then
+        return 0
+    fi
+    # Non-macOS: an already-present Linuxbrew is enough, never (re)install.
+    if [ "$os" != "darwin" ] && linuxbrew_prefix >/dev/null 2>&1; then
         return 0
     fi
 
-    red 'Install brew...'
-    bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    if [ "$os" = "darwin" ]; then
+        red 'Install brew...'
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        return 0
+    fi
+
+    # WSL mirrors macOS: install Homebrew on Linux (Linuxbrew) so the same
+    # brew tooling is available. Generic Debian/Synology boxes keep using
+    # apt + releases and never pull in a second package manager. Opt out with
+    # DOTFILES_INSTALL_LINUXBREW=0.
+    if is_wsl && [ "${DOTFILES_INSTALL_LINUXBREW:-1}" = "1" ]; then
+        red 'Install linuxbrew...'
+        NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" \
+            || yellow 'linuxbrew install failed; continuing without brew'
+    fi
 }
 
 # Homebrew's installer only updates shell profiles; the current setup process
 # still has the pre-install PATH. Eval `brew shellenv` so formulae installed in
-# this same run (mise, etc.) are visible to later steps.
+# this same run (mise, etc.) are visible to later steps. Covers the macOS
+# prefixes plus Linuxbrew on WSL.
 sync_brew_shellenv() {
-    [ "$os" = "darwin" ] || return 0
-
     local brew_bin="" candidate brew_shellenv
-    for candidate in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    for candidate in \
+        /opt/homebrew/bin/brew /usr/local/bin/brew \
+        /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
         if [ -x "$candidate" ]; then
             brew_bin="$candidate"
             break
@@ -920,6 +973,26 @@ sync_brew_shellenv() {
 # step is Synology/router-specific and only runs when /opt/bin/opkg is present.
 is_synology() {
     [ -f /etc.defaults/VERSION ] || [ -d /var/packages ]
+}
+
+# Detect WSL (Windows Subsystem for Linux). Used to opt WSL into the macOS-like
+# Homebrew-on-Linux (Linuxbrew) path without changing the apt/releases behavior
+# of generic Debian/Ubuntu or Synology hosts.
+is_wsl() {
+    [ "$os" = "linux" ] || return 1
+    [ -n "${WSL_DISTRO_NAME:-}" ] && return 0
+    [ -n "${WSL_INTEROP:-}" ] && return 0
+    grep -qi microsoft /proc/version 2>/dev/null
+}
+
+# Linuxbrew prefix (Homebrew on Linux), the counterpart of macOS's
+# /opt/homebrew and /usr/local trees. Prints the prefix when brew is installed.
+linuxbrew_prefix() {
+    local candidate
+    for candidate in /home/linuxbrew/.linuxbrew "$HOME/.linuxbrew"; do
+        [ -x "$candidate/bin/brew" ] && { printf '%s\n' "$candidate"; return 0; }
+    done
+    return 1
 }
 
 # Fetch a URL via the GitHub mirror, then fall back to direct.
@@ -1413,6 +1486,115 @@ install_neovim_release() {
     ensure_dir "$HOME/.local/bin"
     ln -sf "$opt_dir/bin/nvim" "$HOME/.local/bin/nvim"
     echo "installed neovim -> $HOME/.local/bin/nvim"
+}
+
+# ---------------------------------------------------------------------------
+# WSL fonts — the Linux counterpart of the macOS font casks (brew_casks).
+# Debian/Ubuntu ships fonts-firacode/fonts-hack-ttf but not the Nerd Font
+# patched Hack or the Sarasa Mono SC CJK face that the ghostty/starship configs
+# expect, so fetch them from upstream into the fontconfig user dir and refresh
+# the cache. Linuxbrew casks are deliberately avoided here: Homebrew's cask
+# JSON bakes in the macOS ~/Library/Fonts target even on Linux.
+# ---------------------------------------------------------------------------
+
+# install_font_archive <name> <repo> <asset-template> <glob> <dest-dir>
+# {VER} in the asset template is the tag without its leading "v".
+install_font_archive() {
+    local name=$1 repo=$2 asset_tpl=$3 glob_pat=$4 dest=$5
+    local tag ver url workdir sevenzip
+
+    tag=$(gh_latest_tag "$repo") || tag=""
+    if [ -z "$tag" ]; then
+        yellow "skip $name font (could not resolve latest tag for $repo)"
+        return 1
+    fi
+    ver="${tag#v}"
+    url="https://github.com/${repo}/releases/download/${tag}/${asset_tpl//\{VER\}/$ver}"
+
+    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-font-$name.XXXXXX")
+    register_temp_dir "$workdir"
+    # shellcheck disable=SC2064
+    trap "rm -rf -- '$workdir'" RETURN
+
+    if ! gh_dl "$url" "$workdir/pkg"; then
+        yellow "skip $name font (download failed: $url)"
+        return 1
+    fi
+
+    case "$asset_tpl" in
+        *.7z)
+            sevenzip=""
+            local c
+            for c in 7z 7za 7zr; do
+                command_exists "$c" && { sevenzip="$c"; break; }
+            done
+            if [ -z "$sevenzip" ]; then
+                yellow "skip $name font (need p7zip-full)"
+                return 1
+            fi
+            (cd "$workdir" && "$sevenzip" x -y -bd -bso0 pkg) \
+                || { yellow "skip $name font (7z extract failed)"; return 1; }
+            ;;
+        *.tar.xz|*.txz)
+            (cd "$workdir" && tar -xJf pkg) \
+                || { yellow "skip $name font (extract failed)"; return 1; }
+            ;;
+        *)
+            yellow "skip $name font (unsupported archive: $url)"
+            return 1
+            ;;
+    esac
+
+    ensure_dir "$dest"
+    local found=0 f
+    while IFS= read -r -d '' f; do
+        mv -f -- "$f" "$dest/"
+        found=1
+    done < <(find "$workdir" -type f -name "$glob_pat" -print0 2>/dev/null)
+
+    if [ "$found" -eq 0 ]; then
+        yellow "skip $name font (no $glob_pat in archive)"
+        return 1
+    fi
+    echo "installed $name font -> $dest"
+    return 0
+}
+
+install_wsl_fonts() {
+    if ! is_wsl; then
+        return 0
+    fi
+    if ! command_exists curl; then
+        yellow 'skip WSL fonts (curl missing)'
+        return 0
+    fi
+    if ! command_exists fc-cache; then
+        yellow 'skip WSL fonts (fc-cache missing)'
+        return 0
+    fi
+
+    local font_root="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+    local hack_dir="$font_root/HackNerdFont"
+    local sarasa_dir="$font_root/SarasaMonoSC"
+    local installed=0
+
+    # Hack Nerd Font: small .tar.xz, extracted with plain tar.
+    if ! ls "$hack_dir"/*.ttf >/dev/null 2>&1; then
+        install_font_archive "Hack" "ryanoasis/nerd-fonts" \
+            "Hack.tar.xz" "*.ttf" "$hack_dir" && installed=1
+    fi
+
+    # Sarasa Mono SC (CJK monospace). Upstream only publishes .7z for the TTF
+    # builds, so this needs p7zip (apt_packages ships p7zip-full).
+    if ! ls "$sarasa_dir"/*.ttf >/dev/null 2>&1; then
+        install_font_archive "SarasaMonoSC" "be5invis/Sarasa-Gothic" \
+            "SarasaMonoSC-TTF-{VER}.7z" "*.ttf" "$sarasa_dir" && installed=1
+    fi
+
+    if [ "$installed" -eq 1 ]; then
+        fc-cache -f >/dev/null 2>&1 || true
+        echo "installed WSL fonts under $font_root"
+    fi
 }
 
 configure_brew_mirrors() {
@@ -1992,12 +2174,26 @@ run_setup() {
         if section_requested "apt"; then
             install_apt_packages
         fi
+        # WSL mirrors macOS with Homebrew on Linux (Linuxbrew): this is where
+        # the tools apt lacks (gotags/rust) come from. Runs after apt so
+        # linuxbrew's build deps are present. Generic Debian/Ubuntu and
+        # Synology boxes stay on apt + releases.
+        if is_wsl && section_requested "brew"; then
+            install_brew_if_needed
+            sync_brew_shellenv
+            install_missing_brew_packages
+        fi
         if section_requested "entware"; then
             install_entware_packages
         fi
         if section_requested "releases"; then
             install_linux_release_tools
             install_neovim_release
+        fi
+        # WSL fonts mirror the macOS font casks; installed directly into
+        # ~/.local/share/fonts (see install_wsl_fonts).
+        if section_requested "fonts"; then
+            install_wsl_fonts
         fi
     fi
 
@@ -2020,6 +2216,8 @@ run_setup() {
             configure_brew_mirrors
         else
             configure_apt_mirror
+            # WSL with Linuxbrew: apply the same China brew mirrors as macOS.
+            is_wsl && configure_brew_mirrors
         fi
         configure_package_mirrors
     fi
@@ -2057,8 +2255,14 @@ _dry_run_remaining() {
         fi
     else
         section_requested "apt"      && echo "  apt       — apt-get install missing packages + Neovim release"
+        if is_wsl && section_requested "brew"; then
+            echo "  brew      — install Linuxbrew (if missing) + WSL formulae"
+        fi
         section_requested "entware"  && echo "  entware   — opkg install missing packages"
         section_requested "releases" && echo "  releases  — download GitHub release binaries → ~/bin"
+        if is_wsl && section_requested "fonts"; then
+            echo "  fonts     — install Hack Nerd Font + Sarasa Mono SC into ~/.local/share/fonts"
+        fi
     fi
 
     section_requested "runtimes" && echo "  runtimes  — mise install --yes + nvm default node"
@@ -2067,6 +2271,9 @@ _dry_run_remaining() {
     section_requested "zsh"      && echo "  zsh       — clone zsh plugin repos (autosuggestions, syntax-highlighting)"
     section_requested "herdr"    && echo "  herdr     — link agent configs/hooks (herdr integration install itself is skipped in dry-run)"
     section_requested "tuios"    && echo "  tuios     — tuios integration install for claude-code/qoder/pi (skipped in dry-run)"
+    # The last `&&` list returns non-zero when its section is filtered out;
+    # absorb it so `--dry-run --only <subset>` does not trip set -e.
+    return 0
 }
 
 parse_args "$@"

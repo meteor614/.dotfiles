@@ -146,6 +146,12 @@ else
     path_prepend /opt/homebrew/bin
     path_prepend /usr/local/bin
 fi
+# Homebrew on Linux (Linuxbrew) — WSL and other Linux hosts that mirror the
+# macOS brew setup. path_prepend skips missing dirs, so this is a no-op on
+# machines without Linuxbrew (Synology, plain Debian).
+path_prepend /home/linuxbrew/.linuxbrew/bin
+path_prepend /home/linuxbrew/.linuxbrew/sbin
+path_prepend "$HOME/.linuxbrew/bin"
 path_prepend "$HOME/.local/bin"
 # GNU userland from Homebrew (coreutils/findutils/gnu-getopt). Both prefixes
 # are listed; path_prepend skips missing dirs and later calls win, so the

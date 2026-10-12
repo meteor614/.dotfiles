@@ -28,6 +28,12 @@
    ```
 
    在 macOS 上会安装 Homebrew（若缺失）、安装缺失的 formulae/casks、配置国内镜像、安装语言包与 zsh 插件。
+   在 WSL 上会先跑 Debian/Ubuntu 的 `apt` 段，再按 macOS 的逻辑安装
+   Homebrew on Linux（Linuxbrew），用它补齐 apt 没有的工具（`gotags`、
+   `gotags`、`rust`）；字体不走路 cask（Homebrew 的 cask JSON 会把目标写死到
+   macOS 的 `~/Library/Fonts`），而是由 `fonts` 段把 Hack Nerd Font 与
+   Sarasa Mono SC 直接装到 `~/.local/share/fonts`。不想装 Linuxbrew 可设
+   `DOTFILES_INSTALL_LINUXBREW=0`。
    在 Debian/Ubuntu 上会通过 `apt` 安装常用软件包（并补齐 `bat`/`fd` 的
    命令别名），再把 Neovim（官方 release，装到 `~/.local/opt`）以及 `jj`、
    `mise`、`herdr`、`tuios`、`starship`、`atuin`、`lazygit`、`zellij`、`yazi`、
@@ -72,12 +78,16 @@
 * `--only SECTION` — 只运行指定段（逗号分隔）。**不会**自动拉取依赖：
   如 `--only packages` 需先确保 `runtimes`，`herdr` 需先跑 `links`。
   Linux 上装软件包通常用 `--only apt,releases,runtimes,packages`（`apt` 段
-  含 Neovim）。
+  含 Neovim）；WSL 再加上 `brew,fonts`（Linuxbrew + 字体）。
 
 按 OS 区分的安装行为：
 
 * macOS → Homebrew（formulae/casks）。
-* Debian/Ubuntu → `apt` 安装发行版软件包；Neovim 用官方 release 压缩包
+* WSL → `apt` + Homebrew on Linux（Linuxbrew）+ `fonts` 段。Linuxbrew 段
+  对齐 macOS，复用同一套 Homebrew 镜像配置；公式列表是面向 Linux 的精简集
+  （apt/releases 已覆盖的不重复安装）。字体由 `fonts` 段直接从上游取
+  （Hack Nerd Font + Sarasa Mono SC）。
+* Debian/Ubuntu（非 WSL）→ `apt` 安装发行版软件包；Neovim 用官方 release 压缩包
   （发行版的版本对 LazyVim 过旧）；`jj`/`mise`/`herdr`/`tuios`/`starship`/`atuin`/
   `lazygit`/`zellij`/`yazi`/`ouch`/`cheat`/`procs`/`broot`/`glow`/`btm`/`ast-grep`/
   `yq`/`bookokrat` 等用 GitHub release。

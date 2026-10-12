@@ -17,6 +17,7 @@
   - `.bashrc` is for bash-only prompt, PATH helpers, completions, and bash-specific hooks such as bash-preexec/Atuin.
 - Node is managed via `mise` in this environment (fallback: `nvm`). Prefer `mise` for runtime versions and do not reintroduce Homebrew `node` as a required dependency.
 - `.config/mise/config.toml` declares default runtime versions (node/python/go). `setup.sh` runs `mise install --yes` to ensure they're present. `not_found_auto_install = false` means missing shims do **not** trigger silent installs — runtimes are only installed via explicit `mise install`.
+- WSL is treated as a first-class Linux target: `apt` + Homebrew on Linux (Linuxbrew, see `brew_formulae_linux`) + a direct `fonts` section that installs Hack Nerd Font / Sarasa Mono SC into `~/.local/share/fonts`. Font casks are intentionally not used on Linux (Homebrew's cask JSON bakes in the macOS `~/Library/Fonts` target). Generic Debian/Synology boxes stay on apt/Entware/releases; `DOTFILES_INSTALL_LINUXBREW=0` opts WSL out of the Linuxbrew install.
 - `bin/*` is linked into `~/bin/*`.
 - `tmuxinator/` is linked into `~/.tmuxinator`.
 - `.config/pip` is linked into `~/.config/pip` via the same generic `.config/*` link logic (no special-case handling in `setup.sh`).
