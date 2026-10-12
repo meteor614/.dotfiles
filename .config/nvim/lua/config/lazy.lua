@@ -30,6 +30,13 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
+  -- Slow/flaky GitHub connections otherwise break plugin installs: lazy kills
+  -- git after the default 120s, and `--filter=blob:none` forces a second
+  -- network round-trip during checkout ("Clone succeeded, but checkout failed").
+  git = {
+    timeout = 600, -- default 120s is too short for large plugins on slow networks
+    filter = false, -- fetch all blobs up front; no promisor fetch during checkout
+  },
   install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {
     enabled = true, -- check for plugin updates periodically
