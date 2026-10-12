@@ -32,8 +32,12 @@ setopt no_beep
 # Disable inter-session history sharing — atuin handles cross-session history
 # via its own sync, and share_history causes duplicate entries between tmux
 # panes and multiple terminal windows.
+# Only share_history is dropped: it is the option that re-reads $HISTFILE into
+# every pane (the duplicate source). inc_append_history is kept on — it just
+# appends each command to $HISTFILE instead of waiting for a clean exit, which
+# is what keeps history (and therefore zsh-autosuggestions) alive when a pane
+# is killed by tuios/herdr.
 unsetopt share_history
-unsetopt inc_append_history
 
 # ── kubectl completion (lazy) ────────────────────────────────────────────────
 kubectl() {

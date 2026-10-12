@@ -70,6 +70,15 @@ setopt hist_expire_dups_first
 setopt hist_ignore_dups
 setopt hist_ignore_space
 setopt hist_verify
+# Persist history incrementally. Without this, zsh only writes $HISTFILE on a
+# clean exit, so panes killed by the multiplexer (SIGKILL) or a dropped SSH
+# session lose everything typed there. zsh-autosuggestions reads zsh's own
+# $history (never atuin's DB), so a small ~/.zsh_history means no suggestions:
+# that is exactly what an exit-only HISTFILE write looks like on a box where
+# every shell lives inside tuios/herdr panes. append_history also stops one
+# pane's exit from rewriting the file with its own partial view.
+setopt append_history
+setopt inc_append_history
 # share_history is intentionally omitted — disabled in .zshrc.local because
 # inter-session history sharing conflicts with atuin's own history sync.
 
