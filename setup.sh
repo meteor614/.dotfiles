@@ -30,6 +30,25 @@ brew_casks=(
     font-sarasa-gothic
 )
 
+# Debian/Ubuntu: distro packages, the Linux counterpart to brew_formulae.
+# Only names that exist in the distro repos belong here; anything newer or
+# unpackaged stays in linux_release_tools below. Synology DSM has neither apt
+# nor passwordless sudo, so it keeps using entware_packages + releases.
+# Two Rust tools ship under a distro-renamed binary (bat -> batcat, fd ->
+# fdfind); install_apt_packages links the upstream names into ~/.local/bin.
+apt_packages=(
+    zsh git curl wget unzip zip xz-utils ca-certificates gnupg
+    build-essential cmake ninja-build pkg-config clang-format universal-ctags
+    global cscope swig protobuf-compiler cloc cpulimit icdiff
+    libssl-dev libreadline-dev libjsoncpp-dev libonig-dev libsnappy-dev gnutls-bin
+    lua5.1 luajit luarocks gettext rtmpdump psutils
+    ripgrep fd-find fzf bat eza zoxide direnv sd tmuxinator
+    tmux htop tree ncdu psmisc procps parallel tig vnstat telnet pv
+    jq gawk perl pandoc sqlite3 imagemagick ffmpeg
+    python3-pip python3-venv pipx ruby ruby-dev shellcheck
+    fontconfig fonts-firacode fonts-hack-ttf
+)
+
 # Linux/Synology: tools we install from GitHub release tarballs into ~/bin/.
 # Synology DSM has no brew and no sudo; Entware (/opt/bin) and synocli already
 # provide eza, fzf, zoxide, bat, rg, fd, btop, procs, sd — those are skipped.
@@ -53,6 +72,20 @@ linux_release_tools=(
     "fastfetch|fastfetch-cli/fastfetch|https://github.com/fastfetch-cli/fastfetch/releases/download/{TAG}/fastfetch-linux-{LINUX_ARCH_FASTFETCH}.tar.gz|fastfetch-linux-{LINUX_ARCH_FASTFETCH}/usr/bin/fastfetch"
     "zellij|zellij-org/zellij|https://github.com/zellij-org/zellij/releases/download/{TAG}/zellij-{LINUX_ARCH}-unknown-linux-musl.tar.gz|zellij"
     "yazi|sxyazi/yazi|https://github.com/sxyazi/yazi/releases/download/{TAG}/yazi-{LINUX_ARCH}-unknown-linux-musl.zip|yazi-{LINUX_ARCH}-unknown-linux-musl/yazi"
+    "jj|jj-vcs/jj|https://github.com/jj-vcs/jj/releases/download/{TAG}/jj-{TAG}-{LINUX_ARCH}-unknown-linux-musl.tar.gz|jj"
+    "mise|jdx/mise|https://github.com/jdx/mise/releases/download/{TAG}/mise-{TAG}-linux-{LINUX_ARCH_MISE}.tar.gz|mise/bin/mise"
+    "tuios|Gaurav-Gosain/tuios|https://github.com/Gaurav-Gosain/tuios/releases/download/{TAG}/tuios_{VER}_Linux_{LINUX_ARCH_ARM64}.tar.gz|tuios"
+    "herdr|herdrdev/herdr|https://github.com/herdrdev/herdr/releases/download/{TAG}/herdr-linux-{LINUX_ARCH}|herdr"
+    "ouch|ouch-org/ouch|https://github.com/ouch-org/ouch/releases/download/{TAG}/ouch-{LINUX_ARCH}-unknown-linux-musl.tar.gz|ouch-{LINUX_ARCH}-unknown-linux-musl/ouch"
+    "cheat|cheat/cheat|https://github.com/cheat/cheat/releases/download/{TAG}/cheat-linux-{LINUX_ARCH_AMD64_ARM64}.gz|cheat"
+    "procs|dalance/procs|https://github.com/dalance/procs/releases/download/{TAG}/procs-v{VER}-{LINUX_ARCH}-linux.zip|procs"
+    "broot|Canop/broot|https://github.com/Canop/broot/releases/download/{TAG}/broot_{VER}.zip|{LINUX_ARCH}-unknown-linux-musl/broot"
+    "choose|theryangeary/choose|https://github.com/theryangeary/choose/releases/download/{TAG}/choose-{LINUX_ARCH}-unknown-linux-gnu|choose"
+    "glow|charmbracelet/glow|https://github.com/charmbracelet/glow/releases/download/{TAG}/glow_{VER}_Linux_{LINUX_ARCH_ARM64}.tar.gz|glow_{VER}_Linux_{LINUX_ARCH_ARM64}/glow"
+    "btm|ClementTsang/bottom|https://github.com/ClementTsang/bottom/releases/download/{TAG}/bottom_{LINUX_ARCH}-unknown-linux-gnu.tar.gz|btm"
+    "ast-grep|ast-grep/ast-grep|https://github.com/ast-grep/ast-grep/releases/download/{TAG}/app-{LINUX_ARCH}-unknown-linux-gnu.zip|ast-grep"
+    "yq|mikefarah/yq|https://github.com/mikefarah/yq/releases/download/{TAG}/yq_linux_{LINUX_ARCH_AMD64_ARM64}.tar.gz|yq_linux_{LINUX_ARCH_AMD64_ARM64}"
+    "bookokrat|bugzmanov/bookokrat|https://github.com/bugzmanov/bookokrat/releases/download/{TAG}/bookokrat-{TAG}-{LINUX_ARCH}-unknown-linux-gnu.tar.gz|bookokrat"
 )
 
 # Entware packages available on Synology DSM via /opt/bin/opkg.
@@ -145,10 +178,11 @@ Flags:
                     links      — dotfile symlinks (top-level, .config, bin)
                     nvim       — Neovim / LazyVim bootstrap
                     brew       — Homebrew install + formulae/casks  (macOS only)
+                    apt        — Debian/Ubuntu packages + Neovim      (Linux only)
                     entware    — Entware opkg packages              (Linux/Synology)
                     releases   — GitHub release binaries → ~/bin   (Linux/Synology)
                     runtimes   — mise install + nvm default node
-                    mirrors    — Homebrew + package manager mirrors
+                    mirrors    — Homebrew/apt + package manager mirrors
                     packages   — npm/pip/gem language packages
                     zsh        — zsh plugin clones
                     herdr      — herdr agent integrations
@@ -157,7 +191,7 @@ EOF
 }
 
 # Valid section names for --only
-VALID_SECTIONS="links nvim brew entware releases runtimes mirrors packages zsh herdr tuios"
+VALID_SECTIONS="links nvim brew apt entware releases runtimes mirrors packages zsh herdr tuios"
 
 section_requested() {
     # With no --only filter, every section runs.
@@ -230,9 +264,23 @@ linux_release_arch() {
     esac
 }
 
-linux_release_arch_lazygit() {
+# x86_64 / arm64 — lazygit, tuios, glow.
+linux_release_arch_arm64() {
     case "$(uname -m)" in
         x86_64|amd64) printf '%s\n' x86_64 ;;
+        aarch64|arm64) printf '%s\n' arm64 ;;
+        *) return 1 ;;
+    esac
+}
+
+linux_release_arch_lazygit() {
+    linux_release_arch_arm64
+}
+
+# amd64 / arm64 — cheat and yq naming.
+linux_release_arch_amd64_arm64() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s\n' amd64 ;;
         aarch64|arm64) printf '%s\n' arm64 ;;
         *) return 1 ;;
     esac
@@ -242,6 +290,15 @@ linux_release_arch_fastfetch() {
     case "$(uname -m)" in
         x86_64|amd64) printf '%s\n' amd64 ;;
         aarch64|arm64) printf '%s\n' aarch64 ;;
+        *) return 1 ;;
+    esac
+}
+
+# mise names its assets linux-x64 / linux-arm64.
+linux_release_arch_mise() {
+    case "$(uname -m)" in
+        x86_64|amd64) printf '%s\n' x64 ;;
+        aarch64|arm64) printf '%s\n' arm64 ;;
         *) return 1 ;;
     esac
 }
@@ -900,6 +957,14 @@ verify_sha256() {
     [ "$actual" = "$2" ]
 }
 
+# is_elf <file> — true when the file starts with the ELF magic. Used to guard
+# the "bare binary" release path (herdr, choose) so a bad URL that returns HTML
+# or a redirect page is skipped instead of installed as an executable.
+is_elf() {
+    [ -f "$1" ] || return 1
+    [ "$(od -An -tx1 -N4 "$1" 2>/dev/null | tr -d ' \n')" = "7f454c46" ]
+}
+
 # checksum_url_for — canonical checksum asset URL for verified release tools,
 # derived from the download URL itself. Returns 1 for tools without official
 # checksums (see the verify flag on linux_release_tools entries).
@@ -909,14 +974,22 @@ checksum_url_for() {
         starship|atuin)
             printf '%s.sha256\n' "$url"
             ;;
-        lazygit)
+        lazygit|tuios|glow)
+            # A checksums.txt next to the assets; needs the tag from the URL.
             tag=$(printf '%s\n' "$url" | sed -n 's|.*/download/\([^/]*\)/.*|\1|p')
-            printf 'https://github.com/jesseduffield/lazygit/releases/download/%s/checksums.txt\n' "$tag"
+            url_root=$(printf '%s\n' "$url" | sed -n 's|/releases/download/.*||p')
+            printf '%s/releases/download/%s/checksums.txt\n' "$url_root" "$tag"
+            ;;
+        bookokrat)
+            # Per-asset sidecar: <asset>.sha256
+            printf '%s.sha256\n' "$url"
             ;;
         zellij)
             url_root=${url%.tar.gz}
             printf '%s.sha256sum\n' "$url_root"
             ;;
+        # yq's `checksums` file is a multi-algorithm transcript, not a plain
+        # sha256 list, so it cannot be parsed reliably — install unverified.
         topgrade|zoxide|delta|dust|hyperfine|gitui|fastfetch|yazi)
             return 1
             ;;
@@ -926,12 +999,31 @@ checksum_url_for() {
     esac
 }
 
-# Resolve the latest release tag for a repo. api.github.com is queried
-# directly (the gh-proxy mirror returns 403 for the API) and the response is
-# parsed without jq so this works on barebones Synology shells.
+# Resolve the latest release tag for a repo. Prefer following the
+# github.com/<repo>/releases/latest redirect (no API quota, no auth); fall back
+# to api.github.com (queried directly — the gh-proxy mirror returns 403 for the
+# API) with the response parsed without jq so this works on barebones Synology
+# shells.
 gh_latest_tag() {
     local repo=$1
     local response tag
+
+    # 1) Redirect method. The effective URL ends in /releases/tag/<tag>.
+    tag=$(curl -fsSLI -o /dev/null -w '%{url_effective}' \
+        --connect-timeout 10 --max-time 30 \
+        "https://github.com/${repo}/releases/latest" 2>/dev/null \
+        | sed -n 's|.*/releases/tag/||p') || tag=""
+    tag=${tag%%\?*}
+    tag=${tag%%#*}
+    case "$tag" in
+        ""|*/*|*releases*) tag="" ;;
+    esac
+    if [ -n "$tag" ]; then
+        printf '%s\n' "$tag"
+        return 0
+    fi
+
+    # 2) API fallback.
     local curl_args=(-fsSL --connect-timeout 10 --max-time 30)
 
     if [ -n "${GITHUB_TOKEN:-}" ]; then
@@ -940,7 +1032,7 @@ gh_latest_tag() {
 
     response=$(curl "${curl_args[@]}" \
         "https://api.github.com/repos/${repo}/releases/latest" 2>/dev/null) || {
-        yellow "GitHub API lookup failed for $repo; set GITHUB_TOKEN if rate-limited, or check network/proxy access to api.github.com" >&2
+        yellow "GitHub release lookup failed for $repo; set GITHUB_TOKEN if rate-limited, or check network/proxy access to github.com" >&2
         return 1
     }
 
@@ -967,14 +1059,23 @@ install_linux_release_tool() {
     if [ -x "$target" ]; then
         return 0
     fi
+    # Respect a copy already provided by the distro or another install channel
+    # (e.g. apt zoxide, a pre-existing ~/.local/bin/mise) instead of stacking a
+    # second binary in ~/bin.
+    if command_exists "$name"; then
+        return 0
+    fi
 
-    local linux_arch linux_arch_lazygit linux_arch_fastfetch tag ver url bin_path
+    local linux_arch linux_arch_lazygit linux_arch_fastfetch linux_arch_mise linux_arch_arm64 linux_arch_amd64_arm64 tag ver url bin_path
     linux_arch=$(linux_release_arch) || {
         yellow "skip $name (unsupported Linux architecture: $(uname -m))"
         return 0
     }
     linux_arch_lazygit=$(linux_release_arch_lazygit) || linux_arch_lazygit="$linux_arch"
     linux_arch_fastfetch=$(linux_release_arch_fastfetch) || linux_arch_fastfetch="$linux_arch"
+    linux_arch_mise=$(linux_release_arch_mise) || linux_arch_mise="$linux_arch"
+    linux_arch_arm64=$(linux_release_arch_arm64) || linux_arch_arm64="$linux_arch"
+    linux_arch_amd64_arm64=$(linux_release_arch_amd64_arm64) || linux_arch_amd64_arm64="$linux_arch"
     # set -e aborts the whole script if this command-substitution assignment
     # returns nonzero; absorb the exit so the -z skip below actually runs
     # instead of killing the entire install on a single API failure.
@@ -990,11 +1091,17 @@ install_linux_release_tool() {
     url=${url//\{LINUX_ARCH\}/$linux_arch}
     url=${url//\{LINUX_ARCH_LAZYGIT\}/$linux_arch_lazygit}
     url=${url//\{LINUX_ARCH_FASTFETCH\}/$linux_arch_fastfetch}
+    url=${url//\{LINUX_ARCH_MISE\}/$linux_arch_mise}
+    url=${url//\{LINUX_ARCH_ARM64\}/$linux_arch_arm64}
+    url=${url//\{LINUX_ARCH_AMD64_ARM64\}/$linux_arch_amd64_arm64}
     bin_path=${bin_tpl//\{TAG\}/$tag}
     bin_path=${bin_path//\{VER\}/$ver}
     bin_path=${bin_path//\{LINUX_ARCH\}/$linux_arch}
     bin_path=${bin_path//\{LINUX_ARCH_LAZYGIT\}/$linux_arch_lazygit}
     bin_path=${bin_path//\{LINUX_ARCH_FASTFETCH\}/$linux_arch_fastfetch}
+    bin_path=${bin_path//\{LINUX_ARCH_MISE\}/$linux_arch_mise}
+    bin_path=${bin_path//\{LINUX_ARCH_ARM64\}/$linux_arch_arm64}
+    bin_path=${bin_path//\{LINUX_ARCH_AMD64_ARM64\}/$linux_arch_amd64_arm64}
 
     local workdir
     workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX")
@@ -1016,21 +1123,32 @@ install_linux_release_tool() {
     # (checksum fetched from GitHub directly — never the mirror). A mismatch
     # triggers one direct re-download; still-bad or unavailable checksums
     # skip the tool rather than install an unverifiable binary.
-    local cs_url cs_file want
+    #
+    # Most releases publish the *archive* digest; zellij publishes the digest
+    # of the extracted binary instead (filename-less, referencing
+    # target/<triple>/release/zellij), so its check is deferred until after
+    # extraction via verify_binary.
+    local cs_url cs_file want verify_binary=0
     if cs_url=$(checksum_url_for "$name" "$url"); then
         cs_file="$workdir/pkg.sha256"
         if ! gh_dl "$cs_url" "$cs_file" 1; then
             yellow "skip $name (checksum fetch failed: $cs_url)"
             return 0
         fi
-        want=$(grep -F -- "$(basename "$url")" "$cs_file" 2>/dev/null \
-               | grep -oE '\b[0-9a-fA-F]{64}\b' | head -1)
-        [ -n "$want" ] || want=$(grep -oE '\b[0-9a-fA-F]{64}\b' "$cs_file" | head -1)
+        [ "$name" = "zellij" ] && verify_binary=1
+        # Filename matching is case-insensitive: lazygit's checksums.txt uses
+        # lazygit_<ver>_linux_x86_64.tar.gz while the asset URL says Linux.
+        # pipefail makes a non-matching grep abort the whole assignment, but "no
+        # filename in the checksum file" is expected (some releases ship only the
+        # digest), so neutralize the pipeline status before the fallback.
+        want=$(grep -iF -- "$(basename "$url")" "$cs_file" 2>/dev/null \
+               | grep -oE '\b[0-9a-fA-F]{64}\b' | head -1) || true
+        [ -n "$want" ] || want=$(grep -oE '\b[0-9a-fA-F]{64}\b' "$cs_file" 2>/dev/null | head -1) || true
         if [ -z "$want" ]; then
             yellow "skip $name (no usable digest in $cs_url)"
             return 0
         fi
-        if ! verify_sha256 "$archive" "$want"; then
+        if [ "$verify_binary" -eq 0 ] && ! verify_sha256 "$archive" "$want"; then
             yellow "$name checksum mismatch via mirror; re-downloading direct from GitHub"
             if ! gh_dl "$url" "$archive" 1 || ! verify_sha256 "$archive" "$want"; then
                 red "skip $name (checksum verification FAILED for $url — possible corruption or MITM)"
@@ -1042,25 +1160,49 @@ install_linux_release_tool() {
     case "$url" in
         *.zip)
             if command_exists unzip; then
-                (cd "$workdir" && unzip -o -q pkg)
+                (cd "$workdir" && unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 0; }
             elif [ -x /opt/bin/unzip ]; then
-                (cd "$workdir" && /opt/bin/unzip -o -q pkg)
+                (cd "$workdir" && /opt/bin/unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 0; }
             else
                 yellow "skip $name (need unzip for $url)"
                 return 0
             fi
             ;;
         *.tar.gz|*.tgz)
-            (cd "$workdir" && tar -xzf pkg)
+            (cd "$workdir" && tar -xzf pkg) || { yellow "skip $name (extract failed)"; return 0; }
+            ;;
+        *.gz)
+            # Single gzipped binary (cheat).
+            gunzip -c "$archive" > "$workdir/$bin_path" \
+                || { yellow "skip $name (gunzip failed)"; return 0; }
             ;;
         *)
-            yellow "skip $name (unknown archive type: $url)"
-            return 0
+            # No archive extension: some projects (herdr, choose) publish the
+            # bare binary itself. Require ELF so a bad URL returning HTML fails
+            # closed instead of installing a text file as an executable.
+            if [ "$bin_path" != "$name" ] || ! is_elf "$archive"; then
+                yellow "skip $name (unknown archive type: $url)"
+                return 0
+            fi
+            cp -- "$archive" "$workdir/$bin_path" \
+                || { yellow "skip $name (binary copy failed)"; return 0; }
             ;;
     esac
 
     if [ ! -f "$workdir/$bin_path" ]; then
         yellow "skip $name (binary not found at $bin_path inside archive)"
+        return 0
+    fi
+
+    # Catch a downloaded non-binary (e.g. a redirect/HTML page) before it is
+    # installed. The executable bit is set below, so only the format matters.
+    if ! is_elf "$workdir/$bin_path"; then
+        yellow "skip $name (extracted file is not an ELF binary)"
+        return 0
+    fi
+
+    if [ "$verify_binary" -eq 1 ] && ! verify_sha256 "$workdir/$bin_path" "$want"; then
+        red "skip $name (binary checksum verification FAILED for $url — possible corruption or MITM)"
         return 0
     fi
 
@@ -1116,6 +1258,163 @@ install_entware_packages() {
     fi
 }
 
+# ---------------------------------------------------------------------------
+# Debian/Ubuntu package installs (apt)
+# ---------------------------------------------------------------------------
+
+# True on distros that use apt. Synology DSM also reports linux but ships no
+# apt; those boxes keep using the Entware/release-tarball paths instead.
+apt_is_available() {
+    [ "$os" = "linux" ] || return 1
+    command_exists apt-get && [ -f /etc/debian_version ]
+}
+
+# Run an apt/dpkg command as root. Prefer passwordless sudo so unattended runs
+# work; returns non-zero when neither root nor passwordless sudo is available.
+apt_run() {
+    if [ "$(id -u)" -eq 0 ]; then
+        "$@"
+    elif command_exists sudo && sudo -n true 2>/dev/null; then
+        sudo "$@"
+    else
+        return 1
+    fi
+}
+
+# Debian renames a couple of upstream binaries; expose the names the shell
+# config and fzf integration expect via ~/.local/bin (already first on PATH).
+install_apt_command_shims() {
+    local pair src_cmd shim_name src shim
+    for pair in "batcat:bat" "fdfind:fd"; do
+        src_cmd=${pair%%:*}
+        shim_name=${pair#*:}
+        src=$(command -v "$src_cmd" 2>/dev/null) || continue
+        shim="$HOME/.local/bin/$shim_name"
+        if [ -e "$shim" ] || [ -L "$shim" ]; then
+            continue
+        fi
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would link $shim -> $src"
+            continue
+        fi
+        ensure_dir "$(dirname "$shim")"
+        ln -s "$src" "$shim"
+    done
+}
+
+install_apt_packages() {
+    if ! apt_is_available; then
+        return 0
+    fi
+
+    if ! apt_run true; then
+        yellow "skip apt packages (need root); rerun with sudo or install manually: ${apt_packages[*]}"
+        return 0
+    fi
+
+    # Switch to a China mirror before touching the network so the first install
+    # run benefits from it too (the mirrors section calls this again for
+    # --only mirrors; both invocations are no-ops once switched).
+    configure_apt_mirror
+
+    red 'Update apt package lists...'
+    apt_run apt-get update -qq || yellow 'apt-get update failed; using cached lists'
+    # Snapshot installed packages once instead of one dpkg-query per package.
+    local installed
+    installed=$(dpkg-query -W -f='${Package}\n' 2>/dev/null || true)
+
+    local pkg missing=() skipped=()
+    for pkg in "${apt_packages[@]}"; do
+        if ! apt-cache show "$pkg" >/dev/null 2>&1; then
+            skipped+=("$pkg")
+        elif ! printf '%s\n' "$installed" | grep -qxF -- "$pkg"; then
+            missing+=("$pkg")
+        fi
+    done
+
+    [ "${#skipped[@]}" -gt 0 ] \
+        && yellow "skip packages unavailable to apt: ${skipped[*]}"
+
+    if [ "${#missing[@]}" -eq 0 ]; then
+        echo 'apt packages already installed'
+        install_apt_command_shims
+        return 0
+    fi
+
+    red "Install apt packages: ${missing[*]}"
+    if ! apt_run env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"; then
+        yellow "apt-get install failed for: ${missing[*]}"
+    fi
+
+    install_apt_command_shims
+}
+
+# ---------------------------------------------------------------------------
+# Neovim (official release tarball)
+#
+# Debian/Ubuntu's neovim is far too old for this LazyVim config. The upstream
+# archive is a full tree (bin/nvim + share/nvim/runtime), so unlike the
+# single-binary linux_release_tools it is unpacked under ~/.local/opt and only
+# bin/nvim is linked into ~/.local/bin (already first on PATH). Neovim resolves
+# its runtime from the real executable, so the symlink is safe.
+# ---------------------------------------------------------------------------
+install_neovim_release() {
+    if [ "$os" != "linux" ] || command_exists nvim; then
+        return 0
+    fi
+    if ! command_exists curl || ! command_exists tar; then
+        yellow 'skip neovim (curl or tar missing)'
+        return 0
+    fi
+
+    local arch
+    case "$(uname -m)" in
+        x86_64|amd64) arch=x86_64 ;;
+        aarch64|arm64) arch=arm64 ;;
+        *) yellow "skip neovim (unsupported architecture: $(uname -m))"; return 0 ;;
+    esac
+
+    local tag url
+    tag=$(gh_latest_tag neovim/neovim) || tag=""
+    if [ -z "$tag" ]; then
+        yellow 'skip neovim (could not resolve latest tag)'
+        return 0
+    fi
+    url="https://github.com/neovim/neovim/releases/download/${tag}/nvim-linux-${arch}.tar.gz"
+
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would install neovim $tag to $HOME/.local/opt/nvim"
+        return 0
+    fi
+
+    local workdir
+    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-neovim.XXXXXX")
+    register_temp_dir "$workdir"
+    # shellcheck disable=SC2064
+    trap "rm -rf -- '$workdir'" RETURN
+
+    if ! gh_dl "$url" "$workdir/pkg.tar.gz"; then
+        yellow "skip neovim (download failed: $url)"
+        return 0
+    fi
+    if ! (cd "$workdir" && tar -xzf pkg.tar.gz); then
+        yellow 'skip neovim (extract failed)'
+        return 0
+    fi
+    if [ ! -x "$workdir/nvim-linux-${arch}/bin/nvim" ]; then
+        yellow "skip neovim (bin/nvim not found in $url)"
+        return 0
+    fi
+
+    local opt_dir="$HOME/.local/opt/nvim"
+    ensure_dir "$HOME/.local/opt"
+    rm -rf "$opt_dir"
+    mv "$workdir/nvim-linux-${arch}" "$opt_dir"
+    ensure_dir "$HOME/.local/bin"
+    ln -sf "$opt_dir/bin/nvim" "$HOME/.local/bin/nvim"
+    echo "installed neovim -> $HOME/.local/bin/nvim"
+}
+
 configure_brew_mirrors() {
     # Mirror the gating used for the HOMEBREW_*_GIT_REMOTE env exports in
     # common.sh: skip when the CN mirror is disabled. Set
@@ -1132,6 +1431,48 @@ configure_brew_mirrors() {
     ensure_brew_tap_remote homebrew/cask https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
 }
 
+# Point the default Ubuntu archive hosts at a China mirror. Conservative and
+# idempotent: only files that still reference archive.ubuntu.com /
+# security.ubuntu.com are rewritten (a box already on a mirror is left alone),
+# each backed up once, and non-Ubuntu distros are skipped entirely. Override
+# the mirror with DOTFILES_APT_MIRROR, or disable with
+# DOTFILES_CONFIGURE_APT_MIRROR=0.
+configure_apt_mirror() {
+    local configure="${DOTFILES_CONFIGURE_APT_MIRROR:-${USE_CN_MIRROR:-1}}"
+    [ "$configure" = "1" ] || return 0
+    apt_is_available || return 0
+    grep -q '^ID=ubuntu' /etc/os-release 2>/dev/null || return 0
+
+    local mirror="${DOTFILES_APT_MIRROR:-https://mirrors.tuna.tsinghua.edu.cn/ubuntu}"
+    local file tmp changed=0
+
+    for file in /etc/apt/sources.list /etc/apt/sources.list.d/*; do
+        [ -f "$file" ] || continue
+        grep -qE 'https?://(archive|security)\.ubuntu\.com/ubuntu' "$file" || continue
+
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would point $file at $mirror"
+            continue
+        fi
+        if ! apt_run true; then
+            yellow "skip apt mirror ($file needs root)"
+            continue
+        fi
+
+        tmp=$(mktemp)
+        sed -E "s#https?://(archive|security)\.ubuntu\.com/ubuntu#${mirror}#g" "$file" > "$tmp"
+        apt_run cp -a -- "$file" "${file}.bak.${BACKUP_SUFFIX}"
+        apt_run cp -- "$tmp" "$file"
+        rm -f "$tmp"
+        changed=$((changed + 1))
+    done
+
+    [ "$changed" -eq 0 ] && return 0
+
+    yellow "apt sources now use $mirror (backups: *.bak.${BACKUP_SUFFIX})"
+    apt_run apt-get update -qq || yellow 'apt-get update after mirror switch failed'
+}
+
 configure_package_mirrors() {
     local configure_language_mirrors="${DOTFILES_CONFIGURE_LANGUAGE_MIRRORS:-${USE_CN_MIRROR:-1}}"
     if [ "$configure_language_mirrors" != "1" ]; then
@@ -1139,18 +1480,25 @@ configure_package_mirrors() {
     fi
 
     if command_exists npm; then
-        npm config set registry https://mirrors.tencent.com/npm/
+        npm config set registry https://mirrors.tencent.com/npm/ \
+            || yellow "npm registry config failed"
     fi
 
     if command_exists gem; then
         if ruby_is_macos_system_ruby; then
             yellow "skip gem mirror config (macOS system Ruby is too old/noisy)"
-        else
-            if ! gem sources --list | grep -Fq 'http://mirrors.tencent.com/rubygems/'; then
-                gem sources --add http://mirrors.tencent.com/rubygems/
-            fi
-            if gem sources --list | grep -Fq 'https://rubygems.org/'; then
-                gem sources --remove https://rubygems.org/
+        elif ! gem sources --list 2>/dev/null | grep -Fq 'https://mirrors.tencent.com/rubygems/'; then
+            # Only drop rubygems.org once the mirror is actually registered;
+            # otherwise a failed `sources --add` (dead mirror/network) would
+            # leave gem with no source at all. `gem sources` hits the network,
+            # so failures are warnings, never fatal under set -e.
+            # Keep this on https: clouds increasingly block outbound port 80
+            # (it timed out on an Aliyun ECS while https returned 200).
+            if gem sources --add https://mirrors.tencent.com/rubygems/; then
+                gem sources --remove https://rubygems.org/ \
+                    || yellow "gem source remove failed; keeping rubygems.org"
+            else
+                yellow "gem mirror add failed; keeping existing sources"
             fi
         fi
     fi
@@ -1216,7 +1564,7 @@ install_user_language_packages() {
             # immune to PEP 668. We intentionally do not auto-install pynvim:
             # this nvim config has no Python provider dependency, and installing
             # provider libraries into an arbitrary active python is too implicit.
-            local pipx_cli_tools=("bpython:bpython" "python-lsp-server:pylsp")
+            local pipx_cli_tools=("bpython:bpython" "python-lsp-server:pylsp" "mycli:mycli" "cppman:cppman")
             local tool cmd
             if command_exists pipx; then
                 for pkg in "${pipx_cli_tools[@]}"; do
@@ -1585,27 +1933,21 @@ run_setup() {
 
     # ── agent link sections ────────────────────────────────────────────────
     # Read-only in check mode (ensure_link/ensure_dir no-op), preview-only in
-    # dry-run; herdr's own integration installer stays init/repair-only.
+    # dry-run. The herdr/tuios integration installers need their binaries, so
+    # they run further down, after the package/release sections.
     if section_requested "herdr"; then
-        if [ "$MODE" != "check" ] && [ "$DRY_RUN" != "1" ]; then
-            install_herdr_integrations
-        fi
         link_reasonix_herdr_integration
         link_pi_config
         link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
     fi
 
     # ── tuios ──────────────────────────────────────────────────────────────
-    # tuios's official hook entries for natively supported harnesses. check
-    # mode only reports install state (tuios integration status is read-only).
-    if section_requested "tuios"; then
-        if [ "$MODE" = "check" ]; then
-            if command_exists tuios; then
-                red 'Checking tuios integrations...'
-                tuios integration status claude-code qoder pi || true
-            fi
-        elif [ "$DRY_RUN" != "1" ]; then
-            install_tuios_integrations
+    # check mode only reports install state (tuios integration status is
+    # read-only); the installer itself runs after packages/releases below.
+    if section_requested "tuios" && [ "$MODE" = "check" ]; then
+        if command_exists tuios; then
+            red 'Checking tuios integrations...'
+            tuios integration status claude-code qoder pi || true
         fi
     fi
 
@@ -1631,7 +1973,15 @@ run_setup() {
         return 0
     fi
 
-    # ── brew / entware / releases ──────────────────────────────────────────
+    # ── brew / apt / entware / releases ────────────────────────────────────
+    # The release installers write into ~/bin and mise may land there on a
+    # fresh Linux box; expose the user bin dirs to the rest of this run so the
+    # runtimes/package steps see what was just installed. macOS gets the same
+    # effect from sync_brew_shellenv, so this stays Linux-only.
+    if [ "$os" = "linux" ]; then
+        export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+    fi
+
     if [ "$os" = "darwin" ]; then
         if section_requested "brew"; then
             install_brew_if_needed
@@ -1639,11 +1989,15 @@ run_setup() {
             install_missing_brew_packages
         fi
     else
+        if section_requested "apt"; then
+            install_apt_packages
+        fi
         if section_requested "entware"; then
             install_entware_packages
         fi
         if section_requested "releases"; then
             install_linux_release_tools
+            install_neovim_release
         fi
     fi
 
@@ -1664,6 +2018,8 @@ run_setup() {
     if section_requested "mirrors"; then
         if [ "$os" = "darwin" ]; then
             configure_brew_mirrors
+        else
+            configure_apt_mirror
         fi
         configure_package_mirrors
     fi
@@ -1677,6 +2033,17 @@ run_setup() {
     if section_requested "zsh"; then
         install_zsh_plugins
     fi
+
+    # ── agent integrations (need the binaries from above) ──────────────────
+    # Running after packages/releases means a fresh machine wires herdr/tuios
+    # in the same run that installs them. Both installers are idempotent and
+    # self-guard on the binary being present.
+    if section_requested "herdr"; then
+        install_herdr_integrations
+    fi
+    if section_requested "tuios"; then
+        install_tuios_integrations
+    fi
 }
 
 # Print a summary of what the install-time sections would do without running
@@ -1689,12 +2056,13 @@ _dry_run_remaining() {
             echo "  brew      — install Homebrew (if missing) + missing formulae/casks"
         fi
     else
+        section_requested "apt"      && echo "  apt       — apt-get install missing packages + Neovim release"
         section_requested "entware"  && echo "  entware   — opkg install missing packages"
         section_requested "releases" && echo "  releases  — download GitHub release binaries → ~/bin"
     fi
 
     section_requested "runtimes" && echo "  runtimes  — mise install --yes + nvm default node"
-    section_requested "mirrors"  && echo "  mirrors   — configure Homebrew + npm/pip/gem mirrors"
+    section_requested "mirrors"  && echo "  mirrors   — configure Homebrew/apt + npm/pip/gem mirrors"
     section_requested "packages" && echo "  packages  — install npm/pipx/gem language packages"
     section_requested "zsh"      && echo "  zsh       — clone zsh plugin repos (autosuggestions, syntax-highlighting)"
     section_requested "herdr"    && echo "  herdr     — link agent configs/hooks (herdr integration install itself is skipped in dry-run)"

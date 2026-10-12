@@ -17,7 +17,9 @@
 
 ## 新机器初始化
 
-1. 安装前置依赖：`git`、`zsh`（macOS：`brew install git zsh`）。
+1. 安装前置依赖：`git`、`curl`（macOS：`brew install git zsh`；
+   Debian/Ubuntu：`sudo apt-get install -y git curl`）。Linux 上的 `zsh` 由
+   `setup.sh` 的 `apt` 段安装。
 2. 将本仓库克隆到 `~/.dotfiles`。
 3. 运行安装器：
 
@@ -26,7 +28,13 @@
    ```
 
    在 macOS 上会安装 Homebrew（若缺失）、安装缺失的 formulae/casks、配置国内镜像、安装语言包与 zsh 插件。
-   在 Linux/Synology 上会安装 Entware 软件包，并把 GitHub release 工具装到 `~/bin`。
+   在 Debian/Ubuntu 上会通过 `apt` 安装常用软件包（并补齐 `bat`/`fd` 的
+   命令别名），再把 Neovim（官方 release，装到 `~/.local/opt`）以及 `jj`、
+   `mise`、`herdr`、`tuios`、`starship`、`atuin`、`lazygit`、`zellij`、`yazi`、
+   `ouch`、`cheat`、`procs`、`broot`、`glow`、`btm`、`ast-grep`、`yq`、`bookokrat`
+   等 release 工具装好，最后用 `mise` 安装 node/python/go 运行时。部分工具
+   依赖 GitHub API 解析最新版本；若报 rate limit，设置 `GITHUB_TOKEN` 后重跑。
+   在 Synology DSM 上会安装 Entware 软件包，并把 GitHub release 工具装到 `~/bin`。
 4. 如果使用 zsh，设置登录 shell：
 
    ```sh
@@ -63,10 +71,20 @@
 * `--dry-run` — 只打印将要执行的操作，不做任何写入。
 * `--only SECTION` — 只运行指定段（逗号分隔）。**不会**自动拉取依赖：
   如 `--only packages` 需先确保 `runtimes`，`herdr` 需先跑 `links`。
+  Linux 上装软件包通常用 `--only apt,releases,runtimes,packages`（`apt` 段
+  含 Neovim）。
 
-按 OS 区分的安装行为：macOS → Homebrew；Linux/Synology → Entware（`opkg`）+
-GitHub release 压缩包（装到 `~/bin`）。镜像配置遵循 `USE_CN_MIRROR` /
-`DOTFILES_CONFIGURE_*` 覆盖项。
+按 OS 区分的安装行为：
+
+* macOS → Homebrew（formulae/casks）。
+* Debian/Ubuntu → `apt` 安装发行版软件包；Neovim 用官方 release 压缩包
+  （发行版的版本对 LazyVim 过旧）；`jj`/`mise`/`herdr`/`tuios`/`starship`/`atuin`/
+  `lazygit`/`zellij`/`yazi`/`ouch`/`cheat`/`procs`/`broot`/`glow`/`btm`/`ast-grep`/
+  `yq`/`bookokrat` 等用 GitHub release。
+* Synology DSM → Entware（`opkg`）+ GitHub release 压缩包（装到 `~/bin`）。
+
+镜像配置遵循 `USE_CN_MIRROR` / `DOTFILES_CONFIGURE_*` 覆盖项（Debian/Ubuntu
+另可用 `DOTFILES_APT_MIRROR` 指定 apt 镜像）。
 
 ## 目录结构
 
