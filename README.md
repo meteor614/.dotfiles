@@ -6,7 +6,7 @@
 * ghostty
 * zellij/herdr/tuios/tmux/tmuxinator
 * zsh/bash
-* claude/codex/codebuddy/reasonix
+* claude/codex/codebuddy/reasonix/kimi
 * starship/yazi/atuin/direnv
 * git/lazygit
 * gdb/lldb

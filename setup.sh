@@ -1903,23 +1903,20 @@ link_reasonix_herdr_integration() {
 }
 
 # ~/.pi/agent mixes runtime data (sessions/, models-store.json, auth.json)
-# with user-managed config (models.json, extensions/), so we symlink only the
-# files we own and merge the extension list into pi's settings.json (which pi
-# itself owns).
+# with user-managed config (extensions/), so we symlink only the files we own
+# and merge the extension list into pi's settings.json (which pi itself owns).
+# models.json is a machine-local file: not tracked and not managed here.
 link_pi_config() {
     local src_dir="$script_path/.pi"
     [ -d "$src_dir" ] || return 0
 
     # ensure_dir/ensure_link are read-only in check mode, so link state is
     # verified there too; a missing repo source is reported on top of it.
-    check_source_present "$src_dir/agent/models.json"
     check_source_present "$src_dir/agent/extensions/openrouter-slim.mjs"
-
-    ensure_dir "$HOME/.pi/agent"
-    ensure_link "$src_dir/agent/models.json" "$HOME/.pi/agent/models.json"
 
     # Model-slimming extension: replaces pi's large built-in openrouter catalog
     # with only the models reasonix configures.
+    ensure_dir "$HOME/.pi/agent"
     ensure_dir "$HOME/.pi/agent/extensions"
     ensure_link "$src_dir/agent/extensions/openrouter-slim.mjs" "$HOME/.pi/agent/extensions/openrouter-slim.mjs"
 

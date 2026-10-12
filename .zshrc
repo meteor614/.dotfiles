@@ -13,6 +13,10 @@ if [[ -d /opt/homebrew ]]; then
 fi
 unset _zfn
 
+# opencli's npm postinstall drops its completion into ~/.zsh/completions; make
+# it visible to the compinit set up below (no-op when opencli is not installed).
+[[ -d "$HOME/.zsh/completions" ]] && fpath=("$HOME/.zsh/completions" $fpath)
+
 # ── Completion system (replaces oh-my-zsh compinit) ──────────────────────────
 export ZSH_CACHE_DIR="${HOME}/.zsh_cache"
 export ZSH_COMPDUMP="${ZSH_CACHE_DIR}/.zcompdump"
