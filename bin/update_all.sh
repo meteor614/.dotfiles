@@ -8,6 +8,23 @@ begin=$(date +%s)
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 log() { printf '%s\n' "$1"; }
 
+failed_steps=()
+# Run each step with errexit in its own shell, without putting the function
+# in an if/! condition (which would disable errexit inside the function).
+run_step() {
+    local label=$1 status
+    shift
+    set +e
+    ( set -e; "$@" )
+    status=$?
+    set -e
+    if [ "$status" -ne 0 ]; then
+        failed_steps+=("$label")
+        log "$label failed (exit $status); continuing with remaining steps"
+    fi
+    return 0
+}
+
 # Some hosts (e.g. Synology DSM) mount /tmp with `noexec`, which breaks any
 # updater that downloads an installer to $TMPDIR and tries to chmod+x it
 # (atuin-update, rustup-init, etc.). Redirect TMPDIR to an exec-allowed dir
@@ -28,7 +45,6 @@ ensure_exec_tmpdir() {
     export TMPDIR="$exec_tmp"
     log "/tmp is noexec; using TMPDIR=$TMPDIR"
 }
-ensure_exec_tmpdir
 
 usage() {
     cat <<'EOF'
@@ -49,10 +65,11 @@ update_conda() {
         return 0
     fi
     log "=== conda ==="
-    if conda update --all -n base --yes 2>/dev/null; then
+    if conda update --all -n base --yes; then
         log "conda finish"
     else
         log "conda update failed"
+        return 1
     fi
 }
 
@@ -60,11 +77,8 @@ update_conda() {
 run_topgrade() {
     if have_cmd topgrade; then
         log "=== topgrade ==="
-        # Pre-run conda so topgrade's mamba step is a no-op (avoids
-        # mamba 2.8.x Broken pipe bug with large pip package lists).
-        # Also disable topgrade's built-in mamba step — we handle it
-        # ourselves via update_conda.
-        update_conda
+        # Conda runs as a separate tracked step before topgrade. Disable
+        # topgrade's mamba step to avoid its Broken pipe bug.
 
         # On macOS, atuin is managed by brew and already updated via
         # topgrade's own brew step — disable the redundant atuin step.
@@ -171,7 +185,7 @@ update_dotfiles_repo() {
     fi
 
     (
-        cd "$HOME/.dotfiles"
+        cd "$HOME/.dotfiles" || exit 1
         if have_cmd jj && [ -d .jj ]; then
             if ! jj git fetch; then
                 log "jj git fetch failed — skipping dotfiles repo update"
@@ -189,13 +203,13 @@ update_dotfiles_repo() {
             fi
         else
             log "jj not found or .jj missing; falling back to git pull for dotfiles"
-            git pull --no-rebase
+            git pull --no-rebase || exit 1
         fi
-        git submodule update --init --recursive
-        git submodule update --remote
+        git submodule update --init --recursive || exit 1
+        git submodule update --remote || exit 1
         log ".dotfiles repo update finish"
         log "re-run ~/.dotfiles/setup.sh repair manually if links need reconciliation"
-    ) || log "dotfiles repo update incomplete — see messages above; continuing with remaining steps"
+    ) || return 1
 }
 
 # ── Zsh plugins (cloned directly by setup.sh; no oh-my-zsh framework)
@@ -208,7 +222,8 @@ update_zsh_plugins() {
     local d
     for d in "$plugins_dir"/zsh-autosuggestions "$plugins_dir"/zsh-syntax-highlighting; do
         if [ -d "$d/.git" ]; then
-            git -C "$d" pull --ff-only 2>/dev/null && log "updated $(basename "$d")"
+            git -C "$d" pull --ff-only
+            log "updated $(basename "$d")"
         fi
     done
 
@@ -223,10 +238,11 @@ update_mise() {
         return 0
     fi
     log "=== mise ==="
-    if mise upgrade 2>/dev/null; then
+    if mise upgrade; then
         log "mise finish"
     else
         log "mise upgrade failed"
+        return 1
     fi
 }
 
@@ -258,10 +274,11 @@ update_npm_globals() {
     #   npm >= 12 (see NPM_GLOBAL_ALLOW_SCRIPTS above).
     if npm update -g \
         --prefix "$HOME/.local" \
-        --allow-scripts="$NPM_GLOBAL_ALLOW_SCRIPTS" 2>/dev/null; then
+        --allow-scripts="$NPM_GLOBAL_ALLOW_SCRIPTS"; then
         log "npm global update finish"
     else
         log "npm global update failed"
+        return 1
     fi
 }
 
@@ -271,10 +288,11 @@ update_rustup() {
         return 0
     fi
     log "=== rustup ==="
-    if rustup update 2>/dev/null; then
+    if rustup update; then
         log "rustup finish"
     else
         log "rustup update failed"
+        return 1
     fi
 }
 
@@ -285,10 +303,11 @@ update_reasonix() {
         return 0
     fi
     log "=== reasonix ==="
-    if reasonix upgrade 2>/dev/null; then
+    if reasonix upgrade; then
         log "reasonix finish"
     else
         log "reasonix upgrade failed"
+        return 1
     fi
 }
 
@@ -305,42 +324,58 @@ main() {
         *) log "Unknown argument: ${1}"; usage; exit 1 ;;
     esac
 
-    if ! run_topgrade; then
-        log "=== topgrade not found — falling back to manual steps ==="
-        update_pkg_manager
+    # Keep output live and retain diagnostics from every step. Logs are
+    # private because package-manager output can contain local URLs/paths.
+    local log_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/updates"
+    local update_log
+    mkdir -p "$log_dir"
+    update_log=$(mktemp "$log_dir/update-$(date +%Y%m%d-%H%M%S).XXXXXX.log")
+    exec > >(tee -a "$update_log") 2>&1
+    log "Update log: $update_log"
+    ensure_exec_tmpdir
 
-        # npm/pipx — covered by topgrade when present, manual on fallback
-        if have_cmd npm; then
-            npm update -g 2>/dev/null && log "npm global update finish" || log "npm global update failed"
-        fi
+    if have_cmd topgrade; then
+        run_step conda update_conda
+        run_step topgrade run_topgrade
+    else
+        log "=== topgrade not found — falling back to manual steps ==="
+        run_step packages update_pkg_manager
+
+        # npm globals are updated once below, with the shared prefix and
+        # install-script allow-list; pipx is covered by topgrade when present.
         if have_cmd pipx; then
-            pipx upgrade-all 2>/dev/null && log "pipx upgrade-all finish" || log "pipx upgrade-all failed"
+            run_step pipx pipx upgrade-all
         fi
     fi
 
     # Run gem update separately from topgrade (topgrade disables gem to avoid
     # `gem update --system` on old system Ruby). Our update_gem handles the
     # version check gracefully.
-    update_gem
+    run_step gem update_gem
 
-    update_mise
-    update_npm_globals
-    update_rustup
-    update_reasonix
+    run_step mise update_mise
+    run_step npm update_npm_globals
+    run_step rustup update_rustup
+    run_step reasonix update_reasonix
 
     if have_cmd cpan; then
-        sudo cpan -u -T
-        log "cpan upgrade finish"
+        run_step cpan sudo cpan -u -T
     fi
 
     if [ "${1:-}" = "all" ]; then
-        update_dotfiles_repo
+        run_step dotfiles update_dotfiles_repo
     fi
 
-    update_zsh_plugins
+    run_step zsh-plugins update_zsh_plugins
 
     end=$(date +%s)
     log "used $((end - begin)) seconds"
+    if [ "${#failed_steps[@]}" -ne 0 ]; then
+        log "Failed steps: ${failed_steps[*]}"
+        log "See update log: $update_log"
+        return 1
+    fi
+    log "All update steps completed. Log: $update_log"
 }
 
 main "$@"

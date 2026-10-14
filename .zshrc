@@ -105,6 +105,7 @@ add-zsh-hook precmd _dotfiles_run_deferred
 # ── Shared config (aliases, TERM, NVM lazy loader, Homebrew mirror, …) ───────
 # NOTE: This path resolution is duplicated in .bashrc because bash has no
 # equivalent of .zshenv for early shared init. Keep both in sync.
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
 _common_sh="${XDG_CONFIG_HOME:-$HOME/.config}/shell/common.sh"
 [[ ! -f "$_common_sh" && -f "$HOME/.dotfiles/.config/shell/common.sh" ]] \
     && _common_sh="$HOME/.dotfiles/.config/shell/common.sh"
@@ -238,5 +239,3 @@ fi
 [[ -f "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] && \
     source "$_zsh_plugins_dir/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 unset _zsh_plugins_dir
-
-. "$HOME/.local/share/../bin/env"

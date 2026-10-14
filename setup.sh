@@ -171,7 +171,8 @@ Usage: setup.sh [init|check|repair|prune] [--bootstrap-nvim] [--dry-run] [--only
 Commands:
   init            Create missing links and install missing dependencies (default)
   check           Report missing/mismatched links without writing changes
-  repair          Backup and repair mismatched links
+  repair          Backup/repair links and merge managed config only.
+                  Does not install packages, update submodules, or prune links.
   prune           Remove stale links under the managed roots that point back into
                   this repo but whose source no longer exists (and stale *.zwc).
                   Honors --only: prune runs when its sections are selected
@@ -179,7 +180,7 @@ Commands:
 
 Flags:
   --bootstrap-nvim
-                  Explicitly adopt LazyVim starter in ~/.config/nvim
+                  Explicitly adopt LazyVim starter in ~/.config/nvim (init only)
 
   --dry-run       Print what would be done without executing any installs.
                   Links are still checked (read-only) but never created.
@@ -624,29 +625,6 @@ prune_managed_links() {
     return 0
 }
 
-# remove_dangling_links — repair-mode counterpart of report_dangling_links:
-# delete repo-owned dangling links (they have no content, no backup needed).
-# Honors $DRY_RUN like prune_managed_links. Never touches *.zwc — that stays
-# prune's job.
-remove_dangling_links() {
-    local link removed=0
-
-    while IFS= read -r -d '' link; do
-        if is_repo_dangling_link "$link"; then
-            if [ "$DRY_RUN" = "1" ]; then
-                yellow "[dry-run] would remove dangling link $link"
-            else
-                rm -f -- "$link"
-                yellow "repair: removed dangling link $link"
-            fi
-            removed=$((removed + 1))
-        fi
-    done < <(find_managed_links)
-
-    [ "$removed" -eq 0 ] && echo 'repair: no dangling links found'
-    return 0
-}
-
 load_nvm_default_node() {
     local nvm_dir="${NVM_DIR:-$HOME/.nvm}"
 
@@ -829,12 +807,12 @@ setup_neovim() {
         return 0
     fi
 
-    if [ "$BOOTSTRAP_NVIM" -eq 1 ]; then
+    if [ "$BOOTSTRAP_NVIM" -eq 1 ] && [ "$MODE" = "init" ]; then
         bootstrap_lazyvim_starter
         return 0
     fi
 
-    yellow "skip ~/.config/nvim (unmanaged); rerun with --bootstrap-nvim to adopt LazyVim starter"
+    yellow "skip ~/.config/nvim (unmanaged); rerun init --bootstrap-nvim to adopt LazyVim starter"
 }
 
 link_tmux_and_bin() {
@@ -2094,7 +2072,7 @@ run_setup() {
         return 0
     fi
 
-    if [ "$MODE" != "check" ] && [ "$DRY_RUN" != "1" ]; then
+    if [ "$MODE" = "init" ] && [ "$DRY_RUN" != "1" ]; then
         init_submodules
     fi
 
@@ -2137,10 +2115,12 @@ run_setup() {
             report_dangling_links
             check_pi_settings_merge
             check_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
-        elif [ "$MODE" = "repair" ]; then
-            remove_dangling_links
         fi
     fi
+
+    # Repair owns links/config merges only. Installs, external integrations,
+    # and submodule updates belong to init; stale link deletion belongs to prune.
+    [ "$MODE" = "repair" ] && return 0
 
     if [ "$MODE" = "check" ] || [ "$DRY_RUN" = "1" ]; then
         # In dry-run mode, list what the remaining install sections would do

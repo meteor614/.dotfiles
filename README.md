@@ -67,13 +67,13 @@
 | --------- | ------------------------------------------------------- |
 | `init`    | （默认）创建缺失的符号链接，然后安装依赖                 |
 | `check`   | 只读：报告缺失/不匹配的链接（含指向本仓库但源已删除的死链） |
-| `repair`  | 备份并修复不匹配的链接                                   |
+| `repair`  | 备份并修复不匹配的链接、合并受管理配置；不安装软件或删除死链 |
 | `prune`   | 删除死链（指向本仓库、源已不存在）及过期 `*.zwc`          |
 
 参数：
 
 * `--bootstrap-nvim` — 在 `~/.config/nvim` 采用 LazyVim starter 树
-  （会先备份已有的 nvim 目录）。
+  （会先备份已有的 nvim 目录），只在 `init` 模式执行。
 * `--dry-run` — 只打印将要执行的操作，不做任何写入。
 * `--only SECTION` — 只运行指定段（逗号分隔）。**不会**自动拉取依赖：
   如 `--only packages` 需先确保 `runtimes`，`herdr` 需先跑 `links`。
@@ -220,6 +220,9 @@
 
 * `~/bin/update_all.sh` — topgrade 驱动，更新 brew/gem/npm/pip/cargo/…
   以及 mise 运行时、rustup、zsh 插件。加 `all` 参数会同时更新本仓库及子模块。
+  仅当 topgrade 未安装时回退到手动更新；topgrade 失败后继续其他步骤，
+  最后汇总失败项并返回非零状态。每次运行日志保存到
+  `${XDG_CACHE_HOME:-~/.cache}/dotfiles/updates/`（需按需手动清理）。
 * 子模块（`.tmux`、cheat cheatsheets）视为上游管理。tmux 的覆盖请通过
   `.tmux.conf.local`，不要直接修改 `.tmux`。
 * Neovim 插件采用滚动更新模型，`lazy-lock.json` 不做版本跟踪。
