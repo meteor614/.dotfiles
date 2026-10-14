@@ -108,21 +108,71 @@ fi
 prefix="${chosen%%:*}"
 remainder="${chosen#*: }"
 
+# ---------------------------------------------------------------------------
+# Detect whether we are already inside a multiplexer. Attaching to a session of
+# the *same* multiplexer from inside one of its panes nests a second client, so
+# use the multiplexer's in-place switch instead. `tuios switch-session`,
+# `zellij action switch-session` and `tmux switch-client` move the current
+# client without spawning anything new.
+#
+# Order matters: the tuios daemon exports HERDR_ENV/HERDR_SOCKET_PATH to emulate
+# herdr, so TUIOS_ENV must be checked before HERDR_ENV.
+# ---------------------------------------------------------------------------
+current_mux=""
+if [ -n "${TUIOS_ENV:-}" ]; then
+    current_mux=tuios
+elif [ -n "${HERDR_ENV:-}" ]; then
+    current_mux=herdr
+elif [ -n "${ZELLIJ:-}" ] || [ -n "${ZELLIJ_SESSION_NAME:-}" ]; then
+    current_mux=zellij
+elif [ -n "${TMUX:-}" ]; then
+    current_mux=tmux
+fi
+
+# Name of the session we are sitting in, used to no-op when the picked session
+# is the one already on screen.
+current_session=""
+case "$current_mux" in
+    tuios) current_session="${TUIOS_SESSION:-}" ;;
+    zellij) current_session="${ZELLIJ_SESSION_NAME:-}" ;;
+    tmux) current_session=$(tmux display-message -p '#{session_name}' 2>/dev/null || true) ;;
+esac
+
 case "$prefix" in
     zellij)
         name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        if [ "$current_mux" = "zellij" ]; then
+            if [ "$name" = "$current_session" ]; then
+                exit 0
+            fi
+            exec zellij action switch-session "$name"
+        fi
         exec zellij attach "$name"
         ;;
     tmux)
         name=$(printf '%s\n' "$remainder" | awk -F: '{print $1}')
+        if [ "$current_mux" = "tmux" ]; then
+            if [ "$name" = "$current_session" ]; then
+                exit 0
+            fi
+            exec tmux switch-client -t "$name"
+        fi
         exec tmux attach-session -t "$name"
         ;;
     herdr)
         name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        # herdr's CLI has no in-place session switch (only `session attach`), so
+        # there is no way to avoid nesting from inside a herdr session.
         exec herdr session attach "$name"
         ;;
     tuios)
         name=$(printf '%s\n' "$remainder" | awk '{print $1}')
+        if [ "$current_mux" = "tuios" ]; then
+            if [ "$name" = "$current_session" ]; then
+                exit 0
+            fi
+            exec tuios switch-session "$name"
+        fi
         exec tuios attach "$name"
         ;;
     *)
