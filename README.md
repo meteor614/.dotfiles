@@ -4,7 +4,7 @@
 
 * neovim/lazyvim
 * ghostty
-* zellij/herdr/tuios/tmux/tmuxinator
+* tuios/herdr/zellij/tmux/tmuxinator
 * zsh/bash
 * claude/codex/codebuddy/reasonix/kimi
 * starship/yazi/atuin/direnv
@@ -230,5 +230,5 @@
 
 ## 快捷键
 
-统一快捷键方案（`Cmd` / `Alt` / `Ctrl+Alt`，覆盖 Ghostty、herdr、tmux、zellij）
+统一快捷键方案（`Cmd` / `Alt` / `Ctrl+Alt`，覆盖 Ghostty、tuios、herdr、tmux、zellij）
 见 [KEYBINDINGS.md](KEYBINDINGS.md)。

@@ -28,25 +28,26 @@ Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 | `Cmd+Shift+[/]` | `goto_split:previous`/`goto_split:next` |
 | `Alt+Enter` | `toggle_fullscreen` |
 
-> **Ghostty + herdr/tmux/zellij**：Cmd 键操作的是 Ghostty 自身的标签页/分屏，
+> **Ghostty + tuios/herdr/tmux/zellij**：Cmd 键操作的是 Ghostty 自身的标签页/分屏，
 > 而非复用器。请使用下方的 `Alt` / `Ctrl+Alt` 键来驱动复用器。
 
 ---
 
 ## 使用边界
 
-- **Ghostty**：窗口级操作和临时本地分屏。`Cmd` 键只控制 Ghostty 自身，不进入 herdr/tmux/zellij。
-- **herdr**：日常主力复用器，负责项目/session、pane/tab/workspace 和 agent sidebar。
-- **tuios**：与 herdr 并列的日常主力（agent sidebar + 可脚本化的 pane）。`Ctrl+Alt+h/j/k/l`
-  与 herdr 一致，`Ctrl+Alt+z` 对齐 herdr 的 `zoom`；方向键和 `Alt+[`/`Alt+]` 的含义见下方 tuios 一节。
-- **zellij**：远程 SSH 默认优先的兼容复用器，也保留一套与 herdr/tmux 接近的 `Alt` / `Ctrl+Alt` 肌肉记忆。
+- **Ghostty**：窗口级操作和临时本地分屏。`Cmd` 键只控制 Ghostty 自身，不进入 tuios/herdr/tmux/zellij。
+- **tuios**：日常主力复用器，负责项目/session、pane/window、agent sidebar 与可脚本化 pane。
+  `Ctrl+Alt+h/j/k/l` 与 `Ctrl+Alt+z` 的语义对齐 herdr；方向键和 `Alt+[`/`Alt+]` 的含义见下方 tuios 一节。
+- **herdr**：兼容复用器 / agent 状态集成层。tuios 会向每个 pane 注入 herdr 兼容环境
+  （`HERDR_ENV`、`HERDR_SOCKET_PATH` 等），herdr 的 hook 在 tuios 内仍可用。
+- **zellij**：远程 SSH 兼容复用器（tuios 缺失时回退），也保留一套与 herdr/tmux 接近的 `Alt` / `Ctrl+Alt` 肌肉记忆。
 - **tmux**：远程兼容与嵌套会话 fallback，尽量通过 `.tmux.conf.local` 覆盖，不改 submodule。
 
 ---
 
-## Prefix — herdr 主力操作
+## Prefix — herdr 操作
 
-herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致。嵌套 tmux 时按两次 `Ctrl+b`
+herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader 同为内建 `Ctrl+b`，键位见下方 tuios 一节）。嵌套 tmux 时按两次 `Ctrl+b`
 可透传到内层。常用快捷键同时保留 `Alt` / `Ctrl+Alt` 直达路径，减少 prefix 次数。
 
 | 快捷键 | herdr |

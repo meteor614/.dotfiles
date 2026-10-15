@@ -32,7 +32,7 @@
 - Match the existing interpreter and style of each script. This repo uses a mix of `bash`, `sh`, Lua, TOML, YAML, JSON, and tool-specific config formats.
 - Prefer capability checks and existing fallback patterns over assuming a single machine layout. This repo is used across heterogeneous local and remote environments.
 - Prefer local overlay files over vendored content when both exist. Example: change `.tmux.conf.local` instead of editing the `.tmux` submodule directly.
-- Multiplexer stance: zellij + herdr 是日常主力，tmux 保留作为远程 SSH 兼容场景。编辑 tmux 配置时优先通过 `.tmux.conf.local` 覆盖，避免直接修改 submodule。
+- Multiplexer stance: tuios 是日常主力（agent sidebar + 可脚本化 pane）。herdr 降为兼容复用器 / agent 状态集成层（tuios 会向每个 pane 注入 herdr 兼容环境供其 hook 使用），zellij 与 tmux 保留作为远程 SSH / 嵌套兼容场景。编辑 tmux 配置时优先通过 `.tmux.conf.local` 覆盖，避免直接修改 submodule。
 - Do not add secrets, tokens, private keys, or machine-specific absolute paths unless the user explicitly requests that.
 - The package and git mirror choices in `setup.sh` are intentional. Do not switch them to other mirrors or default upstreams unless asked.
 - For Node-related setup, prefer `mise` activation (fallback `nvm`) or `npm`/`corepack` usage over adding Homebrew `node`.
@@ -49,7 +49,7 @@
 ## Validation
 - After editing shell scripts, prefer syntax-only checks such as `bash -n setup.sh`, `bash -n bin/update_all.sh`, or `sh -n <script>`.
 - After editing shell dotfiles, use non-executing syntax checks when available, for example `zsh -n .zshrc`.
-- For app configs such as Neovim, tmux, Ghostty, Karabiner, and zellij, only run low-risk non-interactive validation that is already available locally.
+- For app configs such as Neovim, tmux, Ghostty, Karabiner, tuios, zellij, and herdr, only run low-risk non-interactive validation that is already available locally.
 - If a change affects symlink behavior or install flow, read the relevant `setup.sh` branch and verify the target path logic directly.
 - If validation would require network access, package installation, or writing outside the repo, stop and ask before proceeding.
 

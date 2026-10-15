@@ -82,7 +82,7 @@ vim.opt.clipboard = { "unnamedplus", "unnamed" }
 
 -- OSC52 clipboard: when running over SSH there is no local pbcopy/wl-copy, so
 -- route clipboard writes through the terminal's OSC52 escape. This is forwarded
--- out through tmux (set-clipboard on) / herdr → ghostty, giving us a working
+-- out through tmux (set-clipboard on) / tuios / herdr → ghostty, giving us a working
 -- "yank reaches the macOS clipboard" path even on remote hosts.
 --
 -- Keep paste local to the Nvim process: OSC52 clipboard reads require querying
