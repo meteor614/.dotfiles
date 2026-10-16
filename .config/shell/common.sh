@@ -375,9 +375,9 @@ alias 。。=..
 # SFTP subsystem is missing/broken (old NAS, Entware, embedded). OpenSSH 9.x
 # still supports it; very old scp builds reject the flag — drop it there.
 alias scp='scp -O'
-alias zj='zellij attach -c'
-alias zjl='zellij list-sessions'
-alias zjk='zellij kill-session'
+# alias zj='zellij attach -c'
+# alias zjl='zellij list-sessions'
+# alias zjk='zellij kill-session'
 
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza'
@@ -427,6 +427,8 @@ fi
 command -v tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
 command -v make >/dev/null 2>&1 && alias mak='make -j 16'
 command -v nvim >/dev/null 2>&1 && alias vim='nvim'
+alias Vim='vim'
+alias vi='vim'
 command -v watch >/dev/null 2>&1 && alias watch='watch -c'
 # docker: only escalate via sudo on Linux when the user lacks docker access.
 # On macOS (Docker Desktop), rootless docker, or when already in the docker
