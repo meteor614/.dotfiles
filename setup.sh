@@ -290,10 +290,6 @@ linux_release_arch_arm64() {
     esac
 }
 
-linux_release_arch_lazygit() {
-    linux_release_arch_arm64
-}
-
 # amd64 / arm64 — cheat and yq naming.
 linux_release_arch_amd64_arm64() {
     case "$(uname -m)" in
@@ -946,13 +942,6 @@ sync_brew_shellenv() {
 # Linux package installers (Entware + GitHub release tarballs)
 # ---------------------------------------------------------------------------
 
-# Detect a Synology DSM box. We do NOT gate Linux installs on this — the
-# release-tarball path works on any glibc/musl x86_64 Linux — but the Entware
-# step is Synology/router-specific and only runs when /opt/bin/opkg is present.
-is_synology() {
-    [ -f /etc.defaults/VERSION ] || [ -d /var/packages ]
-}
-
 # Detect WSL (Windows Subsystem for Linux). Used to opt WSL into the macOS-like
 # Homebrew-on-Linux (Linuxbrew) path without changing the apt/releases behavior
 # of generic Debian/Ubuntu or Synology hosts.
@@ -1122,7 +1111,7 @@ install_linux_release_tool() {
         yellow "skip $name (unsupported Linux architecture: $(uname -m))"
         return 0
     }
-    linux_arch_lazygit=$(linux_release_arch_lazygit) || linux_arch_lazygit="$linux_arch"
+    linux_arch_lazygit=$(linux_release_arch_arm64) || linux_arch_lazygit="$linux_arch"
     linux_arch_fastfetch=$(linux_release_arch_fastfetch) || linux_arch_fastfetch="$linux_arch"
     linux_arch_mise=$(linux_release_arch_mise) || linux_arch_mise="$linux_arch"
     linux_arch_arm64=$(linux_release_arch_arm64) || linux_arch_arm64="$linux_arch"
@@ -1606,6 +1595,16 @@ configure_apt_mirror() {
     local mirror="${DOTFILES_APT_MIRROR:-https://mirrors.tuna.tsinghua.edu.cn/ubuntu}"
     local file tmp changed=0
 
+    # The mirror is interpolated into a #-delimited sed script below, where
+    # # (delimiter) and & \ (replacement side) are special characters. Real
+    # mirror URLs never contain them; refuse loudly instead of silently
+    # corrupting sources.list (e.g. a DOTFILES_APT_MIRROR with a fragment or
+    # query string).
+    if printf '%s' "$mirror" | grep -q '[#&\\]'; then
+        yellow "skip apt mirror (DOTFILES_APT_MIRROR has sed-special chars: $mirror)"
+        return 0
+    fi
+
     for file in /etc/apt/sources.list /etc/apt/sources.list.d/*; do
         [ -f "$file" ] || continue
         grep -qE 'https?://(archive|security)\.ubuntu\.com/ubuntu' "$file" || continue
@@ -1668,11 +1667,6 @@ npm_prefix_is_user_writable() {
     local prefix
     prefix=$(npm prefix -g 2>/dev/null || true)
     [ -n "$prefix" ] && [ -w "$prefix" ]
-}
-
-npm_global_package_installed() {
-    local pkg=$1
-    npm list -g --depth=0 "$pkg" >/dev/null 2>&1
 }
 
 python_package_installed() {

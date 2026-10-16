@@ -486,7 +486,7 @@ if command -v yazi >/dev/null 2>&1; then
         tmp="$(mktemp -t "yazi-cwd.XXXXXX")" || return
         yazi "$@" --cwd-file="$tmp"
         if cwd="$(cat -- "$tmp" 2>/dev/null)" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-            builtin cd -- "$cwd"
+            builtin cd -- "$cwd" || return
         fi
         rm -f -- "$tmp"
     }

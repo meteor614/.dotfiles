@@ -30,7 +30,7 @@
    在 macOS 上会安装 Homebrew（若缺失）、安装缺失的 formulae/casks、配置国内镜像、安装语言包与 zsh 插件。
    在 WSL 上会先跑 Debian/Ubuntu 的 `apt` 段，再按 macOS 的逻辑安装
    Homebrew on Linux（Linuxbrew），用它补齐 apt 没有的工具（`gotags`、
-   `gotags`、`rust`）；字体不走路 cask（Homebrew 的 cask JSON 会把目标写死到
+   `rust`）；字体不走路 cask（Homebrew 的 cask JSON 会把目标写死到
    macOS 的 `~/Library/Fonts`），而是由 `fonts` 段把 Hack Nerd Font 与
    Sarasa Mono SC 直接装到 `~/.local/share/fonts`。不想装 Linuxbrew 可设
    `DOTFILES_INSTALL_LINUXBREW=0`。
