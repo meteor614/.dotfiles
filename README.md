@@ -11,7 +11,7 @@
 * git/lazygit
 * gdb/lldb
 * karabiner
-* cheats
+* CLI 工具速览（[CLI_TOOLS.md](CLI_TOOLS.md)）
 * brew/go/npm/gem/pip/conda 源镜像
 * 脚本
 
@@ -37,7 +37,7 @@
    在 Debian/Ubuntu 上会通过 `apt` 安装常用软件包（并补齐 `bat`/`fd` 的
    命令别名），再把 Neovim（官方 release，装到 `~/.local/opt`）以及 `jj`、
    `mise`、`herdr`、`tuios`、`starship`、`atuin`、`lazygit`、`zellij`、`yazi`、
-   `ouch`、`cheat`、`procs`、`broot`、`glow`、`btm`、`ast-grep`、`yq`、`bookokrat`
+   `ouch`、`procs`、`broot`、`glow`、`btm`、`ast-grep`、`yq`、`bookokrat`
    等 release 工具装好，最后用 `mise` 安装 node/python/go 运行时。部分工具
    依赖 GitHub API 解析最新版本；若报 rate limit，设置 `GITHUB_TOKEN` 后重跑。
    在 Synology DSM 上会安装 Entware 软件包，并把 GitHub release 工具装到 `~/bin`。
@@ -89,7 +89,7 @@
   （Hack Nerd Font + Sarasa Mono SC）。
 * Debian/Ubuntu（非 WSL）→ `apt` 安装发行版软件包；Neovim 用官方 release 压缩包
   （发行版的版本对 LazyVim 过旧）；`jj`/`mise`/`herdr`/`tuios`/`starship`/`atuin`/
-  `lazygit`/`zellij`/`yazi`/`ouch`/`cheat`/`procs`/`broot`/`glow`/`btm`/`ast-grep`/
+  `lazygit`/`zellij`/`yazi`/`ouch`/`procs`/`broot`/`glow`/`btm`/`ast-grep`/
   `yq`/`bookokrat` 等用 GitHub release。
 * Synology DSM → Entware（`opkg`）+ GitHub release 压缩包（装到 `~/bin`）。
 
@@ -104,7 +104,8 @@
   只有 `lua/config` 和 `lua/plugins` 来自本仓库。
 * `bin/*` → `~/bin/*`。
 * `tmuxinator/` → `~/.tmuxinator`。
-* `.tmux`、`cheat/cheatsheets` — git 子模块（视为上游管理）。
+* `.tmux` — git 子模块（视为上游管理）。
+* `CLI_TOOLS.md`、`KEYBINDINGS.md`、`TUIOS.md` — 顶层文档，不部署到 `$HOME`。
 
 > 版本控制为 **jj + git 共存** 的 colocated workspace：`.jj/` 由自身的
 > `.jj/.gitignore`（`/*`）屏蔽，不进入 git 树；提交统一走 `jj`（见 `AGENTS.md`）。
@@ -125,6 +126,7 @@
 | yazi `plugins/`、`package.toml` | 由 `ya pack` 管理，不入库 |
 | `bin/generate_tags.sh` | 已退役（改用 gtags/ctags 流程）|
 | `.claude-internal/hooks/` | herdr 集成已改为 `~/.claude` |
+| `cheat`、cheatsheets 子模块、`.config/cheat/conf.yml` | 已退役（速查内容见 `CLI_TOOLS.md`）|
 
 自指的陈旧链接（如 `~/.zshrc.bak.*`、`~/.zshrc.pre-oh-my-zsh`）指向的源仍存在，
 不会被自动清理；确认无用后可手动删除。
@@ -163,7 +165,7 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
   仅当 topgrade 未安装时回退到手动更新；topgrade 失败后继续其他步骤，
   最后汇总失败项并返回非零状态。每次运行日志保存到
   `${XDG_CACHE_HOME:-~/.cache}/dotfiles/updates/`（需按需手动清理）。
-* 子模块（`.tmux`、cheat cheatsheets）视为上游管理。tmux 的覆盖请通过
+* 子模块（`.tmux`）视为上游管理。tmux 的覆盖请通过
   `.tmux.conf.local`，不要直接修改 `.tmux`。
 * Neovim 插件采用滚动更新模型，`lazy-lock.json` 不做版本跟踪。
   每台机器按需执行 `:Lazy update` / `:Lazy restore`。
@@ -171,4 +173,5 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
 ## 快捷键
 
 统一快捷键方案（`Cmd` / `Alt` / `Ctrl+Alt`，覆盖 Ghostty、tuios、herdr、tmux、zellij）
-见 [KEYBINDINGS.md](KEYBINDINGS.md)。
+见 [KEYBINDINGS.md](KEYBINDINGS.md)。常用 CLI 工具清单与命令片段见
+[CLI_TOOLS.md](CLI_TOOLS.md)。

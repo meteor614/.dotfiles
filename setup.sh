@@ -14,7 +14,7 @@ CHECK_FAILED=0
 BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
 brew_formulae=(
-    cheat clang-format cloc cmake coreutils cpulimit cscope
+    clang-format cloc cmake coreutils cpulimit cscope
     ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global
     gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli
     neovim ninja numpy oniguruma openssl@3 pandoc parallel perl protobuf
@@ -92,7 +92,6 @@ linux_release_tools=(
     "tuios|Gaurav-Gosain/tuios|https://github.com/Gaurav-Gosain/tuios/releases/download/{TAG}/tuios_{VER}_Linux_{LINUX_ARCH_ARM64}.tar.gz|tuios"
     "herdr|herdrdev/herdr|https://github.com/herdrdev/herdr/releases/download/{TAG}/herdr-linux-{LINUX_ARCH}|herdr"
     "ouch|ouch-org/ouch|https://github.com/ouch-org/ouch/releases/download/{TAG}/ouch-{LINUX_ARCH}-unknown-linux-musl.tar.gz|ouch-{LINUX_ARCH}-unknown-linux-musl/ouch"
-    "cheat|cheat/cheat|https://github.com/cheat/cheat/releases/download/{TAG}/cheat-linux-{LINUX_ARCH_AMD64_ARM64}.gz|cheat"
     "procs|dalance/procs|https://github.com/dalance/procs/releases/download/{TAG}/procs-v{VER}-{LINUX_ARCH}-linux.zip|procs"
     "broot|Canop/broot|https://github.com/Canop/broot/releases/download/{TAG}/broot_{VER}.zip|{LINUX_ARCH}-unknown-linux-musl/broot"
     "choose|theryangeary/choose|https://github.com/theryangeary/choose/releases/download/{TAG}/choose-{LINUX_ARCH}-unknown-linux-gnu|choose"
@@ -290,7 +289,7 @@ linux_release_arch_arm64() {
     esac
 }
 
-# amd64 / arm64 — cheat and yq naming.
+# amd64 / arm64 — yq naming.
 linux_release_arch_amd64_arm64() {
     case "$(uname -m)" in
         x86_64|amd64) printf '%s\n' amd64 ;;
@@ -1212,7 +1211,7 @@ install_linux_release_tool() {
             (cd "$workdir" && tar -xzf pkg) || { yellow "skip $name (extract failed)"; return 0; }
             ;;
         *.gz)
-            # Single gzipped binary (cheat).
+            # Single gzipped binary.
             gunzip -c "$archive" > "$workdir/$bin_path" \
                 || { yellow "skip $name (gunzip failed)"; return 0; }
             ;;

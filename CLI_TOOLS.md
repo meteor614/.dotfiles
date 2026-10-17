@@ -1,8 +1,11 @@
 # 常用 CLI 工具速览
-# 重点记录当前 dotfiles / 日常终端环境中值得优先使用的工具；
-# 末尾保留一些过时或低频工具，方便迁移旧习惯。
 
-# ── 搜索 / 过滤 / 选择 ───────────────────────────────────────────────
+本文件是日常终端环境里值得优先使用的工具清单（原 `cheat/personal/cmdline`）。
+`cheat` 及其 `cheatsheets` 子模块已从本仓库退役，速查内容统一收敛到这里；
+末尾附一些零散但仍常用的命令片段。
+
+## 搜索 / 过滤 / 选择
+
 rg (ripgrep)：递归搜索文件内容，通常替代 grep / ack / ag；遵守 .gitignore，速度快。
 fd：更现代的 find，默认忽略 .gitignore，常和 fzf 搭配选择文件。
 fzf：交互式模糊查找器；用于 Ctrl-R 历史、文件选择、进程/会话选择等。
@@ -13,7 +16,8 @@ ast-grep (sg)：基于 AST 的结构化代码搜索/替换工具，比纯文本 
 jq：JSON 查询、过滤、格式化工具，查看 REST API 输出必备。
 yq：YAML/TOML/XML 结构化查询工具，jq 思路的配置文件处理器。
 
-# ── 文件查看 / 目录导航 / 文件管理 ────────────────────────────────────
+## 文件查看 / 目录导航 / 文件管理
+
 eza：现代 ls 替代品；本 repo 已将 ls/ll/la 等 alias 到 eza（可用时）。
 bat：带语法高亮和 git diff 标记的 cat/less 替代品，也常作 fzf preview。
 yazi：终端文件管理器，适合快速浏览、预览和批量文件操作。
@@ -30,7 +34,8 @@ bookokrat：终端 EPUB/PDF 阅读器，可把 EPUB 拆成 markdown 章节供下
 jdupes：快速重复文件查找，支持硬链接或删除清理，比 fdupes 快。
 unison：双向文件同步工具，适合两台机器/目录间保持一致；单向同步仍可用 rsync。
 
-# ── 磁盘 / 进程 / 系统监控 ───────────────────────────────────────────
+## 磁盘 / 进程 / 系统监控
+
 dust：更直观的 du，可视化展示目录体积。
 ncdu：交互式磁盘占用分析，适合清理大目录。
 duf：更好看的 df，展示磁盘/挂载点使用情况。
@@ -45,7 +50,8 @@ pstree：用树形结构查看进程父子关系。
 vnstat：基于内核计数的网络流量统计，按网卡记录日/月用量，不抓包、开销极低。
 fastfetch：快速输出系统/硬件/终端环境概览，替代 neofetch 类工具。
 
-# ── Git / 版本控制 / Diff ───────────────────────────────────────────
+## Git / 版本控制 / Diff
+
 jj (Jujutsu)：Git 兼容的新一代 VCS；本 dotfiles 仓库提交/推送优先用 jj。
 lazygit：交互式 Git TUI，适合查看状态、提交、rebase、stash。
 gitui：Rust 写的 Git TUI，lazygit 的轻量替代选择。
@@ -55,7 +61,8 @@ icdiff：并排 diff；delta 不可用时仍可作为 git diff viewer。
 gh：GitHub 官方 CLI，管理 PR/issue/release/workflow，常见仓库操作不用开浏览器。
 difft (difftastic)：基于 AST 的结构化 diff，比行级 diff 更懂代码语义，可配置为 git diff 工具。
 
-# ── Shell / 提示符 / 历史 / 环境管理 ──────────────────────────────────
+## Shell / 提示符 / 历史 / 环境管理
+
 starship：跨 shell prompt，启动快、可配置，zsh/bash/fish 都能用。
 atuin：Shell 历史数据库和同步工具，增强 Ctrl-R 搜索。
 mise：多语言运行时/工具版本管理器；本环境默认用它管理 node/python/go。
@@ -64,7 +71,8 @@ nvm：Node 版本管理器；本 repo 作为 mise 缺失时的 fallback，不再
 topgrade：一键升级系统包、语言包、插件等；高影响操作，运行前确认范围。
 thefuck：根据上一条失败命令给出修正建议；有趣但低频，按需启用。
 
-# ── 终端复用 / 会话 / 远程 ───────────────────────────────────────────
+## 终端复用 / 会话 / 远程
+
 tuios：日常主力终端复用器，支持各种AI agnet
 zellij：终端复用器，替代多数本地 tmux 使用场景。
 herdr：多 agent / 多 pane 协作时的终端编排工具，本环境常与 zellij 搭配。
@@ -75,7 +83,8 @@ fzsession：本 repo 自带脚本，用 fzf 在 zellij + tmux session 间选择�
 mosh：基于 UDP 的远程终端连接，弱网/漫游 IP 下比 ssh 更稳。
 scp -O：本 repo alias 保留旧 scp 协议，兼容不支持 SFTP scp 的远端。
 
-# ── 下载 / 网络 / 媒体 / 文档转换 ─────────────────────────────────────
+## 下载 / 网络 / 媒体 / 文档转换
+
 curl：通用 HTTP/API 调试和下载工具，脚本里最常见。
 wget：传统下载工具，递归下载和镜像站点时仍方便。
 aria2c：多源/多线程下载器，适合大文件和断点续传。
@@ -88,7 +97,8 @@ pandoc：文档格式转换器，Markdown/HTML/LaTeX/Word/PDF 流转常用。
 imagemagick：图片格式转换、裁切、压缩、批处理；命令通常是 `magick`。
 graphviz：用 DOT 文本生成流程图/关系图。
 
-# ── 开发 / 构建 / 统计 / 性能 ────────────────────────────────────────
+## 开发 / 构建 / 统计 / 性能
+
 cloc：统计代码行数、注释、空行和语言分布。
 scc：Go 写的极快代码统计工具，cloc 的高速替代，附带复杂度估算。
 hyperfine：命令行 benchmark 工具，比较不同命令/参数性能。
@@ -98,8 +108,37 @@ cppman：C/C++ 手册查询工具；低频，按需 pip 安装。
 bpython：增强 Python REPL；简单场景可用 python/ipython。
 mycli：带补全和高亮的 MySQL 客户端。
 
-# ── 本 repo / 个人命令 ───────────────────────────────────────────────
-cheat：命令行速查笔记；本文件就是 personal cheatsheet。
+## 本 repo / 个人命令
+
 process_monitor.sh：本 repo 脚本，用 fzf 选择并查看/处理进程。
 bin/update_all.sh：更新系统包、语言包、插件、submodule 等；高风险，需明确确认后运行。
 setup.sh：初始化/修复 dotfiles 链接与依赖；会写入 $HOME 和使用网络，需明确确认后运行。
+
+## 命令片段
+
+```sh
+# ── fd ────────────────────────────────────────────────
+fd -e md                          # 按后缀查找
+fd -E examples '.go$'             # 排除目录后正则匹配
+fd -e md --exec wc -l {}          # 对结果批量执行命令
+
+# ── ffmpeg ────────────────────────────────────────────
+ffmpeg -i in.mp4                  # 查看元数据（无输出文件即仅打印信息）
+ffmpeg -i in.mp4 -ss 00:26:50 -t 02:28:02 -acodec copy -vcodec copy out.mp4   # 无损剪切
+ffmpeg -i video.ext -i audio.ext -c:v copy -c:a copy out.ext                  # 合并音视频
+for f in *.m4a; do ffmpeg -i "$f" -vn -b:a 320k "${f%.m4a}.mp3"; done         # 批量转 mp3
+ffmpeg -r 18 -pattern_type glob -i '*.png' -s hd1080 -pix_fmt yuv420p out.ext # 图片序列转视频
+
+# ── parallel ──────────────────────────────────────────
+find . -name '*.html' | parallel gzip --best      # 批量压缩
+cat big.log | parallel --pipe grep pattern        # 分块并行过滤（--pipe）
+seq 50 | parallel -n0 -q curl 'example.com'       # 并发压测，核数即并发度
+
+# ── xpanes ────────────────────────────────────────────
+xpanes -c "ping {}" 192.168.0.{1..9}                          # 同步 ping 多主机
+xpanes --log=~/log --ssh user1@host1 user2@host2              # 批量 SSH 并记录日志
+docker ps -q | xpanes -c "docker exec -it {} sh"              # 对每个容器开一个 pane
+
+# ── pandoc ────────────────────────────────────────────
+pandoc -f docx -t markdown x.docx -o x.md --extract-media=.   # docx → markdown（导出图片）
+```
