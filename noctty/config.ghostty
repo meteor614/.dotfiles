@@ -1,0 +1,21 @@
+# noctty config — managed by this dotfiles repo.
+#
+# noctty (https://github.com/amanthanvi/noctty) is a native Windows terminal
+# built on Ghostty's core. It reads its config from
+#     %LOCALAPPDATA%\noctty\config.ghostty
+# which lives outside $HOME, so the generic .config/* linking in setup.sh
+# cannot reach it. setup.sh copies this file to that path instead (from WSL
+# via cmd.exe/wslpath, or natively under Git Bash via %LOCALAPPDATA%) and
+# keeps a one-time backup as config.ghostty.dotfiles.bak.
+#
+# Edit here, then re-run `setup.sh` (init or repair) to deploy.
+# noctty can also reload in place with Ctrl+Shift+, (reload_config).
+
+# ----- Font -----
+# Hack Nerd Font has no ligature features at all (no liga/calt); -calt also
+# disables contextual alternates for the Sarasa fallback. Mirrors
+# .config/ghostty/config, except noctty uses 12pt.
+font-family = Hack Nerd Font
+font-family = Sarasa Mono SC
+font-size = 12
+font-feature = -calt

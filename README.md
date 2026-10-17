@@ -3,7 +3,7 @@
 我的全部 dotfiles，由 `setup.sh` 通过符号链接部署到 `$HOME`。
 
 * neovim/lazyvim
-* ghostty
+* ghostty/noctty/alacritty
 * tuios/herdr/zellij/tmux/tmuxinator
 * zsh/bash
 * claude/codex/codebuddy/reasonix/kimi
@@ -104,6 +104,10 @@
   只有 `lua/config` 和 `lua/plugins` 来自本仓库。
 * `bin/*` → `~/bin/*`。
 * `tmuxinator/` → `~/.tmuxinator`。
+* `noctty/config.ghostty` → `%LOCALAPPDATA%\noctty\config.ghostty`（Windows 终端
+  noctty；不在 `$HOME` 下，由 `setup.sh` **复制**而非符号链接：WSL 走
+  `cmd.exe`/`wslpath`，Git Bash 走 `%LOCALAPPDATA%`；首次覆盖会留一份
+  `.dotfiles.bak` 备份）。
 * `.tmux` — git 子模块（视为上游管理）。
 * `CLI_TOOLS.md`、`KEYBINDINGS.md`、`TUIOS.md` — 顶层文档，不部署到 `$HOME`。
 
@@ -120,7 +124,6 @@
 
 | 配置                 | 现状                         |
 | -------------------- | ---------------------------- |
-| alacritty            | 已退役（改用 ghostty）       |
 | lvim（LunarVim）     | 已退役（改用 lazyvim/nvim）  |
 | coc-settings.json    | 已退役（coc.nvim → 原生 LSP）|
 | yazi `plugins/`、`package.toml` | 由 `ya pack` 管理，不入库 |

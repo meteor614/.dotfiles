@@ -1,0 +1,110 @@
+# Alacritty — 跨平台配置（macOS / Linux / Windows）
+#
+# 从 git 历史恢复，并按同仓库 Ghostty 配置（.config/ghostty/config）对齐观感与行为。
+# Alacritty 没有原生标签页/分屏，因此不复制 Ghostty 的 Cmd 分屏键；复用器统一由
+# tmux/zellij/tuios 的 Alt / Ctrl+Alt 键驱动（见 KEYBINDINGS.md）。
+#
+# 配置位置：
+#   Linux/macOS: ~/.config/alacritty/alacritty.toml
+#   Windows:     %APPDATA%\alacritty\alacritty.toml
+
+[general]
+live_config_reload = true
+
+# Ghostty: working-directory = home
+# Alacritty 的 general.working_directory 不做 `~` 展开、需要绝对路径，而本仓库不记录
+# 机器相关路径，因此保持默认（继承父进程 cwd）。需要固定目录时取消下一行注释并填绝对路径。
+# working_directory = "/home/you"
+
+[env]
+TERM_PROGRAM = "alacritty"
+
+# ----- Font（与 noctty 保持一致：Hack Nerd Font + Sarasa Mono SC）-----
+# 字号对齐：noctty 用 12pt（noctty/config.ghostty），Alacritty 也跟到 12pt。
+# 注：.config/ghostty/config 是另一台/另一款终端（Ghostty）的配置，与 noctty 无关。
+[font]
+size = 12.0
+normal = { family = "Hack Nerd Font", style = "Regular" }
+bold = { family = "Hack Nerd Font", style = "Bold" }
+italic = { family = "Hack Nerd Font", style = "Italic" }
+bold_italic = { family = "Hack Nerd Font", style = "Bold Italic" }
+builtin_box_drawing = true
+
+# 说明：Alacritty 的 font.normal 只能指定单一 family，无法像 Ghostty 那样列出
+# Sarasa Mono SC 兜底；CJK 由系统 fallback 处理（macOS/Linux fontconfig、Windows DWrite）。
+# Ghostty 的 font-feature / freetype-load-flags / font-thicken 为 Ghostty 专有，Alacritty 无对应项。
+
+# ----- Window -----
+[window]
+padding = { x = 2, y = 2 }
+opacity = 0.8
+dynamic_title = true
+# Ghostty: macos-titlebar-style = transparent → 仅 macOS 可用 Transparent/Buttonless；
+# 为跨平台一致这里保留默认 "Full"，macOS 上想透明标题栏可改为 "Transparent"。
+decorations = "Full"
+# Ghostty: macos-option-as-alt = true（仅 macOS 生效，其他平台忽略）
+option_as_alt = "Both"
+
+# ----- Scrolling -----
+[scrolling]
+# Ghostty: scrollback-limit = 10000000；Alacritty 上限为 100000
+history = 100000
+multiplier = 3
+
+# ----- Cursor -----
+[cursor]
+# Ghostty: cursor-style-blink = false
+style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+
+# ----- Mouse -----
+[mouse]
+# Ghostty: mouse-hide-while-typing = true
+hide_when_typing = true
+
+# ----- Bell -----
+[bell]
+# Ghostty: bell-features = no-system,no-audio,no-attention,no-title,no-border
+# duration = 0 关闭视觉响铃（Alacritty 无独立音频响铃开关）
+duration = 0
+color = "#ffffff"
+
+# ----- Clipboard / Selection -----
+[selection]
+# Ghostty: copy-on-select = clipboard
+# 注意：Alacritty 语义是 PRIMARY 选择缓冲区；macOS/Windows 上即系统剪贴板。
+save_to_clipboard = true
+# Ghostty 的 clipboard-trim-trailing-spaces 在 Alacritty 中无对应项。
+
+[terminal]
+# Ghostty: clipboard-read = allow / clipboard-write = allow
+osc52 = "CopyPaste"
+
+# ----- Keybindings -----
+# 设计原则（见 KEYBINDINGS.md）：Super/Cmd 只做终端原生操作，复用器交给 Alt / Ctrl+Alt 透传。
+# 因此不再沿用旧配置里 “Super+键 → tmux prefix 序列” 的写法，也不再拦截 Alt+f/b/i/v，
+# 让 Alt / Ctrl+Alt 原样送给 tmux/zellij/tuios。
+
+# Ghostty: alt+enter=toggle_fullscreen（macOS 默认无此键，这里补齐；Windows 默认已有）
+[[keyboard.bindings]]
+key = "Enter"
+mods = "Alt"
+action = "ToggleFullscreen"
+
+# Vi 滚动模式：保留旧配置的 Cmd+Shift+C 肌肉记忆（Super 在 macOS 即 Command）
+[[keyboard.bindings]]
+key = "C"
+mods = "Shift|Super"
+mode = "~Search"
+action = "ToggleViMode"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Shift|Super"
+mode = "Vi|~Search"
+action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+key = "Escape"
+mode = "Vi|~Search"
+action = "ToggleViMode"

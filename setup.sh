@@ -190,7 +190,7 @@ Flags:
                   on a fresh machine you usually need `--only runtimes,packages`
                   (and `herdr` / `tuios` also need the `links` section first).
                   Available sections:
-                    links      — dotfile symlinks (top-level, .config, bin)
+                    links      — dotfile symlinks (top-level, .config, bin) + noctty config
                     nvim       — Neovim / LazyVim bootstrap
                     brew       — Homebrew formulae/casks (macOS + WSL/Linuxbrew)
                     apt        — Debian/Ubuntu packages + Neovim      (Linux only)
@@ -822,6 +822,67 @@ link_tmux_and_bin() {
         ensure_link "$binfile" "$HOME/bin/$base"
     done < <(find "$script_path/bin" -maxdepth 1 -mindepth 1 -print0)
     yellow 'Init scripts finish.'
+}
+
+# ---------------------------------------------------------------------------
+# noctty — a native Windows terminal built on Ghostty's core. Its config is at
+# %LOCALAPPDATA%\noctty\config.ghostty, outside $HOME, so the generic
+# .config/* linking can never reach it: copy the repo copy there when that
+# directory exists (natively under Git Bash via %LOCALAPPDATA%, or from WSL
+# via cmd.exe + wslpath). No-op on every other machine.
+# ---------------------------------------------------------------------------
+noctty_config_dst() {
+    local base=""
+    if [ -n "${LOCALAPPDATA:-}" ]; then
+        if command_exists cygpath; then
+            base=$(cygpath -u "$LOCALAPPDATA")
+        else
+            base=$LOCALAPPDATA
+        fi
+    elif is_wsl && command_exists cmd.exe && command_exists wslpath; then
+        base=$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')
+        [ -n "$base" ] && base=$(wslpath -u "$base")
+    fi
+    [ -n "$base" ] || return 1
+    printf '%s/noctty/config.ghostty\n' "$base"
+}
+
+# link_noctty_config — deploy the repo's noctty config to the Windows path.
+# check reports drift; init/repair sync it (one-time .dotfiles.bak backup).
+link_noctty_config() {
+    local src="${script_path}/noctty/config.ghostty"
+    local dst
+    [ -f "$src" ] || return 0
+    dst=$(noctty_config_dst) || return 0
+    [ -d "$(dirname "$dst")" ] || return 0
+
+    if [ -f "$dst" ] && cmp -s "$src" "$dst"; then
+        return 0
+    fi
+
+    if [ "$MODE" = "check" ]; then
+        if [ -e "$dst" ]; then
+            yellow "check: noctty config differs (${dst})"
+        else
+            yellow "check: missing noctty config (${dst})"
+        fi
+        mark_check_failure
+        return 0
+    fi
+
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would copy ${src} -> ${dst}"
+        return 0
+    fi
+
+    if [ -e "$dst" ] && [ ! -e "${dst}.dotfiles.bak" ]; then
+        cp -- "$dst" "${dst}.dotfiles.bak" 2>/dev/null || true
+    fi
+    if cp -- "$src" "$dst" 2>/dev/null; then
+        yellow "noctty config -> ${dst}"
+    else
+        yellow "warn: could not write noctty config ${dst}"
+    fi
 }
 
 ensure_brew_tap_remote() {
@@ -2074,6 +2135,7 @@ run_setup() {
         link_top_level_dotfiles
         link_config_entries
         link_tmux_and_bin
+        link_noctty_config
     fi
 
     # ── nvim ───────────────────────────────────────────────────────────────

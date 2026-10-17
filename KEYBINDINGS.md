@@ -176,6 +176,7 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | 文件 | 配置内容 |
 | ------ | ---------- |
 | `.config/ghostty/config` | Cmd 键（Ghostty 原生分屏） |
+| `.config/alacritty/alacritty.toml` | 字体/字号对齐 noctty（Hack Nerd Font 12pt、无连字）；无原生分屏，Alt / Ctrl+Alt 原样透传给复用器（Windows/macOS 备选终端） |
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
