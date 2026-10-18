@@ -25,6 +25,10 @@ multitail：同时 tail 多个日志；低频，简单场景可用 `tail -f` + t
 hexyl：彩色十六进制查看器，替代 xxd/hexdump 的阅读场景。
 ouch：统一压缩/解压入口，减少记 tar/zip/7z 参数。
 csvlens：几十 GB CSV 都能浏览。
+flint/leaf/glow：终端 Markdown 阅读器，适合快速预览 README/笔记。
+bookokrat：终端 EPUB/PDF 阅读器，可把 EPUB 拆成 markdown 章节供下游工具使用。
+jdupes：快速重复文件查找，支持硬链接或删除清理，比 fdupes 快。
+unison：双向文件同步工具，适合两台机器/目录间保持一致；单向同步仍可用 rsync。
 
 # ── 磁盘 / 进程 / 系统监控 ───────────────────────────────────────────
 dust：更直观的 du，可视化展示目录体积。
@@ -38,6 +42,7 @@ glances：跨平台系统监控，可远程/网页模式；Python 环境中可�
 htop：经典交互式 top 替代品，远程机器上仍常见。
 cpulimit：限制进程 CPU 占用，临时压住发热/高负载进程。
 pstree：用树形结构查看进程父子关系。
+vnstat：基于内核计数的网络流量统计，按网卡记录日/月用量，不抓包、开销极低。
 fastfetch：快速输出系统/硬件/终端环境概览，替代 neofetch 类工具。
 
 # ── Git / 版本控制 / Diff ───────────────────────────────────────────
@@ -47,6 +52,8 @@ gitui：Rust 写的 Git TUI，lazygit 的轻量替代选择。
 tig：经典字符界面 Git 浏览器，适合查看 log/blame/status。
 delta：漂亮的 git diff pager，支持 side-by-side、行号、语法高亮。
 icdiff：并排 diff；delta 不可用时仍可作为 git diff viewer。
+gh：GitHub 官方 CLI，管理 PR/issue/release/workflow，常见仓库操作不用开浏览器。
+difft (difftastic)：基于 AST 的结构化 diff，比行级 diff 更懂代码语义，可配置为 git diff 工具。
 
 # ── Shell / 提示符 / 历史 / 环境管理 ──────────────────────────────────
 starship：跨 shell prompt，启动快、可配置，zsh/bash/fish 都能用。
@@ -58,7 +65,8 @@ topgrade：一键升级系统包、语言包、插件等；高影响操作，运
 thefuck：根据上一条失败命令给出修正建议；有趣但低频，按需启用。
 
 # ── 终端复用 / 会话 / 远程 ───────────────────────────────────────────
-zellij：日常主力终端复用器，替代多数本地 tmux 使用场景。
+tuios：日常主力终端复用器，支持各种AI agnet
+zellij：终端复用器，替代多数本地 tmux 使用场景。
 herdr：多 agent / 多 pane 协作时的终端编排工具，本环境常与 zellij 搭配。
 tmux：经典终端复用器；本 repo 保留用于远程 SSH 兼容场景。
 tmuxinator：tmux 会话项目模板管理器，适合一键启动固定布局。
@@ -77,12 +85,12 @@ httpie (http)：人类友好的 HTTP 客户端；若已安装可替代复杂 cur
 yt-dlp：主流媒体下载工具，优先替代 youtube-dl / you-get。
 ffmpeg：音视频转码、抽帧、合并、录制的瑞士军刀。
 pandoc：文档格式转换器，Markdown/HTML/LaTeX/Word/PDF 流转常用。
-glow：终端 Markdown 阅读器，适合快速预览 README/笔记。
 imagemagick：图片格式转换、裁切、压缩、批处理；命令通常是 `magick`。
 graphviz：用 DOT 文本生成流程图/关系图。
 
 # ── 开发 / 构建 / 统计 / 性能 ────────────────────────────────────────
 cloc：统计代码行数、注释、空行和语言分布。
+scc：Go 写的极快代码统计工具，cloc 的高速替代，附带复杂度估算。
 hyperfine：命令行 benchmark 工具，比较不同命令/参数性能。
 parallel：GNU parallel，并行执行命令；复杂批处理比 xargs -P 更强。
 ctags / global / cscope：传统代码索引工具，老项目和 Vim 工作流中仍有价值。
