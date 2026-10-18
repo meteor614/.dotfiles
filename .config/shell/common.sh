@@ -130,6 +130,20 @@ export LESS='-R -i -g -c -W'
 export DISABLE_VERSION_CHECK=1
 
 # -----------------------------------------------------------------------------
+# CWD sanity guard
+# -----------------------------------------------------------------------------
+# Multiplexers spawn panes in the focused pane's working directory (tuios:
+# appearance.new_window_inherit_cwd). When that directory has since been
+# deleted — a removed workspace, a cleaned temp dir, an unmounted volume —
+# the shell starts with an unresolvable CWD: getcwd fails and every tool
+# that reads config from "." (mise above all) warns during init. /bin/pwd
+# forces a real getcwd in every shell; when it fails, fall back to $HOME
+# so the rest of this file initializes against a directory that exists.
+if ! /bin/pwd >/dev/null 2>&1; then
+    cd "$HOME" 2>/dev/null || cd / 2>/dev/null || true
+fi
+
+# -----------------------------------------------------------------------------
 # PATH — shared entries (Synology Entware, Homebrew, GNU tools, Go, etc.)
 # -----------------------------------------------------------------------------
 path_prepend /opt/usr/bin
