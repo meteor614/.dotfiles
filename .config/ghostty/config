@@ -23,6 +23,10 @@ scrollback-limit = 10000000
 cursor-style-blink = false
 mouse-hide-while-typing = true
 
+# ----- Startup -----
+# 默认启动目录：home / inherit / 绝对路径 / ~/ 路径
+working-directory = home
+
 # ----- Shell Integration -----
 shell-integration = detect
 shell-integration-features = cursor,sudo,title,path
