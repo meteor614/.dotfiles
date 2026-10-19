@@ -615,7 +615,7 @@ frame = 'window'
 background = 'auto'
 controls = 'auto'
 title_format = '{title}'
-font_family = 'JetBrains Mono, monospace'
+font_family = "Hack Nerd Font, monospace"
 font_file = ''
 cursor = false
 
