@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# tuios-editor — what the files section of tuios's sidebar opens a text file in
+# (appearance.sidebar.editor). Markdown goes to leaf, a terminal reader; every
+# other text file goes to $VISUAL/$EDITOR, then vim.
+#
+# Inside leaf, `e` hands the file to leaf's own external editor, so an .md file
+# can still be edited without giving up the reader.
+set -euo pipefail
+
+[ $# -ge 1 ] || {
+    printf 'usage: %s <file> [args...]\n' "${0##*/}" >&2
+    exit 2
+}
+
+file=$1
+shift
+
+ext=$(printf '%s' "${file##*.}" | tr '[:upper:]' '[:lower:]')
+case $ext in
+    md|markdown|mdown|mkd|mkdn|mdx)
+        if command -v leaf >/dev/null 2>&1; then
+            exec leaf "$file" "$@"
+        fi
+        ;;
+esac
+
+editor=${VISUAL:-${EDITOR:-vim}}
+# Do not re-enter ourselves if tuios is configured with this script's name.
+case ${editor##*/} in
+    tuios-editor) editor=vim ;;
+esac
+
+# Unquoted on purpose: $EDITOR may carry its own arguments.
+# shellcheck disable=SC2086
+exec $editor "$file" "$@"

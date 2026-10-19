@@ -12,6 +12,13 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   `set-config appearance.gap 3`，diff 只有 `gap` 那一行，手写注释原样保留，符号链接
   不受影响。整份重写只剩错误路径（`tuios cannot change the lines of …` /
   `tuios cannot remove … without writing the whole file again`）。
+* **files 栏的 Edit（`shift+enter`）走 `appearance.sidebar.editor`，本仓库把它指向
+  `bin/tuios-editor`**：`.md` / `.markdown` 等交给 `leaf` 阅读器，其余文本文件回落
+  到 `$VISUAL` / `$EDITOR`（本机 `EDITOR=nvim`）。tuios 0.9.x 只能配**一个**编辑器，
+  没有按扩展名的规则；文件行菜单（`m`）和 sidebar 键位表里也没有「查看 / 用…打开」
+  这类 action，所以「查看 vs 编辑」只能在包装脚本里分派，leaf 内按 `e` 仍可交给它
+  自己的外部编辑器。`setup.sh` 会把 `bin/*` 链到 `~/bin`，daemon 的 PATH 里有 `~/bin`，
+  配置里写裸名 `tuios-editor` 即可，不必写机器相关的绝对路径。
 * **瘦身用 `tuios config prune`，它是收敛的**。删掉值等于默认值的键，保留注释、保留
   `[startup]`、保留符号链接；之后日常 `set-config` / `keybinds` 改写不会把它撑回去
   （实测 653 → 193 行，连续改 appearance / theme / 键位后仍停在 197 行）。改动前先跑
