@@ -660,13 +660,66 @@ init_submodules() {
     yellow 'Init submodules finish.'
 }
 
+# Top-level dotfiles deployed to $HOME. This is an explicit allow-list on
+# purpose: the old `find -name ".*" ! -name …` blacklist linked *whatever*
+# hidden file happened to appear in the repo root, so one stray `.netrc`,
+# `.aws/`, or `.api_key_env` copied into the tree would be deployed to $HOME on
+# the next `init`. Add new top-level dotfiles here.
+#
+# Not listed on purpose:
+#   .gitmodules, .gitignore                — repo metadata
+#   .ripgreprc, .envrc                      — project-local, consumed in place
+#   .tmux/                                  — submodule, linked via .tmux/.tmux.conf
+#   .pi/, .reasonix/, .codebuddy/           — directories with mixed runtime data,
+#                                             linked file-by-file by their own
+#                                             sections (see link_pi_config etc.)
+#   .jj/                                    — jj workspace metadata
+#   *.zwc                                   — compiled rc artifacts, never deployed
+top_level_dotfiles=(
+    .bash_profile
+    .bashrc
+    .clang-format
+    .condarc
+    .editorconfig
+    .gdbinit
+    .gitconfig
+    .gitignore_global
+    .tigrc
+    .tmux.conf.local
+    .zshenv
+    .zshrc
+    .zshrc.local
+)
+
 link_top_level_dotfiles() {
     red 'Init dotfiles...'
-    while IFS= read -r -d '' file; do
-        local base
-        base=$(basename "$file")
-        ensure_link "$file" "$HOME/$base"
-    done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" ! -name ".gitmodules" ! -name ".gitignore" ! -name ".ripgreprc" ! -name ".envrc" ! -name "*.zwc" ! -name ".git" ! -type d -print0)
+    local name
+    for name in "${top_level_dotfiles[@]}"; do
+        if [ ! -e "$script_path/$name" ] && [ ! -L "$script_path/$name" ]; then
+            yellow "warn: $name listed in top_level_dotfiles but missing from the repo"
+            continue
+        fi
+        ensure_link "$script_path/$name" "$HOME/$name"
+    done
+
+    # Anything else hidden at the top level is deliberately not deployed; say so
+    # (init only) instead of dropping it silently the way a blacklist would.
+    if [ "$MODE" = "init" ] && [ "$DRY_RUN" != "1" ]; then
+        local entry base known
+        while IFS= read -r -d '' entry; do
+            base=$(basename "$entry")
+            known=0
+            for name in "${top_level_dotfiles[@]}"; do
+                [ "$name" = "$base" ] && { known=1; break; }
+            done
+            [ "$known" -eq 1 ] && continue
+            case "$base" in
+                .git|.jj|.gitmodules|.gitignore|.ripgreprc|.envrc|*.zwc) continue ;;
+            esac
+            [ -d "$entry" ] && [ ! -L "$entry" ] && continue
+            yellow "note: $base is not in top_level_dotfiles; not linked to \$HOME"
+        done < <(find "$script_path" -maxdepth 1 -mindepth 1 -name ".*" -print0)
+    fi
 
     yellow 'Init dotfiles finish.'
 }

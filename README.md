@@ -111,6 +111,10 @@
 ## 目录结构
 
 * 顶层 dotfiles（`.zshrc`、`.gitconfig` 等）→ 符号链接到 `~/`。
+  **只有 `setup.sh` 里 `top_level_dotfiles` 白名单内的文件才会被链接**；
+  顶层新增的隐藏文件默认不部署（`init` 时会打印 `note: … not linked`）。
+  这样做是为了避免仓库里误留的 `.netrc` / `.api_key_env` 一类文件被自动铺到
+  `$HOME`。新增顶层 dotfile 需要同时加入该白名单。
 * `.config/*` → `~/.config/*`（文件符号链接；目录先创建再链接内容）。
 * `.config/nvim` — 特例：LazyVim starter 树位于 `~/.config/nvim`，
   只有 `lua/config` 和 `lua/plugins` 来自本仓库。

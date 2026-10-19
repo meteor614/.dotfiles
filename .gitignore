@@ -28,3 +28,13 @@ nvim.log
 # (real cache lives at ~/.zsh_cache; this covers a stray copy in the repo)
 .zsh_cache/
 
+# Compiled zsh rc files. `zcompile` writes <file>.zwc next to its input, so
+# `zcompile .config/shell/common.sh` (a relative path) drops the dump inside
+# the repo even though the symlinked ~/.config copy lands in $HOME.
+*.zwc
+
+# Machine-local secrets sourced from common.sh (`[ -f ~/.api_key_env ] && . …`).
+# The file is expected to live outside the repo, but a stray copy must never be
+# committed — it holds provider API keys in plain text.
+.api_key_env
+
