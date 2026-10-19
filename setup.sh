@@ -831,16 +831,44 @@ link_tmux_and_bin() {
 # directory exists (natively under Git Bash via %LOCALAPPDATA%, or from WSL
 # via cmd.exe + wslpath). No-op on every other machine.
 # ---------------------------------------------------------------------------
+
+# cmd.exe lookup for WSL. /etc/wsl.conf sets `[interop] appendWindowsPath = false`
+# (the injected Windows PATH made every command lookup a 9p round-trip), so
+# cmd.exe is no longer on PATH and a bare `command -v cmd.exe` would silently
+# disable this whole section. Resolve it directly instead, and remember the
+# absolute path in a variable so the two call sites stay consistent.
+_wsl_cmd_exe=""
+wsl_cmd_exe() {
+    is_wsl || return 1
+    command_exists wslpath || return 1
+    if [ -n "$_wsl_cmd_exe" ] && [ -x "$_wsl_cmd_exe" ]; then
+        printf '%s\n' "$_wsl_cmd_exe"
+        return 0
+    fi
+    local candidate
+    for candidate in /mnt/c/Windows/system32/cmd.exe /mnt/c/Windows/cmd.exe; do
+        [ -x "$candidate" ] || continue
+        _wsl_cmd_exe=$candidate
+        printf '%s\n' "$candidate"
+        return 0
+    done
+    # Last resort: an interop-enabled PATH (e.g. appendWindowsPath left at 1).
+    command_exists cmd.exe || return 1
+    _wsl_cmd_exe=$(command -v cmd.exe)
+    printf '%s\n' "$_wsl_cmd_exe"
+}
+
 noctty_config_dst() {
     local base=""
+    local cmd_bin=""
     if [ -n "${LOCALAPPDATA:-}" ]; then
         if command_exists cygpath; then
             base=$(cygpath -u "$LOCALAPPDATA")
         else
             base=$LOCALAPPDATA
         fi
-    elif is_wsl && command_exists cmd.exe && command_exists wslpath; then
-        base=$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')
+    elif cmd_bin=$(wsl_cmd_exe); then
+        base=$("$cmd_bin" /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')
         [ -n "$base" ] && base=$(wslpath -u "$base")
     fi
     [ -n "$base" ] || return 1

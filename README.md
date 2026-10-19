@@ -87,6 +87,18 @@
   对齐 macOS，复用同一套 Homebrew 镜像配置；公式列表是面向 Linux 的精简集
   （apt/releases 已覆盖的不重复安装）。字体由 `fonts` 段直接从上游取
   （Hack Nerd Font + Sarasa Mono SC）。
+  另外 WSL 建议在 `/etc/wsl.conf` 里设 `[interop] appendWindowsPath = false`：
+  注入的 Windows PATH 会带来几十个 `/mnt/*` 目录，每次命令查找未命中都要付
+  一次 9p 往返（实测单次 45–70ms），是 shell 启动变慢的主因（实测约
+  0.8s → 0.1s）。关掉后 `.config/shell/common.sh` 只显式 append 真正需要的
+  几个 Windows 目录（`system32`、`PowerShell/v1.0`、`Windows`），`.exe` 仍可经
+  binfmt_misc 直接执行。该文件不在仓库内，内容如下（改完需 `wsl --shutdown`
+  才生效）：
+
+  ```ini
+  [interop]
+  appendWindowsPath=false
+  ```
 * Debian/Ubuntu（非 WSL）→ `apt` 安装发行版软件包；Neovim 用官方 release 压缩包
   （发行版的版本对 LazyVim 过旧）；`jj`/`mise`/`herdr`/`tuios`/`starship`/`atuin`/
   `lazygit`/`zellij`/`yazi`/`ouch`/`procs`/`broot`/`glow`/`btm`/`ast-grep`/

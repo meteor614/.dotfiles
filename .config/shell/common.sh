@@ -64,6 +64,25 @@ path_force_prepend() {
 
 
 # -----------------------------------------------------------------------------
+# Command lookup helper (shared by bash + zsh)
+# -----------------------------------------------------------------------------
+# has_cmd <name> — true when <name> resolves on PATH.
+#
+# zsh gets a big win from $+commands: it maintains a hashed command table, so a
+# lookup is ~6ms even on a WSL PATH with 36 /mnt entries, where `command -v`
+# pays a 9p round-trip per directory (~45-70ms) because it walks PATH itself.
+# bash has no negative cache (`hash` is no cheaper than `command -v` on a miss),
+# so it keeps `command -v`; the WSL fix there is appendWindowsPath=false, not
+# this helper.
+if [ "$_DOTFILES_SHELL" = "zsh" ]; then
+    # shellcheck disable=SC2154  # $commands is a zsh builtin associative array
+    has_cmd() { (( $+commands[$1] )); }
+else
+    has_cmd() { command -v "$1" >/dev/null 2>&1; }
+fi
+
+
+# -----------------------------------------------------------------------------
 # Cached eval helper (shared by bash + zsh)
 # -----------------------------------------------------------------------------
 dotfiles_cached_eval() {
@@ -185,8 +204,28 @@ else
     path_prepend /usr/local/opt/ruby/bin
 fi
 
+# -----------------------------------------------------------------------------
+# WSL Windows interop dirs
+#
+# /etc/wsl.conf sets `[interop] appendWindowsPath = false`: the injected Windows
+# PATH used to add 36 /mnt/* entries here, and every `command -v` miss then paid
+# a 9p round-trip per directory (~45-70ms), which dominated shell startup.
+#
+# .exe files still run without being on PATH (binfmt_misc handles them), so only
+# the dirs that are actually reached through PATH lookups are listed below. They
+# are *appended*, not prepended: native Linux tools must keep winning, and an
+# appended dir survives mise's PATH rewrite (verified on zsh activate + bash
+# hook-env). Add entries here if a new Windows tool needs to be found by name.
+# -----------------------------------------------------------------------------
+if [ "$_DOTFILES_UNAME_S" = "Linux" ] \
+    && { [ -n "${WSL_DISTRO_NAME:-}" ] || [ -n "${WSL_INTEROP:-}" ]; }; then
+    path_append /mnt/c/Windows/system32                    # cmd.exe, clip.exe, …
+    path_append /mnt/c/Windows/System32/WindowsPowerShell/v1.0  # powershell.exe
+    path_append /mnt/c/Windows                             # explorer.exe, notepad.exe, …
+fi
+
 # Go environment
-if command -v go >/dev/null 2>&1 && [ -z "$GOPATH" ]; then
+if has_cmd go && [ -z "$GOPATH" ]; then
     export GOPATH="$HOME/gowork"
     path_append "$GOPATH/bin"
     path_append /usr/local/opt/go/libexec/bin
@@ -209,7 +248,7 @@ export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
 
-command -v lesspipe.sh >/dev/null 2>&1 && {
+has_cmd lesspipe.sh && {
     export LESSOPEN='|lesspipe.sh %s'
     export LESSCLOSE='lesspipe.sh %s %s'
 }
@@ -279,7 +318,7 @@ _dotfiles_set_term() {
 
     # When SSH'd in, trust whatever terminfo exists; fall back to xterm-256color.
     if [ -n "${SSH_CONNECTION:-}" ] || [ -n "${SSH_TTY:-}" ]; then
-        if command -v infocmp >/dev/null 2>&1 \
+        if has_cmd infocmp \
             && infocmp -x "${TERM:-xterm-256color}" >/dev/null 2>&1; then
             return 0
         fi
@@ -301,7 +340,7 @@ _dotfiles_set_term() {
             fi
             rm -f "$cache_file.ghostty" 2>/dev/null || true
             mkdir -p "$cache_dir"
-            if command -v infocmp >/dev/null 2>&1 \
+            if has_cmd infocmp \
                 && infocmp -x xterm-ghostty >/dev/null 2>&1; then
                 printf '%s\n' xterm-ghostty >| "$cache_file.ghostty"
                 export TERM=xterm-ghostty
@@ -319,7 +358,7 @@ _dotfiles_set_term() {
             fi
             rm -f "$cache_file.wezterm" 2>/dev/null || true
             mkdir -p "$cache_dir"
-            if command -v infocmp >/dev/null 2>&1 \
+            if has_cmd infocmp \
                 && infocmp -x wezterm >/dev/null 2>&1; then
                 printf '%s\n' wezterm >| "$cache_file.wezterm"
                 export TERM=wezterm
@@ -360,7 +399,7 @@ esac
 # (intentionally not unset — reused by the brew wrapper just below)
 if [ "${USE_CN_MIRROR:-1}" = "1" ] \
     && [ "$_dotfiles_interactive" = "1" ] \
-    && command -v brew >/dev/null 2>&1; then
+    && has_cmd brew; then
     _DOTFILES_BREW="$(command -v brew)"
     brew() {
         local _dotfiles_brew_exit=0
@@ -393,7 +432,7 @@ alias scp='scp -O'
 # alias zjl='zellij list-sessions'
 # alias zjk='zellij kill-session'
 
-if command -v eza >/dev/null 2>&1; then
+if has_cmd eza; then
     alias ls='eza'
     alias ll='eza --icons -l'
     alias l='eza --icons -l'
@@ -419,41 +458,41 @@ alias grhh='git reset --hard'
 alias gsu='git submodule update'
 
 # git diff viewers
-if command -v delta >/dev/null 2>&1; then
+if has_cmd delta; then
     alias gd='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff'
     alias gdca='git -c core.pager=delta -c delta.side-by-side=true -c delta.line-numbers=true -c delta.navigate=true diff --cached'
     alias gdcw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --cached --word-diff=color'
     alias gdw='git -c core.pager=delta -c delta.line-numbers=true -c delta.navigate=true diff --word-diff=color'
-elif command -v icdiff >/dev/null 2>&1; then
+elif has_cmd icdiff; then
     alias gd='git icdiff'
     alias gdca='git icdiff --cached'
     alias gdcw='git icdiff --cached --word-diff'
     alias gdw='git icdiff --word-diff'
 fi
 
-if command -v parallel >/dev/null 2>&1; then
+if has_cmd parallel; then
     alias p='parallel'
     alias pp='parallel --pipe -k'
 else
     alias p='xargs -P 16'
 fi
 
-command -v tmuxinator >/dev/null 2>&1 && alias mux=tmuxinator
-command -v make >/dev/null 2>&1 && alias mak='make -j 16'
-command -v nvim >/dev/null 2>&1 && alias vim='nvim'
+has_cmd tmuxinator && alias mux=tmuxinator
+has_cmd make && alias mak='make -j 16'
+has_cmd nvim && alias vim='nvim'
 alias Vim='vim'
 alias vi='vim'
-command -v watch >/dev/null 2>&1 && alias watch='watch -c'
+has_cmd watch && alias watch='watch -c'
 # docker: only escalate via sudo on Linux when the user lacks docker access.
 # On macOS (Docker Desktop), rootless docker, or when already in the docker
 # group / running as root, plain `docker` works and sudo would be wrong.
-if command -v docker >/dev/null 2>&1; then
+if has_cmd docker; then
     if [ "$_DOTFILES_UNAME_S" = "Linux" ] && [ "$_DOTFILES_UID" -ne 0 ] \
         && ! id -nG 2>/dev/null | tr ' ' '\n' | grep -qx docker; then
         alias docker='sudo -E docker'
     fi
 fi
-if command -v pip3 >/dev/null 2>&1; then
+if has_cmd pip3; then
     pip() {
         if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/pip" ]; then
             "${VIRTUAL_ENV}/bin/pip" "$@"
@@ -462,7 +501,7 @@ if command -v pip3 >/dev/null 2>&1; then
         fi
     }
 fi
-if command -v python3 >/dev/null 2>&1; then
+if has_cmd python3; then
     python() {
         if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/python" ]; then
             "${VIRTUAL_ENV}/bin/python" "$@"
@@ -471,10 +510,10 @@ if command -v python3 >/dev/null 2>&1; then
         fi
     }
 fi
-if command -v dtruss >/dev/null 2>&1 && ! command -v strace >/dev/null 2>&1; then
+if has_cmd dtruss && ! has_cmd strace; then
     alias strace='dtruss'
 fi
-if command -v claude-internal >/dev/null 2>&1; then
+if has_cmd claude-internal; then
     if [ "$_DOTFILES_UID" -ne 0 ]; then
         alias claude-internal='claude-internal --allow-dangerously-skip-permissions'
         alias cci='claude-internal --allow-dangerously-skip-permissions'
@@ -484,7 +523,7 @@ if command -v claude-internal >/dev/null 2>&1; then
 fi
 
 # ouch: unified compress/decompress
-command -v ouch >/dev/null 2>&1 && {
+has_cmd ouch && {
     alias x='ouch decompress'
     alias xc='ouch compress'
 }
@@ -494,7 +533,7 @@ command -v ouch >/dev/null 2>&1 && {
 # -----------------------------------------------------------------------------
 
 # yazi: cd to last-browsed directory on exit
-if command -v yazi >/dev/null 2>&1; then
+if has_cmd yazi; then
     y() {
         local tmp cwd
         tmp="$(mktemp -t "yazi-cwd.XXXXXX")" || return
@@ -565,7 +604,7 @@ _dotfiles_newest_version_dir() {
 }
 
 _dotfiles_ensure_node_path() {
-    command -v node >/dev/null 2>&1 && return 0
+    has_cmd node && return 0
 
     local _node_bin="" _node_dir=""
 
@@ -573,7 +612,7 @@ _dotfiles_ensure_node_path() {
     # install, this honours a project .tool-versions/.mise.toml. Left uncached
     # because the answer depends on $PWD, and the ~10ms fork only happens on
     # shells where node is not in PATH yet.
-    if command -v mise >/dev/null 2>&1; then
+    if has_cmd mise; then
         _node_bin="$(mise which node 2>/dev/null)" || _node_bin=""
     fi
 
@@ -607,10 +646,10 @@ unset -f _dotfiles_ensure_node_path
 #      clears the pane state (SessionEnd → none)
 # Under tuios the herdr script no-ops on its own TUIOS_ENV gate, so the
 # pre/post announce goes through `tuios agent-hook` directly.
-if command -v reasonix >/dev/null 2>&1; then
+if has_cmd reasonix; then
     reasonix() {
         local hook="$HOME/.reasonix/hooks/herdr-agent-state.sh"
-        if [ "${TUIOS_ENV:-}" = "1" ] && command -v tuios >/dev/null 2>&1; then
+        if [ "${TUIOS_ENV:-}" = "1" ] && has_cmd tuios; then
             tuios agent-hook claude-code SessionStart </dev/null >/dev/null 2>&1 || true
         elif [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
             bash "$hook" idle </dev/null >/dev/null 2>&1 || true
@@ -620,7 +659,7 @@ if command -v reasonix >/dev/null 2>&1; then
         type _auto_venv_restore >/dev/null 2>&1 && _auto_venv_restore
         command reasonix "$@"
         local rc=$?
-        if [ "${TUIOS_ENV:-}" = "1" ] && command -v tuios >/dev/null 2>&1; then
+        if [ "${TUIOS_ENV:-}" = "1" ] && has_cmd tuios; then
             tuios agent-hook claude-code SessionEnd </dev/null >/dev/null 2>&1 || true
         elif [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
             bash "$hook" release </dev/null >/dev/null 2>&1 || true
@@ -635,7 +674,7 @@ fi
 # -----------------------------------------------------------------------------
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
-if command -v mise >/dev/null 2>&1; then
+if has_cmd mise; then
     # mise activate: installs chpwd/precmd hooks so .tool-versions in
     # subdirectories automatically switch runtime versions on cd.
     # Output is cached so mise is only forked once per binary update.
@@ -690,7 +729,7 @@ unset _broot_launcher
 # -----------------------------------------------------------------------------
 # jj (Jujutsu) — git-compatible VCS; completion wired per shell
 # -----------------------------------------------------------------------------
-if command -v jj >/dev/null 2>&1; then
+if has_cmd jj; then
     if [ -n "${ZSH_VERSION:-}" ]; then
         # Lazy-load zsh completion (generate once, cache it)
         _jj_load() {
@@ -714,7 +753,7 @@ fi
 # path to the global _dotfiles_starship_bin (empty when not found).
 _dotfiles_starship_bin() {
     _dotfiles_starship_bin=""
-    if command -v starship >/dev/null 2>&1; then
+    if has_cmd starship; then
         _dotfiles_starship_bin=$(command -v starship)
         return 0
     fi
@@ -733,7 +772,7 @@ _dotfiles_starship_bin() {
 # .zwc transparently. Queued via _defer from .zshrc so it never blocks boot.
 _dotfiles_zcompile_startup() {
     [ "$_DOTFILES_SHELL" = "zsh" ] || return 0
-    command -v zcompile >/dev/null 2>&1 || return 0
+    has_cmd zcompile || return 0
     local f
     for f in "$HOME/.zshrc" "$HOME/.zshrc.local" "$HOME/.config/shell/common.sh"; do
         [ -f "$f" ] && zcompile "$f" 2>/dev/null || true
@@ -752,12 +791,17 @@ fi
 # Ruby gem executable directory (cached; shared by bash + zsh)
 # -----------------------------------------------------------------------------
 _dotfiles_add_gem_bin() {
-    command -v gem >/dev/null 2>&1 || return 0
-
     local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
     local cache_file="$cache_dir/gem_bin_path"
     local gem_bin=""
 
+    # Cache read comes *before* the gem lookup on purpose. `command -v gem` is a
+    # PATH walk that costs a 9p round-trip per Windows dir on WSL (~45-70ms when
+    # it misses), and it used to run first on every single shell start even
+    # though the answer is cached. A cached, still-existing dir means gem was
+    # found when the cache was written; when the cache is cold or stale we pay
+    # the lookup once and re-cache.
+    #
     # TTL-based validity (same 30-day guard as the TERM cache). Keying on the
     # gem binary's mtime instead would invalidate the cache permanently after
     # every gem/ruby upgrade and re-fork the slow `gem environment gemdir`.
@@ -766,6 +810,8 @@ _dotfiles_add_gem_bin() {
     fi
 
     if [ -z "$gem_bin" ] || [ ! -d "$gem_bin" ]; then
+        # Cold/stale cache: gem must exist before we ask it anything.
+        has_cmd gem || return 0
         gem_bin="$(gem environment gemdir 2>/dev/null)/bin"
         if [ -d "$gem_bin" ]; then
             mkdir -p "$cache_dir"
@@ -855,7 +901,7 @@ fi
 # -----------------------------------------------------------------------------
 # direnv: per-directory environment (hook cached to avoid fork on every shell)
 # -----------------------------------------------------------------------------
-if command -v direnv >/dev/null 2>&1; then
+if has_cmd direnv; then
     if [ -n "${ZSH_VERSION:-}" ]; then
         if typeset -f _defer >/dev/null 2>&1; then
             _defer dotfiles_cached_eval direnv "$(command -v direnv)" zsh hook zsh
