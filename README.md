@@ -67,7 +67,7 @@
 | --------- | ------------------------------------------------------- |
 | `init`    | （默认）创建缺失的符号链接，然后安装依赖                 |
 | `check`   | 只读：报告缺失/不匹配的链接（含指向本仓库但源已删除的死链） |
-| `repair`  | 备份并修复不匹配的链接、合并受管理配置；不安装软件或删除死链 |
+| `repair`  | 备份并修复不匹配的链接、合并受管理配置、补 `~/.gitconfig` 的 `[include]`；不安装软件或删除死链 |
 | `prune`   | 删除死链（指向本仓库、源已不存在）及过期 `*.zwc`          |
 
 参数：
@@ -110,11 +110,20 @@
 
 ## 目录结构
 
-* 顶层 dotfiles（`.zshrc`、`.gitconfig` 等）→ 符号链接到 `~/`。
+* 顶层 dotfiles（`.zshrc`、`.bashrc` 等）→ 符号链接到 `~/`。
   **只有 `setup.sh` 里 `top_level_dotfiles` 白名单内的文件才会被链接**；
   顶层新增的隐藏文件默认不部署（`init` 时会打印 `note: … not linked`）。
   这样做是为了避免仓库里误留的 `.netrc` / `.api_key_env` 一类文件被自动铺到
   `$HOME`。新增顶层 dotfile 需要同时加入该白名单。
+* `.gitconfig` — **例外，不符号链接**：`setup.sh` 在 `~/.gitconfig` 维护一个
+  机器本地文件，用 `[include]` 引入本仓库的 `.gitconfig`（共享基线层），
+  本地设置写在 include 之后因而生效。原因是 git 会穿透符号链接写入，
+  `git config --global …`、`git lfs install`、credential helper 都会把机器状态
+  直接改进仓库的 tracked 文件。`init` 会把旧的链接迁移成该文件并保留当前
+  `user.name`/`user.email`（共享层设了 `useConfigOnly`，丢了会导致无法提交）；
+  `check` 报告漂移，`repair` 补上/前置 `[include]`，`prune` 不会碰这个文件。
+  注意据此不能靠 `$XDG_CONFIG_HOME/git/config` 分层：git 只在 `~/.gitconfig`
+  缺失时才读它。
 * `.config/*` → `~/.config/*`（文件符号链接；目录先创建再链接内容）。
 * `.config/nvim` — 特例：LazyVim starter 树位于 `~/.config/nvim`，
   只有 `lua/config` 和 `lua/plugins` 来自本仓库。

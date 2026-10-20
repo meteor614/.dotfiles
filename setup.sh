@@ -172,6 +172,9 @@ Commands:
   check           Report missing/mismatched links without writing changes
   repair          Backup/repair links and merge managed config only.
                   Does not install packages, update submodules, or prune links.
+                  Also materializes ~/.gitconfig (a local file including the
+                  repo's shared .gitconfig) and adds the [include] to an
+                  existing ~/.gitconfig that lacks it.
   prune           Remove stale links under the managed roots that point back into
                   this repo but whose source no longer exists (and stale *.zwc).
                   Honors --only: prune runs when its sections are selected
@@ -190,7 +193,7 @@ Flags:
                   on a fresh machine you usually need `--only runtimes,packages`
                   (and `herdr` / `tuios` also need the `links` section first).
                   Available sections:
-                    links      — dotfile symlinks (top-level, .config, bin) + noctty config
+                    links      — dotfile symlinks (top-level, .config, bin) + ~/.gitconfig + noctty config
                     nvim       — Neovim / LazyVim bootstrap
                     brew       — Homebrew formulae/casks (macOS + WSL/Linuxbrew)
                     apt        — Debian/Ubuntu packages + Neovim      (Linux only)
@@ -674,6 +677,14 @@ init_submodules() {
 #                                             linked file-by-file by their own
 #                                             sections (see link_pi_config etc.)
 #   .jj/                                    — jj workspace metadata
+#   .gitconfig                              — shared git layer, pulled in by an
+#                                             [include] from the machine-local
+#                                             ~/.gitconfig (setup_gitconfig).
+#                                             Never symlinked: git resolves the
+#                                             link when it writes, so
+#                                             `git config --global …`,
+#                                             `git lfs install`, and credential
+#                                             helpers would rewrite it in-repo.
 #   *.zwc                                   — compiled rc artifacts, never deployed
 top_level_dotfiles=(
     .bash_profile
@@ -682,7 +693,6 @@ top_level_dotfiles=(
     .condarc
     .editorconfig
     .gdbinit
-    .gitconfig
     .gitignore_global
     .tigrc
     .tmux.conf.local
@@ -714,7 +724,7 @@ link_top_level_dotfiles() {
             done
             [ "$known" -eq 1 ] && continue
             case "$base" in
-                .git|.jj|.gitmodules|.gitignore|.ripgreprc|.envrc|*.zwc) continue ;;
+                .git|.jj|.gitmodules|.gitignore|.ripgreprc|.envrc|.gitconfig|*.zwc) continue ;;
             esac
             [ -d "$entry" ] && [ ! -L "$entry" ] && continue
             yellow "note: $base is not in top_level_dotfiles; not linked to \$HOME"
@@ -722,6 +732,165 @@ link_top_level_dotfiles() {
     fi
 
     yellow 'Init dotfiles finish.'
+}
+
+# ---------------------------------------------------------------------------
+# setup_gitconfig — ~/.gitconfig is a machine-local file, never a symlink.
+#
+# `git config --global …` (also `git lfs install`, `gh auth setup-git`, and
+# credential helpers) resolves a symlink before writing, so linking
+# ~/.gitconfig at this repo meant every such write landed in tracked content:
+# the working copy went dirty and each host fought the others over identity.
+# Instead:
+#
+#   ~/.gitconfig  →  [include] path = <repo>/.gitconfig   (shared base layer)
+#                    + whatever this machine set (wins, because it comes later)
+#
+# git expands [include] in place and the last value wins, so machine-local
+# identity/credentials override the shared defaults without touching the repo.
+# Layering through $XDG_CONFIG_HOME/git/config is not an option: git reads that
+# file only when ~/.gitconfig does not exist.
+# ---------------------------------------------------------------------------
+gitconfig_include_block() {
+    printf '%s\n' \
+        '# Machine-local git config. The shared layer lives in the dotfiles repo and is' \
+        '# pulled in by [include] below; anything set here (or with `git config' \
+        '# --global …`) overrides it and stays on this machine.' \
+        '[include]'
+    printf '\tpath = %s\n' "${script_path}/.gitconfig"
+}
+
+# expand_include_path <value> <dir-of-including-file> — apply git's rules for
+# include.path: leading ~/ is $HOME, relative paths are relative to the file
+# that contains the include.
+gitconfig_expand_include_path() {
+    local p=$1
+    local base=$2
+    case "$p" in
+        "~"|"~/") p="$HOME" ;;
+        "~/"*) p="${HOME}/${p#\~/}" ;;
+        /*) ;;
+        *) p="${base}/${p}" ;;
+    esac
+    printf '%s\n' "$p"
+}
+
+# gitconfig_includes_repo <file> — true when <file> includes this repo's shared
+# layer. Compares resolved paths, so `~/…`, relative, and absolute spellings and
+# a symlinked parent directory all match.
+gitconfig_includes_repo() {
+    local file=$1
+    local src values value expanded
+
+    [ -f "$file" ] || return 1
+    src=$(resolve_path "${script_path}/.gitconfig")
+
+    if command_exists git; then
+        values=$(git config --file "$file" --get-all include.path 2>/dev/null || true)
+    else
+        values=$(grep -Eo '^[[:space:]]*path[[:space:]]*=[[:space:]]*.*' "$file" 2>/dev/null \
+            | sed -e 's/^[^=]*=[[:space:]]*//' -e 's/[[:space:]]*$//' || true)
+    fi
+
+    while IFS= read -r value; do
+        [ -n "$value" ] || continue
+        expanded=$(gitconfig_expand_include_path "$value" "$(dirname -- "$file")")
+        if [ "$(resolve_path "$expanded")" = "$src" ]; then
+            return 0
+        fi
+    done <<< "$values"
+
+    return 1
+}
+
+setup_gitconfig() {
+    local src="${script_path}/.gitconfig"
+    local dst="${HOME}/.gitconfig"
+    local current_name current_email tmp
+
+    [ -f "$src" ] || return 0
+
+    # Old deployment: ~/.gitconfig was a symlink into this repo. Report it in
+    # check mode; migrate it in init/repair, keeping the identity this host is
+    # using right now (the shared layer sets `useConfigOnly`, so dropping it
+    # would make every commit fail).
+    if [ -L "$dst" ] && [ "$(resolve_path "$dst")" = "$(resolve_path "$src")" ]; then
+        if [ "$MODE" = "check" ]; then
+            yellow "check: $dst is a symlink into the repo (should be a local file that includes it)"
+            mark_check_failure
+            return 0
+        fi
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would replace the $dst symlink with a local file including $src"
+            return 0
+        fi
+        current_name=$(git config --global user.name 2>/dev/null || true)
+        current_email=$(git config --global user.email 2>/dev/null || true)
+        backup_existing_path "$dst"
+        gitconfig_include_block > "$dst"
+        if [ -n "$current_name" ] || [ -n "$current_email" ]; then
+            {
+                printf '[user]\n'
+                if [ -n "$current_name" ]; then
+                    printf '\tname = %s\n' "$current_name"
+                fi
+                if [ -n "$current_email" ]; then
+                    printf '\temail = %s\n' "$current_email"
+                fi
+            } >> "$dst"
+        fi
+        yellow "gitconfig -> $dst (local file including $src)"
+        return 0
+    fi
+
+    # Some other symlink (another dotfiles repo, a secrets mount…): not ours to
+    # rewrite, and writing through it would mutate whatever it points at.
+    if [ -L "$dst" ]; then
+        [ "$MODE" = "check" ] \
+            && yellow "note: $dst is a symlink outside this repo; leaving it alone"
+        return 0
+    fi
+
+    if gitconfig_includes_repo "$dst"; then
+        return 0
+    fi
+
+    if [ "$MODE" = "check" ]; then
+        if [ -e "$dst" ]; then
+            yellow "check: $dst exists but does not include $src"
+        else
+            yellow "check: missing $dst (would be created including $src)"
+        fi
+        mark_check_failure
+        return 0
+    fi
+
+    if [ ! -e "$dst" ]; then
+        if [ "$DRY_RUN" = "1" ]; then
+            yellow "[dry-run] would create $dst including $src"
+            return 0
+        fi
+        gitconfig_include_block > "$dst"
+        yellow "gitconfig -> $dst (local file including $src)"
+        return 0
+    fi
+
+    # Existing machine-local file without the include. Only `repair` rewrites
+    # it, and it prepends the include so local values keep taking precedence.
+    if [ "$MODE" != "repair" ]; then
+        yellow "warn: $dst has no include for $src; run 'setup.sh repair' to add it"
+        return 0
+    fi
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would prepend an include of $src to $dst"
+        return 0
+    fi
+    tmp=$(mktemp "${TMPDIR:-/tmp}/dotfiles-gitconfig.XXXXXX")
+    gitconfig_include_block > "$tmp"
+    cat -- "$dst" >> "$tmp"
+    backup_existing_path "$dst"
+    mv -- "$tmp" "$dst"
+    yellow "gitconfig -> $dst (prepended include of $src)"
 }
 
 link_config_entries() {
@@ -2214,6 +2383,7 @@ run_setup() {
     # ── links ──────────────────────────────────────────────────────────────
     if section_requested "links"; then
         link_top_level_dotfiles
+        setup_gitconfig
         link_config_entries
         link_tmux_and_bin
         link_noctty_config
