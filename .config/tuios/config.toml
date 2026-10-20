@@ -192,13 +192,14 @@ enabled = true
 position = 'left'
 width = 24
 workspaces = ''
-sections = 'sessions,spacer:4,terminals,spacer:4,files:70,spacer:4,agents'
+sections = "sessions:12,terminals:18,files:30,agents:40"
 folder_click = ''
 editor = "tuios-editor"
 file_delete = ''
 background = ''
-agent_rest_fold = ''
+agent_rest_fold = "off"
 show_numbers = true
+density = "roomy"
 
 [notifications]
 duration = 0
