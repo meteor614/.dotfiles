@@ -20,10 +20,10 @@ live_config_reload = true
 TERM_PROGRAM = "alacritty"
 
 # ----- Font（与 noctty 保持一致：Hack Nerd Font + Sarasa Mono SC）-----
-# 字号对齐：noctty 用 12pt（noctty/config.ghostty），Alacritty 也跟到 12pt。
+# 字号对齐：noctty 用 11pt（noctty/config.ghostty），Alacritty 也跟到 11pt。
 # 注：.config/ghostty/config 是另一台/另一款终端（Ghostty）的配置，与 noctty 无关。
 [font]
-size = 12.0
+size = 11.0
 normal = { family = "Hack Nerd Font", style = "Regular" }
 bold = { family = "Hack Nerd Font", style = "Bold" }
 italic = { family = "Hack Nerd Font", style = "Italic" }
