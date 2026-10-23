@@ -143,10 +143,12 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 
 ## tuios
 
-leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 15 条，
+leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 17 条，
 复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的 8 条，
-新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+i`）不计数，得用 `tuios keybinds doctor`
-或 `tuios keybinds explain <key>` 看。准确总数（15）用空配置的 `tuios keybinds list --json`
+新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+i`、`Ctrl+Alt+P`、prefix 的 `l`、copy mode 的 `p`）不计数，得用 `tuios keybinds doctor`
+或 `tuios keybinds explain <key>` 看。全量模板下 `list-custom` 还会被 `opt+`/`alt+`
+拼写别名行撑大（2026-10-23 实测 33 行，见 [TUIOS.md](TUIOS.md)「0.10.1 复核」），不能作对账依据。
+准确总数（17）用空配置的 `tuios keybinds list --json`
 对比当前配置的同名输出，按 `(scope, action)` 配对后数差集：
 
 | 快捷键 | 功能 | 与默认的差别 |
@@ -161,7 +163,10 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Alt+v` | 查看当前 pane 的改动（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b v`；代价是 tuios 内 zsh 的 `Alt+v`（装了 `deer` 时）失效 |
 | `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree） |
 | `Alt+i` | 打开 Inbox；Inbox 已打开时再按一次关闭（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键，inbox scope 里 `Alt+i` 绑到 `inbox_close`，实现开/关切换 |
-| `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板仍可从 `Ctrl+b P` 打开 |
+| `Ctrl+Alt+P` | 打开命令面板（global，两种模式都生效） | 之前为保住 zsh 的 `Ctrl+P`（历史）解绑了面板；现按「Ctrl+Alt 结构层」语义绑到无冲突键，`Ctrl+P` 仍归 zsh |
+| `Ctrl+b l` | 回到上一个 workspace（prefix） | tmux `l` 语义；`last_workspace` 无默认键，`l` 在 prefix 下空闲。`L` 被 layout 菜单占用，`last_session` 暂未绑 |
+| copy mode `p` | 复制选区并压平换行后退出 copy mode（`copy_pipe`） | tmux `copy-pipe-and-cancel` 对应物，贴 LLM/聊天不乱版式；默认 `y` 仍按原格式复制 |
+| `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板改走 `Ctrl+Alt+P`（global）或 `Ctrl+b P` |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 
 `auto_enter_terminal_on_focus = 'targeted'` 让编号选择和方向键在聚焦的同时把打字权
@@ -180,5 +185,5 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
-| `.config/tuios/config.toml` | 15 条自定义键、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
+| `.config/tuios/config.toml` | 17 条自定义键、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
 

@@ -4,7 +4,7 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
 `.config/tuios/config.toml` 的维护口径；自定义键位见 [KEYBINDINGS.md](KEYBINDINGS.md)。
 
 配置入口 `.config/tuios/config.toml` → `~/.config/tuios/config.toml`（daemon 与 client 共用）。
-以下口径核对于 **tuios 0.9.1**。
+以下口径核对于 **tuios 0.9.1**；文末「0.10.1 复核」为 2026-10-23 的增补与修正。
 
 * **`config.toml` 是 tuios 写回的文件，本仓库只审阅、不逐行手写**。设置页
   （`ctrl+b ,`）、`tuios set-config`、`tuios keybinds free|unbind` 都会写它；0.8.x
@@ -38,10 +38,12 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   返回内置默认值，哪怕 daemon 明显在用配置里的值（实测 `show_ram = true` 时 dock 画出
   RAM，而 `get-config` 仍报 `false` / `default`）。查某键由哪个文件设置要用
   `tuios config origin <key>`，或直接读文件。
-* **`[dock] left` 是刻意写出的默认顺序**：Dock 顶端的当前模式由内建 `mode` 组件显示
+* **`[dock] left` 曾是刻意写出的默认顺序**：Dock 顶端的当前模式由内建 `mode` 组件显示
   （窗口管理 / terminal / copy / sidebar / hints / tiling 及其下一个分割方向），它
   默认就在 `left` 首位。显式写是为了抗住后续手动增删——region 列表是整份替换，不写就
   会退回默认顺序。`center` 故意留空，跟默认。
+  （2026-10-23 更新：整份写回已把这条丢弃，**不再手工维持**；`left` 缺席时按内建默认
+  顺序绘制，与当初写死的顺序一致，无行为差异。见文末「0.10.1 复核」。）
 * **写回可能把符号链接换成普通文件**。tuios 改写的是 `~/.config/tuios/config.toml`
   这条指向仓库的链接；一旦它被替换成普通文件，仓库里那份就再也不会更新。
   `setup.sh check` 会报 `link mismatch`，`repair` 会备份并重链——前提是你想起来跑。
@@ -51,11 +53,13 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   client attach 时读取。改完这里：`ctrl+b d` detach 再 attach。`tuios config apply`
   两者都不重载。
 * **leader 是内建的 `ctrl+b`，不可配置**（`tuios keybinds explain ctrl+b` 会说明这一点，
-  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 15 条键位见
+  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 17 条键位见
   [KEYBINDINGS.md](KEYBINDINGS.md)；复核口径要注意：`tuios keybinds list-custom` 只列
-  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`、`alt+o`、`alt+v`、`alt+/`、`alt+i`）不计数，
+  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`、`alt+o`、`alt+v`、`alt+/`、`alt+i`、`ctrl+alt+p`、prefix 的 `l`、copy mode 的 `p`）不计数，
   要用 `tuios keybinds doctor` 或 `keybinds explain <key>` 确认。瘦身时只按
-  `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑。准确总数用「空配置的
+  `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑；**全量模板下它还会反向失真**：
+  模板把 `opt+` 拼写钉进文件而默认注册表用 `alt+`，拼写别名行被全数计成自定义
+  （2026-10-23 实测 33 行，多为 `opt+1..9`/`alt+` 一类）。准确总数用「空配置的
   `tuios keybinds list --json`」对比「当前配置的同名输出」，按 `(scope, action)` 配对。
 * **OSC 133 命令标记由 `.config/shell/common.sh` 提供**（`A`/`B`/`C`/`D;<status>`）。
   daemon 自己 fork pane 的 shell，Ghostty 注入的 shell integration 到不了这一层；
@@ -75,3 +79,21 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   claude-code / qoder / pi 用官方条目，由 `setup.sh --only tuios` 执行
   `tuios integration install` 写入（`check` 模式只读跑 `integration status`）；
   卸载用 `tuios integration uninstall`，它只删自己带版本标记的条目。
+
+## 0.10.1 复核（2026-10-23）
+
+* daemon 与 CLI 均为 0.10.1（`tuios list-verbs`（无参数）banner：
+  `daemon 0.10.1, control protocol v1`）。
+* **文件已被整份模板写回**：654 行全量模板，prune 后的 ~197 行状态丢失；整份写回只保
+  与默认不同的内容，`[dock] left`/`center` 的刻意写法被丢，`right` 因顺序与默认不同而
+  幸存。**维持口径改为不对抗**：不再跑 `config prune`、不再手工补 `left`，仓库只审阅
+  语义行；`left` 缺席时 dock 按内建默认顺序绘制，与当初写死的顺序一致，无行为差异。
+  行级写回（`set-config` / `keybinds`）在 0.10.1 实测仍成立：往文件里不存在的键写入
+  （如 `workspaces.new_window_when_empty`）也只插入对应行（654 → 658 行），不触发整份
+  重写。
+* **空串悬案定案**：`tuios get-config appearance.selection.bg --json` 报
+  `value: "", source: "config"`——空串是生效配置，运行时**不**回落到编译默认
+  （`#45475A` 不生效）。渲染层空串的实际表现（copy mode 选区有无底色）仍未目验；要修
+  某一条，正道是 `set-config` 写入合法值（如槽位名），prune 和手工删行都不在口径内。
+* `keybinds list-custom` 在全量模板下膨胀（实测 33 行，大量是 `opt+`↔`alt+` 拼写
+  别名），不能再用作对账；见上文 leader 条目。

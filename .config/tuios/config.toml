@@ -186,6 +186,7 @@ match_bg = ''
 match_fg = ''
 cursor_bg = ''
 cursor_fg = ''
+copy_entry = "center"
 
 [appearance.sidebar]
 enabled = true
@@ -207,7 +208,7 @@ warning_duration = 0
 error_duration = 0
 
 [notifications.agent]
-sound_mode = ''
+sound_mode = "bell"
 command = ''
 quiet_hours = ''
 
@@ -318,6 +319,7 @@ restore_minimized_9 = ['shift+9', '(']
 
 [keybindings.prefix_mode]
 hints = ['F']
+last_workspace = ['l']
 launcher = ['a']
 next_session = [')']
 paste_image = ['V']
@@ -474,7 +476,7 @@ terminal_scroll_up = ['shift+up']
 
 [keybindings.global]
 choose_tree = ['alt+/']
-command_palette = []
+command_palette = ['ctrl+alt+p']
 launcher = []
 new_window = ['ctrl+alt+t', 'alt+n']
 prefix_inbox = ['alt+i']
@@ -585,6 +587,14 @@ mail_page_up = ['pgup']
 mail_reply = ['r']
 mail_up = ['k', 'up', 'ctrl+p']
 
+# copy mode 里 p：复制选区并把换行压成空格后退出 copy mode，
+# 贴进 agent 对话框/聊天不乱版式；默认的 y 复制仍保留原始格式。
+[[keybindings.copy_pipe]]
+key = "p"
+command = 'tr "\n" " "'
+cancel = true
+description = "flatten"
+
 [daemon]
 log_level = 'off'
 agent_detect_seconds = 0
@@ -599,7 +609,7 @@ window_size = 'smallest'
 open_default_window = true
 tiled = true
 start_in_terminal_mode = true
-layout = ''
+layout = "bsp"
 daemon = true
 
 [tape]
@@ -649,6 +659,9 @@ height = 12
 corner = 'bottom-right'
 
 [dock]
-right = ['notifications', 'copy-help', 'ram', 'clock', 'session-controls', 'cpu']
+right = ['notifications', 'copy-help', 'clock', 'session-controls']
 
 [dock.clock]
+
+[workspaces]
+new_window_when_empty = true
