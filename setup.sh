@@ -193,7 +193,7 @@ Flags:
                   on a fresh machine you usually need `--only runtimes,packages`
                   (and `herdr` / `tuios` also need the `links` section first).
                   Available sections:
-                    links      — dotfile symlinks (top-level, .config, bin) + ~/.gitconfig + noctty config
+                    links      — dotfile symlinks (top-level, .config, bin) + ~/.gitconfig + noctty config/terminfo
                     nvim       — Neovim / LazyVim bootstrap
                     brew       — Homebrew formulae/casks (macOS + WSL/Linuxbrew)
                     apt        — Debian/Ubuntu packages + Neovim      (Linux only)
@@ -1052,6 +1052,11 @@ link_tmux_and_bin() {
 # .config/* linking can never reach it: copy the repo copy there when that
 # directory exists (natively under Git Bash via %LOCALAPPDATA%, or from WSL
 # via cmd.exe + wslpath). No-op on every other machine.
+#
+# The same machine-local view is reused for noctty's terminfo entry, which
+# lives next to the app rather than in %LOCALAPPDATA%\noctty (see
+# link_noctty_terminfo): compiling it into ~/.terminfo is what lets a WSL
+# session report TERM=xterm-ghostty instead of xterm-256color.
 # ---------------------------------------------------------------------------
 
 # cmd.exe lookup for WSL. /etc/wsl.conf sets `[interop] appendWindowsPath = false`
@@ -1080,7 +1085,11 @@ wsl_cmd_exe() {
     printf '%s\n' "$_wsl_cmd_exe"
 }
 
-noctty_config_dst() {
+# noctty_localappdata — %LOCALAPPDATA% as a path this shell can stat, or
+# failure when there is no Windows side to talk to (plain Linux/macOS). Git
+# Bash resolves it natively; WSL goes through cmd.exe + wslpath, because
+# /etc/wsl.conf sets appendWindowsPath = false (see wsl_cmd_exe above).
+noctty_localappdata() {
     local base=""
     local cmd_bin=""
     if [ -n "${LOCALAPPDATA:-}" ]; then
@@ -1090,10 +1099,18 @@ noctty_config_dst() {
             base=$LOCALAPPDATA
         fi
     elif cmd_bin=$(wsl_cmd_exe); then
+        command_exists wslpath || return 1
         base=$("$cmd_bin" /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')
-        [ -n "$base" ] && base=$(wslpath -u "$base")
+        [ -n "$base" ] || return 1
+        base=$(wslpath -u "$base") || return 1
     fi
     [ -n "$base" ] || return 1
+    printf '%s\n' "$base"
+}
+
+noctty_config_dst() {
+    local base
+    base=$(noctty_localappdata) || return 1
     printf '%s/noctty/config.ghostty\n' "$base"
 }
 
@@ -1132,6 +1149,93 @@ link_noctty_config() {
         yellow "noctty config -> ${dst}"
     else
         yellow "warn: could not write noctty config ${dst}"
+    fi
+}
+
+# noctty's TERM is xterm-ghostty, and a WSL session only keeps that value when
+# the distribution has a terminfo entry for it: noctty probes the distribution
+# with infocmp and leaves TERM at xterm-256color otherwise (forwarding itself
+# needs noctty >= 1.3.132). The entry ships with the app, so compile it into
+# ~/.terminfo — user-level, no sudo. No-op without tic or without a noctty
+# folder, so a machine with no Windows side is unaffected.
+
+# noctty_win_path <windows-path> — translate a Windows path for this shell.
+noctty_win_path() {
+    if command_exists cygpath; then
+        cygpath -u "$1" 2>/dev/null
+    elif command_exists wslpath; then
+        wslpath -u "$1" 2>/dev/null
+    else
+        return 1
+    fi
+}
+
+# noctty_terminfo_src — the ghostty.terminfo shipped by the local noctty app,
+# or failure when none is reachable. $DOTFILES_NOCTTY_DIR overrides the app
+# folder (Windows path or an already translated one, e.g. a portable or Scoop
+# copy that lives outside %LOCALAPPDATA%\Programs\noctty).
+noctty_terminfo_src() {
+    local dir="" cand=""
+    local lad=""
+    lad=$(noctty_localappdata 2>/dev/null) || lad=""
+
+    for dir in \
+        "${DOTFILES_NOCTTY_DIR:-}" \
+        "${lad:+$lad/Programs/noctty}" \
+        "${lad:+$lad/noctty}" \
+        "$(noctty_win_path 'C:\Program Files\noctty' 2>/dev/null || true)"; do
+        [ -n "$dir" ] || continue
+        case "$dir" in
+            [A-Za-z]:[\\/]*|*\\*)
+                dir=$(noctty_win_path "$dir" 2>/dev/null) || continue
+                ;;
+        esac
+        [ -n "$dir" ] || continue
+        cand="$dir/share/terminfo/ghostty.terminfo"
+        [ -f "$cand" ] || continue
+        printf '%s\n' "$cand"
+        return 0
+    done
+    return 1
+}
+
+# link_noctty_terminfo — compile that entry into ~/.terminfo. check reports a
+# missing or outdated entry; init/repair compile it (stale after a noctty
+# upgrade, which is exactly when the capabilities change).
+link_noctty_terminfo() {
+    local src=""
+    local entry="$HOME/.terminfo/x/xterm-ghostty"
+
+    src=$(noctty_terminfo_src) || return 0
+
+    if [ -f "$entry" ] && [ "$entry" -nt "$src" ]; then
+        return 0
+    fi
+
+    if [ "$MODE" = "check" ]; then
+        if [ -f "$entry" ]; then
+            yellow "check: noctty terminfo is older than ${src}"
+        else
+            yellow "check: missing noctty terminfo (${entry})"
+        fi
+        mark_check_failure
+        return 0
+    fi
+
+    if [ "$DRY_RUN" = "1" ]; then
+        yellow "[dry-run] would compile ${src} -> ${entry}"
+        return 0
+    fi
+
+    command_exists tic || { yellow "warn: tic not found; skipped noctty terminfo"; return 0; }
+
+    mkdir -p "$HOME/.terminfo"
+    # tic notes that older tic versions may read the entry's description field
+    # as an alias; upstream ships the file that way, so ignore its chatter.
+    if tic -x -o "$HOME/.terminfo" "$src" >/dev/null 2>&1; then
+        yellow "noctty terminfo -> ${entry}"
+    else
+        yellow "warn: could not compile noctty terminfo ${src}"
     fi
 }
 
@@ -2387,6 +2491,7 @@ run_setup() {
         link_config_entries
         link_tmux_and_bin
         link_noctty_config
+        link_noctty_terminfo
     fi
 
     # ── nvim ───────────────────────────────────────────────────────────────

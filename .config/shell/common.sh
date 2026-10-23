@@ -330,7 +330,9 @@ _dotfiles_set_term() {
     local cache_file="$cache_dir/term"
     local program="${TERM_PROGRAM:-}"
 
-    # Ghostty sets TERM=xterm-ghostty itself; keep it if terminfo is installed.
+    # Ghostty sets TERM=xterm-ghostty itself; noctty (Windows, Ghostty's core)
+    # reports the same TERM_PROGRAM, so both land here. Keep it only when the
+    # entry exists — setup.sh compiles noctty's copy into ~/.terminfo.
     case "$program" in
         ghostty)
             if _dotfiles_term_cache_fresh "$cache_file.ghostty"; then

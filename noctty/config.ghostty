@@ -19,3 +19,20 @@ font-family = Hack Nerd Font
 font-family = Sarasa Mono SC
 font-size = 11
 font-feature = -calt
+
+# ----- Shell -----
+# Start every new tab/split straight into WSL instead of the detected
+# PowerShell/cmd. noctty never picks WSL implicitly (wsl.exe --status can look
+# healthy while launching a session fails), so the default shell has to be
+# pinned explicitly. The profile picker (Ctrl+Shift+P) still lists PowerShell,
+# cmd and Git Bash, and its own default check mark does not move with this.
+#
+# `direct:` launches wsl.exe without the `cmd.exe /C` wrapper a plain value
+# goes through, and noctty passes the pane's directory as `wsl.exe --cd`
+# (a Windows home maps to `~`, so a fresh window opens in $HOME).
+# Pin a specific distribution with `direct:wsl.exe -d <distro>` if needed.
+#
+# Only read at process start: after changing this, quit noctty completely and
+# start it again (reload_config does not re-apply `command` to new tabs), and
+# test with a NEW tab — restored session tabs keep their saved profile.
+command = direct:wsl.exe

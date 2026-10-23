@@ -86,7 +86,8 @@
 * WSL → `apt` + Homebrew on Linux（Linuxbrew）+ `fonts` 段。Linuxbrew 段
   对齐 macOS，复用同一套 Homebrew 镜像配置；公式列表是面向 Linux 的精简集
   （apt/releases 已覆盖的不重复安装）。字体由 `fonts` 段直接从上游取
-  （Hack Nerd Font + Sarasa Mono SC）。
+  （Hack Nerd Font + Sarasa Mono SC）。终端侧 `TERM=xterm-ghostty` 需要
+  noctty 侧转发 + 发行版内装好 terminfo 条目，见下文 noctty 条目。
   另外 WSL 建议在 `/etc/wsl.conf` 里设 `[interop] appendWindowsPath = false`：
   注入的 Windows PATH 会带来几十个 `/mnt/*` 目录，每次命令查找未命中都要付
   一次 9p 往返（实测单次 45–70ms），是 shell 启动变慢的主因（实测约
@@ -133,6 +134,15 @@
   noctty；不在 `$HOME` 下，由 `setup.sh` **复制**而非符号链接：WSL 走
   `cmd.exe`/`wslpath`，Git Bash 走 `%LOCALAPPDATA%`；首次覆盖会留一份
   `.dotfiles.bak` 备份）。
+* noctty terminfo → `~/.terminfo/x/xterm-ghostty`：noctty 的 `term` 是
+  `xterm-ghostty`，而 WSL 会话只有在发行版里有该条目时才会保留这个值
+  （否则退回 `xterm-256color`；转发本身还需要 noctty ≥ 1.3.132）。`setup.sh`
+  从 noctty 目录里的 `share/terminfo/ghostty.terminfo` 用 `tic -x` 编到用户级
+  `~/.terminfo`（免 sudo），没有 `tic` 或找不到 noctty 目录时静默跳过；默认在
+  `%LOCALAPPDATA%\Programs\noctty`、`%LOCALAPPDATA%\noctty`、
+  `C:\Program Files\noctty` 依次查找，其他位置（Scoop、自选便携目录）用
+  `DOTFILES_NOCTTY_DIR` 指定。`check` 把「缺失」和「比源文件旧」都算漂移
+  （noctty 升级后条目过期属正常，`init`/`repair` 重编）。
 * `.tmux` — git 子模块（视为上游管理）。
 * `CLI_TOOLS.md`、`KEYBINDINGS.md`、`TUIOS.md` — 顶层文档，不部署到 `$HOME`。
 
