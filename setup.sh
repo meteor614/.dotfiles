@@ -171,7 +171,7 @@ Commands:
   init            Create missing links and install missing dependencies (default)
   check           Report missing/mismatched links without writing changes
   repair          Backup/repair links and merge managed config only.
-                  Does not install packages, update submodules, or prune links.
+                  Does not install packages or prune links.
                   Also materializes ~/.gitconfig (a local file including the
                   repo's shared .gitconfig) and adds the [include] to an
                   existing ~/.gitconfig that lacks it.
@@ -648,15 +648,17 @@ load_nvm_default_node() {
 }
 
 init_submodules() {
+    # 本仓库目前没有子模块；保留这段逻辑是为了将来重新引入子模块时
+    # 不用再改调用方。
+    [ -f "${script_path}/.gitmodules" ] || return 0
+
     # Skip when every registered submodule already has a matching checkout
     # (status lines starting with "-" or "+" mean uninitialized/out-of-sync).
-    if [ -f "${script_path}/.gitmodules" ]; then
-        local status
-        status=$(git -C "${script_path}" submodule status 2>/dev/null || true)
-        if [ -n "$status" ] && ! printf '%s\n' "$status" | grep -qE '^[-+]'; then
-            echo 'skip submodules (already initialized)'
-            return 0
-        fi
+    local status
+    status=$(git -C "${script_path}" submodule status 2>/dev/null || true)
+    if [ -n "$status" ] && ! printf '%s\n' "$status" | grep -qE '^[-+]'; then
+        echo 'skip submodules (already initialized)'
+        return 0
     fi
 
     red 'Init submodules...'
@@ -674,9 +676,9 @@ init_submodules() {
 # the next `init`. Add new top-level dotfiles here.
 #
 # Not listed on purpose:
-#   .gitmodules, .gitignore                — repo metadata
+#   .gitignore                              — repo metadata
 #   .ripgreprc, .envrc                      — project-local, consumed in place
-#   .tmux/                                  — submodule, linked via .tmux/.tmux.conf
+#   .tmux.conf                              — 自包含 tmux 配置（无子模块）
 #   .pi/, .reasonix/, .codebuddy/           — directories with mixed runtime data,
 #                                             linked file-by-file by their own
 #                                             sections (see link_pi_config etc.)
@@ -699,7 +701,7 @@ top_level_dotfiles=(
     .gdbinit
     .gitignore_global
     .tigrc
-    .tmux.conf.local
+    .tmux.conf
     .zshenv
     .zshrc
     .zshrc.local
@@ -1039,7 +1041,6 @@ setup_neovim() {
 link_tmux_and_bin() {
     red 'Init scripts...'
     ensure_link "${script_path}/tmuxinator" "$HOME/.tmuxinator"
-    ensure_link "${script_path}/.tmux/.tmux.conf" "$HOME/.tmux.conf"
 
     ensure_dir "$HOME/bin"
     while IFS= read -r -d '' binfile; do
@@ -2646,8 +2647,8 @@ run_setup() {
         fi
     fi
 
-    # Repair owns links/config merges only. Installs, external integrations,
-    # and submodule updates belong to init; stale link deletion belongs to prune.
+    # Repair owns links/config merges only. Installs and external integrations
+    # belong to init; stale link deletion belongs to prune.
     [ "$MODE" = "repair" ] && return 0
 
     if [ "$MODE" = "check" ] || [ "$DRY_RUN" = "1" ]; then

@@ -51,7 +51,7 @@ usage() {
 Usage: update_all.sh [all]
 
 Commands:
-  all   Also update ~/.dotfiles and its submodules
+  all   Also update ~/.dotfiles
 EOF
 }
 
@@ -205,8 +205,9 @@ update_dotfiles_repo() {
             log "jj not found or .jj missing; falling back to git pull for dotfiles"
             git pull --no-rebase || exit 1
         fi
-        git submodule update --init --recursive || exit 1
-        git submodule update --remote || exit 1
+        # 本仓库已无子模块；将来重新引入时再放开下面两行。
+        # git submodule update --init --recursive || exit 1
+        # git submodule update --remote || exit 1
         log ".dotfiles repo update finish"
         log "re-run ~/.dotfiles/setup.sh repair manually if links need reconciliation"
     ) || return 1

@@ -666,3 +666,4 @@ right = ['transfers', 'notifications', 'copy-help', 'clock', 'session-controls']
 
 [workspaces]
 new_window_when_empty = true
+

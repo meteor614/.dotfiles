@@ -24,7 +24,7 @@
 - `noctty/config.ghostty` is **copied** (not symlinked) by `setup.sh` to `%LOCALAPPDATA%\noctty\config.ghostty`, the config path of noctty (a native Windows terminal built on Ghostty's core) which lives outside `$HOME`. The target is resolved via `%LOCALAPPDATA%` under Git Bash or `cmd.exe` + `wslpath` under WSL, and the step is a no-op elsewhere. On first overwrite the old file is kept as `config.ghostty.dotfiles.bak`; `check` reports drift, `init`/`repair` sync it.
 - The same section compiles noctty's shipped `share/terminfo/ghostty.terminfo` into `~/.terminfo` (user-level, no sudo) so WSL sessions keep `TERM=xterm-ghostty`; forwarding it needs noctty ≥ 1.3.132. It is a no-op without `tic` or a reachable noctty folder, `DOTFILES_NOCTTY_DIR` overrides the app folder, and `check` treats a missing entry or one older than the source as drift (`init`/`repair` recompile).
 - `.config/pip` is linked into `~/.config/pip` via the same generic `.config/*` link logic (no special-case handling in `setup.sh`).
-- `.tmux` is a git submodule. Treat it as upstream-managed content unless the user explicitly asks for a submodule change.
+- `.tmux.conf` is a self-contained tmux config linked to `~/.tmux.conf`; there are currently no submodules in this repo — keep it that way unless the user asks otherwise.
 - This repo is a `jj` workspace. Use `jj` for all commits, branch moves, and pushes — e.g. `jj commit -m …`, `jj bookmark set master -r @-`, `jj git push`. Do **not** run `git commit` / `git push` directly: `jj` will reset the working copy parent on its next invocation, and stray git operations land you in detached-HEAD with commits that aren't on any jj-tracked branch. Reading via `git log` / `git diff` is fine — `jj` commits stay git-compatible.
 - After every `jj git fetch`, always follow up by rebasing the working copy onto the updated bookmark (e.g. `jj rebase -d master`) so local work sits on top of the latest remote state. If the rebase reports conflicts, resolve them by editing the conflicted files to remove conflict markers, then run `jj squash` to move the resolution into the conflicted commit. Never leave the working copy stale after a fetch.
 
@@ -34,15 +34,15 @@
 - Preserve commented-out blocks unless the user asks to remove them. Many of them document optional tools, alternate setup paths, or historical decisions.
 - Match the existing interpreter and style of each script. This repo uses a mix of `bash`, `sh`, Lua, TOML, YAML, JSON, and tool-specific config formats.
 - Prefer capability checks and existing fallback patterns over assuming a single machine layout. This repo is used across heterogeneous local and remote environments.
-- Prefer local overlay files over vendored content when both exist. Example: change `.tmux.conf.local` instead of editing the `.tmux` submodule directly.
-- Multiplexer stance: tuios 是日常主力（agent sidebar + 可脚本化 pane）。herdr 降为兼容复用器 / agent 状态集成层（tuios 会向每个 pane 注入 herdr 兼容环境供其 hook 使用），zellij 与 tmux 保留作为远程 SSH / 嵌套兼容场景。编辑 tmux 配置时优先通过 `.tmux.conf.local` 覆盖，避免直接修改 submodule；动 `.config/tuios/config.toml` 前先读 `TUIOS.md`（该文件由 tuios 写回）。
+- Prefer local overlay files over vendored content when both exist. Example: put zsh interactive tweaks in `.zshrc.local` rather than rewriting `.zshrc`.
+- Multiplexer stance: tuios 是日常主力（agent sidebar + 可脚本化 pane）。herdr 降为兼容复用器 / agent 状态集成层（tuios 会向每个 pane 注入 herdr 兼容环境供其 hook 使用），zellij 与 tmux 保留作为远程 SSH / 嵌套兼容场景。编辑 tmux 配置直接改自包含的 `.tmux.conf`（已无子模块）；动 `.config/tuios/config.toml` 前先读 `TUIOS.md`（该文件由 tuios 写回）。
 - Do not add secrets, tokens, private keys, or machine-specific absolute paths unless the user explicitly requests that.
 - The package and git mirror choices in `setup.sh` are intentional. Do not switch them to other mirrors or default upstreams unless asked.
 - For Node-related setup, prefer `mise` activation (fallback `nvm`) or `npm`/`corepack` usage over adding Homebrew `node`.
 
 ## High-Risk Operations
-- Do not run `setup.sh` without explicit user approval. It writes into `$HOME`, creates symlinks, updates submodules, clones repositories, touches package manager configuration, and uses the network.
-- Do not run `bin/update_all.sh` without explicit user approval. It updates system packages, language package managers, plugins, submodules, and may run privileged commands.
+- Do not run `setup.sh` without explicit user approval. It writes into `$HOME`, creates symlinks, clones repositories, touches package manager configuration, and uses the network.
+- Do not run `bin/update_all.sh` without explicit user approval. It updates system packages, language package managers, plugins, and may run privileged commands.
 - `setup.sh` can move existing Neovim directories out of the way, bootstrap LazyVim, rewrite Homebrew remotes, install packages, and update external repositories.
 - `setup.sh` runs in `init|check|repair|prune` modes; only `check` is read-only. `repair` backs up and rewrites mismatched links under `$HOME`, and materializes `~/.gitconfig` (or prepends the repo `[include]` to an existing one). `prune` deletes links that point into this repo but whose source no longer exists (plus stale `*.zwc`); it never touches links that resolve outside the repo, and `~/.gitconfig` is a regular file so it is never pruned.
 - Retired configs (`lvim`, `~/.vim/coc-settings.json`, `bin/generate_tags.sh`, `.claude-internal/hooks/`, yazi `plugins/`/`package.toml`, `.config/cheat/conf.yml`) have no source in this repo. Their leftovers in `$HOME` are expected to disappear on the next `setup.sh prune` — that is deliberate cleanup, not lost configuration. See README “退役配置清单”.
@@ -57,5 +57,4 @@
 - If validation would require network access, package installation, or writing outside the repo, stop and ask before proceeding.
 
 ## Delivery Notes
-- In summaries, call out any expected side effects on `$HOME`, remote hosts, shell startup behavior, submodules, package managers, or external services.
-- If a request would require editing submodule content, clarify whether the user wants an upstream submodule change or a local override in this repo.
+- In summaries, call out any expected side effects on `$HOME`, remote hosts, shell startup behavior, package managers, or external services.

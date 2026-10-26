@@ -147,7 +147,7 @@
   `C:\Program Files\noctty` 依次查找，其他位置（Scoop、自选便携目录）用
   `DOTFILES_NOCTTY_DIR` 指定。`check` 把「缺失」和「比源文件旧」都算漂移
   （noctty 升级后条目过期属正常，`init`/`repair` 重编）。
-* `.tmux` — git 子模块（视为上游管理）。
+* `.tmux.conf` — 自包含 tmux 配置（无子模块）。
 * `CLI_TOOLS.md`、`KEYBINDINGS.md`、`TUIOS.md` — 顶层文档，不部署到 `$HOME`。
 
 > 版本控制为 **jj + git 共存** 的 colocated workspace：`.jj/` 由自身的
@@ -169,6 +169,7 @@
 | `bin/generate_tags.sh` | 已退役（改用 gtags/ctags 流程）|
 | `.claude-internal/hooks/` | herdr 集成已改为 `~/.claude` |
 | `cheat`、cheatsheets 子模块、`.config/cheat/conf.yml` | 已退役（速查内容见 `CLI_TOOLS.md`）|
+| `.tmux` 子模块、`.tmux.conf.local` | 已退役（tmux 配置收敛为自包含的 `.tmux.conf`）|
 
 自指的陈旧链接（如 `~/.zshrc.bak.*`、`~/.zshrc.pre-oh-my-zsh`）指向的源仍存在，
 不会被自动清理；确认无用后可手动删除。
@@ -204,7 +205,7 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
 ## 更新
 
 * `~/bin/update_all.sh` — topgrade 驱动，更新 brew/gem/npm/pip/cargo/…
-  以及 mise 运行时、rustup、zsh 插件。加 `all` 参数会同时更新本仓库及子模块。
+  以及 mise 运行时、rustup、zsh 插件。加 `all` 参数会同时更新本仓库（以及未来可能重新引入的子模块）。
   仅当 topgrade 未安装时回退到手动更新；topgrade 失败后继续其他步骤，
   最后汇总失败项并返回非零状态。每次运行日志保存到
   `${XDG_CACHE_HOME:-~/.cache}/dotfiles/updates/`（需按需手动清理）。
@@ -215,8 +216,7 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
   工具刷到最新（只重下过期的；apt/brew 副本不碰；版本号读不出来时跳过而不是
   反复重传）。tuios 自己的下载器有硬超时，慢网上会失败，随后由该段接手。
   tuios daemon 要重启后才换成新二进制。
-* 子模块（`.tmux`）视为上游管理。tmux 的覆盖请通过
-  `.tmux.conf.local`，不要直接修改 `.tmux`。
+* tmux 配置为自包含的 `.tmux.conf`（无子模块），直接修改即可；`.tmux.conf.local` 已退役。
 * Neovim 插件采用滚动更新模型，`lazy-lock.json` 不做版本跟踪。
   每台机器按需执行 `:Lazy update` / `:Lazy restore`。
 

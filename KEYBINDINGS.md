@@ -41,7 +41,7 @@ Ghostty 将 Cmd 绑定到自身的原生标签页和分屏。
 - **herdr**：兼容复用器 / agent 状态集成层。tuios 会向每个 pane 注入 herdr 兼容环境
   （`HERDR_ENV`、`HERDR_SOCKET_PATH` 等），herdr 的 hook 在 tuios 内仍可用。
 - **zellij**：远程 SSH 兼容复用器（tuios 缺失时回退），也保留一套与 herdr/tmux 接近的 `Alt` / `Ctrl+Alt` 肌肉记忆。
-- **tmux**：远程兼容与嵌套会话 fallback，尽量通过 `.tmux.conf.local` 覆盖，不改 submodule。
+- **tmux**：远程兼容与嵌套会话 fallback，配置为自包含的 `.tmux.conf`（无子模块）。
 
 ---
 
@@ -79,10 +79,12 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 ## Alt — 复用器模式与快速导航（tmux & zellij）
 
 这些键穿透终端直达复用器。tmux 和 zellij 共享相同的绑定，切换时无需重新记忆。
+注意：tmux 嵌套在 tuios 里时，这些 global 键会先被 tuios 截获；只有 tmux 处于最外层（例如直接 SSH）时才由 tmux 处理。
 
 | 快捷键 | tmux | zellij |
 | -------- | ------ | -------- |
 | `Alt+1..9` | `select-window -t N` | `GoToTab N` |
+| `Alt+/` | `choose-tree -Zs`（同 `prefix s`） | |
 | `Alt+[` | `select-pane -t -` | `FocusPreviousPane` |
 | `Alt+]` | `select-pane -t +` | `FocusNextPane` |
 | `Alt+p` | | 面板模式 |
@@ -111,8 +113,9 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 | `Ctrl+Alt+w` | 关闭窗口（需确认） | `CloseTab` |
 | `Ctrl+Alt+d` | 水平分屏（向右） | `NewPane "Right"` |
 | `Ctrl+Alt+Shift+d` | 垂直分屏（向下） | `NewPane "Down"` |
-| `Ctrl+Alt+h/l` | | 左右移动焦点/切换标签 |
-| `Ctrl+Alt+j/k` | | 上下移动焦点 |
+| `Ctrl+Alt+h/l` | 左右切换 pane | 左右移动焦点/切换标签 |
+| `Ctrl+Alt+j/k` | 上下切换 pane | 上下移动焦点 |
+| `Ctrl+Alt+z` | 最大化/还原当前 pane | |
 | `Ctrl+Alt+y` | | 聚焦上一个面板 |
 | `Ctrl+Alt+u` | | 聚焦下一个面板 |
 | `Ctrl+Alt+Shift+y` | | 切换到上一个标签页 |
@@ -130,7 +133,14 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 | 快捷键 | 功能 |
 | -------- | ------ |
 | `Ctrl+Alt+a` | 切换嵌套 tmux（禁用/启用外层会话） |
+| `Ctrl+b K` | 清掉当前 pane 的 scrollback（对齐 tuios `clear_scrollback`） |
+| `Ctrl+b \|` | 左右分屏（`Ctrl+b _` 保留） |
+| `Ctrl+b R` | 轮换 pane（对齐 tuios `rotate_split`） |
+| `Ctrl+b c` | 新窗口继承当前 pane 目录（对齐 tuios 默认） |
+| copy mode `p` | 压平换行后复制并退出（对齐 tuios `copy_pipe`） |
 | 鼠标滚轮 | copy-mode-vi 中每次滚动 3 行 |
+
+`prefix K` 用于 clear-history；向上调整用 `prefix M-Up`（5 格，tmux 默认）或 `prefix C-Up`（1 格）。
 
 ---
 
@@ -205,7 +215,7 @@ focus 落到本 workspace 的另一个 pane）。herdr 里同一个组合是"切
 | `.config/ghostty/config` | Cmd 键（Ghostty 原生分屏） |
 | `.config/alacritty/alacritty.toml` | 字体/字号对齐 noctty（Hack Nerd Font 12pt、无连字）；无原生分屏，Alt / Ctrl+Alt 原样透传给复用器（Windows/macOS 备选终端） |
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
-| `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
+| `.tmux.conf` | Alt、Alt+/、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
 | `.config/tuios/config.toml` | 键位差集 20 条（替换/新增/解绑，逐条见上表）、Inbox 审批、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
 

@@ -110,7 +110,7 @@ mycli：带补全和高亮的 MySQL 客户端。
 ## 本 repo / 个人命令
 
 process_monitor.sh：本 repo 脚本，用 fzf 选择并查看/处理进程。
-bin/update_all.sh：更新系统包、语言包、插件、submodule 等；高风险，需明确确认后运行。
+bin/update_all.sh：更新系统包、语言包、插件等；高风险，需明确确认后运行。
 setup.sh：初始化/修复 dotfiles 链接与依赖；会写入 $HOME 和使用网络，需明确确认后运行。
 
 ## 命令片段
