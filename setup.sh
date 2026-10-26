@@ -192,6 +192,10 @@ Flags:
                   Note: --only does not pull in dependencies. To install packages
                   on a fresh machine you usually need `--only runtimes,packages`
                   (and `herdr` / `tuios` also need the `links` section first).
+                  Set DOTFILES_RELEASES_REFRESH=1 to make the releases section
+                  refresh installed binaries that are older than the latest
+                  release instead of only filling in missing ones (this is what
+                  update_all.sh runs).
                   Available sections:
                     links      — dotfile symlinks (top-level, .config, bin) + ~/.gitconfig + noctty config/terminfo
                     nvim       — Neovim / LazyVim bootstrap
@@ -1501,7 +1505,76 @@ gh_latest_tag() {
     printf '%s\n' "$tag"
 }
 
-# Install one tool entry from linux_release_tools.
+# ── Release-tool version detection ─────────────────────────────────────────
+# These binaries have no generic updater: topgrade covers none of them, and this
+# installer used to skip anything already installed, so a machine kept whatever
+# version the first install happened to fetch (the reason Linux tuios binaries
+# went stale). The installer below therefore compares the installed version with
+# the latest release tag and only re-downloads what is behind.
+#
+# Detection runs the binary itself. Output layouts vary ("jj 0.46.0-7d3823…",
+# "yq (https://…) version v4.54.1", yazi's multi-line banner, procs' quoted
+# "0.14.12 ( rev: …)"), so this is a token search for the tag version rather
+# than a field parse.
+release_tool_version_output() {
+    local name=$1 out=""
+    if command_exists timeout; then
+        # A TUI that ignores --version must not hold the whole update hostage.
+        out=$(timeout 5 "$name" --version 2>/dev/null) || out=""
+        if [ -z "$out" ]; then
+            out=$(timeout 5 "$name" -v 2>/dev/null) || out=""
+        fi
+    else
+        out=$("$name" --version 2>/dev/null) || out=""
+        if [ -z "$out" ]; then
+            out=$("$name" -v 2>/dev/null) || out=""
+        fi
+    fi
+    printf '%s\n' "$out"
+}
+
+# release_tool_state <name> <version-from-tag>
+#   0 = installed version is current, 1 = outdated, 2 = version unreadable
+release_tool_state() {
+    local name=$1 want=$2 out pattern
+    out=$(release_tool_version_output "$name")
+    if [ -z "$out" ]; then
+        return 2
+    fi
+    pattern=${want//./\\.}
+    # Trailing boundary is "not a digit" so a git-describe suffix (jj) or a
+    # quoted build string (procs) still matches, while 0.9.1 does not match
+    # 0.9.10 and 0.9.10 does not match 0.9.1.
+    if printf '%s\n' "$out" | grep -qE "(^|[^0-9A-Za-z._-])v?${pattern}([^0-9]|$)"; then
+        return 0
+    fi
+    return 1
+}
+
+# release_tools_have_work — false when install-only mode finds every managed tool
+# already present, so the section can return without touching the network.
+release_tools_have_work() {
+    [ "${DOTFILES_RELEASES_REFRESH:-0}" = "1" ] && return 0
+    local entry name repo url bin_path
+    for entry in "${linux_release_tools[@]}"; do
+        IFS='|' read -r name repo url bin_path <<<"$entry"
+        if [ ! -x "$HOME/bin/$name" ] && ! command_exists "$name"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# One cheap reachability probe: every entry needs its latest tag from GitHub, so
+# when the network is down the loop should fail once instead of hanging on a
+# couple of dozen curl timeouts.
+github_reachable() {
+    curl -fsSI -o /dev/null --connect-timeout 5 --max-time 15 \
+        --retry 3 --retry-delay 1 --retry-all-errors https://github.com/ >/dev/null 2>&1
+}
+
+# Install one tool entry from linux_release_tools, or refresh it when the
+# installed copy is older than the latest release.
 # Args: name, repo, url_template, bin_path_template
 install_linux_release_tool() {
     local name=$1
@@ -1510,13 +1583,30 @@ install_linux_release_tool() {
     local bin_tpl=$4
     local target="$HOME/bin/$name"
 
+    # Which copy this section owns: the one it installed in ~/bin, or one the
+    # tool itself put in ~/.local/bin (mise).
+    local existing="" resolved=""
     if [ -x "$target" ]; then
+        existing="$target"
+    else
+        resolved=$(command -v "$name" 2>/dev/null) || resolved=""
+        case "$resolved" in
+            "$HOME/.local/bin/"*) existing="$resolved" ;;
+        esac
+    fi
+
+    # Install-only mode: an installed binary needs no work, so `setup.sh init`
+    # stays offline-cheap. DOTFILES_RELEASES_REFRESH=1 (set by update_all.sh)
+    # turns the section into "bring the managed copies up to date".
+    if [ -n "$existing" ] && [ "${DOTFILES_RELEASES_REFRESH:-0}" != "1" ]; then
         return 0
     fi
+
     # Respect a copy already provided by the distro or another install channel
-    # (e.g. apt zoxide, a pre-existing ~/.local/bin/mise) instead of stacking a
-    # second binary in ~/bin.
-    if command_exists "$name"; then
+    # (apt zoxide, brew, Entware): not ours to overwrite, and stacking a second
+    # binary in ~/bin would shadow it. Checked before the tag lookup so tools we
+    # do not manage cost no network round-trip.
+    if [ -z "$existing" ] && command_exists "$name"; then
         return 0
     fi
 
@@ -1539,6 +1629,25 @@ install_linux_release_tool() {
         return 0
     fi
     ver="${tag#v}"
+
+    if [ -n "$existing" ]; then
+        local state=0
+        release_tool_state "$name" "$ver" || state=$?
+        case "$state" in
+            0)
+                echo "$name $ver is current ($existing)"
+                return 0
+                ;;
+            2)
+                # Re-downloading on every run just because the version banner is
+                # unparsable would be worse than leaving a working binary alone.
+                yellow "skip $name (installed at $existing but reports no version; update it by hand if needed)"
+                return 0
+                ;;
+        esac
+        target="$existing"
+        echo "updating $name -> $ver ($target)"
+    fi
 
     url=${url_tpl//\{TAG\}/$tag}
     url=${url//\{VER\}/$ver}
@@ -1660,7 +1769,7 @@ install_linux_release_tool() {
         return 0
     fi
 
-    ensure_dir "$HOME/bin"
+    ensure_dir "$(dirname "$target")"
     mv "$workdir/$bin_path" "$target"
     chmod +x "$target"
     echo "installed $name -> $target"
@@ -1672,6 +1781,14 @@ install_linux_release_tools() {
     fi
     if ! command_exists curl || ! command_exists tar; then
         yellow "skip linux release tools (curl or tar missing)"
+        return 0
+    fi
+    if ! release_tools_have_work; then
+        yellow "release tools already installed (DOTFILES_RELEASES_REFRESH=1 checks for updates)"
+        return 0
+    fi
+    if ! github_reachable; then
+        yellow "skip linux release tools (github.com unreachable)"
         return 0
     fi
 

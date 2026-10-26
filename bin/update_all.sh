@@ -311,6 +311,75 @@ update_reasonix() {
     fi
 }
 
+# ── tuios: its own updater first ─────────────────────────────────────────────
+# setup.sh installs tuios on Linux from a GitHub release tarball into ~/bin, and
+# nothing else in this script owns that file — topgrade has no generic release
+# step, so without this the binary stayed at whatever version setup.sh last
+# fetched. `tuios update` is the tool-aware path: it verifies the published
+# checksum, moves tuios-web beside tuios in lockstep, and refuses to overwrite
+# brew/nix/go-installed binaries. On macOS tuios is a brew formula and
+# topgrade's brew step already upgrades it, so skip there.
+#
+# Its downloader, though, has a hard ~60s client timeout with no resume and no
+# timeout override, so on a slow link it gives up on the ~19MB tarball. That is
+# not an error here: update_release_tools below re-fetches the same asset through
+# setup.sh's gh_dl (mirror fallback, 240s budget, checksum verification), and it
+# is that step which decides whether the update happened.
+update_tuios() {
+    [ "$(uname)" = "Darwin" ] && return 0
+    if ! have_cmd tuios; then
+        return 0
+    fi
+    log "=== tuios ==="
+    local before
+    before=$(tuios -v 2>/dev/null | head -n 1)
+    if tuios update; then
+        tuios_report_update "$before"
+    else
+        log "tuios update gave up; the releases step below covers it"
+    fi
+    log "tuios finish"
+}
+
+# Print the version jump when the binary really changed. The daemon is left
+# alone on purpose: restarting it would kill the user's running sessions.
+tuios_report_update() {
+    local before=$1 after
+    after=$(tuios -v 2>/dev/null | head -n 1)
+    if [ -n "$before" ] && [ "$before" != "$after" ]; then
+        log "tuios updated: $before"
+        log "            -> $after"
+        log "a running tuios daemon keeps the old build until it is restarted"
+    fi
+    return 0
+}
+
+# ── Linux release binaries (setup.sh's `releases` section) ───────────────────
+# starship/zoxide/lazygit/jj/zellij/yazi/mise/herdr/… arrive as GitHub release
+# tarballs in ~/bin, and topgrade has no generic release step, so nothing used to
+# refresh them after the first install. setup.sh's installer is version-aware
+# now: it compares each installed binary against the latest release tag and only
+# re-downloads what is behind, and it leaves apt/brew/Entware copies alone. So
+# re-running that section is the update path. macOS gets the same tools from
+# brew, where topgrade's brew step already covers them.
+update_release_tools() {
+    [ "$(uname)" = "Darwin" ] && return 0
+    local setup="$HOME/.dotfiles/setup.sh"
+    if [ ! -f "$setup" ]; then
+        return 0
+    fi
+    log "=== linux release tools ==="
+    # The env var is what turns setup.sh's releases section from "install what is
+    # missing" into "refresh what is behind"; without it an installed binary
+    # costs no network round-trip.
+    if DOTFILES_RELEASES_REFRESH=1 bash "$setup" init --only releases; then
+        log "release tools finish"
+    else
+        log "release tools failed"
+        return 1
+    fi
+}
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 # Wrap the entire main block in `{ ... }` so bash reads it all into memory
 # before executing. Without this, topgrade's "Git Repositories" step can
@@ -356,6 +425,8 @@ main() {
     run_step mise update_mise
     run_step npm update_npm_globals
     run_step rustup update_rustup
+    run_step tuios update_tuios
+    run_step releases update_release_tools
     run_step reasonix update_reasonix
 
     if have_cmd cpan; then

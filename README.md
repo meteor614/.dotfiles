@@ -79,6 +79,10 @@
   如 `--only packages` 需先确保 `runtimes`，`herdr` 需先跑 `links`。
   Linux 上装软件包通常用 `--only apt,releases,runtimes,packages`（`apt` 段
   含 Neovim）；WSL 再加上 `brew,fonts`（Linuxbrew + 字体）。
+* `DOTFILES_RELEASES_REFRESH=1` — 把 `releases` 段从「只装缺失」改成
+  「刷新过期」：逐个比对 `~/bin`（及 `~/.local/bin`）里已装二进制与最新
+  release tag，只重下落后于上游的；apt/brew/Entware 装的副本不碰。
+  `update_all.sh` 就是用这个模式跑的。
 
 按 OS 区分的安装行为：
 
@@ -203,6 +207,13 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
   仅当 topgrade 未安装时回退到手动更新；topgrade 失败后继续其他步骤，
   最后汇总失败项并返回非零状态。每次运行日志保存到
   `${XDG_CACHE_HOME:-~/.cache}/dotfiles/updates/`（需按需手动清理）。
+* Linux/WSL/Synology 上另有两个 topgrade 覆盖不到的步骤：
+  `tuios update` 自更新（macOS 由 brew 管，自动跳过），以及以
+  `DOTFILES_RELEASES_REFRESH=1 setup.sh init --only releases` 重跑 `releases`
+  段，把 starship/zoxide/lazygit/jj/zellij/yazi/mise/herdr 等 tarball 装的
+  工具刷到最新（只重下过期的；apt/brew 副本不碰；版本号读不出来时跳过而不是
+  反复重传）。tuios 自己的下载器有硬超时，慢网上会失败，随后由该段接手。
+  tuios daemon 要重启后才换成新二进制。
 * 子模块（`.tmux`）视为上游管理。tmux 的覆盖请通过
   `.tmux.conf.local`，不要直接修改 `.tmux`。
 * Neovim 插件采用滚动更新模型，`lazy-lock.json` 不做版本跟踪。
