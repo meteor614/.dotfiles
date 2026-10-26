@@ -36,3 +36,43 @@ font-feature = -calt
 # start it again (reload_config does not re-apply `command` to new tabs), and
 # test with a NEW tab — restored session tabs keep their saved profile.
 command = direct:wsl.exe
+
+# ----- Keys -----
+# Tab switching mirrors what macOS Ghostty does by default - which is also why
+# .config/ghostty/config says nothing about it: cmd+<n> selects tab n, and the
+# ninth goes to the last tab rather than tab 9. `cmd` is an alias for `super`,
+# so on Windows that is the Win key.
+#
+# noctty ships alt+<n> on those same ten actions, so alt+<n> never reaches the
+# shell: readline's numeric argument (alt+3 alt+3) and everything built on it
+# is unreachable. Unbind it so the terminal gets it.
+#
+# The defaults bind two spellings per digit - the physical key (digit_1, W3C
+# "Digit1") and the unshifted codepoint (1) - and physical keys match first, so
+# leaving either one bound keeps the default action.  Both are unbound.
+keybind = alt+1=unbind
+keybind = alt+2=unbind
+keybind = alt+3=unbind
+keybind = alt+4=unbind
+keybind = alt+5=unbind
+keybind = alt+6=unbind
+keybind = alt+7=unbind
+keybind = alt+8=unbind
+keybind = alt+9=unbind
+keybind = alt+digit_1=unbind
+keybind = alt+digit_2=unbind
+keybind = alt+digit_3=unbind
+keybind = alt+digit_4=unbind
+keybind = alt+digit_5=unbind
+keybind = alt+digit_6=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+digit_8=unbind
+
+# Tab switching is deliberately NOT bound here.  macOS gets cmd+<n> from
+# upstream Ghostty's defaults and this file cannot have the same thing: `cmd`
+# is an alias for `super`, which on Windows is the Win key, and Win+<digit>
+# belongs to the taskbar ("activate the Nth pinned app").  Measured on this
+# machine: an injected Win+2 activated the second pinned app and noctty never
+# saw the key, so such a binding can never fire.  Tab switching is driven from
+# Keyhac instead, which reaches noctty's own automation entry point
+# (noctty +perform-action goto_tab:<n>) without synthesizing a Win chord.
