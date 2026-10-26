@@ -143,13 +143,14 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 
 ## tuios
 
-leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库改了 17 条，
-复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的 8 条，
-新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+i`、`Ctrl+Alt+P`、prefix 的 `l`、copy mode 的 `p`）不计数，得用 `tuios keybinds doctor`
+leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库的改动见下表。
+复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的那几条，
+新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+g`、`Alt+i`、`Ctrl+Alt+P`、prefix 的 `K`、prefix 的 `l`、copy mode 的 `p`）不计数，得用 `tuios keybinds doctor`
 或 `tuios keybinds explain <key>` 看。全量模板下 `list-custom` 还会被 `opt+`/`alt+`
 拼写别名行撑大（2026-10-23 实测 33 行，见 [TUIOS.md](TUIOS.md)「0.10.1 复核」），不能作对账依据。
-准确总数（17）用空配置的 `tuios keybinds list --json`
-对比当前配置的同名输出，按 `(scope, action)` 配对后数差集：
+准确差集用空配置的 `tuios keybinds list --json` 对比当前配置的同名输出，按
+`(scope, action)` 配对、把 `opt+` 归一成 `alt+` 后取差集；2026-10-26 在 0.11.0 上实测 **20 条**
+（旧口径的 17 条没算 `launcher = []` 与 `inbox_close` 追加的 `Alt+i`，所以别再用那个数字对账）。
 
 | 快捷键 | 功能 | 与默认的差别 |
 | -------- | ------ | ------------ |
@@ -161,11 +162,13 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Ctrl+Alt+z` | 全屏/最大化当前 pane（global，两种模式都生效） | tuios 默认只在 window 模式绑 `f`（prefix 的 `Ctrl+b z` 也保留）；这里补上与 herdr `zoom` 一致的 `Ctrl+Alt+z` |
 | `Alt+o` | 跳到最老的需要你处理的项（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b o`（next attention）；指向 agent 工作流的直达键，代价是 tuios 内 zsh 的 `Alt+o`（`cd ..`）失效 |
 | `Alt+v` | 查看当前 pane 的改动（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b v`；代价是 tuios 内 zsh 的 `Alt+v`（装了 `deer` 时）失效 |
-| `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree） |
+| `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree）；带预览的树形导航器 |
+| `Alt+g` | 去任何地方：agent / session / workspace / pane 一张表（global，两种模式都生效） | 0.11.0 新动作 `goto_picker`（默认只有 `Ctrl+b G`）。与 `Alt+/` 的分工见下文 |
 | `Alt+i` | 打开 Inbox；Inbox 已打开时再按一次关闭（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键，inbox scope 里 `Alt+i` 绑到 `inbox_close`，实现开/关切换 |
 | `Ctrl+Alt+P` | 打开命令面板（global，两种模式都生效） | 之前为保住 zsh 的 `Ctrl+P`（历史）解绑了面板；现按「Ctrl+Alt 结构层」语义绑到无冲突键，`Ctrl+P` 仍归 zsh |
 | `Ctrl+b l` | 回到上一个 workspace（prefix） | tmux `l` 语义；`last_workspace` 无默认键，`l` 在 prefix 下空闲。`L` 被 layout 菜单占用，`last_session` 暂未绑 |
 | copy mode `p` | 复制选区并压平换行后退出 copy mode（`copy_pipe`） | tmux `copy-pipe-and-cancel` 对应物，贴 LLM/聊天不乱版式；默认 `y` 仍按原格式复制 |
+| `Ctrl+b K` | 清掉当前 pane 的 scrollback，提示符回到首行（prefix） | 0.11.0 新动作 `clear_scrollback`，**无默认键**。不走 `Super+k`：Ghostty 里 `super+k` 已绑 `goto_split:top`，为清屏拆掉分屏导航不划算；`K` 在 prefix 下空闲，且与 `Ctrl+b s`（scrollback 浏览器）、`Ctrl+b [`（copy mode）同类 |
 | `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板改走 `Ctrl+Alt+P`（global）或 `Ctrl+b P` |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 
@@ -173,6 +176,25 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 交给 pane，不会停在 window 模式。四个 `Alt+方向键` 全部不再被 tuios 占用，
 分别落到 shell 的跳词（`←`/`→`）和行首/行尾（`↑`/`↓`）；`.config/zellij/config.kdl`
 同步释放了这四个键，两个复用器现在一致。
+
+`Alt+/` 与 `Alt+g` 是两条不同的路径，都保留：
+
+| | `Alt+/`（`choose_tree`） | `Alt+g`（`goto_picker`） |
+| --- | --- | --- |
+| 列表形态 | 会话 → workspace → pane 的树，右半屏是**该 pane 的实时预览** | 扁平一页，行首标 `agent`/`session`/`workspace`/`pane` |
+| 覆盖对象 | 只有 pane（含 `[hosts]` 里的机器） | agent、session、workspace、pane，**agent 是它独有的** |
+| 搜索 | `/`，读名字/标题/目录/命令/会话/workspace + 每屏最后 40 行 | 边打边模糊搜，另支持 `harness:` `state:` `needs:you` `kind:` `ws:` 等选择器 |
+| 空查询回车 | 无此语义 | 回到上次所在的位置（回跳） |
+| 用法 | 靠画面认位置（"那条输出在哪个 pane"） | 盲跳 + agent 分流（"谁在等我"） |
+
+另外两个 0.11.0 新默认键不用改配置就会生效：`Ctrl+b E`（把整个 scrollback 交给
+`$EDITOR`，copy mode 里是 `Ctrl+g`）、`Ctrl+b A`（agent/approvals 设置页）。
+中键粘贴已补回 `terminal_paste_host`（`middle`），与上游默认对齐。
+
+`Ctrl+Alt+1..9` 是 0.11.0 新增的默认绑定（`send_to_workspace_N`：把 pane 送过去、人留在原地，
+focus 落到本 workspace 的另一个 pane）。herdr 里同一个组合是"切到第 N 个 workspace"，
+含义相反但恰好符合本仓库 `Ctrl+Alt` = 结构操作层的分层语义，所以保留默认、不再重绑；
+切换仍走 `Alt+1..9`。
 
 ---
 
@@ -185,5 +207,5 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf.local` | Alt、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
-| `.config/tuios/config.toml` | 17 条自定义键、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
+| `.config/tuios/config.toml` | 键位差集 20 条（替换/新增/解绑，逐条见上表）、Inbox 审批、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
 

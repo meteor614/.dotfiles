@@ -131,10 +131,10 @@ dockbar_position = 'top'
 preferred_shell = ''
 motion = 'full'
 modal_dim = 30
+popup_dim = 30
+frame_panels = true
 confirm_quit = true
 whichkey_position = "center"
-window_title_position = ''
-hide_clock = false
 show_clock = true
 show_cpu = false
 show_ram = false
@@ -151,25 +151,22 @@ dock_workspace_tooltip = true
 dock_pill_caps = true
 glyphs = 'default'
 gap = 0
-tiling_scheme = ''
 master_ratio = 50
 scroll_column_width = 55
 scroll_column_max = 90
-zoom_size = 0
 panel_padding = 2
 clock_format = '15:04:05'
 dim_unfocused = 0
 dim_multifocus = false
-master_position = ''
-master_count = 0
 background = 'theme'
 pane_background = ''
 desktop_background = ''
 window_chrome_background = ''
 dock_background = ''
 dock_compact = true
-nvim_navigation = false
+nvim_navigation = true
 focus_follows_mouse = false
+focus_follows_mouse_pause = "off"
 
 [appearance.scrollbar]
 style = 'track'
@@ -178,34 +175,28 @@ track = ''
 tint = 'quiet'
 
 [appearance.selection]
-bg = ''
-fg = ''
-search_bg = ''
-search_fg = ''
-match_bg = ''
-match_fg = ''
-cursor_bg = ''
-cursor_fg = ''
 copy_entry = "center"
 
 [appearance.sidebar]
 enabled = true
 position = 'left'
 width = 24
-workspaces = ''
 sections = "sessions:12,terminals:18,files:30,agents:40"
-folder_click = ''
 editor = "tuios-editor"
-file_delete = ''
 background = ''
 agent_rest_fold = "off"
 show_numbers = true
 density = "roomy"
+subagent_rows = "rows"
+subagent_collapse = "expanded"
+subagent_max_rows = 6
+subagent_hide_finished = "30s"
 
 [notifications]
 duration = 0
 warning_duration = 0
 error_duration = 0
+bell = "both"
 
 [notifications.agent]
 sound_mode = "bell"
@@ -318,6 +309,10 @@ restore_minimized_8 = ['shift+8', '*']
 restore_minimized_9 = ['shift+9', '(']
 
 [keybindings.prefix_mode]
+# 0.11.0 的 clear_scrollback 没有默认键。不走 super+k：Ghostty 里 Cmd+K 已经绑给
+# goto_split:top，为了清屏把分屏导航拆掉不划算；prefix 的 K 空闲，且与 Ctrl+b s
+# （scrollback 浏览器）、Ctrl+b [（copy mode）同属"回看/清屏"这一类。
+clear_scrollback = ['K']
 hints = ['F']
 last_workspace = ['l']
 launcher = ['a']
@@ -469,13 +464,14 @@ terminal_focus_left = ['ctrl+alt+h']
 terminal_focus_right = ['ctrl+alt+l']
 terminal_focus_up = ['ctrl+alt+k']
 terminal_next_window = ['opt+tab', 'alt+]']
-terminal_paste_host = ['ctrl+shift+v', 'super+v', 'shift+super+v']
+terminal_paste_host = ['ctrl+shift+v', 'super+v', 'shift+super+v', 'middle']
 terminal_prev_window = ['opt+shift+tab', 'alt+[']
 terminal_scroll_down = ['shift+down']
 terminal_scroll_up = ['shift+up']
 
 [keybindings.global]
 choose_tree = ['alt+/']
+goto_picker = ['alt+g']
 command_palette = ['ctrl+alt+p']
 launcher = []
 new_window = ['ctrl+alt+t', 'alt+n']
@@ -544,7 +540,6 @@ agent_unread = ['u']
 
 [keybindings.inbox]
 inbox_close = ['esc', 'q', 'alt+i']
-inbox_deny_reason = ['n']
 inbox_detail_down = ['J', 'ctrl+d']
 inbox_detail_up = ['K', 'ctrl+u']
 inbox_dismiss = ['d', 'delete']
@@ -594,6 +589,12 @@ key = "p"
 command = 'tr "\n" " "'
 cancel = true
 description = "flatten"
+
+# 0.11.0：Inbox 里直接批 Claude Code / opencode 的权限提示（file-plane 配置，
+# set-config 改不了）。hold_seconds 是等不到你时回落成 pane 内提问的秒数。
+[agents.approvals]
+enabled = ["claude-code", "opencode"]
+hold_seconds = 120
 
 [daemon]
 log_level = 'off'
@@ -659,7 +660,7 @@ height = 12
 corner = 'bottom-right'
 
 [dock]
-right = ['notifications', 'copy-help', 'clock', 'session-controls']
+right = ['transfers', 'notifications', 'copy-help', 'clock', 'session-controls']
 
 [dock.clock]
 

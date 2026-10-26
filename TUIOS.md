@@ -53,9 +53,9 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   client attach 时读取。改完这里：`ctrl+b d` detach 再 attach。`tuios config apply`
   两者都不重载。
 * **leader 是内建的 `ctrl+b`，不可配置**（`tuios keybinds explain ctrl+b` 会说明这一点，
-  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义的 17 条键位见
+  所以 `keybindings.leader_key` 这类行纯属噪音）。自定义/新增键位见
   [KEYBINDINGS.md](KEYBINDINGS.md)；复核口径要注意：`tuios keybinds list-custom` 只列
-  **替换了默认键**的 8 条，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`、`alt+o`、`alt+v`、`alt+/`、`alt+i`、`ctrl+alt+p`、prefix 的 `l`、copy mode 的 `p`）不计数，
+  **替换了默认键**的部分，新增键（`alt+f`、`ctrl+alt+t`/`alt+n`、`ctrl+alt+z`、`alt+o`、`alt+v`、`alt+/`、`alt+g`、`alt+i`、`super+k`、`ctrl+alt+p`、prefix 的 `l`、copy mode 的 `p`）不计数，
   要用 `tuios keybinds doctor` 或 `keybinds explain <key>` 确认。瘦身时只按
   `list-custom` 对账会丢掉新增键，这是一个已经踩过的坑；**全量模板下它还会反向失真**：
   模板把 `opt+` 拼写钉进文件而默认注册表用 `alt+`，拼写别名行被全数计成自定义
@@ -97,3 +97,44 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   某一条，正道是 `set-config` 写入合法值（如槽位名），prune 和手工删行都不在口径内。
 * `keybinds list-custom` 在全量模板下膨胀（实测 33 行，大量是 `opt+`↔`alt+` 拼写
   别名），不能再用作对账；见上文 leader 条目。
+
+## 0.11.0 复核（2026-10-26）
+
+daemon 与 CLI 均为 0.11.0（`tuios list-verbs` banner：`daemon 0.11.0, control protocol v1`），
+integration 全部 current（claude-code v3、pi v2、opencode v5、codex/kimi v1）。
+
+* **空串零值已清**。上一轮留下的结构体零值（`window_title_position`、`master_position`、
+  `master_count = 0`、`tiling_scheme`、`zoom_size = 0`、`kitty_placeholders`、
+  `sidebar.folder_click`、`sidebar.file_delete`，以及 `[appearance.selection]` 的七个颜色）
+  全部删行。口径：这些键的合法值集合里没有空串，删行=默认值，比赌"空串回落到默认"干净。
+  同时删掉两个废弃键 `appearance.hide_clock`（被 `show_clock` 取代）和
+  `appearance.sidebar.workspaces`。
+* **0.11.0 改了 keybind 默认值，会反向影响老配置**：`send_to_workspace_1..9` 新增默认键
+  `ctrl+alt+1..9`（送 pane 过去、人留在原地）。它与 herdr 的同键语义相反，但与
+  `Ctrl+Alt` = 结构操作层的分层一致，所以保留默认不重绑，切换仍走 `Alt+1..9`。
+  `inbox_deny_reason = ['n']` 被上游丢弃（`n` 改为新建 agent，拒绝理由移到 `R`），
+  该行已删；`terminal_paste_host` 补回 `middle`（旧模板把上游新增的 `middle` 挡掉了）。
+* **新增两条直达键**：`ctrl+b K` → `clear_scrollback`（新动作，无默认键；不走 `super+k`，因为
+  Ghostty 里 `super+k` 已绑 `goto_split:top`），`alt+g` → `goto_picker`（新的 go-to 表，默认只有
+  `Ctrl+b G`）。前者在 prefix 表、后者在 `[keybindings.global]`，`tuios keybinds doctor` 确认无冲突，
+  `tuios keybinds list --json` 能看到两条都注册成功；`alt+/`（choose_tree，带预览的树）与之分工见
+  [KEYBINDINGS.md](KEYBINDINGS.md)。注意 `keybinds explain` 只认**单键**，传 `ctrl+b K` 这种 chord
+  会一律回 "free"，对账 prefix 键要用 `keybinds list --json` 或 `keybinds doctor`。
+* **`[agents.approvals]` 已开**（`enabled = ["claude-code", "opencode"]`，`hold_seconds = 120`）：
+  权限提示进 Inbox，`a`/`A` 批准、`R` 拒绝并给理由。它是 **file-plane 配置**，不在
+  `list-options`、`set-config` 改不了，只能写文件。注意 `tuios config apply` 在 pane 内运行
+  会被拒（"apply-config is for the person"），要么在 tuios 外的终端跑，要么重启 daemon。
+* **`appearance.frame_panels = true` / `popup_dim = 30`**：大面板（palette、切换器、Inbox、
+  设置页）跟随 `border_style = 'rounded'` 加框，普通 popup 背景压暗 30%（与 `modal_dim` 一致）。
+* **`[appearance.sidebar]` 的 subagent 行已开**（`subagent_collapse = "expanded"`、
+  `subagent_max_rows = 6`、`subagent_hide_finished = "30s"`）。数据来自 Claude Code 的
+  `SubagentStart`/`SubagentStop` hook，pi 的 subagent 目前不进这个列表。
+* **`[dock] right` 补 `transfers`**：region 列表是整份替换，不写就永远看不到链路传输格子。
+* **模式边框不显式设色**：0.11.0 默认已经是 window = 主题青色、terminal = 主题绿色，
+  且亮度会自动错开。设成 hex 会丢掉 theme-following，设成角色名会丢掉亮度调整，所以留空。
+* **bell 链路**：`notifications.bell = "both"`（dock toast 保留 + 转发给宿主终端）。
+  `.config/ghostty/config` 是 `bell-features = no-system,no-audio,no-attention,no-title,no-border`，
+  即宿主把 bell 全部静音，所以现在转发过去也无副作用；本机也没有任何音频播放器
+  （`paplay`/`aplay`/`ffplay`/`afplay` 全缺），因此 `notifications.agent.sound_mode = "bell"`
+  只有在放开 Ghostty 的某个 bell 特性并置 `sound = true` 后才会真的响。要听声就改这两处，
+  不要改成 `sound_mode = "audio"`（没有播放器，只会在 client 启动时报配置警告）。
