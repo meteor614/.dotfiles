@@ -72,13 +72,12 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
 * **agent 状态接入**：tuios 每个 pane 都注入 herdr 兼容环境（`HERDR_ENV=1`、
   `HERDR_SOCKET_PATH` 等），所以 herdr 的 hook 在 tuios 里本来就能打通；但原生
   `tuios agent-hook` 提供更细的状态（done 带末行摘要、needs_input 分类、activity
-  ring）。为避免两条通道竞争写同一 pane，`herdr-agent-state.sh`（reasonix /
-  codebuddy）在 `TUIOS_ENV=1` 时自行退出，改由 settings.json 里新增的
-  `tuios agent-hook claude-code` 通道上报（reasonix / codebuddy 是 Claude fork，
-  tuios 无官方集成，直接透传 hook payload，事件名与 claude-code 同名）。
-  claude-code / qoder / pi 用官方条目，由 `setup.sh --only tuios` 执行
+  ring）。claude-code / qoder / pi 用官方条目，由 `setup.sh --only tuios` 执行
   `tuios integration install` 写入（`check` 模式只读跑 `integration status`）；
   卸载用 `tuios integration uninstall`，它只删自己带版本标记的条目。
+  reasonix / codebuddy 的手写 herdr hook 适配已退役（2026-10）：reasonix 只剩
+  `config.toml`，pane 状态由 `common.sh` 的重命名 wrapper 直接调
+  `tuios agent-hook` 上报；codebuddy 不再接入状态。
 
 ## 0.10.1 复核（2026-10-23）
 

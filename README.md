@@ -168,6 +168,8 @@
 | yazi `plugins/`、`package.toml` | 由 `ya pack` 管理，不入库 |
 | `bin/generate_tags.sh` | 已退役（改用 gtags/ctags 流程）|
 | `.claude-internal/hooks/` | herdr 集成已改为 `~/.claude` |
+| `.codebuddy/hooks/`、`hooks-settings.json` | CodeBuddy 的 herdr/tuios hook 集成已退役（CodeBuddy CLI 自身配置仍留在机器上）|
+| `.reasonix/hooks/`、`settings.json` | Reasonix 的 herdr hook 集成已退役；`config.toml` 仍保留并链接 |
 | `cheat`、cheatsheets 子模块、`.config/cheat/conf.yml` | 已退役（速查内容见 `CLI_TOOLS.md`）|
 | `.tmux` 子模块、`.tmux.conf.local` | 已退役（tmux 配置收敛为自包含的 `.tmux.conf`）|
 

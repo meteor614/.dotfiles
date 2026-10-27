@@ -640,21 +640,13 @@ _dotfiles_ensure_node_path() {
 _dotfiles_ensure_node_path
 unset -f _dotfiles_ensure_node_path
 
-# Reasonix 1.2.0+ fires UserPromptSubmit and Stop hooks (via settings.json),
-# so the turn lifecycle is precise. The wrapper still handles two edge cases:
-#   1. pre-announces idle on startup → herdr/tuios recognizes pane immediately
-#      (before the first UserPromptSubmit fires)
-#   2. releases the agent on exit → herdr clears the stale label; tuios
-#      clears the pane state (SessionEnd → none)
-# Under tuios the herdr script no-ops on its own TUIOS_ENV gate, so the
-# pre/post announce goes through `tuios agent-hook` directly.
+# Reasonix 1.2.0+ fires UserPromptSubmit and Stop hooks via settings.json, but
+# the dotfiles hook adapter is retired, so the wrapper only pre-announces the
+# session to tuios and releases it on exit (both are no-ops outside tuios).
 if has_cmd reasonix; then
     reasonix() {
-        local hook="$HOME/.reasonix/hooks/herdr-agent-state.sh"
         if [ "${TUIOS_ENV:-}" = "1" ] && has_cmd tuios; then
             tuios agent-hook claude-code SessionStart </dev/null >/dev/null 2>&1 || true
-        elif [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
-            bash "$hook" idle </dev/null >/dev/null 2>&1 || true
         fi
         # Restore PATH before forking the agent: an auto-activated project
         # .venv must not leak into the agent and shadow `python3`.
@@ -663,8 +655,6 @@ if has_cmd reasonix; then
         local rc=$?
         if [ "${TUIOS_ENV:-}" = "1" ] && has_cmd tuios; then
             tuios agent-hook claude-code SessionEnd </dev/null >/dev/null 2>&1 || true
-        elif [ "${HERDR_ENV:-}" = "1" ] && [ -x "$hook" ]; then
-            bash "$hook" release </dev/null >/dev/null 2>&1 || true
         fi
         return $rc
     }

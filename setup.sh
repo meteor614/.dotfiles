@@ -525,7 +525,8 @@ managed_scan_specs() {
     printf '%s\t2\n' "$HOME/.config"
     printf '%s\t1\n' "$HOME/bin"
     printf '%s\t2\n' "$HOME/.vim"
-    # Agent-CLI config dirs that used to be linked by setup.sh.
+    # Agent-CLI config dirs that setup.sh used to link; retired entries stay
+    # here so their leftover links are still pruned.
     printf '%s\t3\n' "$HOME/.pi"
     printf '%s\t2\n' "$HOME/.reasonix"
     printf '%s\t2\n' "$HOME/.codebuddy"
@@ -679,9 +680,8 @@ init_submodules() {
 #   .gitignore                              — repo metadata
 #   .ripgreprc, .envrc                      — project-local, consumed in place
 #   .tmux.conf                              — 自包含 tmux 配置（无子模块）
-#   .pi/, .reasonix/, .codebuddy/           — directories with mixed runtime data,
-#                                             linked file-by-file by their own
-#                                             sections (see link_pi_config etc.)
+#   .pi/, .reasonix/                        — 目录内的文件按各自 section 单独链接
+#                                             (see link_pi_config etc.)
 #   .jj/                                    — jj workspace metadata
 #   .gitconfig                              — shared git layer, pulled in by an
 #                                             [include] from the machine-local
@@ -2313,10 +2313,7 @@ install_zsh_plugins() {
     ensure_git_clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting"
 }
 
-# Install herdr's stock claude hook script into ~/.claude. Other
-# Claude-Code-compatible config dirs (e.g. ~/.codebuddy) go through
-# link_custom_herdr_hook below so we can label them distinctly in
-# herdr's sidebar.
+# Install herdr's stock claude hook script into ~/.claude.
 # Symlinking is unsafe — herdr's installer overwrites the hook file in
 # place, so a shared symlink would let one uninstall remove all of them.
 install_herdr_integrations() {
@@ -2339,13 +2336,9 @@ install_herdr_integrations() {
 
 # Install tuios's official agent-state hook entries for the harnesses it
 # supports natively. tuios reports richer state than its herdr-compat socket
-# (done with a last-line summary, needs_input kinds, activity ring), so the
-# dotfiles herdr channels self-disable under TUIOS_ENV to avoid racing writes
-# on the same pane state. reasonix/codebuddy are Claude forks tuios does not
-# know; they are wired straight to `tuios agent-hook claude-code` from their
-# own settings.json (see the herdr section above), so they need no installer
-# step here. qoder reports only the conversation id; its pane state keeps
-# coming from tuios's screen rules.
+# (done with a last-line summary, needs_input kinds, activity ring). qoder
+# reports only the conversation id; its pane state keeps coming from tuios's
+# screen rules.
 # Symlinking is not involved — tuios rewrites settings in place, keeps a
 # .tuios.bak of the first rewrite, and never touches entries it did not write.
 install_tuios_integrations() {
@@ -2378,32 +2371,23 @@ check_source_present() {
     mark_check_failure
 }
 
-# ~/.reasonix mixes runtime data (sessions/, version-cache.json)
-# with user-managed config (config.json, settings.json, hooks/), so we symlink only the
-# files we own. Reasonix has no built-in herdr integration — these hooks
-# report agent state to herdr's socket API, modeled on the official
-# claude integration hook.
-link_reasonix_herdr_integration() {
+# ~/.reasonix mixes runtime data (sessions/, version-cache.json, .env)
+# with user-managed config (config.toml), so we symlink only the file we own.
+# The hand-written herdr hook adapter (settings.json + hooks/) was retired;
+# tuios pane state for reasonix now comes from the shell wrapper in
+# .config/shell/common.sh.
+link_reasonix_config() {
     local src_dir="$script_path/.reasonix"
     [ -d "$src_dir" ] || return 0
 
     # Reasonix reads config.toml from ~/.reasonix/config.toml
     # (model/provider config, project overrides via ./reasonix.toml).
-    # Hooks config lives in ~/.reasonix/settings.json.
     # ensure_dir/ensure_link are read-only in check mode, so link state is
     # verified there too; a missing repo source is reported on top of it.
-    check_source_present "$src_dir/settings.json"
-    check_source_present "$src_dir/hooks/herdr-agent-state.sh"
     check_source_present "$src_dir/config.toml"
 
-    ensure_dir "$HOME/.reasonix/hooks"
-    ensure_link "$src_dir/settings.json"            "$HOME/.reasonix/settings.json"
-    ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$HOME/.reasonix/hooks/herdr-agent-state.sh"
-
-    # Deploy model/provider config to ~/.reasonix/ so it stays alongside hooks/settings.
-    local config_dst="$HOME/.reasonix/config.toml"
-    ensure_dir "$(dirname "$config_dst")"
-    ensure_link "$src_dir/config.toml" "$config_dst"
+    ensure_dir "$HOME/.reasonix"
+    ensure_link "$src_dir/config.toml" "$HOME/.reasonix/config.toml"
 }
 
 # ~/.pi/agent mixes runtime data (sessions/, models-store.json, auth.json)
@@ -2445,60 +2429,6 @@ link_pi_config() {
     merge_into_settings 'pi extensions' "$settings" \
         '.extensions = ((.extensions // []) + [$e])' \
         --arg e "$ext_entry" "$settings"
-}
-
-# Symlink a hand-written herdr hook script into a Claude-Code-compatible
-# agent's config dir, then merge the dotfiles `hooks` block into the
-# agent's settings.json (which also holds gateway/model/etc. owned by the
-# agent itself). Used for codebuddy so each pane carries the right agent label
-# in herdr's sidebar (rather than all being tagged "claude" by herdr's stock
-# installer).
-#
-# args: <dotfiles-subdir-name> <target-dir>
-#   dotfiles-subdir-name: directory under $script_path that holds
-#     hooks/herdr-agent-state.sh + hooks-settings.json
-#   target-dir: the agent's actual config dir, e.g. $HOME/.codebuddy
-link_custom_herdr_hook() {
-    local subdir="$1"
-    local target_dir="$2"
-    local src_dir="$script_path/$subdir"
-    [ -d "$src_dir" ] || return 0
-    [ -d "$target_dir" ] || return 0
-
-    # ensure_dir/ensure_link are read-only in check mode, so link state is
-    # verified there too; a missing repo source is reported on top of it.
-    check_source_present "$src_dir/hooks/herdr-agent-state.sh"
-    ensure_dir "$target_dir/hooks"
-    ensure_link "$src_dir/hooks/herdr-agent-state.sh" "$target_dir/hooks/herdr-agent-state.sh"
-
-    local settings="$target_dir/settings.json"
-    local hooks_src="$src_dir/hooks-settings.json"
-    [ -f "$hooks_src" ] || return 0
-
-    # check mode must stay read-only: creating $settings here would break that
-    # contract. The merge state is verified read-only by check_custom_herdr_hook.
-    [ "$MODE" = "check" ] && return 0
-
-    if ! command_exists jq; then
-        yellow "skip $subdir settings.json hooks merge: jq not installed"
-        return 0
-    fi
-
-    if [ ! -f "$settings" ]; then
-        if [ "$DRY_RUN" = "1" ]; then
-            yellow "[dry-run] would create $settings and merge hooks"
-            return 0
-        fi
-        printf '{}\n' > "$settings"
-    fi
-
-    if [ "$DRY_RUN" = "1" ]; then
-        yellow "[dry-run] would merge hooks from $hooks_src into $settings"
-        return 0
-    fi
-
-    merge_into_settings "$subdir hooks" "$settings" \
-        -s '.[0] * {hooks: .[1].hooks}' "$settings" "$hooks_src"
 }
 
 # ---------------------------------------------------------------------------
@@ -2558,35 +2488,6 @@ check_pi_settings_merge() {
     fi
 }
 
-# check_custom_herdr_hook — read-only jq verification for link_custom_herdr_hook
-# (its symlink half is checked by ensure_link itself in check mode).
-check_custom_herdr_hook() {
-    local subdir="$1" target_dir="$2"
-    local src_dir="$script_path/$subdir"
-    [ -d "$src_dir" ] || return 0
-    [ -d "$target_dir" ] || return 0
-
-    local settings="$target_dir/settings.json"
-    local hooks_src="$src_dir/hooks-settings.json"
-    [ -f "$hooks_src" ] || return 0
-
-    if [ ! -f "$settings" ]; then
-        yellow "check: $settings missing (would be created on init)"
-        mark_check_failure
-        return 0
-    fi
-    if ! command_exists jq; then
-        yellow "check: cannot verify $subdir settings.json merge (jq not installed)"
-        return 0
-    fi
-    if ! jq -e -s '(.[0].hooks // {}) as $cur | (.[1].hooks // {}) as $new
-            | all($new | keys[]; . as $k | $cur[$k] == $new[$k])' \
-            "$settings" "$hooks_src" >/dev/null 2>&1; then
-        yellow "check: $subdir settings.json hooks not merged"
-        mark_check_failure
-    fi
-}
-
 run_setup() {
     # `prune` only removes stale artifacts; it never creates links or installs.
     if [ "$MODE" = "prune" ]; then
@@ -2622,9 +2523,8 @@ run_setup() {
     # dry-run. The herdr/tuios integration installers need their binaries, so
     # they run further down, after the package/release sections.
     if section_requested "herdr"; then
-        link_reasonix_herdr_integration
+        link_reasonix_config
         link_pi_config
-        link_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
     fi
 
     # ── tuios ──────────────────────────────────────────────────────────────
@@ -2643,7 +2543,6 @@ run_setup() {
         if [ "$MODE" = "check" ]; then
             report_dangling_links
             check_pi_settings_merge
-            check_custom_herdr_hook ".codebuddy" "$HOME/.codebuddy"
         fi
     fi
 
