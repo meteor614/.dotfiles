@@ -149,6 +149,17 @@ _dotfiles_starship_bin
 unset _dotfiles_starship_bin
 
 # ── User configuration (local overrides) ─────────────────────────────────────
+# $HOME/bin has to be on PATH *before* ~/.zshrc.local is sourced: its SSH
+# autostart block resolves tuios/zellij/tmux through $commands, and its
+# keybindings look up deer/fzsession. The force-prepend at the end of this file
+# runs too late for both, and Ubuntu's /etc/profile does not add ~/bin either
+# (Debian's does), so without this the block saw neither tuios nor zellij and
+# fell through to tmux. Cheap and idempotent; the final prepend below still wins
+# the ordering against Ruby/gem/agent-CLI dirs.
+if [[ -d "$HOME/bin" ]]; then
+    path_force_prepend "$HOME/bin"
+fi
+
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
