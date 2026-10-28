@@ -25,6 +25,7 @@
 	defaultBranch = master
 [http]
 	postBuffer = 655360000
+	version = HTTP/1.1
 [lfs]
 	concurrenttransfers = 32
 	fetchrecentrefsdays = 0
