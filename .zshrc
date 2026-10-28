@@ -132,7 +132,12 @@ if [[ -z "${PNPM_HOME:-}" ]]; then
 fi
 [[ -d "$PNPM_HOME" ]] && path_prepend "$PNPM_HOME"
 
-(( $+commands[zoxide] )) && dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
+# Deferred: `zoxide init` only registers __zoxide_z_complete when `compdef`
+# already exists. compinit is lazy (first precmd), and the distro-wide compinit
+# is skipped via skip_global_compinit in ~/.zshenv, so queueing this through
+# _defer (which runs after _dotfiles_lazy_compinit) keeps `z <TAB>` working.
+(( $+commands[zoxide] )) \
+    && _defer dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
 # ── Starship (cached init; _dotfiles_starship_bin is defined in common.sh) ───
 # Command substitution would fork a subshell on every startup; the helper
