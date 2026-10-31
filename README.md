@@ -82,7 +82,10 @@
 * `DOTFILES_RELEASES_REFRESH=1` — 把 `releases` 段从「只装缺失」改成
   「刷新过期」：逐个比对 `~/bin`（及 `~/.local/bin`）里已装二进制与最新
   release tag，只重下落后于上游的；apt/brew/Entware 装的副本不碰。
-  `update_all.sh` 就是用这个模式跑的。
+  `update_all.sh` 就是用这个模式跑的。该模式也会刷新安装器管理的
+  `~/.local/opt/nvim`（通过 `~/.local/bin/nvim` 链接识别）；其他渠道的
+  Neovim 不接管。下载、校验或版本查询失败会继续处理其余工具，最终汇总
+  失败项并以非零状态退出。
 
 按 OS 区分的安装行为：
 
@@ -227,3 +230,10 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
 统一快捷键方案（`Cmd` / `Alt` / `Ctrl+Alt`，覆盖 Ghostty、tuios、herdr、tmux、zellij）
 见 [KEYBINDINGS.md](KEYBINDINGS.md)。常用 CLI 工具清单与命令片段见
 [CLI_TOOLS.md](CLI_TOOLS.md)。
+
+## 离线回归检查
+
+运行 `python3 tests/test_regressions.py`（需要本地 Bash、Zsh），验证缓存过期、
+按需编译、双包管理器更新、release 失败汇总和 Neovim 更新边界。
+测试只提取函数，在仓库临时目录中使用模拟命令，不执行安装器入口、不联网，
+也不调用实际包管理器。

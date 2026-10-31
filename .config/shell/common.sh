@@ -283,26 +283,14 @@ elif [ -n "${TUIOS_ENV:-}" ] && [ -z "${SSH_TTY:-}" ]; then
     export SSH_TTY="/dev/tty"
 fi
 
-# Stale-cache guard shared by the TERM and gem-bin caches: true when the file
-# is readable and was touched within the last 30 days.
-#
-# POSIX find has no "newer than X days" predicate, so compare mtimes
-# directly against a reference file instead — portable across GNU/BSD.
+# Shared TERM/gem-bin cache expiry, based on the current time (GNU/BSD stat).
 _dotfiles_term_cache_fresh() {
     [ -r "$1" ] || return 1
-    local _ref _rc
-    _ref="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/.term-cache-ref"
-    if [ ! -f "$_ref" ]; then
-        mkdir -p "${_ref%/*}"
-        # touch -d is GNU-only; BSD/macOS needs -t YYYYMMDDHHMM.
-        # Use touch -t with a date computed by the available date(1).
-        touch -t "$(date -v-30d +%Y%m%d%H%M 2>/dev/null \
-            || date -d '-30 days' +%Y%m%d%H%M)" "$_ref" 2>/dev/null \
-            || touch "$_ref"
-    fi
-    [ "$1" -nt "$_ref" ]
-    _rc=$?
-    return $_rc
+    local _mtime _now
+    _mtime=$(stat -c '%Y' "$1" 2>/dev/null) \
+        || _mtime=$(stat -f '%m' "$1" 2>/dev/null) || return 1
+    _now=$(date +%s) || return 1
+    [ "$_mtime" -le "$_now" ] && [ "$((_now - _mtime))" -lt 2592000 ]
 }
 
 # -----------------------------------------------------------------------------
@@ -764,10 +752,12 @@ _dotfiles_starship_bin() {
 # .zwc transparently. Queued via _defer from .zshrc so it never blocks boot.
 _dotfiles_zcompile_startup() {
     [ "$_DOTFILES_SHELL" = "zsh" ] || return 0
-    has_cmd zcompile || return 0
+    command -v zcompile >/dev/null 2>&1 || return 0
     local f
     for f in "$HOME/.zshrc" "$HOME/.zshrc.local" "$HOME/.config/shell/common.sh"; do
-        [ -f "$f" ] && zcompile "$f" 2>/dev/null || true
+        if [ -f "$f" ] && { [ ! -f "$f.zwc" ] || [ "$f" -nt "$f.zwc" ]; }; then
+            zcompile "$f" 2>/dev/null || true
+        fi
     done
     unset -f _dotfiles_zcompile_startup 2>/dev/null || true
 }

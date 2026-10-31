@@ -101,29 +101,39 @@ run_topgrade() {
 
 # ── Fallback: manual updates (when topgrade is not installed)
 update_pkg_manager() {
+    local status=0 found=0
     if have_cmd brew; then
         export HOMEBREW_INSTALL_CLEANUP=1
-        brew update
-        brew upgrade
-        brew cleanup
-        log "brew update finish"
-    elif have_cmd apt; then
-        sudo apt update
-        sudo apt upgrade -y
-        sudo apt-get clean
-        sudo apt autoremove -y
-        log "apt update finish"
-    elif have_cmd yum; then
+        found=1
+        if brew update && brew upgrade && brew cleanup; then
+            log "brew update finish"
+        else
+            log "brew update failed"
+            status=1
+        fi
+    fi
+    # WSL can have both brew and apt; each owns a separate package set.
+    if have_cmd apt; then
+        found=1
+        if sudo apt update && sudo apt upgrade -y \
+            && sudo apt-get clean && sudo apt autoremove -y; then
+            log "apt update finish"
+        else
+            log "apt update failed"
+            status=1
+        fi
+    elif [ "$found" -eq 0 ] && have_cmd yum; then
         sudo yum -y update
         sudo yum clean all
         log "yum update finish"
-    elif have_cmd ipkg; then
+    elif [ "$found" -eq 0 ] && have_cmd ipkg; then
         sudo ipkg update
         sudo ipkg upgrade
         log "ipkg update finish"
-    else
+    elif [ "$found" -eq 0 ]; then
         log "update command not found"
     fi
+    return "$status"
 }
 
 # Ruby < 3.2.0 is macOS system Ruby — its gems are Apple-bundled system deps.

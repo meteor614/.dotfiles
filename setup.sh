@@ -11,6 +11,7 @@ BOOTSTRAP_NVIM=0
 DRY_RUN=0
 ONLY_SECTIONS=""
 CHECK_FAILED=0
+release_failed_tools=()
 BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
 brew_formulae=(
@@ -1627,7 +1628,7 @@ install_linux_release_tool() {
     tag=$(gh_latest_tag "$repo") || tag=""
     if [ -z "$tag" ]; then
         yellow "skip $name (could not resolve latest tag for $repo)"
-        return 0
+        return 1
     fi
     ver="${tag#v}"
 
@@ -1643,7 +1644,7 @@ install_linux_release_tool() {
                 # Re-downloading on every run just because the version banner is
                 # unparsable would be worse than leaving a working binary alone.
                 yellow "skip $name (installed at $existing but reports no version; update it by hand if needed)"
-                return 0
+                return 1
                 ;;
         esac
         target="$existing"
@@ -1668,7 +1669,7 @@ install_linux_release_tool() {
     bin_path=${bin_path//\{LINUX_ARCH_AMD64_ARM64\}/$linux_arch_amd64_arm64}
 
     local workdir
-    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX")
+    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-$name.XXXXXX") || return 1
     register_temp_dir "$workdir"
     # RETURN fires on every `return` path and is auto-cleared afterwards, so it
     # never clobbers the global EXIT handler (which kills background jobs).
@@ -1680,7 +1681,7 @@ install_linux_release_tool() {
     local archive="$workdir/pkg"
     if ! gh_dl "$url" "$archive"; then
         yellow "skip $name (download failed: $url)"
-        return 0
+        return 1
     fi
 
     # Integrity: tools whose releases ship official checksums are verified
@@ -1697,7 +1698,7 @@ install_linux_release_tool() {
         cs_file="$workdir/pkg.sha256"
         if ! gh_dl "$cs_url" "$cs_file" 1; then
             yellow "skip $name (checksum fetch failed: $cs_url)"
-            return 0
+            return 1
         fi
         [ "$name" = "zellij" ] && verify_binary=1
         # Filename matching is case-insensitive: lazygit's checksums.txt uses
@@ -1710,13 +1711,13 @@ install_linux_release_tool() {
         [ -n "$want" ] || want=$(grep -oE '\b[0-9a-fA-F]{64}\b' "$cs_file" 2>/dev/null | head -1) || true
         if [ -z "$want" ]; then
             yellow "skip $name (no usable digest in $cs_url)"
-            return 0
+            return 1
         fi
         if [ "$verify_binary" -eq 0 ] && ! verify_sha256 "$archive" "$want"; then
             yellow "$name checksum mismatch via mirror; re-downloading direct from GitHub"
             if ! gh_dl "$url" "$archive" 1 || ! verify_sha256 "$archive" "$want"; then
                 red "skip $name (checksum verification FAILED for $url — possible corruption or MITM)"
-                return 0
+                return 1
             fi
         fi
     fi
@@ -1724,21 +1725,21 @@ install_linux_release_tool() {
     case "$url" in
         *.zip)
             if command_exists unzip; then
-                (cd "$workdir" && unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 0; }
+                (cd "$workdir" && unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 1; }
             elif [ -x /opt/bin/unzip ]; then
-                (cd "$workdir" && /opt/bin/unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 0; }
+                (cd "$workdir" && /opt/bin/unzip -o -q pkg) || { yellow "skip $name (unzip failed)"; return 1; }
             else
                 yellow "skip $name (need unzip for $url)"
-                return 0
+                return 1
             fi
             ;;
         *.tar.gz|*.tgz)
-            (cd "$workdir" && tar -xzf pkg) || { yellow "skip $name (extract failed)"; return 0; }
+            (cd "$workdir" && tar -xzf pkg) || { yellow "skip $name (extract failed)"; return 1; }
             ;;
         *.gz)
             # Single gzipped binary.
             gunzip -c "$archive" > "$workdir/$bin_path" \
-                || { yellow "skip $name (gunzip failed)"; return 0; }
+                || { yellow "skip $name (gunzip failed)"; return 1; }
             ;;
         *)
             # No archive extension: some projects (herdr, choose) publish the
@@ -1746,33 +1747,33 @@ install_linux_release_tool() {
             # closed instead of installing a text file as an executable.
             if [ "$bin_path" != "$name" ] || ! is_elf "$archive"; then
                 yellow "skip $name (unknown archive type: $url)"
-                return 0
+                return 1
             fi
             cp -- "$archive" "$workdir/$bin_path" \
-                || { yellow "skip $name (binary copy failed)"; return 0; }
+                || { yellow "skip $name (binary copy failed)"; return 1; }
             ;;
     esac
 
     if [ ! -f "$workdir/$bin_path" ]; then
         yellow "skip $name (binary not found at $bin_path inside archive)"
-        return 0
+        return 1
     fi
 
     # Catch a downloaded non-binary (e.g. a redirect/HTML page) before it is
     # installed. The executable bit is set below, so only the format matters.
     if ! is_elf "$workdir/$bin_path"; then
         yellow "skip $name (extracted file is not an ELF binary)"
-        return 0
+        return 1
     fi
 
     if [ "$verify_binary" -eq 1 ] && ! verify_sha256 "$workdir/$bin_path" "$want"; then
         red "skip $name (binary checksum verification FAILED for $url — possible corruption or MITM)"
-        return 0
+        return 1
     fi
 
-    ensure_dir "$(dirname "$target")"
-    mv "$workdir/$bin_path" "$target"
-    chmod +x "$target"
+    ensure_dir "$(dirname "$target")" || return 1
+    chmod +x "$workdir/$bin_path" || return 1
+    mv "$workdir/$bin_path" "$target" || return 1
     echo "installed $name -> $target"
 }
 
@@ -1780,16 +1781,18 @@ install_linux_release_tools() {
     if [ "$os" != "linux" ]; then
         return 0
     fi
-    if ! command_exists curl || ! command_exists tar; then
-        yellow "skip linux release tools (curl or tar missing)"
-        return 0
-    fi
     if ! release_tools_have_work; then
         yellow "release tools already installed (DOTFILES_RELEASES_REFRESH=1 checks for updates)"
         return 0
     fi
+    if ! command_exists curl || ! command_exists tar; then
+        yellow "skip linux release tools (curl or tar missing)"
+        release_failed_tools+=("releases (curl/tar missing)")
+        return 0
+    fi
     if ! github_reachable; then
         yellow "skip linux release tools (github.com unreachable)"
+        release_failed_tools+=("releases (GitHub unreachable)")
         return 0
     fi
 
@@ -1797,7 +1800,9 @@ install_linux_release_tools() {
     local entry name repo url bin_path
     for entry in "${linux_release_tools[@]}"; do
         IFS='|' read -r name repo url bin_path <<<"$entry"
-        install_linux_release_tool "$name" "$repo" "$url" "$bin_path"
+        if ! install_linux_release_tool "$name" "$repo" "$url" "$bin_path"; then
+            release_failed_tools+=("$name")
+        fi
     done
     yellow 'Install linux release tools finish.'
 }
@@ -1931,12 +1936,22 @@ install_apt_packages() {
 # its runtime from the real executable, so the symlink is safe.
 # ---------------------------------------------------------------------------
 install_neovim_release() {
-    if [ "$os" != "linux" ] || command_exists nvim; then
+    if [ "$os" != "linux" ]; then
+        return 0
+    fi
+    local opt_dir="$HOME/.local/opt/nvim"
+    local target="$HOME/.local/bin/nvim"
+    local managed=0
+    # Only refresh our exact symlink; leave apt/brew/manual installs alone.
+    if [ -L "$target" ] && [ "$(readlink "$target")" = "$opt_dir/bin/nvim" ]; then
+        managed=1
+        [ "${DOTFILES_RELEASES_REFRESH:-0}" = "1" ] || return 0
+    elif command_exists nvim || [ -e "$target" ] || [ -L "$target" ]; then
         return 0
     fi
     if ! command_exists curl || ! command_exists tar; then
         yellow 'skip neovim (curl or tar missing)'
-        return 0
+        return 1
     fi
 
     local arch
@@ -1950,7 +1965,15 @@ install_neovim_release() {
     tag=$(gh_latest_tag neovim/neovim) || tag=""
     if [ -z "$tag" ]; then
         yellow 'skip neovim (could not resolve latest tag)'
-        return 0
+        return 1
+    fi
+    if [ "$managed" -eq 1 ] && [ -x "$opt_dir/bin/nvim" ]; then
+        local state=0
+        release_tool_state "$opt_dir/bin/nvim" "${tag#v}" || state=$?
+        case "$state" in
+            0) echo "neovim $tag is current ($target)"; return 0 ;;
+            2) yellow 'neovim version unreadable; update it by hand'; return 1 ;;
+        esac
     fi
     url="https://github.com/neovim/neovim/releases/download/${tag}/nvim-linux-${arch}.tar.gz"
 
@@ -1960,31 +1983,41 @@ install_neovim_release() {
     fi
 
     local workdir
-    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-neovim.XXXXXX")
+    workdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-neovim.XXXXXX") || return 1
     register_temp_dir "$workdir"
     # shellcheck disable=SC2064
     trap "rm -rf -- '$workdir'" RETURN
 
     if ! gh_dl "$url" "$workdir/pkg.tar.gz"; then
         yellow "skip neovim (download failed: $url)"
-        return 0
+        return 1
     fi
     if ! (cd "$workdir" && tar -xzf pkg.tar.gz); then
         yellow 'skip neovim (extract failed)'
-        return 0
+        return 1
     fi
     if [ ! -x "$workdir/nvim-linux-${arch}/bin/nvim" ]; then
         yellow "skip neovim (bin/nvim not found in $url)"
-        return 0
+        return 1
     fi
 
-    local opt_dir="$HOME/.local/opt/nvim"
-    ensure_dir "$HOME/.local/opt"
-    rm -rf "$opt_dir"
-    mv "$workdir/nvim-linux-${arch}" "$opt_dir"
-    ensure_dir "$HOME/.local/bin"
-    ln -sf "$opt_dir/bin/nvim" "$HOME/.local/bin/nvim"
-    echo "installed neovim -> $HOME/.local/bin/nvim"
+    ensure_dir "$HOME/.local/opt" || return 1
+    ensure_dir "$HOME/.local/bin" || return 1
+    # Stage on the destination filesystem before replacing the runtime tree.
+    local staged previous="$opt_dir.previous.$$"
+    staged=$(mktemp -d "$HOME/.local/opt/.nvim.XXXXXX") || return 1
+    register_temp_dir "$staged"
+    mv "$workdir/nvim-linux-${arch}" "$staged/runtime" || return 1
+    if [ -e "$opt_dir" ] || [ -L "$opt_dir" ]; then
+        mv "$opt_dir" "$previous" || return 1
+    fi
+    if ! mv "$staged/runtime" "$opt_dir"; then
+        [ ! -e "$previous" ] || mv "$previous" "$opt_dir"
+        return 1
+    fi
+    ln -sf "$opt_dir/bin/nvim" "$target" || return 1
+    rm -rf "$previous" "$staged" || return 1
+    echo "installed neovim -> $target"
 }
 
 # ---------------------------------------------------------------------------
@@ -2593,7 +2626,9 @@ run_setup() {
         fi
         if section_requested "releases"; then
             install_linux_release_tools
-            install_neovim_release
+            if ! install_neovim_release; then
+                release_failed_tools+=("neovim")
+            fi
         fi
         # WSL fonts mirror the macOS font casks; installed directly into
         # ~/.local/share/fonts (see install_wsl_fonts).
@@ -2689,10 +2724,17 @@ if [ "$DRY_RUN" = "1" ]; then
     exit 0
 fi
 
+setup_failed=0
 if ! wait_for_background_jobs; then
     red 'One or more background setup jobs failed.'
-    exit 1
+    setup_failed=1
 fi
+
+if [ "${#release_failed_tools[@]}" -ne 0 ]; then
+    red "Failed release tools: ${release_failed_tools[*]}"
+    setup_failed=1
+fi
+[ "$setup_failed" -eq 0 ] || exit 1
 
 if [ "$MODE" = "check" ] && [ "$CHECK_FAILED" -ne 0 ]; then
     red 'Setup check detected mismatches.'
