@@ -1,6 +1,8 @@
 [user]
-	email = meteorchen@qq.com
-	name = meteorchen
+	# Identity is machine-local: ~/.gitconfig carries user.name/user.email after
+	# the [include], so each host keeps its own values and none land in tracked
+	# content. useConfigOnly stays here so git refuses to guess an identity from
+	# the environment instead of committing as user@host by accident.
 	useConfigOnly = true
 # core.hooksPath / core.attributesfile are intentionally not set here:
 # ~/.git-hooks and ~/.attributes_global are machine-local and not deployed
@@ -16,6 +18,9 @@
 	untrackedcache = true
 	pager = delta
 
+# filter.lfs.required=true means a host without git-lfs fails on any repo with
+# LFS attributes. setup.sh installs git-lfs via brew/apt; on Synology install it
+# manually (`opkg install git-lfs`) before cloning LFS repos.
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

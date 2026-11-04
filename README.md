@@ -68,7 +68,7 @@
 | `init`    | （默认）创建缺失的符号链接，然后安装依赖                 |
 | `check`   | 只读：报告缺失/不匹配的链接（含指向本仓库但源已删除的死链） |
 | `repair`  | 备份并修复不匹配的链接、合并受管理配置、补 `~/.gitconfig` 的 `[include]`；不安装软件或删除死链 |
-| `prune`   | 删除死链（指向本仓库、源已不存在）及过期 `*.zwc`          |
+| `prune`   | 删除死链（指向本仓库、源已不存在）、过期 `*.zwc`，并轮换旧备份（每个路径保留最近 `DOTFILES_BACKUP_KEEP` 份，默认 3） |
 
 参数：
 
@@ -86,6 +86,12 @@
   `~/.local/opt/nvim`（通过 `~/.local/bin/nvim` 链接识别）；其他渠道的
   Neovim 不接管。下载、校验或版本查询失败会继续处理其余工具，最终汇总
   失败项并以非零状态退出。
+* `DOTFILES_BACKUP_KEEP=N` — `prune` 为每个原始路径保留的最近备份份数（默认
+  3）；只清理 `*.bak.<14 位时间戳>` 形式的文件/链接备份，目录备份与
+  `~/.gitconfig` 的备份不动。配合 `prune --dry-run` 可先预览。
+* `DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` — 新建 `~/.gitconfig` 时写入的机器
+  身份。共享层不含身份（只有 `useConfigOnly`），未设置且 git 全局也无身份时
+  `init` 会给出警告，需随后 `git config --global user.name/user.email` 补齐。
 
 按 OS 区分的安装行为：
 
@@ -127,9 +133,11 @@
   机器本地文件，用 `[include]` 引入本仓库的 `.gitconfig`（共享基线层），
   本地设置写在 include 之后因而生效。原因是 git 会穿透符号链接写入，
   `git config --global …`、`git lfs install`、credential helper 都会把机器状态
-  直接改进仓库的 tracked 文件。`init` 会把旧的链接迁移成该文件并保留当前
-  `user.name`/`user.email`（共享层设了 `useConfigOnly`，丢了会导致无法提交）；
-  `check` 报告漂移，`repair` 补上/前置 `[include]`，`prune` 不会碰这个文件。
+  直接改进仓库的 tracked 文件。共享层只放默认值与 `user.useConfigOnly`，**不含**
+  `user.name`/`user.email`：`init` 会把旧的链接迁移成该文件并保留当前身份
+  （也可由 `DOTFILES_GIT_NAME` / `DOTFILES_GIT_EMAIL` 提供），本地身份写在
+  include 之后因而生效；`check` 报告漂移，`repair` 补上/前置 `[include]`，
+  `prune` 不会碰这个文件（它的备份也不轮换）。
   注意据此不能靠 `$XDG_CONFIG_HOME/git/config` 分层：git 只在 `~/.gitconfig`
   缺失时才读它。
 * `.config/*` → `~/.config/*`（文件符号链接；目录先创建再链接内容）。
@@ -176,8 +184,10 @@
 | `cheat`、cheatsheets 子模块、`.config/cheat/conf.yml` | 已退役（速查内容见 `CLI_TOOLS.md`）|
 | `.tmux` 子模块、`.tmux.conf.local` | 已退役（tmux 配置收敛为自包含的 `.tmux.conf`）|
 
-自指的陈旧链接（如 `~/.zshrc.bak.*`、`~/.zshrc.pre-oh-my-zsh`）指向的源仍存在，
-不会被自动清理；确认无用后可手动删除。
+`~/.zshrc.pre-oh-my-zsh` 一类自指陈旧链接指向的源仍存在，不会被自动清理；
+确认无用后可手动删除。`~/.zshrc.bak.*` 这类由 `repair` 产生的备份现由
+`setup.sh prune` 按 `DOTFILES_BACKUP_KEEP` 轮换（只删旧的，保留最近几份）；
+目录备份（如整个 `~/.config/nvim` 树）与 `~/.gitconfig` 的备份仍需手动清理。
 
 ## Shell 启动流程
 

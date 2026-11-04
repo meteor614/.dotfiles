@@ -16,7 +16,7 @@ BACKUP_SUFFIX="$(date "+%Y%m%d%H%M%S")"
 
 brew_formulae=(
     clang-format cloc cmake coreutils cpulimit cscope
-    ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git global
+    ctags curl fd ffmpeg findutils fontconfig freetype fzf gawk git git-lfs global
     gnu-getopt gnutls go gotags htop icdiff jq jsoncpp lua luajit luarocks mycli
     neovim ninja numpy oniguruma openssl@3 pandoc parallel perl protobuf
     pstree psutils python@3.14 readline ripgrep rtags rtmpdump ruby snappy sqlite
@@ -52,7 +52,7 @@ brew_formulae_linux=(
 # Two Rust tools ship under a distro-renamed binary (bat -> batcat, fd ->
 # fdfind); install_apt_packages links the upstream names into ~/.local/bin.
 apt_packages=(
-    zsh git curl wget unzip zip xz-utils ca-certificates gnupg
+    zsh git git-lfs curl wget unzip zip xz-utils ca-certificates gnupg
     build-essential cmake ninja-build pkg-config clang-format universal-ctags
     global cscope swig protobuf-compiler cloc cpulimit icdiff
     libssl-dev libreadline-dev libjsoncpp-dev libonig-dev libsnappy-dev gnutls-bin
@@ -177,9 +177,10 @@ Commands:
                   repo's shared .gitconfig) and adds the [include] to an
                   existing ~/.gitconfig that lacks it.
   prune           Remove stale links under the managed roots that point back into
-                  this repo but whose source no longer exists (and stale *.zwc).
+                  this repo but whose source no longer exists (and stale *.zwc),
+                  and rotate old backups (keep DOTFILES_BACKUP_KEEP per path).
                   Honors --only: prune runs when its sections are selected
-                  (stale *.zwc cleanup belongs to the links section).
+                  (stale *.zwc and backup rotation belong to the links section).
 
 Flags:
   --bootstrap-nvim
@@ -211,6 +212,13 @@ Flags:
                     zsh        — zsh plugin clones
                     herdr      — herdr agent integrations
                     tuios      — tuios agent integrations
+
+Environment:
+  DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL
+                  Identity written into a newly created ~/.gitconfig. The
+                  shared layer carries no identity (only user.useConfigOnly).
+  DOTFILES_BACKUP_KEEP
+                  Backups kept per original path by `prune` (default 3).
 EOF
 }
 
@@ -604,8 +612,58 @@ prune_stale_zwc() {
     done
 }
 
-# prune_managed_links — delete repo-owned dangling links + stale *.zwc.
-# Honors $DRY_RUN.
+# prune_old_backups — keep only the newest DOTFILES_BACKUP_KEEP backups per
+# original path. backup_existing_path() names them <path>.bak.<14-digit-stamp>
+# (plus .<n> on a stamp collision); the fixed-width stamp sorts chronologically.
+# Only regular files and symlinks are considered: a directory backup (e.g. a
+# whole ~/.config/nvim tree) is user data and is left for manual cleanup, as are
+# ~/.gitconfig backups (machine-local state, see AGENTS.md). Honors $DRY_RUN;
+# only ever called in prune mode.
+prune_old_backups() {
+    local keep=${DOTFILES_BACKUP_KEEP:-3}
+    local root depth base item candidates
+
+    case "$keep" in
+        ''|*[!0-9]*) keep=3 ;;
+    esac
+
+    candidates=$(
+        while IFS="$(printf '\t')" read -r root depth; do
+            [ -n "$root" ] && [ -d "$root" ] || continue
+            find "$root" -maxdepth "$depth" -mindepth 1 \
+                \( -type f -o -type l \) -name '*.bak.*' -print 2>/dev/null
+        done < <(managed_scan_specs) \
+            | grep -E '\.bak\.[0-9]{14}(\.[0-9]+)?$'
+    ) || true
+
+    [ -n "$candidates" ] || return 0
+
+    printf '%s\n' "$candidates" \
+        | sed -E 's/\.bak\.[0-9]{14}(\.[0-9]+)?$//' | sort -u \
+        | while IFS= read -r base; do
+            [ -n "$base" ] || continue
+            printf '%s\n' "$candidates" | while IFS= read -r item; do
+                case "$item" in
+                    "$base.bak."*) printf '%s\n' "$item" ;;
+                esac
+            done | sort -r | tail -n "+$((10#$keep + 1))" \
+                | while IFS= read -r item; do
+                    [ -n "$item" ] || continue
+                    case "$item" in
+                        "$HOME/.gitconfig.bak."*) continue ;;
+                    esac
+                    if [ "$DRY_RUN" = "1" ]; then
+                        yellow "[dry-run] would remove old backup $item"
+                    else
+                        rm -f -- "$item"
+                        yellow "prune: removed old backup $item"
+                    fi
+                done
+        done
+}
+
+# prune_managed_links — delete repo-owned dangling links, stale *.zwc, and
+# rotate old backups. Honors $DRY_RUN.
 prune_managed_links() {
     local link removed=0
 
@@ -622,6 +680,7 @@ prune_managed_links() {
     done < <(find_managed_links)
 
     prune_stale_zwc
+    prune_old_backups
 
     if [ "$removed" -eq 0 ]; then
         echo 'prune: no dangling links found'
@@ -751,7 +810,12 @@ link_top_level_dotfiles() {
 # Instead:
 #
 #   ~/.gitconfig  →  [include] path = <repo>/.gitconfig   (shared base layer)
-#                    + whatever this machine set (wins, because it comes later)
+#                    + this host's user.name/user.email (wins, comes later)
+#
+# The shared layer deliberately carries no identity (only user.useConfigOnly),
+# so machine identity never ends up in tracked content. setup_gitconfig copies
+# the identity git can already see into the local file; DOTFILES_GIT_NAME /
+# DOTFILES_GIT_EMAIL can supply it on a brand-new machine.
 #
 # git expands [include] in place and the last value wins, so machine-local
 # identity/credentials override the shared defaults without touching the repo.
@@ -765,6 +829,23 @@ gitconfig_include_block() {
         '# --global …`) overrides it and stays on this machine.' \
         '[include]'
     printf '\tpath = %s\n' "${script_path}/.gitconfig"
+}
+
+# gitconfig_append_identity <file> <name> <email> — append a machine-local
+# [user] block below the [include] so it wins over the shared layer. The shared
+# .gitconfig carries useConfigOnly but no identity, so a host with neither value
+# cannot commit; warn instead of silently creating a broken ~/.gitconfig.
+gitconfig_append_identity() {
+    local file=$1 name=$2 email=$3
+    if [ -z "$name" ] && [ -z "$email" ]; then
+        yellow "warn: no git identity found; set it with 'git config --global user.name/user.email' (or DOTFILES_GIT_NAME / DOTFILES_GIT_EMAIL)"
+        return 0
+    fi
+    {
+        printf '[user]\n'
+        if [ -n "$name" ]; then printf '\tname = %s\n' "$name"; fi
+        if [ -n "$email" ]; then printf '\temail = %s\n' "$email"; fi
+    } >> "$file"
 }
 
 # expand_include_path <value> <dir-of-including-file> — apply git's rules for
@@ -819,8 +900,8 @@ setup_gitconfig() {
 
     # Old deployment: ~/.gitconfig was a symlink into this repo. Report it in
     # check mode; migrate it in init/repair, keeping the identity this host is
-    # using right now (the shared layer sets `useConfigOnly`, so dropping it
-    # would make every commit fail).
+    # using right now. The shared layer only sets `useConfigOnly`, so a local
+    # file with no user.name/user.email would make every commit fail.
     if [ -L "$dst" ] && [ "$(resolve_path "$dst")" = "$(resolve_path "$src")" ]; then
         if [ "$MODE" = "check" ]; then
             yellow "check: $dst is a symlink into the repo (should be a local file that includes it)"
@@ -833,19 +914,11 @@ setup_gitconfig() {
         fi
         current_name=$(git config --global user.name 2>/dev/null || true)
         current_email=$(git config --global user.email 2>/dev/null || true)
+        if [ -n "${DOTFILES_GIT_NAME:-}" ]; then current_name="$DOTFILES_GIT_NAME"; fi
+        if [ -n "${DOTFILES_GIT_EMAIL:-}" ]; then current_email="$DOTFILES_GIT_EMAIL"; fi
         backup_existing_path "$dst"
         gitconfig_include_block > "$dst"
-        if [ -n "$current_name" ] || [ -n "$current_email" ]; then
-            {
-                printf '[user]\n'
-                if [ -n "$current_name" ]; then
-                    printf '\tname = %s\n' "$current_name"
-                fi
-                if [ -n "$current_email" ]; then
-                    printf '\temail = %s\n' "$current_email"
-                fi
-            } >> "$dst"
-        fi
+        gitconfig_append_identity "$dst" "$current_name" "$current_email"
         yellow "gitconfig -> $dst (local file including $src)"
         return 0
     fi
@@ -877,7 +950,15 @@ setup_gitconfig() {
             yellow "[dry-run] would create $dst including $src"
             return 0
         fi
+        # Capture any identity git can already see (XDG config, env) before
+        # creating ~/.gitconfig — once it exists, git stops reading the XDG
+        # fallback and the shared layer intentionally carries no identity.
+        current_name=$(git config --global user.name 2>/dev/null || true)
+        current_email=$(git config --global user.email 2>/dev/null || true)
+        if [ -n "${DOTFILES_GIT_NAME:-}" ]; then current_name="$DOTFILES_GIT_NAME"; fi
+        if [ -n "${DOTFILES_GIT_EMAIL:-}" ]; then current_email="$DOTFILES_GIT_EMAIL"; fi
         gitconfig_include_block > "$dst"
+        gitconfig_append_identity "$dst" "$current_name" "$current_email"
         yellow "gitconfig -> $dst (local file including $src)"
         return 0
     fi

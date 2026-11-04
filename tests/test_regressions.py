@@ -163,7 +163,7 @@ if install_linux_release_tool fake repo pkg.tar.gz fake; then exit 90; fi
 ''')
 
     def test_neovim_refresh_and_install_source_boundary(self):
-        arch = {'x86_64': 'x86_64', 'aarch64': 'arm64'}[os.uname().machine]
+        arch = {'x86_64': 'x86_64', 'aarch64': 'arm64', 'arm64': 'arm64'}[os.uname().machine]
         archive = self.base / 'nvim.tar.gz'
         with tarfile.open(archive, 'w:gz') as tar:
             data = b'#!/bin/sh\necho NVIM v1.0.0\n'
