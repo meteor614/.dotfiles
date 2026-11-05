@@ -604,7 +604,7 @@ respond_from_shell = false
 resume_agents = 'ask'
 persist_scrollback_lines = 5000
 persist_scrollback_kb = 0
-window_size = 'smallest'
+window_size = "latest"
 
 [startup]
 open_default_window = true
