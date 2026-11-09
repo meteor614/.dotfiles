@@ -28,7 +28,7 @@ multitail：同时 tail 多个日志；低频，简单场景可用 `tail -f` + t
 hexyl：彩色十六进制查看器，替代 xxd/hexdump 的阅读场景。
 ouch：统一压缩/解压入口，减少记 tar/zip/7z 参数。
 csvlens：几十 GB CSV 都能浏览。
-flint/leaf/glow：终端 Markdown 阅读器，适合快速预览 README/笔记。
+mdcat/flint/leaf/glow：终端 Markdown 阅读器，适合快速预览 README/笔记。
 bookokrat：终端 EPUB/PDF 阅读器，可把 EPUB 拆成 markdown 章节供下游工具使用。
 jdupes：快速重复文件查找，支持硬链接或删除清理，比 fdupes 快。
 unison：双向文件同步工具，适合两台机器/目录间保持一致；单向同步仍可用 rsync。

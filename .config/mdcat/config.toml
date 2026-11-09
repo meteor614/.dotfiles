@@ -1,0 +1,39 @@
+# mdcat configuration.
+#
+# Linked to ~/.config/mdcat/config.toml by setup.sh's generic `.config/*` rule.
+# Reference: `man 1 mdcat` ("CONFIGURATION FILE") and config.toml.example in the
+# mdcat source repo.
+#
+# Every key is optional; omitted keys fall back to mdcat's built-in default.
+# NOTE: this version validates keys strictly — an unknown key is a hard parse
+# error ("unknown field ... expected one of ..."), so do not copy keys such as
+# `stream` from a newer example without checking `mdcat --help` first.
+
+[defaults]
+# Use the whole terminal width instead of capping output at 80 columns.
+# `columns` wins over `full_width`, so it is deliberately left unset here.
+full_width = true
+
+# Expand literal tabs in the input to 4-column tab stops before parsing.
+# Off upstream; without it a tab inside text throws off line wrapping and
+# table/list alignment, since terminals jump it to the next tab stop.
+tabs = 4
+
+# Opt-in extras, left off so the CLI flags still control them per invocation:
+#
+# margin = true              # two-space left margin (reduces render width)
+# smart_punctuation = true   # curly quotes, en/em dashes, ellipsis
+# emoji = true               # render :+1: GitHub emoji shortcodes
+# frontmatter = true         # render flat YAML/TOML frontmatter as a table
+# columns = 100              # fixed width; overrides full_width
+# local_only = true          # never fetch remote images
+# fail_fast = true           # stop at the first unreadable file
+#
+# Inside tmux/screen the outer terminal's capabilities are usually invisible, so
+# inline images need an explicit protocol: "none", "iterm2", "kitty", or "sixel".
+# image_protocol = "kitty"
+#
+# [theme]
+# `base` is skipped on purpose: leaving it unset keeps dark/light auto-detection,
+# which matters here because this repo is used across several terminals.
+# base = "catppuccin-mocha"
