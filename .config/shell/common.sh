@@ -748,6 +748,38 @@ _dotfiles_starship_bin() {
     return 1
 }
 
+# -----------------------------------------------------------------------------
+# fzf shell integration (key bindings + completion)
+# -----------------------------------------------------------------------------
+# Homebrew's fzf does not ship ~/.fzf.zsh / ~/.fzf.bash — those came from the
+# old `git clone` installer. Sourcing them was therefore a silent no-op and
+# Ctrl-T / Alt-C were never bound (^R belongs to atuin). Source the real
+# shell/ directory instead, tolerating the Debian layout as a fallback.
+#
+# Call order matters: .zshrc / .bashrc must run this *before* `atuin init`,
+# whose own `bindkey '^R'` is meant to win over fzf's history widget.
+dotfiles_fzf_init() {
+    case "${_DOTFILES_SHELL:-}" in zsh|bash) ;; *) return 0 ;; esac
+    has_cmd fzf || return 0
+    local base dir
+    for base in \
+        "${HOMEBREW_PREFIX:-/home/linuxbrew/.linuxbrew}/opt/fzf" \
+        /home/linuxbrew/.linuxbrew/opt/fzf \
+        /opt/homebrew/opt/fzf \
+        /usr/local/opt/fzf \
+        /usr/share/fzf \
+        /usr/share/doc/fzf/examples; do
+        for dir in "$base/shell" "$base"; do
+            [ -r "$dir/key-bindings.$_DOTFILES_SHELL" ] || continue
+            [ -r "$dir/completion.$_DOTFILES_SHELL" ] \
+                && . "$dir/completion.$_DOTFILES_SHELL"
+            . "$dir/key-bindings.$_DOTFILES_SHELL"
+            return 0
+        done
+    done
+    return 0
+}
+
 # Compile the hot rc files once per edit (zsh only); later startups load the
 # .zwc transparently. Queued via _defer from .zshrc so it never blocks boot.
 _dotfiles_zcompile_startup() {

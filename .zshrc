@@ -161,7 +161,11 @@ if [[ -d "$HOME/bin" ]]; then
 fi
 
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
+# fzf key bindings + completion (Ctrl-T / Alt-C; ^R stays with atuin, which is
+# initialized further down and rebinds it last). The old `~/.fzf.zsh` guard was
+# a no-op: Homebrew's fzf no longer installs that file.
+dotfiles_fzf_init
 
 # ── Compile rc files after first load ────────────────────────────────────────
 # zsh uses ~/.zshrc.zwc / .zshrc.local.zwc / common.sh.zwc automatically on

@@ -7,7 +7,7 @@
 
 rg (ripgrep)：递归搜索文件内容，通常替代 grep / ack / ag；遵守 .gitignore，速度快。
 fd：更现代的 find，默认忽略 .gitignore，常和 fzf 搭配选择文件。
-fzf：交互式模糊查找器；用于 Ctrl-R 历史、文件选择、进程/会话选择等。
+fzf：交互式模糊查找器；^T 选文件、Alt-C 跳目录、`**` 补全、进程/会话选择；历史搜索 ^R 归 atuin。
 peco：交互式过滤器；功能和 fzf 有重叠，现阶段优先用 fzf。
 choose：按列/字段抽取文本，比 cut 更直观。
 sd：更友好的 sed 替代品，适合简单文本替换。

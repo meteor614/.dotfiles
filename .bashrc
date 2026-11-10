@@ -30,7 +30,9 @@ fi
 # -----------------------------------------------------------------------------
 # Extras that require bash-specific features / hooks
 # -----------------------------------------------------------------------------
-[ -f ~/.fzf.bash ] && . ~/.fzf.bash
+# fzf key bindings + completion. `~/.fzf.bash` no longer exists with a
+# Homebrew install; atuin (initialized further down) rebinds ^R last.
+dotfiles_fzf_init
 
 # kubectl completion: lazy wrapper aligned with the zsh side (.zshrc.local) —
 # the ~30KB generated script is only sourced on first use, and the cache is

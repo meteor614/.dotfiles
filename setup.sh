@@ -41,8 +41,13 @@ brew_casks=(
 # font path installs them directly into ~/.local/share/fonts instead.
 # rtags stays macOS-only: it drags in a multi-GB LLVM toolchain that is not
 # worth it just for a ctags helper on WSL.
+# fzf is the deliberate exception: apt does ship it, but Debian's 0.6x is far
+# behind current fzf (--walker/--scheme, --zsh/--bash shell integration), and
+# the shell config sources key-bindings from whichever fzf is on PATH. Taking it
+# from Linuxbrew keeps WSL on the same version as macOS; install_apt_packages
+# skips apt's copy so only one fzf exists (see apt_pkg_owned_by_brew).
 brew_formulae_linux=(
-    gotags rust
+    fzf gotags rust
 )
 
 # Debian/Ubuntu: distro packages, the Linux counterpart to brew_formulae.
@@ -1960,6 +1965,26 @@ install_apt_command_shims() {
     done
 }
 
+# Packages apt also carries but that another channel owns on this host. Only
+# fzf qualifies today: stay in apt_packages for plain Debian/Ubuntu (apt is the
+# only channel there), let Linuxbrew own it on WSL. Installing both leaves a
+# second `fzf` on PATH, so `which fzf` (and the key-bindings it sources) then
+# depends on PATH order and shell hash state — that is exactly how a fresh brew
+# fzf ends up shadowed by /usr/bin/fzf.
+apt_pkg_owned_by_brew() {
+    case "$1" in
+        fzf) ;;
+        *) return 1 ;;
+    esac
+    is_wsl || return 1
+    section_requested "brew" || return 1
+    if command_exists brew || linuxbrew_prefix >/dev/null 2>&1; then
+        return 0
+    fi
+    # Fresh WSL box: the brew section right after this one installs Linuxbrew.
+    [ "${DOTFILES_INSTALL_LINUXBREW:-1}" = "1" ]
+}
+
 install_apt_packages() {
     if ! apt_is_available; then
         return 0
@@ -1981,13 +2006,29 @@ install_apt_packages() {
     local installed
     installed=$(dpkg-query -W -f='${Package}\n' 2>/dev/null || true)
 
-    local pkg missing=() skipped=()
+    local pkg missing=() skipped=() brew_owned=()
     for pkg in "${apt_packages[@]}"; do
+        if apt_pkg_owned_by_brew "$pkg"; then
+            brew_owned+=("$pkg")
+            continue
+        fi
         if ! apt-cache show "$pkg" >/dev/null 2>&1; then
             skipped+=("$pkg")
         elif ! printf '%s\n' "$installed" | grep -qxF -- "$pkg"; then
             missing+=("$pkg")
         fi
+    done
+
+    [ "${#brew_owned[@]}" -gt 0 ] \
+        && echo "apt: ${brew_owned[*]} comes from Linuxbrew instead (see brew_formulae_linux)"
+
+    # An earlier run (or a manual install) may have left the apt copy behind.
+    # Removing packages needs root and is not ours to decide, but an unqualified
+    # `which fzf` picking the wrong one is what makes this invisible, so say it.
+    local owned
+    for owned in "${brew_owned[@]}"; do
+        printf '%s\n' "$installed" | grep -qxF -- "$owned" \
+            && yellow "note: apt also has '$owned' installed; remove it so only the Linuxbrew copy is on PATH: sudo apt remove $owned"
     done
 
     [ "${#skipped[@]}" -gt 0 ] \
