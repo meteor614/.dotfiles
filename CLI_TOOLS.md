@@ -64,6 +64,7 @@ difft (difftastic)：基于 AST 的结构化 diff，比行级 diff 更懂代码�
 
 starship：跨 shell prompt，启动快、可配置，zsh/bash/fish 都能用。
 atuin：Shell 历史数据库和同步工具，增强 Ctrl-R 搜索。
+carapace：补全多路复用器（carapace-bin）；为 ~800 个命令提供统一补全，接管 git/jj/brew/kubectl/tmux 等自带补全，也能桥接 bash/zsh/fish 补全脚本。本 repo 在 .zshrc/.bashrc 里以缓存方式加载，自建命令的补全放 ~/.config/carapace/specs/。
 mise：多语言运行时/工具版本管理器；本环境默认用它管理 node/python/go。
 direnv：进入目录时自动加载/卸载环境变量，适合项目级开发环境。
 nvm：Node 版本管理器；本 repo 作为 mise 缺失时的 fallback，不再优先依赖。

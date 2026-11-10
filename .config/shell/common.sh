@@ -707,24 +707,10 @@ _broot_launcher="${XDG_CONFIG_HOME}/broot/launcher/bash/br"
 unset _broot_launcher
 
 # -----------------------------------------------------------------------------
-# jj (Jujutsu) — git-compatible VCS; completion wired per shell
+# jj (Jujutsu) — completion is handled by carapace (see .zshrc/.bashrc): its jj
+# completer covers subcommands, aliases, revsets and flags, so the per-shell
+# `jj util completion` caches that used to be wired here were removed.
 # -----------------------------------------------------------------------------
-if has_cmd jj; then
-    if [ -n "${ZSH_VERSION:-}" ]; then
-        # Lazy-load zsh completion (generate once, cache it)
-        _jj_load() {
-            dotfiles_cached_eval _jj "$(command -v jj)" zsh util completion zsh
-            unset -f _jj_load 2>/dev/null || true
-        }
-        if typeset -f _defer >/dev/null 2>&1; then
-            _defer _jj_load
-        else
-            _jj_load
-        fi
-    elif [ -n "${BASH_VERSION:-}" ]; then
-        dotfiles_cached_eval jj "$(command -v jj)" bash util completion bash
-    fi
-fi
 
 # -----------------------------------------------------------------------------
 # Starship prompt (shell-aware; zsh gets cached init via dotfiles_cached_eval in .zshrc)

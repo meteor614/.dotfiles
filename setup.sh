@@ -24,6 +24,7 @@ brew_formulae=(
     tree vnstat watch wget xz yarn yarn-completion yazi zellij zsh cppman
     bat reattach-to-user-namespace eza lazygit procs dust direnv rust atuin tuios bookokrat
     imagemagick bottom sd broot choose glow zoxide ouch mise topgrade jj ast-grep yq duf git-delta pipx shellcheck
+    carapace
 )
 brew_casks=(
     font-hack-nerd-font
@@ -76,8 +77,8 @@ apt_packages=(
 # Format: <name>|<api_repo>|<download_url>|<bin_path_inside_archive>
 # Use {VER} to interpolate the latest tag stripped of the leading 'v'; {TAG} keeps the leading 'v'.
 # Use {LINUX_ARCH} and tool-specific aliases for GitHub asset architectures selected by uname -m.
-# Integrity: starship/atuin/lazygit/zellij ship official checksums and are
-# verified before install (see checksum_url_for); the rest are installed
+# Integrity: starship/atuin/carapace/lazygit/zellij ship official checksums and
+# are verified before install (see checksum_url_for); the rest are installed
 # unverified because upstream publishes no digests — adding a tool here with
 # checksum assets only requires extending checksum_url_for.
 linux_release_tools=(
@@ -106,6 +107,10 @@ linux_release_tools=(
     "ast-grep|ast-grep/ast-grep|https://github.com/ast-grep/ast-grep/releases/download/{TAG}/app-{LINUX_ARCH}-unknown-linux-gnu.zip|ast-grep"
     "yq|mikefarah/yq|https://github.com/mikefarah/yq/releases/download/{TAG}/yq_linux_{LINUX_ARCH_AMD64_ARM64}.tar.gz|yq_linux_{LINUX_ARCH_AMD64_ARM64}"
     "bookokrat|bugzmanov/bookokrat|https://github.com/bugzmanov/bookokrat/releases/download/{TAG}/bookokrat-{TAG}-{LINUX_ARCH}-unknown-linux-gnu.tar.gz|bookokrat"
+    # Completion multiplexer for bash/zsh/fish. ~21MB archive whose root holds
+    # the single `carapace` binary (plus LICENSE/README). Upstream repo moved to
+    # the carapace-sh org; the old rsteube/* path only redirects.
+    "carapace|carapace-sh/carapace-bin|https://github.com/carapace-sh/carapace-bin/releases/download/{TAG}/carapace-bin_{VER}_linux_{LINUX_ARCH_AMD64_ARM64}.tar.gz|carapace"
 )
 
 # Entware packages available on Synology DSM via /opt/bin/opkg.
@@ -1515,16 +1520,19 @@ is_elf() {
 # derived from the download URL itself. Returns 1 for tools without official
 # checksums (see the verify flag on linux_release_tools entries).
 checksum_url_for() {
-    local name=$1 url=$2 tag url_root
+    local name=$1 url=$2 tag url_root cs_name
     case "$name" in
         starship|atuin)
             printf '%s.sha256\n' "$url"
             ;;
-        lazygit|tuios|glow)
+        lazygit|tuios|glow|carapace)
             # A checksums.txt next to the assets; needs the tag from the URL.
             tag=$(printf '%s\n' "$url" | sed -n 's|.*/download/\([^/]*\)/.*|\1|p')
             url_root=$(printf '%s\n' "$url" | sed -n 's|/releases/download/.*||p')
-            printf '%s/releases/download/%s/checksums.txt\n' "$url_root" "$tag"
+            cs_name=checksums.txt
+            # carapace names it after the project/version: carapace-bin_<ver>_checksums.txt
+            [ "$name" = "carapace" ] && cs_name="carapace-bin_${tag#v}_checksums.txt"
+            printf '%s/releases/download/%s/%s\n' "$url_root" "$tag" "$cs_name"
             ;;
         bookokrat)
             # Per-asset sidecar: <asset>.sha256

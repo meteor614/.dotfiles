@@ -34,16 +34,19 @@ fi
 # Homebrew install; atuin (initialized further down) rebinds ^R last.
 dotfiles_fzf_init
 
-# kubectl completion: lazy wrapper aligned with the zsh side (.zshrc.local) —
-# the ~30KB generated script is only sourced on first use, and the cache is
-# regenerated when the binary changes.
-if command -v kubectl >/dev/null 2>&1; then
-    kubectl() {
-        unset -f kubectl
-        dotfiles_cached_eval kubectl "$(command -v kubectl)" bash completion bash
-        command kubectl "$@"
-    }
+# carapace: same static-script caveat as the zsh side (.zshrc) — cache it and
+# refresh when the binary changes. The generated bash script uses `mapfile` and
+# negative array indices, so skip bash 3.2 (macOS /bin/bash) instead of letting
+# it print "legacy bash is not supported" on every shell start. Registration
+# happens after /etc/bash.bashrc sourced bash-completion, so carapace wins for
+# the commands it knows.
+if (( BASH_VERSINFO[0] >= 4 )) && has_cmd carapace; then
+    dotfiles_cached_eval carapace "$(command -v carapace)" bash _carapace bash
 fi
+
+# NOTE: the lazy `kubectl completion bash` wrapper that lived here was removed —
+# carapace registers its own completer for kubectl (both shells), which is both
+# broader (resources/contexts/…) and needs no per-shell cache.
 
 # perlbrew
 [ -f ~/perl5/perlbrew/etc/bashrc ] && . ~/perl5/perlbrew/etc/bashrc

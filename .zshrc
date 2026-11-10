@@ -139,6 +139,21 @@ fi
 (( $+commands[zoxide] )) \
     && _defer dotfiles_cached_eval zoxide "${commands[zoxide]}" zsh init zsh
 
+# ── Carapace (completion multiplexer) ────────────────────────────────────────
+# `carapace _carapace zsh` is a *static* script: it bakes in the completer list
+# of the installed carapace version and registers `compdef` for ~800 commands.
+# Two consequences:
+#   * it must be sourced after compinit — sourcing it earlier fails with
+#     `command not found: compdef` and silently leaves every completion broken;
+#     compinit is lazy here, so it goes through the same _defer queue as zoxide
+#     above (registered after _dotfiles_lazy_compinit → runs after it).
+#   * the cache must be regenerated when carapace is upgraded (new completers
+#     appear per release) — dotfiles_cached_eval keys it on the binary mtime.
+# It deliberately overrides completions registered elsewhere for commands in its
+# list (git, jj, brew, kubectl, tmux, …), which is the point of the tool.
+(( $+commands[carapace] )) \
+    && _defer dotfiles_cached_eval carapace "${commands[carapace]}" zsh _carapace zsh
+
 # ── Starship (cached init; _dotfiles_starship_bin is defined in common.sh) ───
 # Command substitution would fork a subshell on every startup; the helper
 # assigns the result to a variable instead.
