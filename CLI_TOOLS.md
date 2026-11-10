@@ -90,6 +90,7 @@ aria2c：多源/多线程下载器，适合大文件和断点续传。
 axel：简单多线程下载器；现在多数场景可用 aria2c/curl/wget 替代。
 xh：Rust 写的 HTTPie 风格客户端，适合人类可读的 API 调试。
 httpie (http)：人类友好的 HTTP 客户端；若已安装可替代复杂 curl 参数。
+carbonyl：基于 Chromium 内核的终端浏览器
 yt-dlp：主流媒体下载工具，优先替代 youtube-dl / you-get。
 ffmpeg：音视频转码、抽帧、合并、录制的瑞士军刀。
 pandoc：文档格式转换器，Markdown/HTML/LaTeX/Word/PDF 流转常用。
