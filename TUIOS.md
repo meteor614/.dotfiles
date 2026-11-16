@@ -78,6 +78,8 @@ tuios 是日常主力复用器（agent sidebar + 可脚本化的 pane）。本�
   reasonix / codebuddy 的手写 herdr hook 适配已退役（2026-10）：reasonix 只剩
   `config.toml`，pane 状态由 `common.sh` 的重命名 wrapper 直接调
   `tuios agent-hook` 上报；codebuddy 不再接入状态。
+  pi 不需要额外兜底扩展（0.13.2 那个 ghost 行 bug 已由上游 PR #2169 在 v0.13.3 修掉，见
+  「0.13.2 / 0.13.3 复核」）。
 
 ## 0.10.1 复核（2026-10-23）
 
@@ -203,6 +205,29 @@ daemon 与 CLI 均为 0.13.2（`tuios list-verbs` banner：`daemon 0.13.2, oldes
 再把那些让出来**。所以 `[shell] integration` 保持默认 `auto` 即可，不需要改成 `off`，
 `common.sh` 那份仍然同时服务 Ghostty / kitty / zellij。
 
+### pi 退出后仍留在 agent 列表（0.13.2 的 daemon bug，0.13.3 已修）
+
+* **现象（0.13.2 稳定复现）**：pane 里的 pi 退出后，该 pane 仍以最后的 `idle`/`done` 状态留在
+  `tuios list-agents` 和 rail 的 agent 行里；`explain-agent-detect` 已经说 "This pane is at its
+  shell prompt. It runs no agent"，`list-windows.at_prompt` 也是 `true`，但 `agent_state` 一直是
+  `idle`，`evidence_age_ms` 只增不减，等再久也不清（`appearance.sidebar.agent_rest_fold = 1h`
+  只是把 idle/unknown/done-seen 的行折叠成一行，行本身不消失）。`/quit`、`Ctrl+D`、`SIGTERM`、
+  `SIGHUP` 都这样。
+* **根因在 daemon，不在 pi 集成**：hook 上报的 state 本该在「harness 进程没了、pane 回到
+  shell」时 lapse（`docs/AGENT_STATE.md` 的 *Losing an agent*）。插件式上报（pi v5 用
+  `agent-hook-event` socket）把 `harness_pid` 从**调用者的父进程**开始走 ancestry，算成了 pane
+  shell 的父进程 = tuios daemon 自己，于是 `harnessProc.exited()` 永远不成立、claim 永远不
+  lapse。claude-code / codex 走 `tuios agent-hook` 子进程，路径本来就是对的。A/B 实测吻合：
+  `TUIOS_SOCKET= pi`（回落到子进程路径）退出后 2s 自动清，默认 socket 路径则一直留着。
+* **附带事实**：`tuios agent-hook pi` 没有 session 结束映射（只有 `session_start`→idle、
+  `agent_start`→working、`agent_settled`→done、`ui_prompt_start`→needs_input、
+  `ui_prompt_end`→idle；`SessionEnd` 回 `event not mapped`），而 claude-code / codex / kimi /
+  qwen 的 `SessionEnd` 都会报 `state none`。所以 pi 的清理完全依赖上面那条 lapse。
+* **修法**：上游 PR #2169（`ProcessAt`：插件类上报从调用者自身开始走 ancestry）已随 **v0.13.3**
+  发布。发版前本仓库曾用 `.pi/agent/extensions/tuios-clear-on-exit.ts` 在 `session_shutdown`
+  时补一次 `set-agent-state none` 作为兜底；0.13.3 验证通过后已删掉该扩展与 `setup.sh` 里的
+  链接，不再维护第二套机制。
+
 ### 本次采纳的选项改动
 
 * `appearance.confirm_close = 'busy'`（默认 `never`）：`Ctrl+b x` 在运行中 agent 的 pane 上会先确认。
@@ -254,3 +279,27 @@ daemon 与 CLI 均为 0.13.2（`tuios list-verbs` banner：`daemon 0.13.2, oldes
   `claude-code` / `qoder` / `pi`，codex / opencode / kimi 需要补进去或手跑
   `tuios integration install claude-code codex opencode kimi pi`（会改写 `$HOME` 下 5 个 harness
   的配置文件，需单独确认）。
+
+## 0.13.3 复核（2026-11-18）
+
+只核了 pi ghost 行这一条（本次升级的直接原因），其余功能面未重新审。
+
+* **`tuios daemon upgrade` 是原地 re-exec**：daemon 进程的 pid 和 `ps -o lstart` 都不变
+  （本机仍是 11-16 09:42 启动的那个 pid），`/proc/<pid>/exe` 也仍指向安装路径而不是
+  `(deleted)`。所以「我升级了吗」不能看进程启动时间，要看 `tuios list-verbs` 首行的
+  banner（现为 `daemon 0.13.3`）或直接看行为。
+* **pi 退出后的 ghost 行已修**：PR #2169（插件式上报从调用者自身开始走 ancestry）进了
+  v0.13.3。用 0.13.3 daemon 复验（**先禁用本仓库当时的兜底扩展**，确保测的是 daemon 本身）：
+  - `/quit` 退出：2s 内 `agent_state` → `none`，`list-agents` 里该 pane 消失；
+  - `kill -9` pi：同样 2s 内 `none`（0.13.2 时这条路完全不清，现在由 lapse 覆盖）；
+  - 分离会话（`-s ai`，没有 client attach）里同样清。
+  结论：`SIGKILL` / 崩溃 / 未捕获异常这些「来不及上报」的退出现在都能被 daemon 自己清掉，
+  所以本仓库那个 `tuios-clear-on-exit.ts` 兜底扩展与 `setup.sh` 里的链接已删除。
+* **升级前就存在的 ghost 行不会回溯自愈**：daemon 原地 re-exec 后不记得旧 claim 的
+  `harness_pid`，`agent_state` 又是从 session 文件恢复的，所以升级那一刻还在的 ghost 会一直
+  留到该 pane 里再跑一次 agent（新的 `session_start` 会带上正确 pid）或手动
+  `tuios set-agent-state none`。本次升级后实测有几条 30 分钟～15 小时的残留行自己消失了，
+  但也遇到过需要手动清的，判断口径以 `explain-agent-detect` 的 verdict 为准。
+* **仍然按设计保留行的情况**（不是 bug，来自 `docs/AGENT_STATE.md` *Losing an agent*）：
+  agent 跑在 pane 里嵌套的 tmux / zellij / herdr server 或容器里时，pane 的 foreground 不是
+  shell，lapse 不触发，行会留到那个中间层退出。
