@@ -137,3 +137,120 @@ integration 全部 current（claude-code v3、pi v2、opencode v5、codex/kimi v
   （`paplay`/`aplay`/`ffplay`/`afplay` 全缺），因此 `notifications.agent.sound_mode = "bell"`
   只有在放开 Ghostty 的某个 bell 特性并置 `sound = true` 后才会真的响。要听声就改这两处，
   不要改成 `sound_mode = "audio"`（没有播放器，只会在 client 启动时报配置警告）。
+
+## 0.13.2 复核（2026-11-16）
+
+daemon 与 CLI 均为 0.13.2（`tuios list-verbs` banner：`daemon 0.13.2, oldest supported 1`），
+`tuios doctor shell` 全部 pane 都报 mark。从 0.11.0 到这里跨了 0.12 / 0.13 两个大版本：
+`list-options` 从 216 项涨到 351 项，`tuios keybinds list --json` 现在有 729 条动作记录
+（含各 scope 的同名动作），新增功能面见文末。
+
+### 写回行为：行级，0.10.1 的整份重写没有复现
+
+* 实测 `tuios set-config appearance.scroll_lines 4` → `git diff` 只有那一行，文件字节数不变
+  （18844）、注释与符号链接都在；再写回 `3` 后 `git status` 干净。
+* `tuios keybinds free` 同样是行级：误操作时对已绑定键执行会**真的解绑并写文件**
+  （实测往 `[keybindings.window_management]` 追加 `next_agent = []` / `prev_agent = []`），
+  当时用 `jj restore` 复原。**探空闲键不要用 `keybinds free`**，用
+  `tuios keybinds list --json` / `doctor`；`free` 只在确定要解绑时用。
+* 结论：`prune` 瘦身之后不会被后续日常写入撑回去，可以重新采用「prune + 只审阅语义行」的口径。
+
+### 瘦身：669 → 241 行
+
+* `tuios config prune --yes` 删掉 345 个等于默认值的键（其中 256 条是键位），669 → 292 行，
+  保留注释、`[startup]`、`include` 列表与符号链接（`~/.config/tuios/config.toml` 仍是链接）。
+* **prune 抓不到的残留**，因为它按**原始字符串**比对，而我们文件里的拼写与注册表不同，
+  于是又有 51 行是手工清的（292 → 241）：
+  * 22 条 `opt+` 拼写行（`switch_workspace_*` / `move_and_follow_*` / `preselect_*`）——
+    注册表写 `alt+`，`doctor` 明确说本机 `opt+` 读作 `alt+`，所以这些行纯冗余，已手工删。
+  * 7 条子前缀的取消键（`window_prefix_cancel` 等）与 `tape_prefix_manager`——config 里省略
+    `ctrl+b ` 前缀，注册表带，所以字符串不等，同样是默认值，已手工删。
+  * `layout_prefix_cancel`、`terminal_exit_mode = ['opt+esc']`（= 默认 `alt+esc`）同理。
+  * `dock_workspace_tooltip` / `dock_pill_caps` / `focus_follows_mouse` / `[spotlight] enabled`
+    这几个 prune 没认出来的默认值，以及 prune 留下的空表（`[keybindings]`、
+    `[dock.clock]`、`[notifications.agent.states]`）与空行。
+* 剩下的 `[keybindings.prefix_mode]` 等表里还有十几条「显式钉回默认值」的行（`prefix_help`、
+  `prefix_settings`、`split_*` 等），无害，暂不继续削。
+* 复核对账：删前后各跑一次 `tuios keybinds list --json`，`(scope, action)` 集合完全一致、
+  只差 `opt+`→`alt+` 拼写，说明瘦身零行为变化。
+
+### 键位回归：0.13 的默认键撞上我们的自定义
+
+* **`prev_agent` 拿到默认 `Ctrl+b K`**（与 `Ctrl+b J` 配成一对），正好撞上我们 0.11 手绑的
+  `clear_scrollback = ['K']`。`doctor` 报 `NEW ACTIONS WITH NO KEY: prev_agent`——它把新动作
+  静默留在无键状态。**处置：K 让回上游，`clear_scrollback` 挪到 `Ctrl+Alt+c`**（global 层，
+  清 scrollback 属于结构/破坏性操作；`keybinds list --json` 确认 global 可以承载这个动作）。
+  prefix 单键现在只剩 `Y`/`h`/`y` 空闲，以后再加 prefix 键必须先腾位置。
+* **`inbox_close` 的 `esc` 被新动作 `inbox_escape` 顶掉**（`doctor` 的 `DROPPED BINDINGS`），
+  且 `alt+i` 在 inbox scope 里是 **dead**（全局 `prefix_inbox` 优先）。也就是说 0.11.0 记录的
+  「Inbox 内按 Alt+i 关闭」**不再成立**。处置：删掉整条 `inbox_close` 行（回到默认 `['q']`），
+  关闭走 `q`，退一层走 `esc`（`inbox_escape`：先退区域 → 退搜索 → 关视图），`Alt+i` 只负责打开。
+* `tuios keybinds doctor` 现在报 `CONFLICTS WITHIN TUIOS: none`，`DROPPED BINDINGS` 为空。
+* 0.13 新增、**不用改配置就生效**的默认键：`Ctrl+b U`（worktree 会话）、`Ctrl+b +`（新建任务卡）、
+  `Ctrl+b u`（跨机传输面板）、`Ctrl+b I`（会话 note）、`Ctrl+b M`（mail）、`Ctrl+b ]`（paste buffer）、
+  `Alt+Shift+J/K`（window 模式下一个/上一个 agent）、`Alt+;`（terminal 模式路径选择器，会把
+  `Alt+;` 从 shell 手里拿走）。
+* 仍未绑定、值得以后考虑的四条（本次按用户要求不动）：`send_prefix`（`Ctrl+b Ctrl+b`，
+  给嵌套 tmux/herdr 透传 leader）、`reload_config`（`Ctrl+Alt+r`，改配置后不必重新 attach）、
+  `restart_daemon`（`Ctrl+Alt+Shift+r`）、`toggle_mouse`（`Ctrl+Alt+m`）。
+  另有 `hold_window_mode`（按住即进入 window 模式）仍是 `[keybindings.mode_control]` 的空位。
+
+### shell 集成：0.13 自己也会注入 OSC 133，但不会双发
+
+`doctor shell` 会提示 "tuios sets this up for you… Your files do not change"。实现是在
+`~/.local/state/tuios/shell-integration/<hash>/` 生成垫片：zsh 经 `ZDOTDIR`、bash 经 `--rcfile`
+把标记加上去，而生成的 `tuios.zsh` 会**先探测用户自己（即 `common.sh`）已经发过哪些标记，
+再把那些让出来**。所以 `[shell] integration` 保持默认 `auto` 即可，不需要改成 `off`，
+`common.sh` 那份仍然同时服务 Ghostty / kitty / zellij。
+
+### 本次采纳的选项改动
+
+* `appearance.confirm_close = 'busy'`（默认 `never`）：`Ctrl+b x` 在运行中 agent 的 pane 上会先确认。
+  与已有的 `confirm_quit = true` 一起堵住"手滑关掉 agent"。
+* `daemon.keep_awake = 'agents'`：agent 干活时不睡（显示器仍可锁）。本机 WSL 上才有意义。
+* `[worktree] path = '../{{ repo }}_worktrees/{{ branch | slug }}'`：对齐本机既有约定
+  `~/work/<repo>_worktrees/<branch>`。**模板语法尚未目验**——第一次 `Ctrl+b U` 若报错，删掉这行
+  即回到默认 `$XDG_DATA_HOME/tuios/worktrees/<repo>/<branch>`。`worktree.setup` 留空
+  （本机 Go 仓库没有 mise/依赖安装步骤）。
+* 删掉的默认值噪音：`appearance.kitty_placeholders = ''`（非法值，合法集只有 auto/on/off，
+  等于把 kitty 占位图渲染关掉）、`daemon.agent_detect_seconds = 0`（0 就是默认 2）、
+  `debug.show_key_events = true`（调试遗留）、`sidebar.agent_rest_fold = 'off'`（回到默认 `1h`，
+  否则 agent 行永久堆积）、`[keybindings] leader_key`（leader 内建不可配）。
+
+### 影响老配置的默认值变化（写在这里备查）
+
+`appearance.sidebar.position` 默认改为 `right`（我们仍钉 `left`）、`appearance.confirm_close`
+默认 `never`、`appearance.copy_on_select = true`、`appearance.link_click = 'both'`、
+`appearance.focus_wrap = false`、`appearance.alt_drag = true`、`appearance.cell_frames = 'all'`
+（每帧走 diff 单元格直写，个别终端出残影时用 `TUIOS_CELL_FRAME=0`）、`panes.drag_and_drop = false`
+（kitty OSC 72）、`shell.integration = 'auto'`、`startup.open_default_window` 默认 `false`、
+`sidebar.agent_rest_fold` 默认 `1h`、`notifications.bell` 默认 `toast`、`motion.*` 接管了
+`appearance.motion`/`workspace_transition` 那批旧键。
+
+### 新功能面（0.12 / 0.13）
+
+* **任务卡与派发**：`tuios task`（todo→plan→doing→verify→review→shipped→done）、Inbox 内 `b`
+  看板、`Ctrl+b +` 新建卡、`Ctrl+t` 切派发模式、`Ctrl+x` 暂停派发；`--project` 按仓库 origin 共享，
+  可跨机器领取。
+* **多机**：`[hosts]` 表 + `tuios hosts` / `cp` / `transfers`（`Ctrl+b u` 面板、dock `transfers`
+  格子）、`worktree new --host`、`new_window_on_host`、`--machine` 任务卡。
+* **worktree 舰队**：`tuios worktree`（`Ctrl+b U`）、`fan`（一条 prompt 铺开到多个 worktree）、
+  `delegate`（子 agent 结果走 mail 回来）、`ship`（commit/PR）、`review`（`Alt+v`，分块 stage）、
+  `checkpoint`（按 turn 存取）。
+* **agent 协作**：mail / `send-agent-message` / `queue` / `ask-human` / `ask-agent` /
+  `pane-grants` / `set-agent-quiet` / `agent-log` / MCP server（`tuios mcp`）。
+* **展示与自动化**：`tuios tml`（表单/看板/结果页）、`mermaid`、`plugins`、
+  `[hooks]`（`after-new-worktree`、`after-settle` 等，file-plane 配置，不在 `list-options` 里）、
+  `popup`、`pip`、`record-pane`（asciicast）、`tape`。
+* **上手**：`tuios tutor`（交互教程，basics 9 步约 4 分钟，不读配置不动本机）、
+  `tuios --skill`（给 agent 用的驱动文档，已落在 `~/.agents/skills/tuios`）、
+  `tuios keybinds preset tmux` + `cheatsheet tmux`（整套 tmux 键位预设，我们不用，但可当对照表）。
+
+### 待办
+
+* **integration 全部落后**：`tuios integration status` 报 claude-code / codex 仍是"每事件 fork
+  一个进程"的旧式 hook，opencode v5 → 本版 v7，pi v3 → 本版 v5，kimi 写的文件路径已不是
+  `.kimi-code/config.toml`。`setup.sh` 的 `install_tuios_integrations` 只覆盖
+  `claude-code` / `qoder` / `pi`，codex / opencode / kimi 需要补进去或手跑
+  `tuios integration install claude-code codex opencode kimi pi`（会改写 `$HOME` 下 5 个 harness
+  的配置文件，需单独确认）。

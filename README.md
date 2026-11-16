@@ -204,8 +204,9 @@ tuios 是日常主力复用器。配置入口 `.config/tuios/config.toml` →
 `~/.config/tuios/config.toml`（daemon 与 client 共用）；leader 是内建的 `Ctrl+b`。
 
 **该文件由 tuios 写回**（设置页、`set-config`、`keybinds`），本仓库只审阅、不逐行手写。
-维护口径见 [TUIOS.md](TUIOS.md)（含「0.11.0 复核」：Inbox 审批、subagent 行、bell 链路、
-空串零值清理），自定义键位见 [KEYBINDINGS.md](KEYBINDINGS.md)。
+维护口径见 [TUIOS.md](TUIOS.md)（含「0.13.2 复核」：prune 到 241 行、行级写回实测、
+`Ctrl+b K` 让回 `prev_agent`、Inbox 审批/subagent 行/bell 链路），自定义键位见
+[KEYBINDINGS.md](KEYBINDINGS.md)。
 
 ## bin/ 脚本
 

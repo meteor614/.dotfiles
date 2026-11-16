@@ -114,362 +114,78 @@
 # ============================================================================
 
 [appearance]
-border_style = 'rounded'
-zen_mode = 'disabled'
-links = 'all'
-hide_window_buttons = false
-window_button_style = 'dots'
-window_button_position = 'left'
-hide_scrollbar = false
-scrollback_lines = 10000
-scroll_lines = 3
 right_click_opens_menu = true
-kitty_placeholders = ''
 auto_enter_terminal_on_focus = 'targeted'
-click_to_type = "double"
-dockbar_position = 'top'
-preferred_shell = ''
-motion = 'full'
-modal_dim = 30
 popup_dim = 30
 frame_panels = true
 confirm_quit = true
+# 0.13.2：默认是 never，Ctrl+b x 会直接杀掉正在跑 agent 的 pane；busy = 只有 pane
+# 在跑非 shell 进程时才确认。与 confirm_quit 一起把「手滑关掉 agent」这条路堵掉。
+confirm_close = 'busy'
 whichkey_position = "center"
 show_clock = true
-show_cpu = false
-show_ram = false
 theme = 'gruvbox_dark_hard'
-border_focused_color = ''
-border_unfocused_color = ''
-window_title_format = ''
-zoom_max_width = 0
-niri_reverse_scroll = false
-niri_scroll_cells = 8
-max_fps = 0
-dock_workspace_tab_format = ''
-dock_workspace_tooltip = true
-dock_pill_caps = true
-glyphs = 'default'
-gap = 0
-master_ratio = 50
-scroll_column_width = 55
-scroll_column_max = 90
-panel_padding = 2
 clock_format = '15:04:05'
-dim_unfocused = 0
-dim_multifocus = false
 background = 'theme'
-pane_background = ''
-desktop_background = ''
-window_chrome_background = ''
-dock_background = ''
 dock_compact = true
 nvim_navigation = true
-focus_follows_mouse = false
-focus_follows_mouse_pause = "off"
-
-[appearance.scrollbar]
-style = 'track'
-thumb = ''
-track = ''
-tint = 'quiet'
 
 [appearance.selection]
 copy_entry = "center"
 
 [appearance.sidebar]
-enabled = true
 position = 'left'
-width = 24
 sections = "sessions:12,terminals:18,files:30,agents:40"
 editor = "tuios-editor"
-background = ''
-agent_rest_fold = "off"
 show_numbers = true
 density = "roomy"
-subagent_rows = "rows"
 subagent_collapse = "expanded"
 subagent_max_rows = 6
 subagent_hide_finished = "30s"
 
 [notifications]
-duration = 0
-warning_duration = 0
-error_duration = 0
 bell = "both"
 
 [notifications.agent]
 sound_mode = "bell"
-command = ''
-quiet_hours = ''
-
-[notifications.agent.states]
-[notifications.agent.sounds]
-done = ''
-needs_input = ''
-
-[notifications.mail]
-[keybindings]
-leader_key = 'ctrl+b'
-
-[keybindings.window_management]
-close_window = ['w', 'x']
-copy_selection = ['c']
-focus_sidebar = ['s']
-minimize_window = ['m']
-new_session = ['N']
-new_window = ['n']
-next_session = ['alt+shift+n']
-next_window = ['tab']
-prev_session = ['alt+shift+p']
-prev_window = ['shift+tab']
-rename_window = ['r']
-restore_all = ['M']
-select_window_1 = ['1']
-select_window_2 = ['2']
-select_window_3 = ['3']
-select_window_4 = ['4']
-select_window_5 = ['5']
-select_window_6 = ['6']
-select_window_7 = ['7']
-select_window_8 = ['8']
-select_window_9 = ['9']
-start_screensaver = ['S']
-toggle_pip = ['p']
-toggle_zoom = ['z']
-
-[keybindings.workspaces]
-move_and_follow_1 = ['opt+shift+1']
-move_and_follow_2 = ['opt+shift+2']
-move_and_follow_3 = ['opt+shift+3']
-move_and_follow_4 = ['opt+shift+4']
-move_and_follow_5 = ['opt+shift+5']
-move_and_follow_6 = ['opt+shift+6']
-move_and_follow_7 = ['opt+shift+7']
-move_and_follow_8 = ['opt+shift+8']
-move_and_follow_9 = ['opt+shift+9']
-switch_workspace_1 = ['opt+1']
-switch_workspace_2 = ['opt+2']
-switch_workspace_3 = ['opt+3']
-switch_workspace_4 = ['opt+4']
-switch_workspace_5 = ['opt+5']
-switch_workspace_6 = ['opt+6']
-switch_workspace_7 = ['opt+7']
-switch_workspace_8 = ['opt+8']
-switch_workspace_9 = ['opt+9']
-
-[keybindings.layout]
-equalize_splits = ['=']
-focus_down = ['j']
-focus_up = ['k']
-preselect_down = ['opt+j']
-preselect_left = ['opt+h']
-preselect_right = ['opt+l']
-preselect_up = ['opt+k']
-resize_height_grow = ['}', 'shift+]']
-resize_height_grow_top = [']']
-resize_height_shrink = ['{', 'shift+[']
-resize_height_shrink_top = ['[']
-resize_master_grow = ['>', 'shift+.']
-resize_master_grow_left = ['.']
-resize_master_shrink = ['<', 'shift+,']
-rotate_split = ['R']
-snap_fullscreen = ['f']
-snap_left = ['h']
-snap_right = ['l']
-split_horizontal = ['-']
-split_vertical = ['|', '\']
-swap_down = ['J', 'ctrl+down']
-swap_left = ['H', 'ctrl+left']
-swap_right = ['L', 'ctrl+right']
-swap_up = ['K', 'ctrl+up']
-toggle_tiling = ['t']
-unsnap = ['u']
-
-[keybindings.mode_control]
-enter_terminal_mode = ['i', 'enter']
-enter_window_mode = ['esc']
-open_settings = [',']
-quit = ['q']
-toggle_help = ['?']
-
-[keybindings.system]
-toggle_spotlight = ['B']
-
-[keybindings.navigation]
-[keybindings.restore_minimized]
-restore_minimized_1 = ['shift+1', '!']
-restore_minimized_2 = ['shift+2', '@']
-restore_minimized_3 = ['shift+3', '#']
-restore_minimized_4 = ['shift+4', '$']
-restore_minimized_5 = ['shift+5', '%']
-restore_minimized_6 = ['shift+6', '^']
-restore_minimized_7 = ['shift+7', '&']
-restore_minimized_8 = ['shift+8', '*']
-restore_minimized_9 = ['shift+9', '(']
 
 [keybindings.prefix_mode]
-# 0.11.0 的 clear_scrollback 没有默认键。不走 super+k：Ghostty 里 Cmd+K 已经绑给
-# goto_split:top，为了清屏把分屏导航拆掉不划算；prefix 的 K 空闲，且与 Ctrl+b s
-# （scrollback 浏览器）、Ctrl+b [（copy mode）同属"回看/清屏"这一类。
-clear_scrollback = ['K']
-hints = ['F']
 last_workspace = ['l']
-launcher = ['a']
-next_session = [')']
-paste_image = ['V']
-prefix_close_session = ['X']
 prefix_close_window = ['x']
 prefix_command_palette = ['P']
-prefix_debug = ['D']
-prefix_detach = ['d']
 prefix_equalize_splits = ['=']
-prefix_exit_mode = ['esc']
-prefix_explore = ['e']
-prefix_file_search = ['f']
-prefix_fullscreen = ['z']
 prefix_help = ['?']
-prefix_inbox = ['i']
-prefix_jump_notif = ['j']
-prefix_keybinds = ['k']
-prefix_layout = ['L']
-prefix_mail = ['M']
-prefix_minimize = ['m']
 prefix_new_window = ['c']
-prefix_next_attention = ['o']
-prefix_next_finished = ['O']
-prefix_next_window = ['n', 'tab']
-prefix_prev_window = ['p', 'shift+tab']
-prefix_quit = ['q']
-prefix_rename_window = ['r']
-prefix_review = ['v']
 prefix_rotate_split = ['R']
-prefix_screenshot = ['C']
-prefix_scrollback = ['s']
-prefix_select_0 = ['0']
-prefix_select_1 = ['1']
-prefix_select_2 = ['2']
-prefix_select_3 = ['3']
-prefix_select_4 = ['4']
-prefix_select_5 = ['5']
-prefix_select_6 = ['6']
-prefix_select_7 = ['7']
-prefix_select_8 = ['8']
-prefix_select_9 = ['9']
-prefix_selection = ['[']
-prefix_session_switcher = ['S']
 prefix_settings = [',']
 prefix_split_horizontal = ['-']
 prefix_split_vertical = ['|', '\']
-prefix_tape = ['T']
-prefix_toggle_sidebar = ['b']
-prefix_toggle_tiling = ['space']
-prefix_window = ['t']
-prefix_workspace = ['w']
-prefix_workspace_switcher = ['W']
-prev_session = ['(']
 terminal_focus_down = ['down']
-terminal_focus_left = ['left']
-terminal_focus_right = ['right']
 terminal_focus_up = ['up']
-toggle_scratch = ['g']
 
 [keybindings.window_prefix]
-window_prefix_cancel = ['esc']
 window_prefix_close = ['x']
 window_prefix_new = ['n']
 window_prefix_next = ['tab']
 window_prefix_prev = ['shift+tab']
-window_prefix_rename = ['r']
 window_prefix_tiling = ['t']
 
 [keybindings.minimize_prefix]
-minimize_prefix_cancel = ['esc']
-minimize_prefix_focused = ['m']
-minimize_prefix_restore_1 = ['1']
-minimize_prefix_restore_2 = ['2']
-minimize_prefix_restore_3 = ['3']
-minimize_prefix_restore_4 = ['4']
-minimize_prefix_restore_5 = ['5']
-minimize_prefix_restore_6 = ['6']
-minimize_prefix_restore_7 = ['7']
-minimize_prefix_restore_8 = ['8']
-minimize_prefix_restore_9 = ['9']
 minimize_prefix_restore_all = ['M']
 
-[keybindings.workspace_prefix]
-workspace_prefix_cancel = ['esc']
-workspace_prefix_move_1 = ['!']
-workspace_prefix_move_2 = ['@']
-workspace_prefix_move_3 = ['#']
-workspace_prefix_move_4 = ['$']
-workspace_prefix_move_5 = ['%']
-workspace_prefix_move_6 = ['^']
-workspace_prefix_move_7 = ['&']
-workspace_prefix_move_8 = ['*']
-workspace_prefix_move_9 = ['(']
-workspace_prefix_rename = ['r']
-workspace_prefix_switch_1 = ['1']
-workspace_prefix_switch_2 = ['2']
-workspace_prefix_switch_3 = ['3']
-workspace_prefix_switch_4 = ['4']
-workspace_prefix_switch_5 = ['5']
-workspace_prefix_switch_6 = ['6']
-workspace_prefix_switch_7 = ['7']
-workspace_prefix_switch_8 = ['8']
-workspace_prefix_switch_9 = ['9']
-
-[keybindings.debug_prefix]
-debug_prefix_animations = ['a']
-debug_prefix_cache = ['c']
-debug_prefix_cancel = ['esc']
-debug_prefix_logs = ['l']
-debug_prefix_showkeys = ['k']
-
-[keybindings.tape_prefix]
-tape_prefix_cancel = ['esc']
-tape_prefix_manager = ['m']
-tape_prefix_record = ['r']
-tape_prefix_review = ['t']
-tape_prefix_stop = ['s']
-
-[keybindings.layout_prefix]
-add_master = ['i']
-cycle_master_position = ['o']
-focus_master = ['m']
-layout_prefix_cancel = ['esc']
-layout_prefix_load = ['l']
-layout_prefix_save = ['s']
-remove_master = ['d']
-resize_height_50 = ['shift+5']
-resize_height_60 = ['shift+6']
-resize_height_70 = ['shift+7']
-resize_height_80 = ['shift+8']
-resize_height_90 = ['shift+9']
-resize_width_50 = ['5']
-resize_width_60 = ['6']
-resize_width_70 = ['7']
-resize_width_80 = ['8']
-resize_width_90 = ['9']
-snap_corner_1 = ['1']
-snap_corner_2 = ['2']
-snap_corner_3 = ['3']
-snap_corner_4 = ['4']
-swap_with_master = ['enter']
-
 [keybindings.terminal_mode]
-terminal_exit_mode = ['opt+esc']
 terminal_focus_down = ['ctrl+alt+j']
 terminal_focus_left = ['ctrl+alt+h']
 terminal_focus_right = ['ctrl+alt+l']
 terminal_focus_up = ['ctrl+alt+k']
 terminal_next_window = ['opt+tab', 'alt+]']
-terminal_paste_host = ['ctrl+shift+v', 'super+v', 'shift+super+v', 'middle']
 terminal_prev_window = ['opt+shift+tab', 'alt+[']
-terminal_scroll_down = ['shift+down']
-terminal_scroll_up = ['shift+up']
 
 [keybindings.global]
+# 0.13.2 把 prev_agent 的默认键补成 Ctrl+b K，prefix 的 K 让回上游（与 Ctrl+b J
+# 配成一对）。清屏因此挪到 Ctrl+Alt+c —— 清 scrollback 属于结构/破坏性操作。
+# 不走 super+k：Ghostty 里 Cmd+K 已绑 goto_split:top。
+clear_scrollback = ['ctrl+alt+c']
 choose_tree = ['alt+/']
 goto_picker = ['alt+g']
 command_palette = ['ctrl+alt+p']
@@ -481,106 +197,9 @@ prefix_review = ['alt+v']
 snap_fullscreen = ['ctrl+alt+z']
 toggle_scratch = ['alt+f']
 
-[keybindings.script]
-script_pause = ['ctrl+p']
-
-[keybindings.sidebar]
-accent = ['c']
-activate = ['enter']
-agents_filter = ['f']
-agents_sort = ['o']
-collapse = ['h', 'left']
-cursor_down = ['j', 'down']
-cursor_up = ['k', 'up']
-exit = ['esc', 's']
-expand = ['l', 'right']
-file_search = ['ctrl+f']
-first = ['g', 'home']
-help = ['?']
-jump_1 = ['1']
-jump_2 = ['2']
-jump_3 = ['3']
-jump_4 = ['4']
-jump_5 = ['5']
-jump_6 = ['6']
-jump_7 = ['7']
-jump_8 = ['8']
-jump_9 = ['9']
-kill = ['x']
-last = ['G', 'end']
-mail = ['i']
-menu = ['m']
-narrow = ['<']
-new_session = ['n']
-new_window = ['t']
-palette = ['/']
-rename = ['r']
-reorder_down = ['J', 'shift+down']
-reorder_up = ['K', 'shift+up']
-section = ['tab', 'shift+tab']
-widen = ['>']
-
-[keybindings.sidebar_files]
-file_copy = ['y']
-file_create = ['a']
-file_cut = ['x']
-file_delete = ['d']
-file_delete_forever = ['D']
-file_edit = ['shift+enter']
-file_open = ['enter']
-file_paste = ['p']
-file_rename = ['r']
-
-[keybindings.sidebar_agents]
-agent_cancel_queued = ['x']
-agent_reply = ['r']
-agent_review = ['v']
-agent_snooze = ['z']
-agent_unread = ['u']
-
 [keybindings.inbox]
-inbox_close = ['esc', 'q', 'alt+i']
-inbox_detail_down = ['J', 'ctrl+d']
-inbox_detail_up = ['K', 'ctrl+u']
-inbox_dismiss = ['d', 'delete']
 inbox_down = ['j', 'down', 'ctrl+n']
-inbox_filter = ['f']
-inbox_first = ['g', 'home']
-inbox_go = ['enter']
-inbox_last = ['G', 'end']
-inbox_mailbox = ['m']
-inbox_page_down = ['pgdown']
-inbox_page_up = ['pgup']
-inbox_pass_on = ['p']
-inbox_peek = ['space']
-inbox_reply = ['r']
-inbox_resume = ['y']
-inbox_review = ['v']
-inbox_select = ['/']
-inbox_show_snoozed = ['S']
-inbox_snooze = ['z']
-inbox_undo = ['u']
 inbox_up = ['k', 'up', 'ctrl+p']
-
-[keybindings.inbox_peek]
-peek_approve = ['a']
-peek_approve_always = ['A']
-peek_back = ['esc', 'q', 'space']
-peek_deny = ['d']
-peek_go = ['enter']
-peek_read_again = ['r']
-peek_type = ['tab']
-
-[keybindings.mail]
-mail_back = ['esc', 'q']
-mail_down = ['j', 'down', 'ctrl+n']
-mail_focus_pane = ['o']
-mail_new = ['n']
-mail_open = ['enter']
-mail_page_down = ['pgdown']
-mail_page_up = ['pgup']
-mail_reply = ['r']
-mail_up = ['k', 'up', 'ctrl+p']
 
 # copy mode 里 p：复制选区并把换行压成空格后退出 copy mode，
 # 贴进 agent 对话框/聊天不乱版式；默认的 y 复制仍保留原始格式。
@@ -597,73 +216,26 @@ enabled = ["claude-code", "opencode"]
 hold_seconds = 120
 
 [daemon]
-log_level = 'off'
-agent_detect_seconds = 0
-agent_binaries = []
-respond_from_shell = false
-resume_agents = 'ask'
+# agent 干活时不让机器睡（显示器仍可锁）；本机 WSL 上跑长任务才有意义。
+keep_awake = 'agents'
 persist_scrollback_lines = 5000
-persist_scrollback_kb = 0
-window_size = "latest"
 
 [startup]
 open_default_window = true
 tiled = true
 start_in_terminal_mode = true
-layout = "bsp"
 daemon = true
 
-[tape]
-autorun = 'ask'
-auto_review = false
-
-[debug]
-show_key_events = true
-
 [screenshot]
-format = 'png'
-directory = '~/Pictures/tuios'
-frame = 'window'
-background = 'auto'
-controls = 'auto'
-title_format = '{title}'
 font_family = "Hack Nerd Font, monospace"
-font_file = ''
-cursor = false
-
-[screensaver]
-idle_minutes = 10
-effect = 'random'
-
-[spotlight]
-enabled = false
-follow = 'mouse'
-radius = 10
-dim = 75
-edge = 'hard'
-shake = false
-
-[hints]
-builtins = 'all'
-patterns = []
-alphabet = 'asdfghjkl'
-dim = 60
-all_panes = false
-
-[scratch]
-width = '80%'
-height = '80%'
-
-[pip]
-width = 40
-height = 12
-corner = 'bottom-right'
 
 [dock]
 right = ['transfers', 'notifications', 'copy-help', 'clock', 'session-controls']
 
-[dock.clock]
-
 [workspaces]
 new_window_when_empty = true
 
+# 0.13.2：worktree 会话的落盘位置，对齐本机既有约定 ~/work/<repo>_worktrees/<branch>。
+# 相对路径以 repo_path 为起点；{{ branch | slug }} 把 / 压成 - 变成一个目录名。
+[worktree]
+path = '../{{ repo }}_worktrees/{{ branch | slug }}'

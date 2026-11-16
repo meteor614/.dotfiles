@@ -133,7 +133,7 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 | 快捷键 | 功能 |
 | -------- | ------ |
 | `Ctrl+Alt+a` | 切换嵌套 tmux（禁用/启用外层会话） |
-| `Ctrl+b K` | 清掉当前 pane 的 scrollback（对齐 tuios `clear_scrollback`） |
+| `Ctrl+b K` | 清掉当前 pane 的 scrollback（tuios 侧对应物已改成 `Ctrl+Alt+c`，因为 `Ctrl+b K` 在 0.13.2 归了 `prev_agent`） |
 | `Ctrl+b \|` | 左右分屏（`Ctrl+b _` 保留） |
 | `Ctrl+b R` | 轮换 pane（对齐 tuios `rotate_split`） |
 | `Ctrl+b c` | 新窗口继承当前 pane 目录（对齐 tuios 默认） |
@@ -155,12 +155,14 @@ herdr 使用 `Ctrl+b` 作为 prefix，和 tmux 默认一致（tuios 的 leader �
 
 leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认。本仓库的改动见下表。
 复核口径要注意：`tuios keybinds list-custom` 只列出**替换了默认键**的那几条，
-新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+g`、`Alt+i`、`Ctrl+Alt+P`、prefix 的 `K`、prefix 的 `l`、copy mode 的 `p`）不计数，得用 `tuios keybinds doctor`
+新增键（`Alt+f`、`Ctrl+Alt+t`/`Alt+n`、`Ctrl+Alt+z`、`Alt+o`、`Alt+v`、`Alt+/`、`Alt+g`、`Alt+i`、`Ctrl+Alt+P`、`Ctrl+Alt+c`、prefix 的 `l`、copy mode 的 `p`）不计数，得用 `tuios keybinds doctor`
 或 `tuios keybinds explain <key>` 看。全量模板下 `list-custom` 还会被 `opt+`/`alt+`
 拼写别名行撑大（2026-10-23 实测 33 行，见 [TUIOS.md](TUIOS.md)「0.10.1 复核」），不能作对账依据。
 准确差集用空配置的 `tuios keybinds list --json` 对比当前配置的同名输出，按
-`(scope, action)` 配对、把 `opt+` 归一成 `alt+` 后取差集；2026-10-26 在 0.11.0 上实测 **20 条**
-（旧口径的 17 条没算 `launcher = []` 与 `inbox_close` 追加的 `Alt+i`，所以别再用那个数字对账）。
+`(scope, action)` 配对、把 `opt+` 归一成 `alt+` 后取差集；2026-11-16 在 0.13.2 上实测 **21 条**
+（0.11.0 上同一个脚本是 20 条；再早的 17 条口径没算 `launcher = []` 和追加键，别再用那两个数字）。
+口径提醒：`tuios keybinds free <key>` 对**已绑定**的键是真解绑并写文件，
+探空闲键请用 `list --json` / `doctor`，别用 `free`。
 
 | 快捷键 | 功能 | 与默认的差别 |
 | -------- | ------ | ------------ |
@@ -174,11 +176,12 @@ leader 是内建的 `Ctrl+b`（不可配置），其余键位沿用上游默认�
 | `Alt+v` | 查看当前 pane 的改动（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b v`；代价是 tuios 内 zsh 的 `Alt+v`（装了 `deer` 时）失效 |
 | `Alt+/` | 在所有会话里查找 pane 并跳过去（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b /`（choose_tree）；带预览的树形导航器 |
 | `Alt+g` | 去任何地方：agent / session / workspace / pane 一张表（global，两种模式都生效） | 0.11.0 新动作 `goto_picker`（默认只有 `Ctrl+b G`）。与 `Alt+/` 的分工见下文 |
-| `Alt+i` | 打开 Inbox；Inbox 已打开时再按一次关闭（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键，inbox scope 里 `Alt+i` 绑到 `inbox_close`，实现开/关切换 |
+| `Alt+i` | 打开 Inbox（global，两种模式都生效） | 对应 prefix 的 `Ctrl+b i`；指向 agent 工作流的直达键。**只管打开**：0.13.2 起 inbox scope 里 `Alt+i` 是 dead（全局 `prefix_inbox` 优先），关闭走 `q`，退一层走 `esc`（`inbox_escape`） |
 | `Ctrl+Alt+P` | 打开命令面板（global，两种模式都生效） | 之前为保住 zsh 的 `Ctrl+P`（历史）解绑了面板；现按「Ctrl+Alt 结构层」语义绑到无冲突键，`Ctrl+P` 仍归 zsh |
 | `Ctrl+b l` | 回到上一个 workspace（prefix） | tmux `l` 语义；`last_workspace` 无默认键，`l` 在 prefix 下空闲。`L` 被 layout 菜单占用，`last_session` 暂未绑 |
 | copy mode `p` | 复制选区并压平换行后退出 copy mode（`copy_pipe`） | tmux `copy-pipe-and-cancel` 对应物，贴 LLM/聊天不乱版式；默认 `y` 仍按原格式复制 |
-| `Ctrl+b K` | 清掉当前 pane 的 scrollback，提示符回到首行（prefix） | 0.11.0 新动作 `clear_scrollback`，**无默认键**。不走 `Super+k`：Ghostty 里 `super+k` 已绑 `goto_split:top`，为清屏拆掉分屏导航不划算；`K` 在 prefix 下空闲，且与 `Ctrl+b s`（scrollback 浏览器）、`Ctrl+b [`（copy mode）同类 |
+| `Ctrl+Alt+c` | 清掉当前 pane 的 scrollback，提示符回到首行（global） | `clear_scrollback` 在 0.13.2 **仍无默认键**。0.11.0 时它挂在 prefix 的 `K`，但 0.13.2 把 `prev_agent` 的默认键补成 `Ctrl+b K`，`K` 必须让回上游，于是清屏挪到结构层。不走 `Super+k`：Ghostty 里 `super+k` 已绑 `goto_split:top` |
+| `Ctrl+b J` / `Ctrl+b K` | 下一个 / 上一个 agent pane（prefix） | `Ctrl+b J` 是 0.11.0 的默认、`K` 是 0.13.2 补的默认（与 `Ctrl+b l` 同属「让回上游」的处理，不写进配置）；window 模式下另有 `Alt+Shift+J/K` |
 | `Ctrl+p` | 不绑定 | 交回 zsh 的 `up-line-or-history`；命令面板改走 `Ctrl+Alt+P`（global）或 `Ctrl+b P` |
 | `Alt+Space` | 不绑定 | zsh 里是 `expand-history`；launcher 改走 `Ctrl+b a` |
 
@@ -217,5 +220,5 @@ focus 落到本 workspace 的另一个 pane）。herdr 里同一个组合是"切
 | `.config/herdr/config.toml` | Prefix、Alt、Ctrl+Alt 键，agent/workspace/pane 行为 |
 | `.tmux.conf` | Alt、Alt+/、Ctrl+Alt 键、鼠标、嵌套切换 |
 | `.config/zellij/config.kdl` | Alt、Ctrl+Alt 键、模式切换 |
-| `.config/tuios/config.toml` | 键位差集 20 条（替换/新增/解绑，逐条见上表）、Inbox 审批、sidebar/主题/startup；由 tuios 写回，本仓库只审阅（见 README「tuios」） |
+| `.config/tuios/config.toml` | 键位差集 21 条（替换/新增/解绑，逐条见上表）、Inbox 审批、sidebar/主题/startup/`confirm_close`/`keep_awake`/`worktree.path`；由 tuios 写回，本仓库只审阅（见 [TUIOS.md](TUIOS.md) 与 README「tuios」）。0.13.2 已 `config prune` 到 241 行 |
 
