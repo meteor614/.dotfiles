@@ -219,6 +219,7 @@ hold_seconds = 120
 # agent 干活时不让机器睡（显示器仍可锁）；本机 WSL 上跑长任务才有意义。
 keep_awake = 'agents'
 persist_scrollback_lines = 5000
+window_size = "latest"
 
 [startup]
 open_default_window = true
